@@ -15,10 +15,8 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.NoRemoveIterator;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 
@@ -27,28 +25,21 @@ import static java.lang.String.format;
 abstract class BaseEventStreamReader extends NoRemoveIterator<Operation> implements Closeable
 {
     private final CharSeeker charSeeker;
+    private final InputStream parametersInputStream;
     private final Iterator<Object[]> parametersIterator;
 
     public BaseEventStreamReader(
-            File parametersFile,
+            InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
     {
-        try
-        {
-            charSeeker = new BufferedCharSeeker(
-                    Readables.wrap(
-                            new InputStreamReader( new FileInputStream( parametersFile ), Charsets.UTF_8 )
-                    ),
-                    charSeekerParams.bufferSize()
-            );
-        }
-        catch ( FileNotFoundException e )
-        {
-            throw new WorkloadException(
-                    format( "Unable to open parameters file: %s", parametersFile.getAbsolutePath() ),
-                    e );
-        }
+        this.parametersInputStream = parametersInputStream;
+        charSeeker = new BufferedCharSeeker(
+                Readables.wrap(
+                        new InputStreamReader( parametersInputStream, Charsets.UTF_8 )
+                ),
+                charSeekerParams.bufferSize()
+        );
         Mark mark = new Mark();
         // skip headers
         try
@@ -61,8 +52,7 @@ abstract class BaseEventStreamReader extends NoRemoveIterator<Operation> impleme
         catch ( IOException e )
         {
             throw new WorkloadException(
-                    format( "Unable to advance parameters file beyond headers: %s", parametersFile.getAbsolutePath() ),
-                    e );
+                    format( "Unable to advance parameters stream beyond headers: %s", parametersInputStream ), e );
         }
 
         parametersIterator = gf.repeating(
@@ -95,6 +85,7 @@ abstract class BaseEventStreamReader extends NoRemoveIterator<Operation> impleme
     public void close() throws IOException
     {
         charSeeker.close();
+        parametersInputStream.close();
     }
 
     abstract Operation operationFromParameters( Object[] parameters );

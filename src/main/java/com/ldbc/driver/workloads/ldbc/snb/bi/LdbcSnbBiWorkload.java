@@ -10,13 +10,13 @@ import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.util.ClassLoaderHelper;
-import com.ldbc.driver.util.ClassLoadingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.ldbc.driver.util.FileUtils.removePrefix;
-import static com.ldbc.driver.util.FileUtils.removeSuffix;
 import static java.lang.String.format;
 
 public class LdbcSnbBiWorkload extends Workload
@@ -36,30 +34,30 @@ public class LdbcSnbBiWorkload extends Workload
     // TODO these things should really all be in an instance of LdbcSnbBiWorkloadConfiguration or ...State
     // TODO alternatively they could be CloseableStream (or similar) where files and everything are in 1 class
     private List<Closeable> readOperationFileReaders = new ArrayList<>();
-    private File readOperation1File;
-    private File readOperation2File;
-    private File readOperation3File;
-    private File readOperation4File;
-    private File readOperation5File;
-    private File readOperation6File;
-    private File readOperation7File;
-    private File readOperation8File;
-    private File readOperation9File;
-    private File readOperation10File;
-    private File readOperation11File;
-    private File readOperation12File;
-    private File readOperation13File;
-    private File readOperation14File;
-    private File readOperation15File;
-    private File readOperation16File;
-    private File readOperation17File;
-    private File readOperation18File;
-    private File readOperation19File;
-    private File readOperation20File;
-    private File readOperation21File;
-    private File readOperation22File;
-    private File readOperation23File;
-    private File readOperation24File;
+    private FileInputStream readOperation1FileInputStream;
+    private FileInputStream readOperation2FileInputStream;
+    private FileInputStream readOperation3FileInputStream;
+    private FileInputStream readOperation4FileInputStream;
+    private FileInputStream readOperation5FileInputStream;
+    private FileInputStream readOperation6FileInputStream;
+    private FileInputStream readOperation7FileInputStream;
+    private FileInputStream readOperation8FileInputStream;
+    private FileInputStream readOperation9FileInputStream;
+    private FileInputStream readOperation10FileInputStream;
+    private FileInputStream readOperation11FileInputStream;
+    private FileInputStream readOperation12FileInputStream;
+    private FileInputStream readOperation13FileInputStream;
+    private FileInputStream readOperation14FileInputStream;
+    private FileInputStream readOperation15FileInputStream;
+    private FileInputStream readOperation16FileInputStream;
+    private FileInputStream readOperation17FileInputStream;
+    private FileInputStream readOperation18FileInputStream;
+    private FileInputStream readOperation19FileInputStream;
+    private FileInputStream readOperation20FileInputStream;
+    private FileInputStream readOperation21FileInputStream;
+    private FileInputStream readOperation22FileInputStream;
+    private FileInputStream readOperation23FileInputStream;
+    private FileInputStream readOperation24FileInputStream;
 
     // TODO these things should really all be in an instance of LdbcSnbBiWorkloadConfiguration or ...State
     private LdbcSnbBiWorkloadConfiguration.LdbcSnbBiInterleaves interleaves = null;
@@ -67,6 +65,17 @@ public class LdbcSnbBiWorkload extends Workload
     private double compressionRatio;
 
     private Set<Class> enabledOperationTypes;
+
+    private static final int BUFFER_SIZE = 1 * 1024 * 1024;
+    private static final char COLUMN_DELIMITER = '|';
+    private static final char ARRAY_DELIMITER = ';';
+    private static final char TUPLE_DELIMITER = ',';
+    public static final CharSeekerParams CHAR_SEEKER_PARAMS = new CharSeekerParams(
+            BUFFER_SIZE,
+            COLUMN_DELIMITER,
+            ARRAY_DELIMITER,
+            TUPLE_DELIMITER
+    );
 
     @Override
     public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping( Map<String,String> params )
@@ -108,59 +117,95 @@ public class LdbcSnbBiWorkload extends Workload
                 ) );
             }
         }
-        readOperation1File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_1_PARAMS_FILENAME );
-        readOperation2File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_2_PARAMS_FILENAME );
-        readOperation3File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_3_PARAMS_FILENAME );
-        readOperation4File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_4_PARAMS_FILENAME );
-        readOperation5File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_5_PARAMS_FILENAME );
-        readOperation6File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_6_PARAMS_FILENAME );
-        readOperation7File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_7_PARAMS_FILENAME );
-        readOperation8File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_8_PARAMS_FILENAME );
-        readOperation9File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_9_PARAMS_FILENAME );
-        readOperation10File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_10_PARAMS_FILENAME );
-        readOperation11File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_11_PARAMS_FILENAME );
-        readOperation12File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_12_PARAMS_FILENAME );
-        readOperation13File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_13_PARAMS_FILENAME );
-        readOperation14File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_14_PARAMS_FILENAME );
-        readOperation15File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_15_PARAMS_FILENAME );
-        readOperation16File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_16_PARAMS_FILENAME );
-        readOperation17File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_17_PARAMS_FILENAME );
-        readOperation18File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_18_PARAMS_FILENAME );
-        readOperation19File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_19_PARAMS_FILENAME );
-        readOperation20File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_20_PARAMS_FILENAME );
-        readOperation21File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_21_PARAMS_FILENAME );
-        readOperation22File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_22_PARAMS_FILENAME );
-        readOperation23File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_23_PARAMS_FILENAME );
-        readOperation24File = new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_24_PARAMS_FILENAME );
+        try
+        {
+            readOperation1FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_1_PARAMS_FILENAME )
+            );
+            readOperation2FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_2_PARAMS_FILENAME )
+            );
+            readOperation3FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_3_PARAMS_FILENAME )
+            );
+            readOperation4FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_4_PARAMS_FILENAME )
+            );
+            readOperation5FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_5_PARAMS_FILENAME )
+            );
+            readOperation6FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_6_PARAMS_FILENAME )
+            );
+            readOperation7FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_7_PARAMS_FILENAME )
+            );
+            readOperation8FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_8_PARAMS_FILENAME )
+            );
+            readOperation9FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_9_PARAMS_FILENAME )
+            );
+            readOperation10FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_10_PARAMS_FILENAME )
+            );
+            readOperation11FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_11_PARAMS_FILENAME )
+            );
+            readOperation12FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_12_PARAMS_FILENAME )
+            );
+            readOperation13FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_13_PARAMS_FILENAME )
+            );
+            readOperation14FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_14_PARAMS_FILENAME )
+            );
+            readOperation15FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_15_PARAMS_FILENAME )
+            );
+            readOperation16FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_16_PARAMS_FILENAME )
+            );
+            readOperation17FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_17_PARAMS_FILENAME )
+            );
+            readOperation18FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_18_PARAMS_FILENAME )
+            );
+            readOperation19FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_19_PARAMS_FILENAME )
+            );
+            readOperation20FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_20_PARAMS_FILENAME )
+            );
+            readOperation21FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_21_PARAMS_FILENAME )
+            );
+            readOperation22FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_22_PARAMS_FILENAME )
+            );
+            readOperation23FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_23_PARAMS_FILENAME )
+            );
+            readOperation24FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_24_PARAMS_FILENAME )
+            );
+        }
+        catch ( FileNotFoundException e )
+        {
+            throw new WorkloadException( "Error load query parameters file", e );
+        }
 
         enabledOperationTypes = new HashSet<>();
         for ( String operationEnableKey : LdbcSnbBiWorkloadConfiguration.OPERATION_ENABLE_KEYS )
         {
             String operationEnabledString = params.get( operationEnableKey );
             Boolean operationEnabled = Boolean.parseBoolean( operationEnabledString );
-            String operationClassName = LdbcSnbBiWorkloadConfiguration.LDBC_SNB_BI_PACKAGE_PREFIX +
-                                        removePrefix(
-                                                removeSuffix(
-                                                        operationEnableKey,
-                                                        LdbcSnbBiWorkloadConfiguration.ENABLE_SUFFIX
-                                                ),
-                                                LdbcSnbBiWorkloadConfiguration.LDBC_SNB_BI_PARAM_NAME_PREFIX
-                                        );
-            try
+            Class operationClass = LdbcSnbBiWorkloadConfiguration.operationEnabledKeyToClass( operationEnableKey );
+            if ( operationEnabled )
             {
-                Class operationClass = ClassLoaderHelper.loadClass( operationClassName );
-                if ( operationEnabled )
-                {
-                    enabledOperationTypes.add( operationClass );
-                }
-            }
-            catch ( ClassLoadingException e )
-            {
-                throw new WorkloadException(
-                        format( "Error loading operation class for parameter: %s\nGuessed class name: %s",
-                                operationEnableKey, operationClassName ),
-                        e
-                );
+                enabledOperationTypes.add( operationClass );
             }
         }
 
@@ -172,7 +217,6 @@ public class LdbcSnbBiWorkload extends Workload
                 params,
                 LdbcSnbBiWorkloadConfiguration.OPERATION_INTERLEAVE_KEYS
         );
-        LdbcSnbBiWorkloadConfiguration.LdbcSnbBiInterleaves interleaves;
         if ( missingInterleaveKeys.isEmpty() )
         {
             // do nothing, interleaves are already set
@@ -189,7 +233,9 @@ public class LdbcSnbBiWorkload extends Workload
         {
             // if any frequencies are not set, there should be specified interleave times for read queries
             throw new WorkloadException( format(
-                    "%s could not initialize. One of following should be empty\nFrequencies: %s\n:Interleaves %s",
+                    "%s could not initialize. One of the following should be empty:\n" +
+                    " - missing Frequency Parameters: %s\n" +
+                    " - missing Interleave Parameters: %s",
                     getClass().getSimpleName(),
                     missingFrequencyKeys.toString(),
                     missingInterleaveKeys.toString()
@@ -212,30 +258,19 @@ public class LdbcSnbBiWorkload extends Workload
     @Override
     protected WorkloadStreams getStreams( GeneratorFactory gf, boolean hasDbConnected ) throws WorkloadException
     {
-        long workloadStartTimeAsMilli = Long.MAX_VALUE;
+        long workloadStartTimeAsMilli = System.currentTimeMillis();
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
         List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
 
         /*
          * Create read operation streams, with specified interleaves
          */
-        int bufferSize = 1 * 1024 * 1024;
-        char columnDelimiter = '|';
-        char arrayDelimiter = ';';
-        char tupleDelimiter = ',';
-        CharSeekerParams charSeekerParams = new CharSeekerParams(
-                bufferSize,
-                columnDelimiter,
-                arrayDelimiter,
-                tupleDelimiter
-        );
-
         // Query 1
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery1.class ) )
         {
             Query1EventStreamReader operation1StreamWithoutTimes = new Query1EventStreamReader(
-                    readOperation1File,
-                    charSeekerParams,
+                    readOperation1FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation1StreamWithoutTimes );
@@ -254,8 +289,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery2.class ) )
         {
             Query2EventStreamReader operation2StreamWithoutTimes = new Query2EventStreamReader(
-                    readOperation2File,
-                    charSeekerParams,
+                    readOperation2FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation2StreamWithoutTimes );
@@ -274,8 +309,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery3.class ) )
         {
             Query3EventStreamReader operation3StreamWithoutTimes = new Query3EventStreamReader(
-                    readOperation3File,
-                    charSeekerParams,
+                    readOperation3FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation3StreamWithoutTimes );
@@ -293,9 +328,10 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 4
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery4.class ) )
         {
-            Query4EventStreamReader operation4StreamWithoutTimes = new Query4EventStreamReader(
-                    readOperation4File,
-                    charSeekerParams,
+            Query4EventStreamReader operation4StreamWithoutTimes = null;
+            operation4StreamWithoutTimes = new Query4EventStreamReader(
+                    readOperation4FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation4StreamWithoutTimes );
@@ -314,8 +350,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery5.class ) )
         {
             Query5EventStreamReader operation5StreamWithoutTimes = new Query5EventStreamReader(
-                    readOperation5File,
-                    charSeekerParams,
+                    readOperation5FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation5StreamWithoutTimes );
@@ -334,8 +370,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery6.class ) )
         {
             Query6EventStreamReader operation6StreamWithoutTimes = new Query6EventStreamReader(
-                    readOperation6File,
-                    charSeekerParams,
+                    readOperation6FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation6StreamWithoutTimes );
@@ -354,8 +390,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery7.class ) )
         {
             Query7EventStreamReader operation7StreamWithoutTimes = new Query7EventStreamReader(
-                    readOperation7File,
-                    charSeekerParams,
+                    readOperation7FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation7StreamWithoutTimes );
@@ -374,8 +410,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery8.class ) )
         {
             Query8EventStreamReader operation8StreamWithoutTimes = new Query8EventStreamReader(
-                    readOperation8File,
-                    charSeekerParams,
+                    readOperation8FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation8StreamWithoutTimes );
@@ -394,8 +430,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery9.class ) )
         {
             Query9EventStreamReader operation9StreamWithoutTimes = new Query9EventStreamReader(
-                    readOperation9File,
-                    charSeekerParams,
+                    readOperation9FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation9StreamWithoutTimes );
@@ -414,8 +450,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery10.class ) )
         {
             Query10EventStreamReader operation10StreamWithoutTimes = new Query10EventStreamReader(
-                    readOperation10File,
-                    charSeekerParams,
+                    readOperation10FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation10StreamWithoutTimes );
@@ -434,8 +470,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery11.class ) )
         {
             Query11EventStreamReader operation11StreamWithoutTimes = new Query11EventStreamReader(
-                    readOperation11File,
-                    charSeekerParams,
+                    readOperation11FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation11StreamWithoutTimes );
@@ -454,8 +490,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery12.class ) )
         {
             Query12EventStreamReader operation12StreamWithoutTimes = new Query12EventStreamReader(
-                    readOperation12File,
-                    charSeekerParams,
+                    readOperation12FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation12StreamWithoutTimes );
@@ -474,8 +510,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery13.class ) )
         {
             Query13EventStreamReader operation13StreamWithoutTimes = new Query13EventStreamReader(
-                    readOperation13File,
-                    charSeekerParams,
+                    readOperation13FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation13StreamWithoutTimes );
@@ -494,8 +530,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery14.class ) )
         {
             Query14EventStreamReader operation14StreamWithoutTimes = new Query14EventStreamReader(
-                    readOperation14File,
-                    charSeekerParams,
+                    readOperation14FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation14StreamWithoutTimes );
@@ -514,8 +550,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery15.class ) )
         {
             Query15EventStreamReader operation15StreamWithoutTimes = new Query15EventStreamReader(
-                    readOperation15File,
-                    charSeekerParams,
+                    readOperation15FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation15StreamWithoutTimes );
@@ -534,8 +570,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery16.class ) )
         {
             Query16EventStreamReader operation16StreamWithoutTimes = new Query16EventStreamReader(
-                    readOperation16File,
-                    charSeekerParams,
+                    readOperation16FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation16StreamWithoutTimes );
@@ -554,8 +590,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery17.class ) )
         {
             Query17EventStreamReader operation17StreamWithoutTimes = new Query17EventStreamReader(
-                    readOperation17File,
-                    charSeekerParams,
+                    readOperation17FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation17StreamWithoutTimes );
@@ -574,8 +610,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery18.class ) )
         {
             Query18EventStreamReader operation18StreamWithoutTimes = new Query18EventStreamReader(
-                    readOperation18File,
-                    charSeekerParams,
+                    readOperation18FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation18StreamWithoutTimes );
@@ -594,8 +630,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery19.class ) )
         {
             Query19EventStreamReader operation19StreamWithoutTimes = new Query19EventStreamReader(
-                    readOperation19File,
-                    charSeekerParams,
+                    readOperation19FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation19StreamWithoutTimes );
@@ -614,8 +650,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery20.class ) )
         {
             Query20EventStreamReader operation20StreamWithoutTimes = new Query20EventStreamReader(
-                    readOperation20File,
-                    charSeekerParams,
+                    readOperation20FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation20StreamWithoutTimes );
@@ -634,8 +670,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery21.class ) )
         {
             Query21EventStreamReader operation21StreamWithoutTimes = new Query21EventStreamReader(
-                    readOperation21File,
-                    charSeekerParams,
+                    readOperation21FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation21StreamWithoutTimes );
@@ -654,8 +690,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery22.class ) )
         {
             Query22EventStreamReader operation22StreamWithoutTimes = new Query22EventStreamReader(
-                    readOperation22File,
-                    charSeekerParams,
+                    readOperation22FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation22StreamWithoutTimes );
@@ -674,8 +710,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery23.class ) )
         {
             Query23EventStreamReader operation23StreamWithoutTimes = new Query23EventStreamReader(
-                    readOperation23File,
-                    charSeekerParams,
+                    readOperation23FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation23StreamWithoutTimes );
@@ -694,8 +730,8 @@ public class LdbcSnbBiWorkload extends Workload
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery24.class ) )
         {
             Query24EventStreamReader operation24StreamWithoutTimes = new Query24EventStreamReader(
-                    readOperation24File,
-                    charSeekerParams,
+                    readOperation24FileInputStream,
+                    CHAR_SEEKER_PARAMS,
                     gf
             );
             readOperationFileReaders.add( operation24StreamWithoutTimes );
@@ -761,17 +797,425 @@ public class LdbcSnbBiWorkload extends Workload
     @Override
     public String serializeOperation( Operation operation ) throws SerializingMarshallingException
     {
-        // TODO implement
-        // TODO move serialization logic to static methods on operation classes
-        return null;
+        try
+        {
+            switch ( operation.type() )
+            {
+            case LdbcSnbBiQuery1.TYPE:
+            {
+                LdbcSnbBiQuery1 ldbcQuery = (LdbcSnbBiQuery1) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.date() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery2.TYPE:
+            {
+                LdbcSnbBiQuery2 ldbcQuery = (LdbcSnbBiQuery2) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.dateA() );
+                operationAsList.add( ldbcQuery.dateB() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery3.TYPE:
+            {
+                LdbcSnbBiQuery3 ldbcQuery = (LdbcSnbBiQuery3) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.dateA() );
+                operationAsList.add( ldbcQuery.dateB() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery4.TYPE:
+            {
+                LdbcSnbBiQuery4 ldbcQuery = (LdbcSnbBiQuery4) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tagClass() );
+                operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery5.TYPE:
+            {
+                LdbcSnbBiQuery5 ldbcQuery = (LdbcSnbBiQuery5) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery6.TYPE:
+            {
+                LdbcSnbBiQuery6 ldbcQuery = (LdbcSnbBiQuery6) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tag() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery7.TYPE:
+            {
+                LdbcSnbBiQuery7 ldbcQuery = (LdbcSnbBiQuery7) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tag() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery8.TYPE:
+            {
+                LdbcSnbBiQuery8 ldbcQuery = (LdbcSnbBiQuery8) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tag() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery9.TYPE:
+            {
+                LdbcSnbBiQuery9 ldbcQuery = (LdbcSnbBiQuery9) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tagClassA() );
+                operationAsList.add( ldbcQuery.tagClassB() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery10.TYPE:
+            {
+                LdbcSnbBiQuery10 ldbcQuery = (LdbcSnbBiQuery10) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tag() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery11.TYPE:
+            {
+                LdbcSnbBiQuery11 ldbcQuery = (LdbcSnbBiQuery11) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.keyWord() );
+                operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery12.TYPE:
+            {
+                LdbcSnbBiQuery12 ldbcQuery = (LdbcSnbBiQuery12) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.date() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery13.TYPE:
+            {
+                LdbcSnbBiQuery13 ldbcQuery = (LdbcSnbBiQuery13) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery14.TYPE:
+            {
+                LdbcSnbBiQuery14 ldbcQuery = (LdbcSnbBiQuery14) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.date() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery15.TYPE:
+            {
+                LdbcSnbBiQuery15 ldbcQuery = (LdbcSnbBiQuery15) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery16.TYPE:
+            {
+                LdbcSnbBiQuery16 ldbcQuery = (LdbcSnbBiQuery16) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tagClass() );
+                operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery17.TYPE:
+            {
+                LdbcSnbBiQuery17 ldbcQuery = (LdbcSnbBiQuery17) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery18.TYPE:
+            {
+                LdbcSnbBiQuery18 ldbcQuery = (LdbcSnbBiQuery18) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.date() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery19.TYPE:
+            {
+                LdbcSnbBiQuery19 ldbcQuery = (LdbcSnbBiQuery19) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tagClassA() );
+                operationAsList.add( ldbcQuery.tagClassB() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery20.TYPE:
+            {
+                LdbcSnbBiQuery20 ldbcQuery = (LdbcSnbBiQuery20) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery21.TYPE:
+            {
+                LdbcSnbBiQuery21 ldbcQuery = (LdbcSnbBiQuery21) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery22.TYPE:
+            {
+                LdbcSnbBiQuery22 ldbcQuery = (LdbcSnbBiQuery22) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.countryA() );
+                operationAsList.add( ldbcQuery.countryB() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery23.TYPE:
+            {
+                LdbcSnbBiQuery23 ldbcQuery = (LdbcSnbBiQuery23) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery24.TYPE:
+            {
+                LdbcSnbBiQuery24 ldbcQuery = (LdbcSnbBiQuery24) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tagClass() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            default:
+            {
+                throw new SerializingMarshallingException(
+                        format(
+                                "Workload does not know how to serialize operation\nWorkload: %s\nOperation Type: " +
+                                "%s\nOperation: %s",
+                                getClass().getName(),
+                                operation.getClass().getName(),
+                                operation ) );
+            }
+            }
+        }
+        catch ( IOException e )
+        {
+            throw new SerializingMarshallingException( format( "Error serializing operation\n%s", operation ), e );
+        }
     }
 
     @Override
     public Operation marshalOperation( String serializedOperation ) throws SerializingMarshallingException
     {
-        // TODO implement
-        // TODO move marshalling logic to static methods on operation classes
-        return null;
+        List<Object> operationAsList;
+        try
+        {
+            operationAsList = OBJECT_MAPPER.readValue( serializedOperation, TYPE_REFERENCE );
+        }
+        catch ( IOException e )
+        {
+            throw new SerializingMarshallingException(
+                    format( "Error while parsing serialized results\n%s", serializedOperation ), e );
+        }
+        String operationClassName = (String) operationAsList.get( 0 );
+
+        if ( operationClassName.equals( LdbcSnbBiQuery1.class.getName() ) )
+        {
+            long date = ((Number) operationAsList.get( 1 )).longValue();
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery1( date, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery2.class.getName() ) )
+        {
+            long dateA = ((Number) operationAsList.get( 1 )).longValue();
+            long dateB = ((Number) operationAsList.get( 2 )).longValue();
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery2( dateA, dateB, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery3.class.getName() ) )
+        {
+            long dateA = ((Number) operationAsList.get( 1 )).longValue();
+            long dateB = ((Number) operationAsList.get( 2 )).longValue();
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery3( dateA, dateB, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery4.class.getName() ) )
+        {
+            String tagClass = (String) operationAsList.get( 1 );
+            String country = (String) operationAsList.get( 2 );
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery4( tagClass, country, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery5.class.getName() ) )
+        {
+            String country = (String) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery5( country, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery6.class.getName() ) )
+        {
+            String tag = (String) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery6( tag, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery7.class.getName() ) )
+        {
+            String tag = (String) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery7( tag, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery8.class.getName() ) )
+        {
+            String tag = (String) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery8( tag, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery9.class.getName() ) )
+        {
+            String tagClassA = (String) operationAsList.get( 1 );
+            String tagClassB = (String) operationAsList.get( 2 );
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery9( tagClassA, tagClassB, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery10.class.getName() ) )
+        {
+            String tag = (String) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery10( tag, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery11.class.getName() ) )
+        {
+            String keyWord = (String) operationAsList.get( 1 );
+            String country = (String) operationAsList.get( 2 );
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery11( keyWord, country, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery12.class.getName() ) )
+        {
+            long date = ((Number) operationAsList.get( 1 )).longValue();
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery12( date, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery13.class.getName() ) )
+        {
+            String country = (String) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery13( country, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery14.class.getName() ) )
+        {
+            long date = ((Number) operationAsList.get( 1 )).longValue();
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery14( date, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery15.class.getName() ) )
+        {
+            String country = (String) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery15( country, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery16.class.getName() ) )
+        {
+            String tagClass = (String) operationAsList.get( 1 );
+            String country = (String) operationAsList.get( 2 );
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery16( tagClass, country, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery17.class.getName() ) )
+        {
+            String country = (String) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery17( country, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery18.class.getName() ) )
+        {
+            long date = ((Number) operationAsList.get( 1 )).longValue();
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery18( date, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery19.class.getName() ) )
+        {
+            String tagClassA = (String) operationAsList.get( 1 );
+            String tagClassB = (String) operationAsList.get( 2 );
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery19( tagClassA, tagClassB, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery20.class.getName() ) )
+        {
+            int limit = ((Number) operationAsList.get( 1 )).intValue();
+            return new LdbcSnbBiQuery20( limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery21.class.getName() ) )
+        {
+            String country = (String) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery21( country, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery22.class.getName() ) )
+        {
+            String countryA = (String) operationAsList.get( 1 );
+            String countryB = (String) operationAsList.get( 2 );
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery22( countryA, countryB, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery23.class.getName() ) )
+        {
+            String country = (String) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery23( country, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery24.class.getName() ) )
+        {
+            String tagClass = (String) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery24( tagClass, limit );
+        }
+
+        throw new SerializingMarshallingException(
+                format(
+                        "Workload does not know how to marshal operation\nWorkload: %s\nAssumed Operation Type: " +
+                        "%s\nSerialized Operation: %s",
+                        getClass().getName(),
+                        operationClassName,
+                        serializedOperation ) );
     }
 
     @Override

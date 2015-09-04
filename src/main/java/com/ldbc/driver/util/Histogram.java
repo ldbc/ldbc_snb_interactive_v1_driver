@@ -2,7 +2,6 @@ package com.ldbc.driver.util;
 
 import com.google.common.collect.Range;
 import com.ldbc.driver.util.Bucket.NumberRangeBucket;
-import com.ldbc.driver.util.Tuple.Tuple2;
 
 import java.util.*;
 import java.util.Map.Entry;

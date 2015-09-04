@@ -4,9 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.ldbc.driver.util.Tuple.Tuple2;
-import com.ldbc.driver.util.Tuple.Tuple3;
-
 public class TupleTest
 {
     @Test

@@ -10,13 +10,20 @@ public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery4Result>>
     public static final int TYPE = 4;
     // TODO
     public static final int DEFAULT_LIMIT = 20;
+    private final String tagClass;
     private final String country;
     private final int limit;
 
-    public LdbcSnbBiQuery4( String country, int limit )
+    public LdbcSnbBiQuery4( String tagClass, String country, int limit )
     {
+        this.tagClass = tagClass;
         this.country = country;
         this.limit = limit;
+    }
+
+    public String tagClass()
+    {
+        return tagClass;
     }
 
     public String country()
@@ -33,7 +40,8 @@ public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery4Result>>
     public String toString()
     {
         return "LdbcSnbBiQuery4{" +
-               "country='" + country + '\'' +
+               "tagClass='" + tagClass + '\'' +
+               ", country='" + country + '\'' +
                ", limit=" + limit +
                '}';
     }
@@ -50,6 +58,8 @@ public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery4Result>>
 
         if ( limit != that.limit )
         { return false; }
+        if ( tagClass != null ? !tagClass.equals( that.tagClass ) : that.tagClass != null )
+        { return false; }
         return !(country != null ? !country.equals( that.country ) : that.country != null);
 
     }
@@ -57,7 +67,8 @@ public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery4Result>>
     @Override
     public int hashCode()
     {
-        int result = country != null ? country.hashCode() : 0;
+        int result = tagClass != null ? tagClass.hashCode() : 0;
+        result = 31 * result + (country != null ? country.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }

@@ -12,14 +12,16 @@ import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Query21EventStreamReader extends BaseEventStreamReader
 {
-    public Query21EventStreamReader( File parametersFile,
+    public Query21EventStreamReader(
+            InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
     {
-        super( parametersFile, charSeekerParams, gf );
+        super( parametersInputStream, charSeekerParams, gf );
     }
 
     @Override

@@ -64,7 +64,8 @@ public class ValidationParamsGeneratorTest
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( additionalParamsMap );
         configuration = (ConsoleAndFileDriverConfiguration) configuration
-                .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource( "/updateStream.properties" ) ) );
+                .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
+                        "/snb/interactive/updateStream.properties" ) ) );
 
 
         Workload workload = new LdbcSnbInteractiveWorkload();

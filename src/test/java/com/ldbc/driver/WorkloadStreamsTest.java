@@ -9,7 +9,7 @@ import com.ldbc.driver.control.Log4jLoggingServiceFactory;
 import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple3;
 import com.ldbc.driver.validation.WorkloadFactory;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
@@ -282,7 +282,7 @@ public class WorkloadStreamsTest
                 ConsoleAndFileDriverConfiguration.fromDefaults( null, null, 100 );
         boolean returnStreamsWithDbConnector = false;
         LoggingServiceFactory loggingServiceFactory = new Log4jLoggingServiceFactory( false );
-        Tuple.Tuple3<WorkloadStreams,Workload,Long> limitedWorkloadStreamsAndWorkload =
+        Tuple3<WorkloadStreams,Workload,Long> limitedWorkloadStreamsAndWorkload =
                 WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                         workloadFactory,
                         configuration,
@@ -320,7 +320,7 @@ public class WorkloadStreamsTest
                 .applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 10 ) );
         boolean returnStreamsWithDbConnector = false;
         LoggingServiceFactory loggingServiceFactory = new Log4jLoggingServiceFactory( false );
-        Tuple.Tuple3<WorkloadStreams,Workload,Long> limitedWorkloadStreamsAndWorkload =
+        Tuple3<WorkloadStreams,Workload,Long> limitedWorkloadStreamsAndWorkload =
                 WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                         workloadFactory,
                         configuration,
@@ -400,7 +400,7 @@ public class WorkloadStreamsTest
         long offset = 0;
         long count = 10;
         LoggingServiceFactory loggingServiceFactory = new Log4jLoggingServiceFactory( false );
-        Tuple.Tuple3<long[],long[],Long> kForIteratorAndMinimums =
+        Tuple3<long[],long[],Long> kForIteratorAndMinimums =
                 WorkloadStreams.fromAmongAllRetrieveTopCountFromOffset(
                         streams,
                         offset,
@@ -515,7 +515,7 @@ public class WorkloadStreamsTest
         long offset = 0;
         long count = 10000;
         LoggingServiceFactory loggingServiceFactory = new Log4jLoggingServiceFactory( false );
-        Tuple.Tuple3<long[],long[],Long> kForIteratorAndMinimums =
+        Tuple3<long[],long[],Long> kForIteratorAndMinimums =
                 WorkloadStreams.fromAmongAllRetrieveTopCountFromOffset(
                         streams,
                         offset,
@@ -636,7 +636,7 @@ public class WorkloadStreamsTest
         long offset = 5;
         long count = 6;
         LoggingServiceFactory loggingServiceFactory = new Log4jLoggingServiceFactory( false );
-        Tuple.Tuple3<long[],long[],Long> kForIteratorAndMinimums =
+        Tuple3<long[],long[],Long> kForIteratorAndMinimums =
                 WorkloadStreams.fromAmongAllRetrieveTopCountFromOffset(
                         streams,
                         offset,
@@ -782,7 +782,7 @@ public class WorkloadStreamsTest
         long offset = 3;
         long count = 100;
         LoggingServiceFactory loggingServiceFactory = new Log4jLoggingServiceFactory( false );
-        Tuple.Tuple3<long[],long[],Long> kForIteratorAndMinimums =
+        Tuple3<long[],long[],Long> kForIteratorAndMinimums =
                 WorkloadStreams.fromAmongAllRetrieveTopCountFromOffset(
                         streams,
                         offset,

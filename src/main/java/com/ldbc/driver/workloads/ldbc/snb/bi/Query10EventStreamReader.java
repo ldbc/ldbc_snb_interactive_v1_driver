@@ -8,20 +8,19 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
-import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Query10EventStreamReader extends BaseEventStreamReader
 {
     public Query10EventStreamReader(
-            File parametersFile,
+            InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
     {
-        super( parametersFile, charSeekerParams, gf );
+        super( parametersInputStream, charSeekerParams, gf );
     }
 
     @Override
@@ -29,8 +28,7 @@ public class Query10EventStreamReader extends BaseEventStreamReader
     {
         return new LdbcSnbBiQuery10(
                 (String) parameters[0],
-                (String) parameters[1],
-                (int) parameters[2]
+                (int) parameters[1]
         );
     }
 
@@ -48,10 +46,10 @@ public class Query10EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String tag0;
+                String tag;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tag0 = charSeeker.extract( mark, extractors.string() ).value();
+                    tag = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -59,17 +57,7 @@ public class Query10EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                String tag1;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    tag1 = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving month" );
-                }
-
-                return new Object[]{tag0, tag1, LdbcSnbBiQuery10.DEFAULT_LIMIT};
+                return new Object[]{tag, LdbcSnbBiQuery10.DEFAULT_LIMIT};
             }
         };
     }
@@ -77,6 +65,6 @@ public class Query10EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 1;
     }
 }

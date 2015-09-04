@@ -10,17 +10,17 @@ import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Query20EventStreamReader extends BaseEventStreamReader
 {
     public Query20EventStreamReader(
-            File parametersFile,
+            InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
     {
-        super( parametersFile, charSeekerParams, gf );
+        super( parametersInputStream, charSeekerParams, gf );
     }
 
     @Override
@@ -36,12 +36,22 @@ public class Query20EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
+            private boolean finished = false;
+
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
                     throws IOException
             {
-                return new Object[]{LdbcSnbBiQuery20.DEFAULT_LIMIT};
+                if ( finished )
+                {
+                    return null;
+                }
+                else
+                {
+                    finished = true;
+                    return new Object[]{LdbcSnbBiQuery20.DEFAULT_LIMIT};
+                }
             }
         };
     }

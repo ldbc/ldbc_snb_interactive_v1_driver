@@ -3,7 +3,7 @@ package com.ldbc.driver.generator;
 import com.ldbc.driver.util.Bucket.DiscreteBucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.util.Tuple.Tuple2;
+import com.ldbc.driver.util.Tuple2;
 import org.junit.Test;
 
 import java.util.ArrayList;

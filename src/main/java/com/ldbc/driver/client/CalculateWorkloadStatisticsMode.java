@@ -9,9 +9,9 @@ import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
-import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.validation.WorkloadStatistics;
-import com.ldbc.driver.validation.WorkloadStatisticsCalculator;
+import com.ldbc.driver.statistics.WorkloadStatistics;
+import com.ldbc.driver.statistics.WorkloadStatisticsCalculator;
+import com.ldbc.driver.util.Tuple3;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +40,7 @@ public class CalculateWorkloadStatisticsMode implements ClientMode<WorkloadStati
         try
         {
             boolean returnStreamsWithDbConnector = false;
-            Tuple.Tuple3<WorkloadStreams,Workload,Long> workloadStreamsAndWorkload =
+            Tuple3<WorkloadStreams,Workload,Long> workloadStreamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                             controlService.configuration(),
                             gf,

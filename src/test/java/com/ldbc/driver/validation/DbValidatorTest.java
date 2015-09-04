@@ -16,8 +16,8 @@ import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcNoResult;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14Result;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -55,13 +54,12 @@ public class DbValidatorTest
 
         Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                TestUtils.getResource( "/" ).getAbsolutePath() );
+                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                TestUtils.getResource( "/" ).getAbsolutePath() );
+                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( paramsMap );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
-                MapUtils.loadPropertiesToMap(
-                        new File( TestUtils.getResource( "/updateStream.properties" ).getAbsolutePath() ) )
+                MapUtils.loadPropertiesToMap( TestUtils.getResource( "/snb/interactive/updateStream.properties" ) )
         );
 
         Workload workload = new LdbcSnbInteractiveWorkload();
@@ -111,13 +109,12 @@ public class DbValidatorTest
 
         Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                TestUtils.getResource( "/" ).getAbsolutePath() );
+                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                TestUtils.getResource( "/" ).getAbsolutePath() );
+                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( paramsMap );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
-                MapUtils.loadPropertiesToMap(
-                        new File( TestUtils.getResource( "/updateStream.properties" ).getAbsolutePath() ) )
+                MapUtils.loadPropertiesToMap( TestUtils.getResource( "/snb/interactive/updateStream.properties" ) )
         );
 
         Workload workload = new LdbcSnbInteractiveWorkload();

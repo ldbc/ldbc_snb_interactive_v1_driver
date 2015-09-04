@@ -8,7 +8,6 @@ import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.ControlService;
-import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -31,12 +30,12 @@ import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
-import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple3;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.nio.file.Files;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -158,8 +157,9 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
 
         try
         {
-            database.close();
             loggingService.info( "Shutting down database connector..." );
+            database.close();
+            loggingService.info( "Database connector shutdown successfully" );
         }
         catch ( IOException e )
         {
@@ -227,7 +227,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         try
         {
             boolean returnStreamsWithDbConnector = true;
-            Tuple.Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkloadAndMinimumTimeStamp =
+            Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkloadAndMinimumTimeStamp =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                             controlService.configuration(),
                             gf,
@@ -343,8 +343,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         }
         catch ( Exception e )
         {
-            throw new ClientException( format( "Error instantiating %s", WorkloadRunner.class.getSimpleName() ),
-                    e );
+            throw new ClientException( format( "Error instantiating %s", WorkloadRunner.class.getSimpleName() ), e );
         }
 
         //  ===========================================
@@ -478,21 +477,10 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                                                : controlService.configuration().name() +
                                                  ThreadedQueuedMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX;
                 File configurationFile = new File( resultDir, configurationFilename );
-                try ( PrintStream out = new PrintStream( new FileOutputStream( configurationFile ) ) )
-                {
-                    out.print( controlService.configuration().toPropertiesString() );
-                }
-                catch ( DriverConfigurationException e )
-                {
-                    throw new ClientException(
-                            format(
-                                    "Encountered error while writing configuration to file.\nResult Dir: %s\nConfig " +
-                                    "File: %s",
-                                    resultDir.getAbsolutePath(),
-                                    configurationFile.getAbsolutePath() ),
-                            e
-                    );
-                }
+                Files.write(
+                        configurationFile.toPath(),
+                        controlService.configuration().toPropertiesString().getBytes()
+                );
                 if ( null != csvResultsLogFileWriter )
                 {
                     csvResultsLogFileWriter.close();

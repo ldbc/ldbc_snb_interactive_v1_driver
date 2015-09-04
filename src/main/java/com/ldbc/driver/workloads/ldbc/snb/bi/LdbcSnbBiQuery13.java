@@ -19,12 +19,12 @@ public class LdbcSnbBiQuery13 extends Operation<List<LdbcSnbBiQuery13Result>>
         this.limit = limit;
     }
 
-    public String getCountry()
+    public String country()
     {
         return country;
     }
 
-    public int getLimit()
+    public int limit()
     {
         return limit;
     }

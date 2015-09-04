@@ -2,9 +2,12 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.DriverConfigurationFileHelper;
+import com.ldbc.driver.util.ClassLoaderHelper;
+import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.MapUtils;
 
 import java.io.File;
@@ -15,14 +18,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.ldbc.driver.util.FileUtils.removePrefix;
 import static com.ldbc.driver.util.FileUtils.removeSuffix;
+import static java.lang.String.format;
 
 public class LdbcSnbBiWorkloadConfiguration
 {
     public final static String LDBC_SNB_BI_PARAM_NAME_PREFIX = "ldbc.snb.bi.";
     // directory that contains the substitution parameters files
     public final static String PARAMETERS_DIRECTORY = LDBC_SNB_BI_PARAM_NAME_PREFIX + "parameters_dir";
-    public final static String LDBC_SNB_BI_PACKAGE_PREFIX = removeSuffix(
+    // TODO this should be private and conversion to class names should be done by this class
+    private final static String LDBC_SNB_BI_PACKAGE_PREFIX = removeSuffix(
             LdbcSnbBiWorkloadConfiguration.class.getName(), LdbcSnbBiWorkloadConfiguration.class.getSimpleName()
     );
 
@@ -105,6 +111,38 @@ public class LdbcSnbBiWorkloadConfiguration
             OPERATION_24_FREQUENCY_KEY
     );
 
+    private static final Map<Integer,String> typeToFrequencyKeyMapping()
+    {
+        Map<Integer,String> mapping = new HashMap<>();
+        mapping.put( LdbcSnbBiQuery1.TYPE, OPERATION_1_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery2.TYPE, OPERATION_2_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery3.TYPE, OPERATION_3_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery4.TYPE, OPERATION_4_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery5.TYPE, OPERATION_5_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery6.TYPE, OPERATION_6_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery7.TYPE, OPERATION_7_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery8.TYPE, OPERATION_8_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery9.TYPE, OPERATION_9_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery10.TYPE, OPERATION_10_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery11.TYPE, OPERATION_11_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery12.TYPE, OPERATION_12_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery13.TYPE, OPERATION_13_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery14.TYPE, OPERATION_14_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery15.TYPE, OPERATION_15_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery16.TYPE, OPERATION_16_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery17.TYPE, OPERATION_17_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery18.TYPE, OPERATION_18_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery19.TYPE, OPERATION_19_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery20.TYPE, OPERATION_20_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery21.TYPE, OPERATION_21_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery22.TYPE, OPERATION_22_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery23.TYPE, OPERATION_23_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery24.TYPE, OPERATION_24_FREQUENCY_KEY );
+        return mapping;
+    }
+
+    public final static Map<Integer,String> OPERATION_TYPE_TO_FREQUENCY_KEY_MAPPING = typeToFrequencyKeyMapping();
+
     /*
     * Operation Interleave
     */
@@ -183,6 +221,38 @@ public class LdbcSnbBiWorkloadConfiguration
             OPERATION_23_INTERLEAVE_KEY,
             OPERATION_24_INTERLEAVE_KEY
     );
+
+    private static final Map<Integer,String> typeToInterleaveKeyMapping()
+    {
+        Map<Integer,String> mapping = new HashMap<>();
+        mapping.put( LdbcSnbBiQuery1.TYPE, OPERATION_1_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery2.TYPE, OPERATION_2_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery3.TYPE, OPERATION_3_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery4.TYPE, OPERATION_4_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery5.TYPE, OPERATION_5_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery6.TYPE, OPERATION_6_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery7.TYPE, OPERATION_7_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery8.TYPE, OPERATION_8_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery9.TYPE, OPERATION_9_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery10.TYPE, OPERATION_10_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery11.TYPE, OPERATION_11_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery12.TYPE, OPERATION_12_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery13.TYPE, OPERATION_13_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery14.TYPE, OPERATION_14_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery15.TYPE, OPERATION_15_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery16.TYPE, OPERATION_16_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery17.TYPE, OPERATION_17_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery18.TYPE, OPERATION_18_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery19.TYPE, OPERATION_19_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery20.TYPE, OPERATION_20_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery21.TYPE, OPERATION_21_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery22.TYPE, OPERATION_22_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery23.TYPE, OPERATION_23_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery24.TYPE, OPERATION_24_INTERLEAVE_KEY );
+        return mapping;
+    }
+
+    public final static Map<Integer,String> OPERATION_TYPE_TO_INTERLEAVE_KEY_MAPPING = typeToInterleaveKeyMapping();
 
     /*
      * Operation Enable
@@ -266,30 +336,30 @@ public class LdbcSnbBiWorkloadConfiguration
     /*
      * Read Operation Parameters
      */
-    public final static String OPERATION_1_PARAMS_FILENAME = "query_1_param.txt";
-    public final static String OPERATION_2_PARAMS_FILENAME = "query_2_param.txt";
-    public final static String OPERATION_3_PARAMS_FILENAME = "query_3_param.txt";
-    public final static String OPERATION_4_PARAMS_FILENAME = "query_4_param.txt";
-    public final static String OPERATION_5_PARAMS_FILENAME = "query_5_param.txt";
-    public final static String OPERATION_6_PARAMS_FILENAME = "query_6_param.txt";
-    public final static String OPERATION_7_PARAMS_FILENAME = "query_7_param.txt";
-    public final static String OPERATION_8_PARAMS_FILENAME = "query_8_param.txt";
-    public final static String OPERATION_9_PARAMS_FILENAME = "query_9_param.txt";
-    public final static String OPERATION_10_PARAMS_FILENAME = "query_10_param.txt";
-    public final static String OPERATION_11_PARAMS_FILENAME = "query_11_param.txt";
-    public final static String OPERATION_12_PARAMS_FILENAME = "query_12_param.txt";
-    public final static String OPERATION_13_PARAMS_FILENAME = "query_13_param.txt";
-    public final static String OPERATION_14_PARAMS_FILENAME = "query_14_param.txt";
-    public final static String OPERATION_15_PARAMS_FILENAME = "query_15_param.txt";
-    public final static String OPERATION_16_PARAMS_FILENAME = "query_16_param.txt";
-    public final static String OPERATION_17_PARAMS_FILENAME = "query_17_param.txt";
-    public final static String OPERATION_18_PARAMS_FILENAME = "query_18_param.txt";
-    public final static String OPERATION_19_PARAMS_FILENAME = "query_19_param.txt";
-    public final static String OPERATION_20_PARAMS_FILENAME = "query_20_param.txt";
-    public final static String OPERATION_21_PARAMS_FILENAME = "query_21_param.txt";
-    public final static String OPERATION_22_PARAMS_FILENAME = "query_22_param.txt";
-    public final static String OPERATION_23_PARAMS_FILENAME = "query_23_param.txt";
-    public final static String OPERATION_24_PARAMS_FILENAME = "query_24_param.txt";
+    public final static String OPERATION_1_PARAMS_FILENAME = "q1_param.txt";
+    public final static String OPERATION_2_PARAMS_FILENAME = "q2_param.txt";
+    public final static String OPERATION_3_PARAMS_FILENAME = "q3_param.txt";
+    public final static String OPERATION_4_PARAMS_FILENAME = "q4_param.txt";
+    public final static String OPERATION_5_PARAMS_FILENAME = "q5_param.txt";
+    public final static String OPERATION_6_PARAMS_FILENAME = "q6_param.txt";
+    public final static String OPERATION_7_PARAMS_FILENAME = "q7_param.txt";
+    public final static String OPERATION_8_PARAMS_FILENAME = "q8_param.txt";
+    public final static String OPERATION_9_PARAMS_FILENAME = "q9_param.txt";
+    public final static String OPERATION_10_PARAMS_FILENAME = "q10_param.txt";
+    public final static String OPERATION_11_PARAMS_FILENAME = "q11_param.txt";
+    public final static String OPERATION_12_PARAMS_FILENAME = "q12_param.txt";
+    public final static String OPERATION_13_PARAMS_FILENAME = "q13_param.txt";
+    public final static String OPERATION_14_PARAMS_FILENAME = "q14_param.txt";
+    public final static String OPERATION_15_PARAMS_FILENAME = "q15_param.txt";
+    public final static String OPERATION_16_PARAMS_FILENAME = "q16_param.txt";
+    public final static String OPERATION_17_PARAMS_FILENAME = "q17_param.txt";
+    public final static String OPERATION_18_PARAMS_FILENAME = "q18_param.txt";
+    public final static String OPERATION_19_PARAMS_FILENAME = "q19_param.txt";
+    public final static String OPERATION_20_PARAMS_FILENAME = "q20_param.txt";
+    public final static String OPERATION_21_PARAMS_FILENAME = "q21_param.txt";
+    public final static String OPERATION_22_PARAMS_FILENAME = "q22_param.txt";
+    public final static String OPERATION_23_PARAMS_FILENAME = "q23_param.txt";
+    public final static String OPERATION_24_PARAMS_FILENAME = "q24_param.txt";
     public final static List<String> OPERATION_PARAMS_FILENAMES = Lists.newArrayList(
             OPERATION_1_PARAMS_FILENAME,
             OPERATION_2_PARAMS_FILENAME,
@@ -618,5 +688,26 @@ public class LdbcSnbBiWorkloadConfiguration
             { missingPropertyKeys.add( compulsoryKey ); }
         }
         return missingPropertyKeys;
+    }
+
+    static Class operationEnabledKeyToClass( String operationEnableKey ) throws WorkloadException
+    {
+        String operationClassName = LDBC_SNB_BI_PACKAGE_PREFIX +
+                                    removePrefix(
+                                            removeSuffix( operationEnableKey, ENABLE_SUFFIX ),
+                                            LDBC_SNB_BI_PARAM_NAME_PREFIX
+                                    );
+        try
+        {
+            return ClassLoaderHelper.loadClass( operationClassName );
+        }
+        catch ( ClassLoadingException e )
+        {
+            throw new WorkloadException(
+                    format( "Error loading operation class for parameter: %s\nGuessed class name: %s",
+                            operationEnableKey,
+                            operationClassName ),
+                    e );
+        }
     }
 }

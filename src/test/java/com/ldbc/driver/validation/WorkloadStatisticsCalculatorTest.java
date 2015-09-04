@@ -7,6 +7,8 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.ContinuousMetricSnapshot;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
+import com.ldbc.driver.statistics.WorkloadStatistics;
+import com.ldbc.driver.statistics.WorkloadStatisticsCalculator;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.workloads.dummy.*;

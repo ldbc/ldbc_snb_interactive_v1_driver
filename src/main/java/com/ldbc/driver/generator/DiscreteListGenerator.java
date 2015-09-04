@@ -1,6 +1,6 @@
 package com.ldbc.driver.generator;
 
-import com.ldbc.driver.util.Tuple.Tuple2;
+import com.ldbc.driver.util.Tuple2;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.util.ArrayList;

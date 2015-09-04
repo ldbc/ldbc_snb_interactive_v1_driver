@@ -10,17 +10,17 @@ import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Query5EventStreamReader extends BaseEventStreamReader
 {
     public Query5EventStreamReader(
-            File parametersFile,
+            InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
     {
-        super( parametersFile, charSeekerParams, gf );
+        super( parametersInputStream, charSeekerParams, gf );
     }
 
     @Override

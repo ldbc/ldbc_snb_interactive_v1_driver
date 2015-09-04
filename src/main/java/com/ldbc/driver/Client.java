@@ -13,6 +13,7 @@ import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.control.Log4jLoggingServiceFactory;
+import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -21,6 +22,8 @@ import com.ldbc.driver.temporal.TimeSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static java.lang.String.format;
 
 // TODO Validate Workload to work with short reads
 
@@ -33,6 +36,7 @@ public class Client
         ControlService controlService = null;
         boolean detailedStatus = false;
         LoggingServiceFactory loggingServiceFactory = new Log4jLoggingServiceFactory( detailedStatus );
+        LoggingService loggingService = loggingServiceFactory.loggingServiceFor( Client.class.getSimpleName() );
         try
         {
             TimeSource systemTimeSource = new SystemTimeSource();
@@ -51,15 +55,13 @@ public class Client
         }
         catch ( DriverConfigurationException e )
         {
-            String errMsg = String.format( "Error parsing parameters: %s", e.getMessage() );
-            loggingServiceFactory.loggingServiceFor( Client.class.getSimpleName() ).info( errMsg );
+            String errMsg = format( "Error parsing parameters: %s", e.getMessage() );
+            loggingService.info( errMsg );
             System.exit( 1 );
         }
         catch ( Exception e )
         {
-            loggingServiceFactory.loggingServiceFor( Client.class.getSimpleName() ).info(
-                    "Client terminated unexpectedly\n" + ConcurrentErrorReporter.stackTraceToString( e )
-            );
+            loggingService.info( "Client terminated unexpectedly\n" + ConcurrentErrorReporter.stackTraceToString( e ) );
             System.exit( 1 );
         }
         finally
@@ -70,7 +72,6 @@ public class Client
             }
         }
     }
-
 
     // TODO should not be doing things like ConsoleAndFileDriverConfiguration.DB_ARG
     // TODO ConsoleAndFileDriverConfiguration could maybe have a DriverParam(enum)-to-String(arg) method?
@@ -100,8 +101,7 @@ public class Client
             }
             if ( false == missingParams.isEmpty() )
             {
-                throw new ClientException(
-                        String.format( "Missing required parameters: %s", missingParams.toString() ) );
+                throw new ClientException( format( "Missing required parameters: %s", missingParams.toString() ) );
             }
             return new CreateValidationParamsMode( controlService, RANDOM_SEED );
         }
@@ -120,8 +120,7 @@ public class Client
             }
             if ( false == missingParams.isEmpty() )
             {
-                throw new ClientException(
-                        String.format( "Missing required parameters: %s", missingParams.toString() ) );
+                throw new ClientException( format( "Missing required parameters: %s", missingParams.toString() ) );
             }
             return new ValidateDatabaseMode( controlService );
         }
@@ -140,8 +139,7 @@ public class Client
             }
             if ( false == missingParams.isEmpty() )
             {
-                throw new ClientException(
-                        String.format( "Missing required parameters: %s", missingParams.toString() ) );
+                throw new ClientException( format( "Missing required parameters: %s", missingParams.toString() ) );
             }
             return new ValidateWorkloadMode( controlService );
         }
@@ -160,8 +158,7 @@ public class Client
             }
             if ( false == missingParams.isEmpty() )
             {
-                throw new ClientException(
-                        String.format( "Missing required parameters: %s", missingParams.toString() ) );
+                throw new ClientException( format( "Missing required parameters: %s", missingParams.toString() ) );
             }
             return new CalculateWorkloadStatisticsMode( controlService, RANDOM_SEED );
         }
@@ -184,8 +181,7 @@ public class Client
             }
             if ( false == missingParams.isEmpty() )
             {
-                throw new ClientException(
-                        String.format( "Missing required parameters: %s", missingParams.toString() ) );
+                throw new ClientException( format( "Missing required parameters: %s", missingParams.toString() ) );
             }
             return new ExecuteWorkloadMode( controlService, new SystemTimeSource(), RANDOM_SEED );
         }

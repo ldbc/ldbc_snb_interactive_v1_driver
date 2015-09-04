@@ -8,19 +8,20 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Query9EventStreamReader extends BaseEventStreamReader
 {
     public Query9EventStreamReader(
-            File parametersFile,
+            InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
     {
-        super( parametersFile, charSeekerParams, gf );
+        super( parametersInputStream, charSeekerParams, gf );
     }
 
     @Override
@@ -28,7 +29,8 @@ public class Query9EventStreamReader extends BaseEventStreamReader
     {
         return new LdbcSnbBiQuery9(
                 (String) parameters[0],
-                (int) parameters[1]
+                (String) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -38,18 +40,18 @@ public class Query9EventStreamReader extends BaseEventStreamReader
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
             /*
-            TagClass
-            names
+            TagClassA|CountryB
+            tag_a|tag_b
             */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
                     throws IOException
             {
-                String tagClass;
+                String tagClassA;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tagClass = charSeeker.extract( mark, extractors.string() ).value();
+                    tagClassA = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -57,7 +59,17 @@ public class Query9EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{tagClass, LdbcSnbBiQuery9.DEFAULT_LIMIT};
+                String tagClassB;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    tagClassB = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving country name" );
+                }
+
+                return new Object[]{tagClassA, tagClassB, LdbcSnbBiQuery9.DEFAULT_LIMIT};
             }
         };
     }
@@ -65,6 +77,6 @@ public class Query9EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 2;
     }
 }

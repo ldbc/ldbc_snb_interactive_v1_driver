@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple2;
+import com.ldbc.driver.util.Tuple3;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.codehaus.jackson.util.DefaultPrettyPrinter;
@@ -14,8 +16,8 @@ import java.util.*;
 public class DbValidationResult {
     private final Db db;
     private final Set<Class> missingHandlersForOperationTypes;
-    private final List<Tuple.Tuple2<Operation, String>> unableToExecuteOperations;
-    private final List<Tuple.Tuple3<Operation, Object, Object>> incorrectResultsForOperations;
+    private final List<Tuple2<Operation, String>> unableToExecuteOperations;
+    private final List<Tuple3<Operation, Object, Object>> incorrectResultsForOperations;
     private final Map<Class, Integer> successfullyExecutedOperationsPerOperationType;
     private final Map<Class, Integer> totalOperationsPerOperationType;
     private final ObjectMapper objectMapper;
@@ -181,9 +183,9 @@ public class DbValidationResult {
         return sorted;
     }
 
-    private Map<Class, Integer> unableToExecuteOperationsGrouping(List<Tuple.Tuple2<Operation, String>> unableToExecuteOperations) {
+    private Map<Class, Integer> unableToExecuteOperationsGrouping(List<Tuple2<Operation, String>> unableToExecuteOperations) {
         Map<Class, Integer> grouping = new HashMap<>();
-        for (Tuple.Tuple2<Operation, String> failedOperation : unableToExecuteOperations) {
+        for (Tuple2<Operation, String> failedOperation : unableToExecuteOperations) {
             Class operationType = failedOperation._1().getClass();
             if (grouping.containsKey(operationType)) {
                 int count = grouping.get(operationType);
@@ -195,9 +197,9 @@ public class DbValidationResult {
         return grouping;
     }
 
-    private Map<Class, Integer> incorrectResultsForOperationsGrouping(List<Tuple.Tuple3<Operation, Object, Object>> incorrectResultsForOperations) {
+    private Map<Class, Integer> incorrectResultsForOperationsGrouping(List<Tuple3<Operation, Object, Object>> incorrectResultsForOperations) {
         Map<Class, Integer> grouping = new HashMap<>();
-        for (Tuple.Tuple3<Operation, Object, Object> failedOperation : incorrectResultsForOperations) {
+        for (Tuple3<Operation, Object, Object> failedOperation : incorrectResultsForOperations) {
             Class operationType = failedOperation._1().getClass();
             if (grouping.containsKey(operationType)) {
                 int count = grouping.get(operationType);

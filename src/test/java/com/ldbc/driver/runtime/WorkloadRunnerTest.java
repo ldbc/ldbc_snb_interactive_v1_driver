@@ -32,9 +32,9 @@ import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
+import com.ldbc.driver.util.Tuple3;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Rule;
 import org.junit.Test;
@@ -103,10 +103,12 @@ public class WorkloadRunnerTest
         try
         {
             Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultReadOnlyConfigSF1();
-            paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                    TestUtils.getResource( "/" ).getAbsolutePath() );
+            paramsMap.put(
+                    LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+            );
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                    TestUtils.getResource( "/" ).getAbsolutePath() );
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
             // Driver-specific parameters
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -150,7 +152,8 @@ public class WorkloadRunnerTest
             );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
-                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource( "/updateStream.properties" ) ) );
+                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
+                            "/snb/interactive/updateStream.properties" ) ) );
 
             controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
@@ -164,7 +167,7 @@ public class WorkloadRunnerTest
 
             GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
             boolean returnStreamsWithDbConnector = true;
-            Tuple.Tuple3<WorkloadStreams,Workload,Long> workloadStreamsAndWorkload =
+            Tuple3<WorkloadStreams,Workload,Long> workloadStreamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                             configuration,
                             gf,
@@ -323,9 +326,9 @@ public class WorkloadRunnerTest
         {
             Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                    TestUtils.getResource( "/" ).getAbsolutePath() );
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                    TestUtils.getResource( "/" ).getAbsolutePath() );
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
             // Driver-specific parameters
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -369,7 +372,8 @@ public class WorkloadRunnerTest
             );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
-                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource( "/updateStream.properties" ) ) );
+                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
+                            "/snb/interactive/updateStream.properties" ) ) );
 
             controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
@@ -383,7 +387,7 @@ public class WorkloadRunnerTest
 
             GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
             boolean returnStreamsWithDbConnector = true;
-            Tuple.Tuple3<WorkloadStreams,Workload,Long> workloadStreamsAndWorkload =
+            Tuple3<WorkloadStreams,Workload,Long> workloadStreamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                             configuration,
                             gf,
@@ -589,9 +593,9 @@ public class WorkloadRunnerTest
         {
             Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultReadOnlyConfigSF1();
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                    TestUtils.getResource( "/" ).getAbsolutePath() );
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                    TestUtils.getResource( "/" ).getAbsolutePath() );
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
             // Driver-specific parameters
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -635,7 +639,8 @@ public class WorkloadRunnerTest
             );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
-                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource( "/updateStream.properties" ) ) );
+                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
+                            "/snb/interactive/updateStream.properties" ) ) );
 
             controlService = new LocalControlService(
                     timeSource.nowAsMilli() + 1000,

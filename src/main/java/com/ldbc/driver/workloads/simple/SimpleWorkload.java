@@ -9,8 +9,8 @@ import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.MinMaxGenerator;
 import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.util.Tuple.Tuple2;
-import com.ldbc.driver.util.Tuple.Tuple3;
+import com.ldbc.driver.util.Tuple2;
+import com.ldbc.driver.util.Tuple3;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 
 import java.io.IOException;

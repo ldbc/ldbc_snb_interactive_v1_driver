@@ -13,7 +13,7 @@ import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.ClassLoaderHelper;
-import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple3;
 import com.ldbc.driver.validation.ValidationParam;
 import com.ldbc.driver.validation.ValidationParamsGenerator;
 import com.ldbc.driver.validation.ValidationParamsToCsvRows;
@@ -76,7 +76,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
         try
         {
             boolean returnStreamsWithDbConnector = false;
-            Tuple.Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
+            Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                             controlService.configuration(),
                             gf,

@@ -9,6 +9,7 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple2;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -1241,7 +1242,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
 
         // IT(1) [ , , , , ,6,7]
         // CT(1) [1,2,3,4,5, , ]
-        List<Tuple.Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream1 = Lists.newArrayList(
+        List<Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream1 = Lists.newArrayList(
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 2l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 3l),
@@ -1258,7 +1259,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
 
         // IT(2) [ , , , , ,100]
         // CT(2) [2,2,2,2,4,   ]
-        List<Tuple.Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream2 = Lists.newArrayList(
+        List<Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream2 = Lists.newArrayList(
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 2l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 2l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 2l),
@@ -1311,7 +1312,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
 
         // IT(1) [ , , , , ,6,7]
         // CT(1) [1,2,3,4,5, , ]
-        List<Tuple.Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream1 = Lists.newArrayList(
+        List<Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream1 = Lists.newArrayList(
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 2l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 3l),
@@ -1328,7 +1329,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
 
         // IT(2) [ , , , , ,100]
         // CT(2) [2,2,2,2,4,   ]
-        List<Tuple.Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream2 = Lists.newArrayList(
+        List<Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream2 = Lists.newArrayList(
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 2l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 2l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 2l),
@@ -1344,7 +1345,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
 
         // IT(3) []
         // CT(3) []
-        List<Tuple.Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream3 = Lists.newArrayList(
+        List<Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream3 = Lists.newArrayList(
         );
 
         MultiWriterLocalCompletionTimeConcurrentStateManager multiWriterLocalCompletionTimeConcurrentStateManager =
@@ -1395,7 +1396,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
 
         // IT(1) [ , , , , , , , , , , , , , , , , , , , ,2]
         // CT(1) [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, ]
-        List<Tuple.Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream1 = Lists.newArrayList(
+        List<Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream1 = Lists.newArrayList(
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l),
@@ -1442,7 +1443,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         );
         // IT(2) [ , , , , , , , , , , , , , , , , , , , ,2]
         // CT(2) [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, ]
-        List<Tuple.Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream2 = Lists.newArrayList(
+        List<Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream2 = Lists.newArrayList(
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l),
@@ -1489,7 +1490,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         );
         // IT(3) [ , , , , , , , , , , , , , , , , , , , ,2]
         // CT(3) [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, ]
-        List<Tuple.Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream3 = Lists.newArrayList(
+        List<Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream3 = Lists.newArrayList(
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l),
                 Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l),
@@ -1582,7 +1583,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
 
-        Iterator<Tuple.Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream1 = Iterators.concat(
+        Iterator<Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream1 = Iterators.concat(
                 gf.limit(
                         gf.constant(Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 1l)),
                         10000),
@@ -1600,7 +1601,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
                         1)
         );
 
-        Iterator<Tuple.Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream2 = Iterators.concat(
+        Iterator<Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream2 = Iterators.concat(
                 gf.limit(
                         gf.constant(Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 10l)),
                         10000),
@@ -1627,7 +1628,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
                         1000)
         );
 
-        Iterator<Tuple.Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream3 = Iterators.concat(
+        Iterator<Tuple2<LocalCompletionTimeWriterThread.WriteType, Long>> writeStream3 = Iterators.concat(
                 gf.limit(
                         gf.constant(Tuple.tuple2(LocalCompletionTimeWriterThread.WriteType.WRITE_LIT, 2l)),
                         10000),
@@ -1700,11 +1701,11 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         private final LocalCompletionTimeWriter writer;
         private final AtomicBoolean continueExecuting = new AtomicBoolean(true);
         private final AtomicBoolean hasCompletedExecution = new AtomicBoolean(false);
-        private final Iterator<Tuple.Tuple2<WriteType, Long>> writeStream;
+        private final Iterator<Tuple2<WriteType, Long>> writeStream;
         private final ConcurrentErrorReporter errorReporter;
 
         LocalCompletionTimeWriterThread(LocalCompletionTimeWriter writer,
-                                        Iterator<Tuple.Tuple2<WriteType, Long>> writeStream,
+                                        Iterator<Tuple2<WriteType, Long>> writeStream,
                                         ConcurrentErrorReporter errorReporter) {
             this.writer = writer;
             this.writeStream = writeStream;
@@ -1724,7 +1725,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
             try {
                 while (continueExecuting.get()) {
                     if (writeStream.hasNext()) {
-                        Tuple.Tuple2<WriteType, Long> write = writeStream.next();
+                        Tuple2<WriteType, Long> write = writeStream.next();
                         WriteType writeType = write._1();
                         long writeTimeAsMilli = write._2();
                         switch (writeType) {

@@ -8,26 +8,39 @@ import com.ldbc.driver.util.Function0;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.Function2;
 import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.util.Tuple.Tuple2;
-import com.ldbc.driver.util.Tuple.Tuple3;
+import com.ldbc.driver.util.Tuple2;
+import com.ldbc.driver.util.Tuple3;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class GeneratorFactory {
+public class GeneratorFactory
+{
 
     private final RandomDataGeneratorFactory randomDataGeneratorFactory;
 
-    public GeneratorFactory(RandomDataGeneratorFactory randomDataGeneratorFactory) {
+    public GeneratorFactory( RandomDataGeneratorFactory randomDataGeneratorFactory )
+    {
         this.randomDataGeneratorFactory = randomDataGeneratorFactory;
     }
 
     private RandomDataGenerator randomDataGenerator = null;
 
     // Every returned generator (that takes a RandomDataGenerator as input) will use a different RandomDataGenerator
-    // UPDATE (2014/08/11): for performance (random data generator instantiation seems to be expensive), one generator shared among all generators
-    RandomDataGenerator getRandom() {
-        if (null == randomDataGenerator) randomDataGenerator = randomDataGeneratorFactory.newRandom();
+    // UPDATE (2014/08/11): for performance (random data generator instantiation seems to be expensive), one
+    // generator shared among all generators
+    RandomDataGenerator getRandom()
+    {
+        if ( null == randomDataGenerator )
+        { randomDataGenerator = randomDataGeneratorFactory.newRandom(); }
         return randomDataGenerator;
     }
 
@@ -37,7 +50,8 @@ public class GeneratorFactory {
      * ----------------------------------------------------------------------------------------------------
      */
 
-    public enum OperationStreamComparisonResultType {
+    public enum OperationStreamComparisonResultType
+    {
         PASS,
         FAIL_ONE_STREAM_IS_EMPTY,
         FAIL_STREAMS_HAVE_DIFFERENT_LENGTH,
@@ -50,20 +64,24 @@ public class GeneratorFactory {
         FAIL_DEPENDENCY_TIME_STAMPS_NOT_EQUAL
     }
 
-    public class OperationStreamComparisonResult {
+    public class OperationStreamComparisonResult
+    {
         private final String errorMessage;
         private final OperationStreamComparisonResultType result;
 
-        public OperationStreamComparisonResult(String errorMessage, OperationStreamComparisonResultType result) {
+        public OperationStreamComparisonResult( String errorMessage, OperationStreamComparisonResultType result )
+        {
             this.errorMessage = errorMessage;
             this.result = result;
         }
 
-        public String errorMessage() {
+        public String errorMessage()
+        {
             return errorMessage;
         }
 
-        public OperationStreamComparisonResultType resultType() {
+        public OperationStreamComparisonResultType resultType()
+        {
             return result;
         }
     }
@@ -78,86 +96,122 @@ public class GeneratorFactory {
      */
     // TODO move into a separate class, test that class separately, use that class here
     // TODO add check for timeStamp()
-    public OperationStreamComparisonResult compareOperationStreams(Iterator<Operation> operationStream1,
-                                                                   Iterator<Operation> operationStream2,
-                                                                   boolean compareTimes) {
+    public OperationStreamComparisonResult compareOperationStreams( Iterator<Operation> operationStream1,
+            Iterator<Operation> operationStream2,
+            boolean compareTimes )
+    {
         int operationNumber = 0;
-        if (operationStream1.hasNext() != operationStream2.hasNext())
-            return new OperationStreamComparisonResult("", OperationStreamComparisonResultType.FAIL_ONE_STREAM_IS_EMPTY);
+        if ( operationStream1.hasNext() != operationStream2.hasNext() )
+        {
+            return new OperationStreamComparisonResult( "",
+                    OperationStreamComparisonResultType.FAIL_ONE_STREAM_IS_EMPTY );
+        }
 
-        while (operationStream1.hasNext()) {
+        while ( operationStream1.hasNext() )
+        {
             operationNumber++;
-            if (false == operationStream2.hasNext())
+            if ( false == operationStream2.hasNext() )
+            {
                 return new OperationStreamComparisonResult(
-                        String.format("operation %s\nstream 2 is shorter", operationNumber),
-                        OperationStreamComparisonResultType.FAIL_STREAMS_HAVE_DIFFERENT_LENGTH);
+                        String.format( "operation %s\nstream 2 is shorter", operationNumber ),
+                        OperationStreamComparisonResultType.FAIL_STREAMS_HAVE_DIFFERENT_LENGTH );
+            }
             Operation next1 = operationStream1.next();
             Operation next2 = operationStream2.next();
-            if (null == next1 && null == next2) continue;
-            if (null == next1 || null == next2)
+            if ( null == next1 && null == next2 )
+            { continue; }
+            if ( null == next1 || null == next2 )
+            {
                 return new OperationStreamComparisonResult(
-                        String.format("operation %s\none operation is null\nstream 1: %s\nstream 2: %s",
-                                operationNumber, next1, next2),
-                        OperationStreamComparisonResultType.FAIL_ONE_OPERATION_IS_NULL);
+                        String.format( "operation %s\none operation is null\nstream 1: %s\nstream 2: %s",
+                                operationNumber, next1, next2 ),
+                        OperationStreamComparisonResultType.FAIL_ONE_OPERATION_IS_NULL );
+            }
 
-            else if (false == next1.equals(next2))
+            else if ( false == next1.equals( next2 ) )
+            {
                 return new OperationStreamComparisonResult(
-                        String.format("operation %s\noperations not equal\nstream 1: %s\nstream 2: %s", operationNumber, next1, next2),
-                        OperationStreamComparisonResultType.FAIL_OPERATIONS_NOT_EQUAL);
-            if (compareTimes) {
+                        String.format( "operation %s\noperations not equal\nstream 1: %s\nstream 2: %s",
+                                operationNumber, next1, next2 ),
+                        OperationStreamComparisonResultType.FAIL_OPERATIONS_NOT_EQUAL );
+            }
+            if ( compareTimes )
+            {
                 long scheduledStartTimeAsMilli1 = next1.scheduledStartTimeAsMilli();
                 long scheduledStartTimeAsMilli2 = next2.scheduledStartTimeAsMilli();
-                if (-1 == scheduledStartTimeAsMilli1 && -1 == scheduledStartTimeAsMilli2) {
+                if ( -1 == scheduledStartTimeAsMilli1 && -1 == scheduledStartTimeAsMilli2 )
+                {
                     // do nothing
-                } else if (-1 == scheduledStartTimeAsMilli1 || -1 == scheduledStartTimeAsMilli2)
+                }
+                else if ( -1 == scheduledStartTimeAsMilli1 || -1 == scheduledStartTimeAsMilli2 )
+                {
                     return new OperationStreamComparisonResult(
-                            String.format("operation %s\none start time is null\nstream 1: %s\nstream 2: %s",
-                                    scheduledStartTimeAsMilli1, scheduledStartTimeAsMilli2, operationNumber),
-                            OperationStreamComparisonResultType.FAIL_ONE_START_TIME_IS_NULL);
-                else if (scheduledStartTimeAsMilli1 != scheduledStartTimeAsMilli2)
+                            String.format( "operation %s\none start time is null\nstream 1: %s\nstream 2: %s",
+                                    scheduledStartTimeAsMilli1, scheduledStartTimeAsMilli2, operationNumber ),
+                            OperationStreamComparisonResultType.FAIL_ONE_START_TIME_IS_NULL );
+                }
+                else if ( scheduledStartTimeAsMilli1 != scheduledStartTimeAsMilli2 )
+                {
                     return new OperationStreamComparisonResult(
-                            String.format("operation %s\nstart times not equal\nstream 1: %s\nstream 2: %s",
-                                    operationNumber, scheduledStartTimeAsMilli1, scheduledStartTimeAsMilli2),
-                            OperationStreamComparisonResultType.FAIL_START_TIMES_NOT_EQUAL);
+                            String.format( "operation %s\nstart times not equal\nstream 1: %s\nstream 2: %s",
+                                    operationNumber, scheduledStartTimeAsMilli1, scheduledStartTimeAsMilli2 ),
+                            OperationStreamComparisonResultType.FAIL_START_TIMES_NOT_EQUAL );
+                }
                 long timeStamp1 = next1.timeStamp();
                 long timeStamp2 = next2.timeStamp();
-                if (-1 == timeStamp1 && -1 == timeStamp2) {
+                if ( -1 == timeStamp1 && -1 == timeStamp2 )
+                {
                     // do nothing
-                } else if (-1 == timeStamp1 || -1 == timeStamp2)
+                }
+                else if ( -1 == timeStamp1 || -1 == timeStamp2 )
+                {
                     return new OperationStreamComparisonResult(
-                            String.format("operation %s\none time stamp is null\nstream 1: %s\nstream 2: %s",
-                                    timeStamp1, timeStamp2, operationNumber),
-                            OperationStreamComparisonResultType.FAIL_ONE_START_TIME_IS_NULL);
-                else if (timeStamp1 != timeStamp2)
+                            String.format( "operation %s\none time stamp is null\nstream 1: %s\nstream 2: %s",
+                                    timeStamp1, timeStamp2, operationNumber ),
+                            OperationStreamComparisonResultType.FAIL_ONE_START_TIME_IS_NULL );
+                }
+                else if ( timeStamp1 != timeStamp2 )
+                {
                     return new OperationStreamComparisonResult(
-                            String.format("operation %s\ntime stamps not equal\nstream 1: %s\nstream 2: %s",
-                                    operationNumber, timeStamp1, timeStamp2),
-                            OperationStreamComparisonResultType.FAIL_TIME_STAMPS_NOT_EQUAL);
+                            String.format( "operation %s\ntime stamps not equal\nstream 1: %s\nstream 2: %s",
+                                    operationNumber, timeStamp1, timeStamp2 ),
+                            OperationStreamComparisonResultType.FAIL_TIME_STAMPS_NOT_EQUAL );
+                }
                 long dependencyTimeStamp1 = next1.dependencyTimeStamp();
                 long dependencyTimeStamp2 = next2.dependencyTimeStamp();
-                if (-1 == dependencyTimeStamp1 && -1 == dependencyTimeStamp2) {
+                if ( -1 == dependencyTimeStamp1 && -1 == dependencyTimeStamp2 )
+                {
                     // do nothing
-                } else if (-1 == dependencyTimeStamp1 || -1 == dependencyTimeStamp2)
+                }
+                else if ( -1 == dependencyTimeStamp1 || -1 == dependencyTimeStamp2 )
+                {
                     return new OperationStreamComparisonResult(
-                            String.format("operation %s\none dependency time is null\nstream1: %s\nstream2: %s",
-                                    dependencyTimeStamp1, dependencyTimeStamp2, operationNumber),
-                            OperationStreamComparisonResultType.FAIL_ONE_DEPENDENCY_TIME_IS_NULL);
-                else if (dependencyTimeStamp1 != dependencyTimeStamp2)
+                            String.format( "operation %s\none dependency time is null\nstream1: %s\nstream2: %s",
+                                    dependencyTimeStamp1, dependencyTimeStamp2, operationNumber ),
+                            OperationStreamComparisonResultType.FAIL_ONE_DEPENDENCY_TIME_IS_NULL );
+                }
+                else if ( dependencyTimeStamp1 != dependencyTimeStamp2 )
+                {
                     return new OperationStreamComparisonResult(
-                            String.format("operation %s\ndependency times not equal\nstream 1: %s\nstream 2: %s",
-                                    operationNumber, dependencyTimeStamp1, dependencyTimeStamp2),
-                            OperationStreamComparisonResultType.FAIL_DEPENDENCY_TIME_STAMPS_NOT_EQUAL);
+                            String.format( "operation %s\ndependency times not equal\nstream 1: %s\nstream 2: %s",
+                                    operationNumber, dependencyTimeStamp1, dependencyTimeStamp2 ),
+                            OperationStreamComparisonResultType.FAIL_DEPENDENCY_TIME_STAMPS_NOT_EQUAL );
+                }
             }
         }
-        if (operationStream2.hasNext())
+        if ( operationStream2.hasNext() )
+        {
             return new OperationStreamComparisonResult(
-                    String.format("operation %s\nstream 1 is shorter", operationNumber),
-                    OperationStreamComparisonResultType.FAIL_STREAMS_HAVE_DIFFERENT_LENGTH);
-        return new OperationStreamComparisonResult("", OperationStreamComparisonResultType.PASS);
+                    String.format( "operation %s\nstream 1 is shorter", operationNumber ),
+                    OperationStreamComparisonResultType.FAIL_STREAMS_HAVE_DIFFERENT_LENGTH );
+        }
+        return new OperationStreamComparisonResult( "", OperationStreamComparisonResultType.PASS );
     }
 
-    public <T> void consume(Iterator<T> generator, long count) {
-        for (long consumed = 0; generator.hasNext() && consumed < count; consumed++) {
+    public <T> void consume( Iterator<T> generator, long count )
+    {
+        for ( long consumed = 0; generator.hasNext() && consumed < count; consumed++ )
+        {
             generator.next();
         }
     }
@@ -176,20 +230,23 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T extends Number> MinMaxGenerator<T> minMaxGenerator(Iterator<T> generator, T initialMin, T initialMax) {
-        return new MinMaxGenerator<T>(generator, initialMin, initialMax);
+    public <T extends Number> MinMaxGenerator<T> minMaxGenerator( Iterator<T> generator, T initialMin, T initialMax )
+    {
+        return new MinMaxGenerator<T>( generator, initialMin, initialMax );
     }
 
     /**
-     * Wraps any generator, writes its contents into a bounded queue with a background thread, and reads from that queue on next
+     * Wraps any generator, writes its contents into a bounded queue with a background thread, and reads from that queue
+     * on next
      *
      * @param generator
      * @param threadAheadDistance
      * @param <T>
      * @return
      */
-    public <T> ThreadAheadGenerator<T> threadAhead(Iterator<T> generator, int threadAheadDistance) {
-        return new ThreadAheadGenerator<>(generator, threadAheadDistance);
+    public <T> ThreadAheadGenerator<T> threadAhead( Iterator<T> generator, int threadAheadDistance )
+    {
+        return new ThreadAheadGenerator<>( generator, threadAheadDistance );
     }
 
     /*
@@ -198,50 +255,61 @@ public class GeneratorFactory {
      * ----------------------------------------------------------------------------------------------------
      */
 
-    public <T1> Iterator<T1> includeOnly(Iterator<T1> generator, T1... includedItems) {
-        return includeOnly(generator, new IncludeOnlyPredicate<>(includedItems));
+    public <T1> Iterator<T1> includeOnly( Iterator<T1> generator, T1... includedItems )
+    {
+        return includeOnly( generator, new IncludeOnlyPredicate<>( includedItems ) );
     }
 
-    public <T1> Iterator<T1> includeOnly(Iterator<T1> generator, Predicate<T1> isIncludedPredicate) {
-        return Iterators.filter(generator, isIncludedPredicate);
+    public <T1> Iterator<T1> includeOnly( Iterator<T1> generator, Predicate<T1> isIncludedPredicate )
+    {
+        return Iterators.filter( generator, isIncludedPredicate );
     }
 
-    private class IncludeOnlyPredicate<T1> implements Predicate<T1> {
+    private class IncludeOnlyPredicate<T1> implements Predicate<T1>
+    {
         private final Set<T1> includedItems;
 
-        private IncludeOnlyPredicate(T1... includedItems) {
-            this.includedItems = new HashSet<>(Arrays.asList(includedItems));
+        private IncludeOnlyPredicate( T1... includedItems )
+        {
+            this.includedItems = new HashSet<>( Arrays.asList( includedItems ) );
         }
 
         @Override
-        public boolean apply(T1 input) {
-            return true == includedItems.contains(input);
+        public boolean apply( T1 input )
+        {
+            return true == includedItems.contains( input );
         }
     }
 
-    public <T1> Iterator<T1> excludeAll(Iterator<T1> generator, T1... excludedItems) {
-        return excludeAll(generator, new ExcludeAllPredicate<>(excludedItems));
+    public <T1> Iterator<T1> excludeAll( Iterator<T1> generator, T1... excludedItems )
+    {
+        return excludeAll( generator, new ExcludeAllPredicate<>( excludedItems ) );
     }
 
-    public <T1> Iterator<T1> excludeAll(Iterator<T1> generator, Predicate<T1> isExcludedPredicate) {
-        return Iterators.filter(generator, isExcludedPredicate);
+    public <T1> Iterator<T1> excludeAll( Iterator<T1> generator, Predicate<T1> isExcludedPredicate )
+    {
+        return Iterators.filter( generator, isExcludedPredicate );
     }
 
-    private class ExcludeAllPredicate<T1> implements Predicate<T1> {
+    private class ExcludeAllPredicate<T1> implements Predicate<T1>
+    {
         private final Set<T1> excludedItems;
 
-        private ExcludeAllPredicate(T1... excludedItems) {
-            this.excludedItems = new HashSet<>(Arrays.asList(excludedItems));
+        private ExcludeAllPredicate( T1... excludedItems )
+        {
+            this.excludedItems = new HashSet<>( Arrays.asList( excludedItems ) );
         }
 
         @Override
-        public boolean apply(T1 input) {
-            return false == excludedItems.contains(input);
+        public boolean apply( T1 input )
+        {
+            return false == excludedItems.contains( input );
         }
     }
 
     /**
-     * Maps/transforms one iterator into another, using input function to perform the transformation on each individual element.
+     * Maps/transforms one iterator into another, using input function to perform the transformation on each individual
+     * element.
      * Returned iterator will have the same length input iterator.
      *
      * @param original
@@ -250,8 +318,9 @@ public class GeneratorFactory {
      * @param <OUT>
      * @return
      */
-    public <IN, OUT> Iterator<OUT> map(Iterator<IN> original, Function1<IN, OUT> fun) {
-        return new MappingGenerator<>(original, fun);
+    public <IN, OUT> Iterator<OUT> map( Iterator<IN> original, Function1<IN,OUT> fun )
+    {
+        return new MappingGenerator<>( original, fun );
     }
 
     /**
@@ -267,8 +336,10 @@ public class GeneratorFactory {
      * @param <OUT>
      * @return
      */
-    public <IN_1, IN_2, OUT> Iterator<OUT> merge(Iterator<IN_1> in1, Iterator<IN_2> in2, Function2<IN_1, IN_2, OUT> mergeFun) {
-        return new MergingGenerator<>(in1, in2, mergeFun);
+    public <IN_1, IN_2, OUT> Iterator<OUT> merge( Iterator<IN_1> in1, Iterator<IN_2> in2,
+            Function2<IN_1,IN_2,OUT> mergeFun )
+    {
+        return new MergingGenerator<>( in1, in2, mergeFun );
     }
 
     /**
@@ -283,16 +354,20 @@ public class GeneratorFactory {
      * @param canOverwriteDependencyTime
      * @return
      */
-    public Iterator<Operation> assignConservativeDependencyTimes(Iterator<Operation> operations,
-                                                                 final long initialDependencyTimeAsMilli,
-                                                                 final boolean canOverwriteDependencyTime) {
-        Function1<Operation, Boolean> isDependency = new Function1<Operation, Boolean>() {
+    public Iterator<Operation> assignConservativeDependencyTimes( Iterator<Operation> operations,
+            final long initialDependencyTimeAsMilli,
+            final boolean canOverwriteDependencyTime )
+    {
+        Function1<Operation,Boolean> isDependency = new Function1<Operation,Boolean>()
+        {
             @Override
-            public Boolean apply(Operation operation) {
+            public Boolean apply( Operation operation )
+            {
                 return true;
             }
         };
-        return assignDependencyTimesEqualToLastEncounteredDependencyTimeStamp(operations, isDependency, initialDependencyTimeAsMilli, canOverwriteDependencyTime);
+        return assignDependencyTimesEqualToLastEncounteredDependencyTimeStamp( operations, isDependency,
+                initialDependencyTimeAsMilli, canOverwriteDependencyTime );
     }
 
     /**
@@ -309,24 +384,31 @@ public class GeneratorFactory {
      * @param canOverwriteDependencyTime
      * @return
      */
-    public Iterator<Operation> assignDependencyTimesEqualToLastEncounteredLowerDependencyTimeStamp(Iterator<Operation> operations,
-                                                                                                   final Function1<Operation, Boolean> isDependency,
-                                                                                                   final long initialDependencyTimeAsMilli,
-                                                                                                   final boolean canOverwriteDependencyTime) {
-        Function1<Operation, Operation> dependencyTimeAssigningFun = new Function1<Operation, Operation>() {
+    public Iterator<Operation> assignDependencyTimesEqualToLastEncounteredLowerDependencyTimeStamp(
+            Iterator<Operation> operations,
+            final Function1<Operation,Boolean> isDependency,
+            final long initialDependencyTimeAsMilli,
+            final boolean canOverwriteDependencyTime )
+    {
+        Function1<Operation,Operation> dependencyTimeAssigningFun = new Function1<Operation,Operation>()
+        {
             private long secondMostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
             private long mostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
 
             @Override
-            public Operation apply(Operation operation) {
-                if (-1 == operation.dependencyTimeStamp() || canOverwriteDependencyTime) {
-                    if (operation.timeStamp() > mostRecentDependencyAsMilli)
-                        operation.setDependencyTimeStamp(mostRecentDependencyAsMilli);
+            public Operation apply( Operation operation )
+            {
+                if ( -1 == operation.dependencyTimeStamp() || canOverwriteDependencyTime )
+                {
+                    if ( operation.timeStamp() > mostRecentDependencyAsMilli )
+                    { operation.setDependencyTimeStamp( mostRecentDependencyAsMilli ); }
                     else
-                        operation.setDependencyTimeStamp(secondMostRecentDependencyAsMilli);
+                    { operation.setDependencyTimeStamp( secondMostRecentDependencyAsMilli ); }
                 }
-                if (isDependency.apply(operation)) {
-                    if (operation.timeStamp() > mostRecentDependencyAsMilli) {
+                if ( isDependency.apply( operation ) )
+                {
+                    if ( operation.timeStamp() > mostRecentDependencyAsMilli )
+                    {
                         secondMostRecentDependencyAsMilli = mostRecentDependencyAsMilli;
                         mostRecentDependencyAsMilli = operation.timeStamp();
                     }
@@ -334,7 +416,7 @@ public class GeneratorFactory {
                 return operation;
             }
         };
-        return new MappingGenerator<>(operations, dependencyTimeAssigningFun);
+        return new MappingGenerator<>( operations, dependencyTimeAssigningFun );
     }
 
     /**
@@ -350,24 +432,29 @@ public class GeneratorFactory {
      * @param canOverwriteDependencyTime
      * @return
      */
-    public Iterator<Operation> assignDependencyTimesEqualToLastEncounteredDependencyTimeStamp(Iterator<Operation> operations,
-                                                                                              final Function1<Operation, Boolean> isDependency,
-                                                                                              final long initialDependencyTimeAsMilli,
-                                                                                              final boolean canOverwriteDependencyTime) {
-        Function1<Operation, Operation> dependencyTimeAssigningFun = new Function1<Operation, Operation>() {
+    public Iterator<Operation> assignDependencyTimesEqualToLastEncounteredDependencyTimeStamp(
+            Iterator<Operation> operations,
+            final Function1<Operation,Boolean> isDependency,
+            final long initialDependencyTimeAsMilli,
+            final boolean canOverwriteDependencyTime )
+    {
+        Function1<Operation,Operation> dependencyTimeAssigningFun = new Function1<Operation,Operation>()
+        {
             private long mostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
 
             @Override
-            public Operation apply(Operation operation) {
-                if (-1 == operation.dependencyTimeStamp() || canOverwriteDependencyTime)
-                    operation.setDependencyTimeStamp(mostRecentDependencyAsMilli);
-                if (isDependency.apply(operation)) {
+            public Operation apply( Operation operation )
+            {
+                if ( -1 == operation.dependencyTimeStamp() || canOverwriteDependencyTime )
+                { operation.setDependencyTimeStamp( mostRecentDependencyAsMilli ); }
+                if ( isDependency.apply( operation ) )
+                {
                     mostRecentDependencyAsMilli = operation.timeStamp();
                 }
                 return operation;
             }
         };
-        return new MappingGenerator<>(operations, dependencyTimeAssigningFun);
+        return new MappingGenerator<>( operations, dependencyTimeAssigningFun );
     }
 
     /**
@@ -378,35 +465,43 @@ public class GeneratorFactory {
      * @param operations
      * @return
      */
-    public Iterator<Operation> assignStartTimes(Iterator<Long> startTimesAsMilli, Iterator<Operation> operations) {
-        Function2<Long, Operation, Operation> startTimeAssigningFun = new Function2<Long, Operation, Operation>() {
+    public Iterator<Operation> assignStartTimes( Iterator<Long> startTimesAsMilli, Iterator<Operation> operations )
+    {
+        Function2<Long,Operation,Operation> startTimeAssigningFun = new Function2<Long,Operation,Operation>()
+        {
             @Override
-            public Operation apply(Long timeAsMilli, Operation operation) {
-                operation.setScheduledStartTimeAsMilli(timeAsMilli);
-                operation.setTimeStamp(timeAsMilli);
+            public Operation apply( Long timeAsMilli, Operation operation )
+            {
+                operation.setScheduledStartTimeAsMilli( timeAsMilli );
+                operation.setTimeStamp( timeAsMilli );
                 return operation;
             }
         };
-        return new MergingGenerator<>(startTimesAsMilli, operations, startTimeAssigningFun);
+        return new MergingGenerator<>( startTimesAsMilli, operations, startTimeAssigningFun );
     }
 
     /**
-     * Returns the same operation generator, with dependency times assigned to each operation taken from the dependency time
+     * Returns the same operation generator, with dependency times assigned to each operation taken from the dependency
+     * time
      * generator. Generator stops as soon as either of the generators, dependency times or operations, stops.
      *
      * @param dependencyTimesAsMilli
      * @param operations
      * @return
      */
-    public Iterator<Operation> assignDependencyTimes(Iterator<Long> dependencyTimesAsMilli, Iterator<Operation> operations) {
-        Function2<Long, Operation, Operation> dependencyTimeAssigningFun = new Function2<Long, Operation, Operation>() {
+    public Iterator<Operation> assignDependencyTimes( Iterator<Long> dependencyTimesAsMilli,
+            Iterator<Operation> operations )
+    {
+        Function2<Long,Operation,Operation> dependencyTimeAssigningFun = new Function2<Long,Operation,Operation>()
+        {
             @Override
-            public Operation apply(Long timeAsMilli, Operation operation) {
-                operation.setDependencyTimeStamp(timeAsMilli);
+            public Operation apply( Long timeAsMilli, Operation operation )
+            {
+                operation.setDependencyTimeStamp( timeAsMilli );
                 return operation;
             }
         };
-        return new MergingGenerator<>(dependencyTimesAsMilli, operations, dependencyTimeAssigningFun);
+        return new MergingGenerator<>( dependencyTimesAsMilli, operations, dependencyTimeAssigningFun );
     }
 
     /**
@@ -418,25 +513,33 @@ public class GeneratorFactory {
      * @param maxIncrement
      * @return
      */
-    public <T extends Number> Iterator<T> randomIncrement(T start, T minIncrement, T maxIncrement) {
-        Iterator<T> incrementAmountGenerator = uniform(minIncrement, maxIncrement);
-        return incrementing(start, incrementAmountGenerator);
+    public <T extends Number> Iterator<T> randomIncrement( T start, T minIncrement, T maxIncrement )
+    {
+        Iterator<T> incrementAmountGenerator = uniform( minIncrement, maxIncrement );
+        return incrementing( start, incrementAmountGenerator );
     }
 
     /**
-     * Returned generator will merge all input generators into one, sorting on the scheduled start time of operations, ascending
+     * Returned generator will merge all input generators into one, sorting on the scheduled start time of operations,
+     * ascending
      *
      * @param generators
      * @return
      */
-    public Iterator<Operation> mergeSortOperationsByScheduledStartTime(Iterator<Operation>... generators) {
+    public Iterator<Operation> mergeSortOperationsByScheduledStartTime( Iterator<Operation>... generators )
+    {
         return mergeSort(
-                new Comparator<Operation>() {
+                new Comparator<Operation>()
+                {
                     @Override
-                    public int compare(Operation o1, Operation o2) {
-                        if (o1.scheduledStartTimeAsMilli() > o2.scheduledStartTimeAsMilli()) return 1;
-                        else if (o1.scheduledStartTimeAsMilli() < o2.scheduledStartTimeAsMilli()) return -1;
-                        else return 0;
+                    public int compare( Operation o1, Operation o2 )
+                    {
+                        if ( o1.scheduledStartTimeAsMilli() > o2.scheduledStartTimeAsMilli() )
+                        { return 1; }
+                        else if ( o1.scheduledStartTimeAsMilli() < o2.scheduledStartTimeAsMilli() )
+                        { return -1; }
+                        else
+                        { return 0; }
                     }
                 },
                 generators
@@ -449,14 +552,20 @@ public class GeneratorFactory {
      * @param generators
      * @return
      */
-    public Iterator<Operation> mergeSortOperationsByTimeStamp(Iterator<Operation>... generators) {
+    public Iterator<Operation> mergeSortOperationsByTimeStamp( Iterator<Operation>... generators )
+    {
         return mergeSort(
-                new Comparator<Operation>() {
+                new Comparator<Operation>()
+                {
                     @Override
-                    public int compare(Operation o1, Operation o2) {
-                        if (o1.timeStamp() > o2.timeStamp()) return 1;
-                        else if (o1.timeStamp() < o2.timeStamp()) return -1;
-                        else return 0;
+                    public int compare( Operation o1, Operation o2 )
+                    {
+                        if ( o1.timeStamp() > o2.timeStamp() )
+                        { return 1; }
+                        else if ( o1.timeStamp() < o2.timeStamp() )
+                        { return -1; }
+                        else
+                        { return 0; }
                     }
                 },
                 generators
@@ -469,14 +578,20 @@ public class GeneratorFactory {
      * @param generators
      * @return
      */
-    public <T extends Number> Iterator<T> mergeSortNumbers(Iterator<T>... generators) {
+    public <T extends Number> Iterator<T> mergeSortNumbers( Iterator<T>... generators )
+    {
         return mergeSort(
-                new Comparator<T>() {
+                new Comparator<T>()
+                {
                     @Override
-                    public int compare(T t1, T t2) {
-                        if (t1.longValue() > t2.longValue()) return 1;
-                        else if (t1.longValue() < t2.longValue()) return -1;
-                        else return 0;
+                    public int compare( T t1, T t2 )
+                    {
+                        if ( t1.longValue() > t2.longValue() )
+                        { return 1; }
+                        else if ( t1.longValue() < t2.longValue() )
+                        { return -1; }
+                        else
+                        { return 0; }
                     }
                 },
                 generators
@@ -491,8 +606,9 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> mergeSort(Comparator<T> comparator, Iterator<T>... generators) {
-        return Iterators.mergeSorted(Lists.newArrayList(generators), comparator);
+    public <T> Iterator<T> mergeSort( Comparator<T> comparator, Iterator<T>... generators )
+    {
+        return Iterators.mergeSorted( Lists.newArrayList( generators ), comparator );
     }
 
     /**
@@ -505,8 +621,9 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> mergeSort(Comparator<T> comparator, int lookAheadDistance, Iterator<T>... generators) {
-        return new OrderedMultiGenerator<>(comparator, lookAheadDistance, generators);
+    public <T> Iterator<T> mergeSort( Comparator<T> comparator, int lookAheadDistance, Iterator<T>... generators )
+    {
+        return new OrderedMultiGenerator<>( comparator, lookAheadDistance, generators );
     }
 
     /**
@@ -521,8 +638,9 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> repeating(Iterator<T> generator) {
-        return new RepeatingGenerator<>(generator);
+    public <T> Iterator<T> repeating( Iterator<T> generator )
+    {
+        return new RepeatingGenerator<>( generator );
     }
 
     /**
@@ -532,8 +650,9 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> identity(T... things) {
-        return new IdentityGenerator<>(things);
+    public <T> Iterator<T> identity( T... things )
+    {
+        return new IdentityGenerator<>( things );
     }
 
     /**
@@ -546,14 +665,18 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> interleave(Iterator<? extends T> baseGenerator, Iterator<? extends T> interleaveWithGenerator, final int amountToInterleave) {
-        Function0<Integer> amountToInterleaveFun = new Function0<Integer>() {
+    public <T> Iterator<T> interleave( Iterator<? extends T> baseGenerator,
+            Iterator<? extends T> interleaveWithGenerator, final int amountToInterleave )
+    {
+        Function0<Integer> amountToInterleaveFun = new Function0<Integer>()
+        {
             @Override
-            public Integer apply() {
+            public Integer apply()
+            {
                 return amountToInterleave;
             }
         };
-        return new InterleaveGenerator<>(baseGenerator, interleaveWithGenerator, amountToInterleaveFun);
+        return new InterleaveGenerator<>( baseGenerator, interleaveWithGenerator, amountToInterleaveFun );
     }
 
     /**
@@ -566,8 +689,10 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> interleave(Iterator<? extends T> base, Iterator<? extends T> interleaveWith, Function0<Integer> amountToInterleaveFun) {
-        return new InterleaveGenerator<>(base, interleaveWith, amountToInterleaveFun);
+    public <T> Iterator<T> interleave( Iterator<? extends T> base, Iterator<? extends T> interleaveWith,
+            Function0<Integer> amountToInterleaveFun )
+    {
+        return new InterleaveGenerator<>( base, interleaveWith, amountToInterleaveFun );
     }
 
     /**
@@ -577,8 +702,9 @@ public class GeneratorFactory {
      * @param newStartTimeAsMilli
      * @return
      */
-    public Iterator<Operation> timeOffset(Iterator<Operation> generator, long newStartTimeAsMilli) {
-        return timeOffsetAndCompress(generator, newStartTimeAsMilli, null);
+    public Iterator<Operation> timeOffset( Iterator<Operation> generator, long newStartTimeAsMilli )
+    {
+        return timeOffsetAndCompress( generator, newStartTimeAsMilli, null );
     }
 
     // TODO timeCompress (without offset)
@@ -593,8 +719,10 @@ public class GeneratorFactory {
      * @param compressionRatio
      * @return
      */
-    public Iterator<Operation> timeOffsetAndCompress(Iterator<Operation> generator, long newStartTimeAsMilli, Double compressionRatio) {
-        return new TimeMappingOperationGenerator(generator, newStartTimeAsMilli, compressionRatio);
+    public Iterator<Operation> timeOffsetAndCompress( Iterator<Operation> generator, long newStartTimeAsMilli,
+            Double compressionRatio )
+    {
+        return new TimeMappingOperationGenerator( generator, newStartTimeAsMilli, compressionRatio );
     }
 
     /**
@@ -605,14 +733,17 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<String> prefix(Iterator<T> generator, final String prefix) {
-        Function1<T, String> prefixingFun = new Function1<T, String>() {
+    public <T> Iterator<String> prefix( Iterator<T> generator, final String prefix )
+    {
+        Function1<T,String> prefixingFun = new Function1<T,String>()
+        {
             @Override
-            public String apply(T item) {
+            public String apply( T item )
+            {
                 return prefix + item.toString();
             }
         };
-        return new MappingGenerator<>(generator, prefixingFun);
+        return new MappingGenerator<>( generator, prefixingFun );
     }
 
     /**
@@ -623,8 +754,9 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> limit(Iterator<T> generator, long limit) {
-        return new LimitGenerator<T>(generator, limit);
+    public <T> Iterator<T> limit( Iterator<T> generator, long limit )
+    {
+        return new LimitGenerator<T>( generator, limit );
     }
 
     /**
@@ -634,12 +766,14 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> discrete(Iterable<T> items) {
-        List<Tuple2<Double, Iterator<T>>> weightedIteratorItems = new ArrayList<>();
-        for (T item : items) {
-            weightedIteratorItems.add(Tuple.tuple2(1d, constant(item)));
+    public <T> Iterator<T> discrete( Iterable<T> items )
+    {
+        List<Tuple2<Double,Iterator<T>>> weightedIteratorItems = new ArrayList<>();
+        for ( T item : items )
+        {
+            weightedIteratorItems.add( Tuple.tuple2( 1d, constant( item ) ) );
         }
-        return weightedDiscreteDereferencing(weightedIteratorItems);
+        return weightedDiscreteDereferencing( weightedIteratorItems );
     }
 
     /**
@@ -650,27 +784,32 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> discreteDereferencing(Iterable<Iterator<T>> itemIterators) {
-        List<Tuple2<Double, Iterator<T>>> weightedIteratorItems = new ArrayList<>();
-        for (Iterator<T> itemIterator : itemIterators) {
-            weightedIteratorItems.add(Tuple.tuple2(1d, itemIterator));
+    public <T> Iterator<T> discreteDereferencing( Iterable<Iterator<T>> itemIterators )
+    {
+        List<Tuple2<Double,Iterator<T>>> weightedIteratorItems = new ArrayList<>();
+        for ( Iterator<T> itemIterator : itemIterators )
+        {
+            weightedIteratorItems.add( Tuple.tuple2( 1d, itemIterator ) );
         }
-        return weightedDiscreteDereferencing(weightedIteratorItems);
+        return weightedDiscreteDereferencing( weightedIteratorItems );
     }
 
     /**
-     * next() returns single item from set of items. Probability of selecting an item depends on weight assigned to that element.
+     * next() returns single item from set of items. Probability of selecting an item depends on weight assigned to that
+     * element.
      *
      * @param weightedItems
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> weightedDiscrete(Iterable<Tuple2<Double, T>> weightedItems) {
-        List<Tuple2<Double, Iterator<T>>> weightedIteratorItems = new ArrayList<>();
-        for (Tuple2<Double, T> item : weightedItems) {
-            weightedIteratorItems.add(Tuple.tuple2(item._1(), constant(item._2())));
+    public <T> Iterator<T> weightedDiscrete( Iterable<Tuple2<Double,T>> weightedItems )
+    {
+        List<Tuple2<Double,Iterator<T>>> weightedIteratorItems = new ArrayList<>();
+        for ( Tuple2<Double,T> item : weightedItems )
+        {
+            weightedIteratorItems.add( Tuple.tuple2( item._1(), constant( item._2() ) ) );
         }
-        return weightedDiscreteDereferencing(weightedIteratorItems);
+        return weightedDiscreteDereferencing( weightedIteratorItems );
     }
 
     /**
@@ -681,9 +820,10 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> weightedDiscreteDereferencing(Iterable<Tuple2<Double, Iterator<T>>> weightedIteratorItems) {
-        Iterator<Iterator<T>> discreteIteratorGenerator = new DiscreteGenerator<>(getRandom(), weightedIteratorItems);
-        return new IteratorDereferencingGenerator<T>(discreteIteratorGenerator);
+    public <T> Iterator<T> weightedDiscreteDereferencing( Iterable<Tuple2<Double,Iterator<T>>> weightedIteratorItems )
+    {
+        Iterator<Iterator<T>> discreteIteratorGenerator = new DiscreteGenerator<>( getRandom(), weightedIteratorItems );
+        return new IteratorDereferencingGenerator<T>( discreteIteratorGenerator );
     }
 
     // TODO discreteList
@@ -698,9 +838,10 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<List<T>> weightedDiscreteList(Iterable<Tuple2<Double, T>> items, Integer amountToRetrieve) {
-        Iterator<Integer> amountToRetrieveGenerator = constant(amountToRetrieve);
-        return weightedDiscreteList(items, amountToRetrieveGenerator);
+    public <T> Iterator<List<T>> weightedDiscreteList( Iterable<Tuple2<Double,T>> items, Integer amountToRetrieve )
+    {
+        Iterator<Integer> amountToRetrieveGenerator = constant( amountToRetrieve );
+        return weightedDiscreteList( items, amountToRetrieveGenerator );
     }
 
     /**
@@ -713,9 +854,10 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<List<T>> weightedDiscreteList(Iterable<Tuple2<Double, T>> pairs,
-                                                      Iterator<Integer> amountToRetrieveGenerator) {
-        return new DiscreteListGenerator<T>(getRandom(), pairs, amountToRetrieveGenerator);
+    public <T> Iterator<List<T>> weightedDiscreteList( Iterable<Tuple2<Double,T>> pairs,
+            Iterator<Integer> amountToRetrieveGenerator )
+    {
+        return new DiscreteListGenerator<T>( getRandom(), pairs, amountToRetrieveGenerator );
     }
 
     // TODO weightedDiscreteListDereferencing
@@ -724,7 +866,8 @@ public class GeneratorFactory {
      * next() returns a map.
      * Number of keys is specified by amountToRetrieve.
      * Values are generated by calling next() on the corresponding item's tuple.
-     * The probability of a key (and its generated value) being returned depends on the weight assigned to its item tuple.
+     * The probability of a key (and its generated value) being returned depends on the weight assigned to its item
+     * tuple.
      *
      * @param items
      * @param amountToRetrieve
@@ -732,17 +875,19 @@ public class GeneratorFactory {
      * @param <V>
      * @return
      */
-    public <K, V> Iterator<Map<K, V>> weightedDiscreteMap(Iterable<Tuple3<Double, K, Iterator<V>>> items,
-                                                          Integer amountToRetrieve) {
-        Iterator<Integer> amountToRetrieveGenerator = constant(amountToRetrieve);
-        return weightedDiscreteMap(items, amountToRetrieveGenerator);
+    public <K, V> Iterator<Map<K,V>> weightedDiscreteMap( Iterable<Tuple3<Double,K,Iterator<V>>> items,
+            Integer amountToRetrieve )
+    {
+        Iterator<Integer> amountToRetrieveGenerator = constant( amountToRetrieve );
+        return weightedDiscreteMap( items, amountToRetrieveGenerator );
     }
 
     /**
      * next() returns a map.
      * Number of keys is specified by amountToRetrieve.next()
      * Values are generated by calling next() on the corresponding item's tuple.
-     * The probability of a key (and its generated value) being returned depends on the weight assigned to its item tuple.
+     * The probability of a key (and its generated value) being returned depends on the weight assigned to its item
+     * tuple.
      *
      * @param items
      * @param amountToRetrieveGenerator
@@ -750,41 +895,51 @@ public class GeneratorFactory {
      * @param <V>
      * @return
      */
-    public <K, V> Iterator<Map<K, V>> weightedDiscreteMap(Iterable<Tuple3<Double, K, Iterator<V>>> items,
-                                                          Iterator<Integer> amountToRetrieveGenerator) {
-        List<Tuple2<Double, Tuple2<K, Iterator<V>>>> probabilityItems = new ArrayList<Tuple2<Double, Tuple2<K, Iterator<V>>>>();
-        for (Tuple3<Double, K, Iterator<V>> item : items) {
+    public <K, V> Iterator<Map<K,V>> weightedDiscreteMap( Iterable<Tuple3<Double,K,Iterator<V>>> items,
+            Iterator<Integer> amountToRetrieveGenerator )
+    {
+        List<Tuple2<Double,Tuple2<K,Iterator<V>>>> probabilityItems =
+                new ArrayList<Tuple2<Double,Tuple2<K,Iterator<V>>>>();
+        for ( Tuple3<Double,K,Iterator<V>> item : items )
+        {
             double thingProbability = item._1();
-            Tuple2<K, Iterator<V>> thingGeneratorPair = Tuple.tuple2(item._2(), item._3());
-            probabilityItems.add(Tuple.tuple2(thingProbability, thingGeneratorPair));
+            Tuple2<K,Iterator<V>> thingGeneratorPair = Tuple.tuple2( item._2(), item._3() );
+            probabilityItems.add( Tuple.tuple2( thingProbability, thingGeneratorPair ) );
         }
 
-        Iterator<List<Tuple2<K, Iterator<V>>>> discreteListGenerator = weightedDiscreteList(probabilityItems,
-                amountToRetrieveGenerator);
+        Iterator<List<Tuple2<K,Iterator<V>>>> discreteListGenerator = weightedDiscreteList( probabilityItems,
+                amountToRetrieveGenerator );
 
-        Function1<List<Tuple2<K, Iterator<V>>>, Map<K, V>> pairsToMap = new Function1<List<Tuple2<K, Iterator<V>>>, Map<K, V>>() {
-            @Override
-            public Map<K, V> apply(List<Tuple2<K, Iterator<V>>> pairs) {
-                Map<K, V> keyedValues = new HashMap<>();
-                for (Tuple2<K, Iterator<V>> pair : pairs) {
-                    keyedValues.put(pair._1(), pair._2().next());
-                }
-                return keyedValues;
-            }
-        };
-        return new MappingGenerator<>(discreteListGenerator, pairsToMap);
+        Function1<List<Tuple2<K,Iterator<V>>>,Map<K,V>> pairsToMap =
+                new Function1<List<Tuple2<K,Iterator<V>>>,Map<K,V>>()
+                {
+                    @Override
+                    public Map<K,V> apply( List<Tuple2<K,Iterator<V>>> pairs )
+                    {
+                        Map<K,V> keyedValues = new HashMap<>();
+                        for ( Tuple2<K,Iterator<V>> pair : pairs )
+                        {
+                            keyedValues.put( pair._1(), pair._2().next() );
+                        }
+                        return keyedValues;
+                    }
+                };
+        return new MappingGenerator<>( discreteListGenerator, pairsToMap );
     }
 
-    public <T extends Number> Iterator<T> naiveBoundedNumberRange(T lowerBound, T upperBound, Iterator<T> unboundedGenerator) {
-        MinMaxGenerator<T> lowerBoundGenerator = minMaxGenerator(constant(lowerBound), lowerBound, lowerBound);
-        MinMaxGenerator<T> upperBoundGenerator = minMaxGenerator(constant(upperBound), upperBound, upperBound);
-        return new NaiveBoundedRangeNumberGenerator<T>(unboundedGenerator, lowerBoundGenerator, upperBoundGenerator);
+    public <T extends Number> Iterator<T> naiveBoundedNumberRange( T lowerBound, T upperBound,
+            Iterator<T> unboundedGenerator )
+    {
+        MinMaxGenerator<T> lowerBoundGenerator = minMaxGenerator( constant( lowerBound ), lowerBound, lowerBound );
+        MinMaxGenerator<T> upperBoundGenerator = minMaxGenerator( constant( upperBound ), upperBound, upperBound );
+        return new NaiveBoundedRangeNumberGenerator<T>( unboundedGenerator, lowerBoundGenerator, upperBoundGenerator );
     }
 
     /**
      * Wraps a number generator and ensures it only returns numbers within a min-max range.
      * Range is defined by lowerBoundGenerator and upperBoundGenerator.
-     * Generator is naive because it simply calls next() on inner generator until a suitable (in range) number is returned.
+     * Generator is naive because it simply calls next() on inner generator until a suitable (in range) number is
+     * returned.
      *
      * @param lowerBoundGenerator
      * @param upperBoundGenerator
@@ -792,9 +947,10 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T extends Number> Iterator<T> naiveBoundedNumberRange(MinMaxGenerator<T> lowerBoundGenerator,
-                                                                  MinMaxGenerator<T> upperBoundGenerator, Iterator<T> unboundedGenerator) {
-        return new NaiveBoundedRangeNumberGenerator<T>(unboundedGenerator, lowerBoundGenerator, upperBoundGenerator);
+    public <T extends Number> Iterator<T> naiveBoundedNumberRange( MinMaxGenerator<T> lowerBoundGenerator,
+            MinMaxGenerator<T> upperBoundGenerator, Iterator<T> unboundedGenerator )
+    {
+        return new NaiveBoundedRangeNumberGenerator<T>( unboundedGenerator, lowerBoundGenerator, upperBoundGenerator );
     }
 
 
@@ -807,10 +963,11 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T extends Number> Iterator<T> uniform(T lowerBound, T upperBound) {
-        MinMaxGenerator<T> lowerBoundGenerator = minMaxGenerator(constant(lowerBound), lowerBound, lowerBound);
-        MinMaxGenerator<T> upperBoundGenerator = minMaxGenerator(constant(upperBound), upperBound, upperBound);
-        return dynamicRangeUniform(lowerBoundGenerator, upperBoundGenerator);
+    public <T extends Number> Iterator<T> uniform( T lowerBound, T upperBound )
+    {
+        MinMaxGenerator<T> lowerBoundGenerator = minMaxGenerator( constant( lowerBound ), lowerBound, lowerBound );
+        MinMaxGenerator<T> upperBoundGenerator = minMaxGenerator( constant( upperBound ), upperBound, upperBound );
+        return dynamicRangeUniform( lowerBoundGenerator, upperBoundGenerator );
     }
 
     /**
@@ -818,8 +975,9 @@ public class GeneratorFactory {
      *
      * @return
      */
-    public Iterator<Iterator<Byte>> sizedUniformBytesGenerator(Iterator<Long> lengths) {
-        return new SizedUniformByteGeneratorGenerator(lengths, this);
+    public Iterator<Iterator<Byte>> sizedUniformBytesGenerator( Iterator<Long> lengths )
+    {
+        return new SizedUniformByteGeneratorGenerator( lengths, this );
     }
 
     /**
@@ -827,8 +985,9 @@ public class GeneratorFactory {
      *
      * @return
      */
-    public Iterator<Byte> uniformBytes() {
-        return new UniformByteGenerator(getRandom());
+    public Iterator<Byte> uniformBytes()
+    {
+        return new UniformByteGenerator( getRandom() );
     }
 
     /**
@@ -839,8 +998,9 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T extends Number> Iterator<T> dynamicRangeUniform(MinMaxGenerator<T> boundingGenerator) {
-        return dynamicRangeUniform(boundingGenerator, boundingGenerator);
+    public <T extends Number> Iterator<T> dynamicRangeUniform( MinMaxGenerator<T> boundingGenerator )
+    {
+        return dynamicRangeUniform( boundingGenerator, boundingGenerator );
     }
 
     /**
@@ -852,9 +1012,10 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T extends Number> Iterator<T> dynamicRangeUniform(MinMaxGenerator<T> lowerBoundGenerator,
-                                                              MinMaxGenerator<T> upperBoundGenerator) {
-        return new DynamicRangeUniformNumberGenerator<T>(getRandom(), lowerBoundGenerator, upperBoundGenerator);
+    public <T extends Number> Iterator<T> dynamicRangeUniform( MinMaxGenerator<T> lowerBoundGenerator,
+            MinMaxGenerator<T> upperBoundGenerator )
+    {
+        return new DynamicRangeUniformNumberGenerator<T>( getRandom(), lowerBoundGenerator, upperBoundGenerator );
     }
 
     /**
@@ -868,8 +1029,9 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> constant(T constant) {
-        return new ConstantGenerator<T>(constant);
+    public <T> Iterator<T> constant( T constant )
+    {
+        return new ConstantGenerator<T>( constant );
     }
 
     /**
@@ -881,21 +1043,24 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T extends Number> Iterator<T> incrementing(T start, T incrementBy) {
-        return boundedIncrementing(start, new ConstantGenerator<T>(incrementBy), null);
+    public <T extends Number> Iterator<T> incrementing( T start, T incrementBy )
+    {
+        return boundedIncrementing( start, new ConstantGenerator<T>( incrementBy ), null );
     }
 
     /**
      * next() returns start the first time it is called.
-     * Subsequent calls return the number value returned in previous call increment by the result of calling next() on incrementByGenerator.
+     * Subsequent calls return the number value returned in previous call increment by the result of calling next() on
+     * incrementByGenerator.
      *
      * @param start
      * @param incrementByGenerator
      * @param <T>
      * @return
      */
-    public <T extends Number> Iterator<T> incrementing(T start, Iterator<T> incrementByGenerator) {
-        return boundedIncrementing(start, incrementByGenerator, null);
+    public <T extends Number> Iterator<T> incrementing( T start, Iterator<T> incrementByGenerator )
+    {
+        return boundedIncrementing( start, incrementByGenerator, null );
     }
 
     /**
@@ -909,13 +1074,15 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T extends Number> Iterator<T> boundedIncrementing(T start, T incrementBy, T max) {
-        return boundedIncrementing(start, new ConstantGenerator<T>(incrementBy), max);
+    public <T extends Number> Iterator<T> boundedIncrementing( T start, T incrementBy, T max )
+    {
+        return boundedIncrementing( start, new ConstantGenerator<T>( incrementBy ), max );
     }
 
     /**
      * next() returns start the first time it is called.
-     * Subsequent calls return the number value returned in previous call increment by the result of calling next() on incrementByGenerator.
+     * Subsequent calls return the number value returned in previous call increment by the result of calling next() on
+     * incrementByGenerator.
      * When max is reached the generator will be exhausted (hasNext()==false)
      *
      * @param start
@@ -924,8 +1091,9 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T extends Number> Iterator<T> boundedIncrementing(T start, Iterator<T> incrementByGenerator, T max) {
-        return new IncrementingGenerator<T>(start, incrementByGenerator, max);
+    public <T extends Number> Iterator<T> boundedIncrementing( T start, Iterator<T> incrementByGenerator, T max )
+    {
+        return new IncrementingGenerator<T>( start, incrementByGenerator, max );
     }
 
     /**
@@ -935,8 +1103,9 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T extends Number> Iterator<T> exponential(T mean) {
-        return new ExponentialNumberGenerator<T>(getRandom(), mean);
+    public <T extends Number> Iterator<T> exponential( T mean )
+    {
+        return new ExponentialNumberGenerator<T>( getRandom(), mean );
     }
 
     /**
@@ -949,9 +1118,10 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T extends Number> Iterator<T> boundedRangeExponential(MinMaxGenerator<T> lowerBoundGenerator,
-                                                                  MinMaxGenerator<T> upperBoundGenerator, T mean) {
-        Iterator<T> generator = new ExponentialNumberGenerator<T>(getRandom(), mean);
-        return naiveBoundedNumberRange(lowerBoundGenerator, upperBoundGenerator, generator);
+    public <T extends Number> Iterator<T> boundedRangeExponential( MinMaxGenerator<T> lowerBoundGenerator,
+            MinMaxGenerator<T> upperBoundGenerator, T mean )
+    {
+        Iterator<T> generator = new ExponentialNumberGenerator<T>( getRandom(), mean );
+        return naiveBoundedNumberRange( lowerBoundGenerator, upperBoundGenerator, generator );
     }
 }

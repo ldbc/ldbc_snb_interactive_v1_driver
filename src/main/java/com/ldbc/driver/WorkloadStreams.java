@@ -7,6 +7,7 @@ import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple3;
 import com.ldbc.driver.validation.ClassNameWorkloadFactory;
 import com.ldbc.driver.validation.WorkloadFactory;
 
@@ -25,7 +26,8 @@ public class WorkloadStreams
     private WorkloadStreamDefinition asynchronousStream = null;
     private List<WorkloadStreamDefinition> blockingStreams = new ArrayList<>();
 
-    public static WorkloadStreams timeOffsetAndCompressWorkloadStreams( WorkloadStreams originalWorkloadStreams,
+    public static WorkloadStreams timeOffsetAndCompressWorkloadStreams(
+            WorkloadStreams originalWorkloadStreams,
             long newStartTimeAsMilli,
             double compressionRatio,
             GeneratorFactory gf ) throws WorkloadException
@@ -221,7 +223,7 @@ public class WorkloadStreams
     }
 
     // returns (workload_streams, workload, minimum_timestamp)
-    public static Tuple.Tuple3<WorkloadStreams,Workload,Long> createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+    public static Tuple3<WorkloadStreams,Workload,Long> createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
             DriverConfiguration configuration,
             GeneratorFactory gf,
             boolean returnStreamsWithDbConnector,
@@ -242,7 +244,7 @@ public class WorkloadStreams
     }
 
     // returns (workload_streams, workload, minimum_timestamp)
-    public static Tuple.Tuple3<WorkloadStreams,Workload,Long> createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+    public static Tuple3<WorkloadStreams,Workload,Long> createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
             WorkloadFactory workloadFactory,
             DriverConfiguration configuration,
             GeneratorFactory gf,
@@ -281,7 +283,7 @@ public class WorkloadStreams
 
         // stream through streams once, to calculate how many operations are needed from each,
         // to get operation_count in total
-        Tuple.Tuple3<long[],long[],Long> limitsAndMinimumsForStream =
+        Tuple3<long[],long[],Long> limitsAndMinimumsForStream =
                 WorkloadStreams.fromAmongAllRetrieveTopCountFromOffset(
                         streams,
                         offset,
@@ -345,7 +347,7 @@ public class WorkloadStreams
     }
 
     // returns (start_per_stream, end_per_stream, minimum_timestamp)
-    public static Tuple.Tuple3<long[],long[],Long> fromAmongAllRetrieveTopCountFromOffset(
+    public static Tuple3<long[],long[],Long> fromAmongAllRetrieveTopCountFromOffset(
             List<Iterator<Operation>> streams,
             long offset,
             long limit,

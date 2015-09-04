@@ -227,7 +227,7 @@ public class DummyLdbcSnbBiDb extends Db
     LONG READS
      */
 
-    private static final List<LdbcSnbBiQuery1Result> LDBC_QUERY_1_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery1Result> LDBC_QUERY_1_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read1Results();
 
     public static class LdbcQuery1Handler implements OperationHandler<LdbcSnbBiQuery1,DummyDbConnectionState>
@@ -241,7 +241,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery2Result> LDBC_QUERY_2_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery2Result> LDBC_QUERY_2_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read2Results();
 
     public static class LdbcQuery2Handler implements OperationHandler<LdbcSnbBiQuery2,DummyDbConnectionState>
@@ -255,7 +255,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery3Result> LDBC_QUERY_3_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery3Result> LDBC_QUERY_3_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read3Results();
 
     public static class LdbcQuery3Handler implements OperationHandler<LdbcSnbBiQuery3,DummyDbConnectionState>
@@ -269,7 +269,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery4Result> LDBC_QUERY_4_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery4Result> LDBC_QUERY_4_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read4Results();
 
     public static class LdbcQuery4Handler implements OperationHandler<LdbcSnbBiQuery4,DummyDbConnectionState>
@@ -283,7 +283,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery5Result> LDBC_QUERY_5_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery5Result> LDBC_QUERY_5_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read5Results();
 
     public static class LdbcQuery5Handler implements OperationHandler<LdbcSnbBiQuery5,DummyDbConnectionState>
@@ -297,7 +297,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery6Result> LDBC_QUERY_6_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery6Result> LDBC_QUERY_6_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read6Results();
 
     public static class LdbcQuery6Handler implements OperationHandler<LdbcSnbBiQuery6,DummyDbConnectionState>
@@ -311,7 +311,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery7Result> LDBC_QUERY_7_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery7Result> LDBC_QUERY_7_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read7Results();
 
     public static class LdbcQuery7Handler implements OperationHandler<LdbcSnbBiQuery7,DummyDbConnectionState>
@@ -325,7 +325,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery8Result> LDBC_QUERY_8_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery8Result> LDBC_QUERY_8_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read8Results();
 
     public static class LdbcQuery8Handler implements OperationHandler<LdbcSnbBiQuery8,DummyDbConnectionState>
@@ -339,7 +339,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery9Result> LDBC_QUERY_9_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery9Result> LDBC_QUERY_9_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read9Results();
 
     public static class LdbcQuery9Handler implements OperationHandler<LdbcSnbBiQuery9,DummyDbConnectionState>
@@ -353,7 +353,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery10Result> LDBC_QUERY_10_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery10Result> LDBC_QUERY_10_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read10Results();
 
     public static class LdbcQuery10Handler implements OperationHandler<LdbcSnbBiQuery10,DummyDbConnectionState>
@@ -367,7 +367,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery11Result> LDBC_QUERY_11_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery11Result> LDBC_QUERY_11_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read11Results();
 
     public static class LdbcQuery11Handler implements OperationHandler<LdbcSnbBiQuery11,DummyDbConnectionState>
@@ -381,7 +381,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery12Result> LDBC_QUERY_12_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery12Result> LDBC_QUERY_12_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read12Results();
 
     public static class LdbcQuery12Handler implements OperationHandler<LdbcSnbBiQuery12,DummyDbConnectionState>
@@ -396,7 +396,7 @@ public class DummyLdbcSnbBiDb extends Db
     }
 
     private static final List<LdbcSnbBiQuery13Result> LDBC_QUERY_13_RESULTS =
-            DummyLdbcSnbInteractiveOperationResultSets.read13Results();
+            DummyLdbcSnbBiOperationResultSets.read13Results();
 
     public static class LdbcQuery13Handler implements OperationHandler<LdbcSnbBiQuery13,DummyDbConnectionState>
     {
@@ -409,7 +409,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery14Result> LDBC_QUERY_14_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery14Result> LDBC_QUERY_14_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read14Results();
 
     public static class LdbcQuery14Handler implements OperationHandler<LdbcSnbBiQuery14,DummyDbConnectionState>
@@ -425,7 +425,7 @@ public class DummyLdbcSnbBiDb extends Db
 
     // TODO
 
-    private static final List<LdbcSnbBiQuery15Result> LDBC_QUERY_15_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery15Result> LDBC_QUERY_15_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read15Results();
 
     public static class LdbcQuery15Handler implements OperationHandler<LdbcSnbBiQuery15,DummyDbConnectionState>
@@ -439,7 +439,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery16Result> LDBC_QUERY_16_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery16Result> LDBC_QUERY_16_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read16Results();
 
     public static class LdbcQuery16Handler implements OperationHandler<LdbcSnbBiQuery16,DummyDbConnectionState>
@@ -453,7 +453,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery17Result> LDBC_QUERY_17_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery17Result> LDBC_QUERY_17_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read17Results();
 
     public static class LdbcQuery17Handler implements OperationHandler<LdbcSnbBiQuery17,DummyDbConnectionState>
@@ -467,7 +467,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery18Result> LDBC_QUERY_18_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery18Result> LDBC_QUERY_18_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read18Results();
 
     public static class LdbcQuery18Handler implements OperationHandler<LdbcSnbBiQuery18,DummyDbConnectionState>
@@ -481,7 +481,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery19Result> LDBC_QUERY_19_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery19Result> LDBC_QUERY_19_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read19Results();
 
     public static class LdbcQuery19Handler implements OperationHandler<LdbcSnbBiQuery19,DummyDbConnectionState>
@@ -495,7 +495,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery20Result> LDBC_QUERY_20_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery20Result> LDBC_QUERY_20_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read20Results();
 
     public static class LdbcQuery20Handler implements OperationHandler<LdbcSnbBiQuery20,DummyDbConnectionState>
@@ -509,7 +509,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery21Result> LDBC_QUERY_21_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery21Result> LDBC_QUERY_21_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read21Results();
 
     public static class LdbcQuery21Handler implements OperationHandler<LdbcSnbBiQuery21,DummyDbConnectionState>
@@ -523,7 +523,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery22Result> LDBC_QUERY_22_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery22Result> LDBC_QUERY_22_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read22Results();
 
     public static class LdbcQuery22Handler implements OperationHandler<LdbcSnbBiQuery22,DummyDbConnectionState>
@@ -537,7 +537,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery23Result> LDBC_QUERY_23_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery23Result> LDBC_QUERY_23_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read23Results();
 
     public static class LdbcQuery23Handler implements OperationHandler<LdbcSnbBiQuery23,DummyDbConnectionState>
@@ -551,7 +551,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery24Result> LDBC_QUERY_24_RESULTS = DummyLdbcSnbInteractiveOperationResultSets
+    private static final List<LdbcSnbBiQuery24Result> LDBC_QUERY_24_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read24Results();
 
     public static class LdbcQuery24Handler implements OperationHandler<LdbcSnbBiQuery24,DummyDbConnectionState>

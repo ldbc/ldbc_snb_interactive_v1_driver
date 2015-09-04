@@ -10,32 +10,30 @@ public class LdbcSnbBiQuery9 extends Operation<List<LdbcSnbBiQuery9Result>>
     public static final int TYPE = 9;
     // TODO
     public static final int DEFAULT_LIMIT = 20;
-    private final String tagClass;
+    private final String tagClassA;
+    private final String tagClassB;
     private final int limit;
 
-    public LdbcSnbBiQuery9( String tagClass, int limit )
+    public LdbcSnbBiQuery9( String tagClassA, String tagClassB, int limit )
     {
-        this.tagClass = tagClass;
+        this.tagClassA = tagClassA;
+        this.tagClassB = tagClassB;
         this.limit = limit;
     }
 
-    public String tagClass()
+    public String tagClassA()
     {
-        return tagClass;
+        return tagClassA;
+    }
+
+    public String tagClassB()
+    {
+        return tagClassB;
     }
 
     public int limit()
     {
         return limit;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "LdbcSnbBiQuery9{" +
-               "tagClass='" + tagClass + '\'' +
-               ", limit=" + limit +
-               '}';
     }
 
     @Override
@@ -50,16 +48,29 @@ public class LdbcSnbBiQuery9 extends Operation<List<LdbcSnbBiQuery9Result>>
 
         if ( limit != that.limit )
         { return false; }
-        return !(tagClass != null ? !tagClass.equals( that.tagClass ) : that.tagClass != null);
+        if ( tagClassA != null ? !tagClassA.equals( that.tagClassA ) : that.tagClassA != null )
+        { return false; }
+        return !(tagClassB != null ? !tagClassB.equals( that.tagClassB ) : that.tagClassB != null);
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = tagClass != null ? tagClass.hashCode() : 0;
+        int result = tagClassA != null ? tagClassA.hashCode() : 0;
+        result = 31 * result + (tagClassB != null ? tagClassB.hashCode() : 0);
         result = 31 * result + limit;
         return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "LdbcSnbBiQuery9{" +
+               "tagClassA='" + tagClassA + '\'' +
+               ", tagClassB='" + tagClassB + '\'' +
+               ", limit=" + limit +
+               '}';
     }
 
     @Override

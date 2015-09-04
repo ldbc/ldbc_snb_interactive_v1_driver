@@ -12,7 +12,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.ContinuousMetricManager;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple3;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -59,7 +59,7 @@ public class WorkloadValidator
         try
         {
             boolean returnStreamsWithDbConnector = false;
-            Tuple.Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
+            Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                             workloadFactory,
                             configuration,
@@ -149,7 +149,7 @@ public class WorkloadValidator
         try
         {
             boolean returnStreamsWithDbConnector = false;
-            Tuple.Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
+            Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                             workloadFactory,
                             configuration,
@@ -372,7 +372,7 @@ public class WorkloadValidator
         try
         {
             boolean returnStreamsWithDbConnector = false;
-            Tuple.Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload1 =
+            Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload1 =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                             workloadFactory,
                             configuration,
@@ -390,7 +390,7 @@ public class WorkloadValidator
                     configuration.timeCompressionRatio()
             );
 
-            Tuple.Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload2 =
+            Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload2 =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                             workloadFactory,
                             configuration,

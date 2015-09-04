@@ -10,25 +10,18 @@ public class LdbcSnbBiQuery10 extends Operation<List<LdbcSnbBiQuery10Result>>
     public static final int TYPE = 10;
     // TODO
     public static final int DEFAULT_LIMIT = 20;
-    private final String tagA;
-    private final String tagB;
+    private final String tag;
     private final int limit;
 
-    public LdbcSnbBiQuery10( String tagA, String tagB, int limit )
+    public LdbcSnbBiQuery10( String tag, int limit )
     {
-        this.tagA = tagA;
-        this.tagB = tagB;
+        this.tag = tag;
         this.limit = limit;
     }
 
-    public String tagA()
+    public String tag()
     {
-        return tagA;
-    }
-
-    public String tagB()
-    {
-        return tagB;
+        return tag;
     }
 
     public int limit()
@@ -40,8 +33,7 @@ public class LdbcSnbBiQuery10 extends Operation<List<LdbcSnbBiQuery10Result>>
     public String toString()
     {
         return "LdbcSnbBiQuery10{" +
-               "tagA='" + tagA + '\'' +
-               ", tagB='" + tagB + '\'' +
+               "tag='" + tag + '\'' +
                ", limit=" + limit +
                '}';
     }
@@ -58,17 +50,14 @@ public class LdbcSnbBiQuery10 extends Operation<List<LdbcSnbBiQuery10Result>>
 
         if ( limit != that.limit )
         { return false; }
-        if ( tagA != null ? !tagA.equals( that.tagA ) : that.tagA != null )
-        { return false; }
-        return !(tagB != null ? !tagB.equals( that.tagB ) : that.tagB != null);
+        return !(tag != null ? !tag.equals( that.tag ) : that.tag != null);
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = tagA != null ? tagA.hashCode() : 0;
-        result = 31 * result + (tagB != null ? tagB.hashCode() : 0);
+        int result = tag != null ? tag.hashCode() : 0;
         result = 31 * result + limit;
         return result;
     }

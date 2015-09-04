@@ -8,6 +8,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple2;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.util.*;
@@ -138,8 +139,8 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         (FIRST_PERSON,FIRST_PERSON_INDEX) = ...
         (FIRST_MESSAGE,FIRST_MESSAGE_INDEX) = ...
          */
-        Tuple.Tuple2<Integer, LdbcShortQueryFactory> firstPersonQueryAndIndex = firstPersonQueryOrNoOp(enabledShortReadOperationTypes, randomFactory, 0, initialProbability, scheduledStartTimePolicy);
-        Tuple.Tuple2<Integer, LdbcShortQueryFactory> firstMessageQueryAndIndex = firstMessageQueryOrNoOp(enabledShortReadOperationTypes, randomFactory, 0, initialProbability, scheduledStartTimePolicy);
+        Tuple2<Integer, LdbcShortQueryFactory> firstPersonQueryAndIndex = firstPersonQueryOrNoOp(enabledShortReadOperationTypes, randomFactory, 0, initialProbability, scheduledStartTimePolicy);
+        Tuple2<Integer, LdbcShortQueryFactory> firstMessageQueryAndIndex = firstMessageQueryOrNoOp(enabledShortReadOperationTypes, randomFactory, 0, initialProbability, scheduledStartTimePolicy);
 
         /*
         FIRST_PERSON = <if> (MAX_INTEGER == FIRST_PERSON_INDEX) <then> FIRST_MESSAGE <else> FIRST_PERSON
@@ -266,7 +267,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         return Integer.MAX_VALUE;
     }
 
-    private Tuple.Tuple2<Integer, LdbcShortQueryFactory> firstPersonQueryOrNoOp(Set<Class> enabledShortReadOperationTypes,
+    private Tuple2<Integer, LdbcShortQueryFactory> firstPersonQueryOrNoOp(Set<Class> enabledShortReadOperationTypes,
                                                                                 RandomDataGeneratorFactory randomFactory,
                                                                                 double minProbability,
                                                                                 double maxProbability,
@@ -293,7 +294,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
             );
     }
 
-    private Tuple.Tuple2<Integer, LdbcShortQueryFactory> firstMessageQueryOrNoOp(Set<Class> enabledShortReadOperationTypes,
+    private Tuple2<Integer, LdbcShortQueryFactory> firstMessageQueryOrNoOp(Set<Class> enabledShortReadOperationTypes,
                                                                                  RandomDataGeneratorFactory randomFactory,
                                                                                  double minProbability,
                                                                                  double maxProbability,

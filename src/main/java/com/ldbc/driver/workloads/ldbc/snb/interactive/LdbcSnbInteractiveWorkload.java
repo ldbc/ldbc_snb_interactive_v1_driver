@@ -28,6 +28,7 @@ import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Equator;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -51,6 +52,8 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import static java.lang.String.format;
 
 public class LdbcSnbInteractiveWorkload extends Workload
 {
@@ -118,7 +121,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 LdbcSnbInteractiveWorkloadConfiguration.missingParameters( params, compulsoryKeys );
         if ( false == missingPropertyParameters.isEmpty() )
         {
-            throw new WorkloadException( String.format( "Workload could not initialize due to missing parameters: %s",
+            throw new WorkloadException( format( "Workload could not initialize due to missing parameters: %s",
                     missingPropertyParameters.toString() ) );
         }
 
@@ -128,12 +131,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
             File updatesDirectory = new File( updatesDirectoryPath );
             if ( false == updatesDirectory.exists() )
             {
-                throw new WorkloadException( String.format( "Updates directory does not exist\nDirectory: %s",
+                throw new WorkloadException( format( "Updates directory does not exist\nDirectory: %s",
                         updatesDirectory.getAbsolutePath() ) );
             }
             if ( false == updatesDirectory.isDirectory() )
             {
-                throw new WorkloadException( String.format( "Updates directory is not a directory\nDirectory: %s",
+                throw new WorkloadException( format( "Updates directory is not a directory\nDirectory: %s",
                         updatesDirectory.getAbsolutePath() ) );
             }
             forumUpdateOperationFiles = LdbcSnbInteractiveWorkloadConfiguration
@@ -151,15 +154,17 @@ public class LdbcSnbInteractiveWorkload extends Workload
         if ( false == parametersDir.exists() )
         {
             throw new WorkloadException(
-                    String.format( "Parameters directory does not exist: %s", parametersDir.getAbsolutePath() ) );
+                    format( "Parameters directory does not exist: %s", parametersDir.getAbsolutePath() ) );
         }
-        for ( String readOperationParamsFilename : LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES )
+        for ( String readOperationParamsFilename :
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES )
         {
-            String readOperationParamsFullPath = parametersDir.getAbsolutePath() + "/" + readOperationParamsFilename;
-            if ( false == new File( readOperationParamsFullPath ).exists() )
+            File readOperationParamsFile = new File( parametersDir, readOperationParamsFilename );
+            if ( false == readOperationParamsFile.exists() )
             {
-                throw new WorkloadException( String.format( "Read operation parameters file does not exist: %s",
-                        readOperationParamsFullPath ) );
+                throw new WorkloadException(
+                        format( "Read operation parameters file does not exist: %s",
+                                readOperationParamsFile.getAbsolutePath() ) );
             }
         }
         readOperation1File =
@@ -192,19 +197,21 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_PARAMS_FILENAME );
 
         enabledLongReadOperationTypes = new HashSet<>();
-        for ( String longReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_ENABLE_KEYS )
+        for ( String longReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration
+                .LONG_READ_OPERATION_ENABLE_KEYS )
         {
             String longReadOperationEnabledString = params.get( longReadOperationEnableKey );
             Boolean longReadOperationEnabled = Boolean.parseBoolean( longReadOperationEnabledString );
-            String longReadOperationClassName = LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
-                                                LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
-                                                        LdbcSnbInteractiveWorkloadConfiguration.removeSuffix(
-                                                                longReadOperationEnableKey,
-                                                                LdbcSnbInteractiveWorkloadConfiguration.ENABLE_SUFFIX
-                                                        ),
-                                                        LdbcSnbInteractiveWorkloadConfiguration
-                                                                .LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
-                                                );
+            String longReadOperationClassName =
+                    LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
+                    LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
+                            LdbcSnbInteractiveWorkloadConfiguration.removeSuffix(
+                                    longReadOperationEnableKey,
+                                    LdbcSnbInteractiveWorkloadConfiguration.ENABLE_SUFFIX
+                            ),
+                            LdbcSnbInteractiveWorkloadConfiguration
+                                    .LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
+                    );
             try
             {
                 Class longReadOperationClass = ClassLoaderHelper.loadClass( longReadOperationClassName );
@@ -214,7 +221,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( ClassLoadingException e )
             {
                 throw new WorkloadException(
-                        String.format(
+                        format(
                                 "Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
                                 longReadOperationEnableKey, longReadOperationClassName ),
                         e
@@ -223,19 +230,21 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
 
         enabledShortReadOperationTypes = new HashSet<>();
-        for ( String shortReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_ENABLE_KEYS )
+        for ( String shortReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration
+                .SHORT_READ_OPERATION_ENABLE_KEYS )
         {
             String shortReadOperationEnabledString = params.get( shortReadOperationEnableKey );
             Boolean shortReadOperationEnabled = Boolean.parseBoolean( shortReadOperationEnabledString );
-            String shortReadOperationClassName = LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
-                                                 LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
-                                                         LdbcSnbInteractiveWorkloadConfiguration.removeSuffix(
-                                                                 shortReadOperationEnableKey,
-                                                                 LdbcSnbInteractiveWorkloadConfiguration.ENABLE_SUFFIX
-                                                         ),
-                                                         LdbcSnbInteractiveWorkloadConfiguration
-                                                                 .LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
-                                                 );
+            String shortReadOperationClassName =
+                    LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
+                    LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
+                            LdbcSnbInteractiveWorkloadConfiguration.removeSuffix(
+                                    shortReadOperationEnableKey,
+                                    LdbcSnbInteractiveWorkloadConfiguration.ENABLE_SUFFIX
+                            ),
+                            LdbcSnbInteractiveWorkloadConfiguration
+                                    .LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
+                    );
             try
             {
                 Class shortReadOperationClass = ClassLoaderHelper.loadClass( shortReadOperationClassName );
@@ -245,7 +254,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( ClassLoadingException e )
             {
                 throw new WorkloadException(
-                        String.format(
+                        format(
                                 "Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
                                 shortReadOperationEnableKey, shortReadOperationClassName ),
                         e
@@ -256,7 +265,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         {
             if ( false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION ) )
             {
-                throw new WorkloadException( String.format( "Configuration parameter missing: %s",
+                throw new WorkloadException( format( "Configuration parameter missing: %s",
                         LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION ) );
             }
             shortReadDissipationFactor =
@@ -264,7 +273,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             if ( shortReadDissipationFactor < 0 || shortReadDissipationFactor > 1 )
             {
                 throw new WorkloadException(
-                        String.format( "Configuration parameter %s should be in interval [1.0,0.0] but is: %s",
+                        format( "Configuration parameter %s should be in interval [1.0,0.0] but is: %s",
                                 shortReadDissipationFactor ) );
             }
         }
@@ -292,7 +301,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( ClassLoadingException e )
             {
                 throw new WorkloadException(
-                        String.format(
+                        format(
                                 "Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
                                 writeOperationEnableKey, writeOperationClassName ),
                         e
@@ -313,10 +322,11 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
         if ( false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
         {
-            throw new WorkloadException( String.format( "Workload could not initialize. Missing parameter: %s",
+            throw new WorkloadException( format( "Workload could not initialize. Missing parameter: %s",
                     LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) );
         }
-        updateInterleaveAsMilli = Integer.parseInt( params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) );
+        updateInterleaveAsMilli =
+                Integer.parseInt( params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) );
         if ( missingFrequencyKeys.isEmpty() )
         {
             // compute interleave based on frequencies
@@ -331,7 +341,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                     LdbcSnbInteractiveWorkloadConfiguration.missingParameters( params, interleaveKeys );
             if ( false == missingInterleaveKeys.isEmpty() )
             {
-                throw new WorkloadException( String.format(
+                throw new WorkloadException( format(
                         "Workload could not initialize. One of the following groups of parameters should be set: %s " +
                         "or %s",
                         missingFrequencyKeys.toString(), missingInterleaveKeys.toString() ) );
@@ -341,33 +351,47 @@ public class LdbcSnbInteractiveWorkload extends Workload
         try
         {
             readOperation1InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ) );
             readOperation2InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ) );
             readOperation3InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ) );
             readOperation4InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ) );
             readOperation5InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ) );
             readOperation6InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ) );
             readOperation7InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ) );
             readOperation8InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ) );
             readOperation9InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ) );
             readOperation10InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ) );
             readOperation11InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ) );
             readOperation12InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ) );
             readOperation13InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ) );
             readOperation14InterleaveAsMilli =
-                    Long.parseLong( params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ) );
+                    Long.parseLong(
+                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ) );
         }
         catch ( NumberFormatException e )
         {
@@ -405,7 +429,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
     }
 
-    private Tuple.Tuple2<Iterator<Operation>,Closeable> fileToWriteStreamParser( File updateOperationsFile,
+    private Tuple2<Iterator<Operation>,Closeable> fileToWriteStreamParser( File updateOperationsFile,
             LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser parser ) throws IOException, WorkloadException
     {
         switch ( parser )
@@ -483,7 +507,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 Iterator<Operation> personUpdateOperationsParser;
                 try
                 {
-                    Tuple.Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
+                    Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
                             fileToWriteStreamParser( personUpdateOperationFile, parser );
                     personUpdateOperationsParser = parserAndCloseable._1();
                     personUpdateOperationsFileReaders.add( parserAndCloseable._2() );
@@ -497,12 +521,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 {
                     // Update stream is empty
                     System.out.println(
-                            String.format( ""
-                                           + "***********************************************\n"
-                                           + "  !! WARMING !!\n"
-                                           + "  Update stream is empty: %s\n"
-                                           + "  Check that data generation process completed successfully\n"
-                                           + "***********************************************",
+                            format( ""
+                                    + "***********************************************\n"
+                                    + "  !! WARMING !!\n"
+                                    + "  Update stream is empty: %s\n"
+                                    + "  Check that data generation process completed successfully\n"
+                                    + "***********************************************",
                                     personUpdateOperationFile.getAbsolutePath()
                             )
                     );
@@ -571,7 +595,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 Iterator<Operation> forumUpdateOperationsParser;
                 try
                 {
-                    Tuple.Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
+                    Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
                             fileToWriteStreamParser( forumUpdateOperationFile, parser );
                     forumUpdateOperationsParser = parserAndCloseable._1();
                     forumUpdateOperationsFileReaders.add( parserAndCloseable._2() );
@@ -585,12 +609,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 {
                     // Update stream is empty
                     System.out.println(
-                            String.format( ""
-                                           + "***********************************************\n"
-                                           + "  !! WARMING !!\n"
-                                           + "  Update stream is empty: %s\n"
-                                           + "  Check that data generation process completed successfully\n"
-                                           + "***********************************************",
+                            format( ""
+                                    + "***********************************************\n"
+                                    + "  !! WARMING !!\n"
+                                    + "  Update stream is empty: %s\n"
+                                    + "  Check that data generation process completed successfully\n"
+                                    + "***********************************************",
                                     forumUpdateOperationFile.getAbsolutePath()
                             )
                     );
@@ -684,7 +708,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation1File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation1File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -696,7 +720,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation1File.getAbsolutePath() ), e );
             }
 
@@ -742,7 +766,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation2File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation2File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -754,7 +778,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation2File.getAbsolutePath() ), e );
             }
 
@@ -800,7 +824,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation3File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation3File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -815,7 +839,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation3File.getAbsolutePath() ), e );
             }
 
@@ -861,7 +885,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation4File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation4File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -874,7 +898,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation4File.getAbsolutePath() ), e );
             }
 
@@ -920,7 +944,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation5File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation5File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -932,7 +956,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation5File.getAbsolutePath() ), e );
             }
 
@@ -978,7 +1002,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation6File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation6File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -990,7 +1014,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation6File.getAbsolutePath() ), e );
             }
 
@@ -1036,7 +1060,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation7File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation7File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -1047,7 +1071,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation7File.getAbsolutePath() ), e );
             }
 
@@ -1093,7 +1117,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation8File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation8File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -1104,7 +1128,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation8File.getAbsolutePath() ), e );
             }
 
@@ -1150,7 +1174,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation9File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation9File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -1162,7 +1186,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation9File.getAbsolutePath() ), e );
             }
 
@@ -1208,7 +1232,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation10File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation10File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -1220,7 +1244,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation10File.getAbsolutePath() ), e );
             }
 
@@ -1266,7 +1290,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation11File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation11File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -1279,7 +1303,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation11File.getAbsolutePath() ), e );
             }
 
@@ -1325,7 +1349,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation12File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation12File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -1337,7 +1361,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation12File.getAbsolutePath() ), e );
             }
 
@@ -1383,7 +1407,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation13File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation13File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -1395,7 +1419,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation13File.getAbsolutePath() ), e );
             }
 
@@ -1441,7 +1465,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( FileNotFoundException e )
             {
                 throw new WorkloadException(
-                        String.format( "Unable to open parameters file: %s", readOperation14File.getAbsolutePath() ),
+                        format( "Unable to open parameters file: %s", readOperation14File.getAbsolutePath() ),
                         e );
             }
             Mark mark = new Mark();
@@ -1453,7 +1477,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
             catch ( IOException e )
             {
-                throw new WorkloadException( String.format( "Unable to advance parameters file beyond headers: %s",
+                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
                         readOperation14File.getAbsolutePath() ), e );
             }
 
@@ -1697,7 +1721,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery2.TYPE:
@@ -1715,7 +1739,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery3.TYPE:
@@ -1736,7 +1760,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery4.TYPE:
@@ -1755,7 +1779,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery5.TYPE:
@@ -1773,7 +1797,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery6.TYPE:
@@ -1791,7 +1815,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery7.TYPE:
@@ -1808,7 +1832,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery8.TYPE:
@@ -1825,7 +1849,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery9.TYPE:
@@ -1843,7 +1867,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery10.TYPE:
@@ -1861,7 +1885,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery11.TYPE:
@@ -1880,7 +1904,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery12.TYPE:
@@ -1898,7 +1922,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery13.TYPE:
@@ -1915,7 +1939,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcQuery14.TYPE:
@@ -1932,7 +1956,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcShortQuery1PersonProfile.TYPE:
@@ -1948,7 +1972,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcShortQuery2PersonPosts.TYPE:
@@ -1965,7 +1989,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcShortQuery3PersonFriends.TYPE:
@@ -1981,7 +2005,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcShortQuery4MessageContent.TYPE:
@@ -1997,7 +2021,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcShortQuery5MessageCreator.TYPE:
@@ -2013,7 +2037,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcShortQuery6MessageForum.TYPE:
@@ -2029,7 +2053,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcShortQuery7MessageReplies.TYPE:
@@ -2045,7 +2069,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcUpdate1AddPerson.TYPE:
@@ -2098,7 +2122,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcUpdate2AddPostLike.TYPE:
@@ -2116,7 +2140,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcUpdate3AddCommentLike.TYPE:
@@ -2134,7 +2158,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcUpdate4AddForum.TYPE:
@@ -2154,7 +2178,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcUpdate5AddForumMembership.TYPE:
@@ -2172,7 +2196,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcUpdate6AddPost.TYPE:
@@ -2199,7 +2223,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcUpdate7AddComment.TYPE:
@@ -2225,7 +2249,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         case LdbcUpdate8AddFriendship.TYPE:
@@ -2243,13 +2267,13 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( IOException e )
             {
                 throw new SerializingMarshallingException(
-                        String.format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
         default:
         {
             throw new SerializingMarshallingException(
-                    String.format(
+                    format(
                             "Workload does not know how to serialize operation\nWorkload: %s\nOperation Type: " +
                             "%s\nOperation: %s",
                             getClass().getName(),
@@ -2270,11 +2294,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
         catch ( IOException e )
         {
             throw new SerializingMarshallingException(
-                    String.format( "Error while parsing serialized results\n%s", serializedOperation ), e );
+                    format( "Error while parsing serialized results\n%s", serializedOperation ), e );
         }
 
         String operationTypeName = (String) operationAsList.get( 0 );
-
         if ( operationTypeName.equals( LdbcQuery1.class.getName() ) )
         {
             long personId = ((Number) operationAsList.get( 1 )).longValue();
@@ -2592,7 +2615,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
 
         throw new SerializingMarshallingException(
-                String.format(
+                format(
                         "Workload does not know how to marshal operation\nWorkload: %s\nAssumed Operation Type: " +
                         "%s\nSerialized Operation: %s",
                         getClass().getName(),
