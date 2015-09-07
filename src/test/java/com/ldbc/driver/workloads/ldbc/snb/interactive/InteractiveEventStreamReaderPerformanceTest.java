@@ -3,7 +3,13 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.csv.charseeker.*;
+import com.ldbc.driver.csv.charseeker.BufferedCharSeeker;
+import com.ldbc.driver.csv.charseeker.CharSeeker;
+import com.ldbc.driver.csv.charseeker.Extractors;
+import com.ldbc.driver.csv.charseeker.Mark;
+import com.ldbc.driver.csv.charseeker.Readables;
+import com.ldbc.driver.csv.charseeker.ThreadAheadReadable;
+import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker.EventDecoder;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -12,11 +18,17 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,11 +36,13 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 public class InteractiveEventStreamReaderPerformanceTest
 {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     TimeSource timeSource = new SystemTimeSource();
-    DecimalFormat numberFormatter = new DecimalFormat("###,###,###,##0.00");
+    DecimalFormat numberFormatter = new DecimalFormat( "###,###,###,##0.00" );
 
     //1 threads 99,010,827.00 operations in 01:04.351.000 (m:s.ms.us) = 1,538,605.88 op/ms
     //2 threads 198,021,654.00 operations in 01:05.156.000 (m:s.ms.us) = 3,039,192.92 op/ms
@@ -40,30 +54,47 @@ public class InteractiveEventStreamReaderPerformanceTest
     //6 594,064,962.00 operations in 01:39.579.000 (m:s.ms.us) = 5,965,765.49 op/ms
     @Ignore
     @Test
-    public void multiThreadedMultiPartitionParserPerformanceTest() throws FileNotFoundException, InterruptedException, CompletionTimeException {
+    public void multiThreadedMultiPartitionParserPerformanceTest()
+            throws FileNotFoundException, InterruptedException, CompletionTimeException
+    {
         List<File> updateStreams = Lists.newArrayList(
-                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_0.csv"),
-                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_1.csv"),
-                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_2.csv"),
-                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_3.csv"),
-                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_4.csv"),
-                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_5.csv")
+                new File(
+                        "/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data" +
+                        "/sf30_001-with-replica-streams/updateStream_forum_0.csv" ),
+                new File(
+                        "/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data" +
+                        "/sf30_001-with-replica-streams/updateStream_forum_1.csv" ),
+                new File(
+                        "/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data" +
+                        "/sf30_001-with-replica-streams/updateStream_forum_2.csv" ),
+                new File(
+                        "/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data" +
+                        "/sf30_001-with-replica-streams/updateStream_forum_3.csv" ),
+                new File(
+                        "/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data" +
+                        "/sf30_001-with-replica-streams/updateStream_forum_4.csv" ),
+                new File(
+                        "/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data" +
+                        "/sf30_001-with-replica-streams/updateStream_forum_5.csv" )
         );
 
         int bufferSize = 2 * 1024 * 1024;
         List<UpdateStreamReadingThread> updateStreamReadingThreads = new ArrayList<>();
-        CountDownLatch readyLatch = new CountDownLatch(updateStreams.size());
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch stopLatch = new CountDownLatch(updateStreams.size());
-        for (File updateStream : updateStreams) {
-            CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(updateStream), Charsets.UTF_8)), bufferSize);
+        CountDownLatch readyLatch = new CountDownLatch( updateStreams.size() );
+        CountDownLatch startLatch = new CountDownLatch( 1 );
+        CountDownLatch stopLatch = new CountDownLatch( updateStreams.size() );
+        for ( File updateStream : updateStreams )
+        {
+            CharSeeker charSeeker = new BufferedCharSeeker(
+                    Readables.wrap( new InputStreamReader( new FileInputStream( updateStream ), Charsets.UTF_8 ) ),
+                    bufferSize );
             int columnDelimiter = '|';
-            Extractors extractors = new Extractors(';', ',');
+            Extractors extractors = new Extractors( ';', ',' );
             UpdateStreamReadingThread updateStreamReadingThread = new UpdateStreamReadingThread(
                     readyLatch,
                     startLatch,
                     stopLatch,
-                    WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter)
+                    WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, columnDelimiter )
             );
             updateStreamReadingThread.start();
             updateStreamReadingThreads.add(
@@ -79,30 +110,33 @@ public class InteractiveEventStreamReaderPerformanceTest
         long finishTime = timeSource.nowAsMilli();
 
         long operationCount = 0;
-        for (UpdateStreamReadingThread updateStreamReadingThread : updateStreamReadingThreads) {
+        for ( UpdateStreamReadingThread updateStreamReadingThread : updateStreamReadingThreads )
+        {
             operationCount += updateStreamReadingThread.count();
         }
         double throughput = 1000 * (double) operationCount / (finishTime - startTime);
         System.out.println(
-                String.format("%s operations in %s = %s op/ms",
-                        numberFormatter.format(operationCount),
-                        new TemporalUtil().milliDurationToString(finishTime - startTime),
-                        numberFormatter.format(throughput)
+                format( "%s operations in %s = %s op/ms",
+                        numberFormatter.format( operationCount ),
+                        new TemporalUtil().milliDurationToString( finishTime - startTime ),
+                        numberFormatter.format( throughput )
                 )
         );
     }
 
-    private static class UpdateStreamReadingThread extends Thread {
+    private static class UpdateStreamReadingThread extends Thread
+    {
         private final CountDownLatch readyLatch;
         private final CountDownLatch startLatch;
         private final CountDownLatch stopLatch;
         private final Iterator<Operation> updateStreamReader;
         private long count = 0;
 
-        private UpdateStreamReadingThread(CountDownLatch readyLatch,
-                                          CountDownLatch startLatch,
-                                          CountDownLatch stopLatch,
-                                          Iterator<Operation> updateStreamReader) {
+        private UpdateStreamReadingThread( CountDownLatch readyLatch,
+                CountDownLatch startLatch,
+                CountDownLatch stopLatch,
+                Iterator<Operation> updateStreamReader )
+        {
             this.readyLatch = readyLatch;
             this.startLatch = startLatch;
             this.stopLatch = stopLatch;
@@ -110,36 +144,44 @@ public class InteractiveEventStreamReaderPerformanceTest
         }
 
         @Override
-        public void run() {
+        public void run()
+        {
             readyLatch.countDown();
-            try {
+            try
+            {
                 startLatch.await();
-            } catch (InterruptedException e) {
+            }
+            catch ( InterruptedException e )
+            {
                 // do nothing
             }
-            while (updateStreamReader.hasNext()) {
+            while ( updateStreamReader.hasNext() )
+            {
                 updateStreamReader.next();
                 count++;
             }
             stopLatch.countDown();
         }
 
-        public long count() {
+        public long count()
+        {
             return count;
         }
     }
 
     @Ignore
     @Test
-    public void newReadParamsParsingPerformanceTest() throws IOException {
-        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/new_read_params/sf10_partitions_01/");
-        File paramsFile = new File(parentStreamsDir, "snb/interactive/query_1_param.txt" );
+    public void newReadParamsParsingPerformanceTest() throws IOException
+    {
+        GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42l ) );
+        File parentStreamsDir =
+                new File( "/Users/alexaverbuch/IdeaProjects/scale_factor_streams/new_read_params/sf10_partitions_01/" );
+        File paramsFile = new File( parentStreamsDir, "snb/interactive/query_1_param.txt" );
         EventDecoder<Object[]> decoder = new Query1EventStreamReader.Query1Decoder();
         int bufferSize = 2 * 1024 * 1024;
         {
             // warm up file system
-            doBufferedReaderPerformanceTest(paramsFile, bufferSize);
+            doBufferedReaderPerformanceTest( paramsFile, bufferSize );
         }
 
         long limit = 100000000;
@@ -147,7 +189,8 @@ public class InteractiveEventStreamReaderPerformanceTest
         {
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
+            for ( int i = 0; i < repetitions; i++ )
+            {
                 SimpleCsvFileReader readOperation1FileReader = new SimpleCsvFileReader(
                         paramsFile,
                         LdbcSnbInteractiveWorkloadConfiguration.PIPE_SEPARATOR_REGEX
@@ -158,20 +201,20 @@ public class InteractiveEventStreamReaderPerformanceTest
                         ),
                         limit
                 );
-                lines += readingStreamPerformanceTest(csvStreamReader);
+                lines += readingStreamPerformanceTest( csvStreamReader );
                 readOperation1FileReader.close();
             }
             long endTimeAsMilli = timeSource.nowAsMilli();
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * 1000l);
+            double linesPerSecond = Math.round( ((double) lines / durationAsMilli) * 1000l );
             System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
+                    format( "%s took %s to read %s line: %s lines/s",
                             SimpleCsvFileReader.class.getSimpleName(),
-                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format(linesPerSecond)
+                            TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                            numberFormatter.format( lines ),
+                            numberFormatter.format( linesPerSecond )
                     )
             );
         }
@@ -179,14 +222,16 @@ public class InteractiveEventStreamReaderPerformanceTest
         {
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(paramsFile)), bufferSize);
-                Extractors extractors = new Extractors(';', ',');
+            for ( int i = 0; i < repetitions; i++ )
+            {
+                CharSeeker charSeeker =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( paramsFile ) ), bufferSize );
+                Extractors extractors = new Extractors( ';', ',' );
                 Mark mark = new Mark();
                 int columnDelimiter = '|';
                 // skip headers - this file has 2 columns per row
-                charSeeker.seek(mark, new int[]{columnDelimiter});
-                charSeeker.seek(mark, new int[]{columnDelimiter});
+                charSeeker.seek( mark, new int[]{columnDelimiter} );
+                charSeeker.seek( mark, new int[]{columnDelimiter} );
                 Iterator<Object[]> operation1StreamWithoutTimes = gf.limit(
                         gf.repeating(
                                 new CsvEventStreamReaderBasicCharSeeker<>(
@@ -199,20 +244,20 @@ public class InteractiveEventStreamReaderPerformanceTest
                         ),
                         limit
                 );
-                lines += readingStreamPerformanceTest(operation1StreamWithoutTimes);
+                lines += readingStreamPerformanceTest( operation1StreamWithoutTimes );
                 charSeeker.close();
             }
             long endTimeAsMilli = timeSource.nowAsMilli();
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * 1000l);
+            double linesPerSecond = Math.round( ((double) lines / durationAsMilli) * 1000l );
             System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
+                    format( "%s took %s to read %s line: %s lines/s",
                             CsvEventStreamReaderBasicCharSeeker.class.getSimpleName(),
-                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format(linesPerSecond)
+                            TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                            numberFormatter.format( lines ),
+                            numberFormatter.format( linesPerSecond )
                     )
             );
         }
@@ -220,15 +265,17 @@ public class InteractiveEventStreamReaderPerformanceTest
         {
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(paramsFile)), bufferSize);
-                Extractors extractors = new Extractors(';', ',');
+            for ( int i = 0; i < repetitions; i++ )
+            {
+                CharSeeker charSeeker =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( paramsFile ) ), bufferSize );
+                Extractors extractors = new Extractors( ';', ',' );
                 Mark mark = new Mark();
                 int columnDelimiter = '|';
 
                 // skip headers - this file has 2 columns per row
-                charSeeker.seek(mark, new int[]{columnDelimiter});
-                charSeeker.seek(mark, new int[]{columnDelimiter});
+                charSeeker.seek( mark, new int[]{columnDelimiter} );
+                charSeeker.seek( mark, new int[]{columnDelimiter} );
 
                 Iterator<Object[]> query1Parameters = gf.limit(
                         gf.repeating(
@@ -242,21 +289,21 @@ public class InteractiveEventStreamReaderPerformanceTest
                         ),
                         limit
                 );
-                Iterator<Operation> query1OperationsWithoutTimes = new Query1EventStreamReader(query1Parameters);
-                lines += readingStreamPerformanceTest(query1OperationsWithoutTimes);
+                Iterator<Operation> query1OperationsWithoutTimes = new Query1EventStreamReader( query1Parameters );
+                lines += readingStreamPerformanceTest( query1OperationsWithoutTimes );
                 charSeeker.close();
             }
             long endTimeAsMilli = timeSource.nowAsMilli();
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * 1000l);
+            double linesPerSecond = Math.round( ((double) lines / durationAsMilli) * 1000l );
             System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
+                    format( "%s took %s to read %s line: %s lines/s",
                             Query1EventStreamReader.class.getSimpleName(),
-                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format(linesPerSecond)
+                            TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                            numberFormatter.format( lines ),
+                            numberFormatter.format( linesPerSecond )
                     )
             );
         }
@@ -264,15 +311,17 @@ public class InteractiveEventStreamReaderPerformanceTest
         {
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(paramsFile)), bufferSize);
-                Extractors extractors = new Extractors(';', ',');
+            for ( int i = 0; i < repetitions; i++ )
+            {
+                CharSeeker charSeeker =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( paramsFile ) ), bufferSize );
+                Extractors extractors = new Extractors( ';', ',' );
                 Mark mark = new Mark();
                 int columnDelimiter = '|';
 
                 // skip headers - this file has 2 columns per row
-                charSeeker.seek(mark, new int[]{columnDelimiter});
-                charSeeker.seek(mark, new int[]{columnDelimiter});
+                charSeeker.seek( mark, new int[]{columnDelimiter} );
+                charSeeker.seek( mark, new int[]{columnDelimiter} );
 
                 Iterator<Object[]> query1Parameters = gf.limit(
                         gf.repeating(
@@ -287,24 +336,24 @@ public class InteractiveEventStreamReaderPerformanceTest
                         limit
                 );
                 Iterator<Operation> query1OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
-                        new Query1EventStreamReader(query1Parameters)
+                        gf.incrementing( 0l, 1l ),
+                        new Query1EventStreamReader( query1Parameters )
                 );
 
-                lines += readingStreamPerformanceTest(query1OperationsWithTimes);
+                lines += readingStreamPerformanceTest( query1OperationsWithTimes );
                 charSeeker.close();
             }
             long endTimeAsMilli = timeSource.nowAsMilli();
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * 1000l);
+            double linesPerSecond = Math.round( ((double) lines / durationAsMilli) * 1000l );
             System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
+                    format( "%s took %s to read %s line: %s lines/s",
                             Query1EventStreamReader.class.getSimpleName(),
-                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format(linesPerSecond)
+                            TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                            numberFormatter.format( lines ),
+                            numberFormatter.format( linesPerSecond )
                     )
             );
         }
@@ -312,29 +361,33 @@ public class InteractiveEventStreamReaderPerformanceTest
 
     @Ignore
     @Test
-    public void newParseAndMergeAllReadOperationStreamsPerformanceTest() throws IOException {
-        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/new_read_params/sf10_partitions_01/");
+    public void newParseAndMergeAllReadOperationStreamsPerformanceTest() throws IOException
+    {
+        GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42l ) );
+        File parentStreamsDir =
+                new File( "/Users/alexaverbuch/IdeaProjects/scale_factor_streams/new_read_params/sf10_partitions_01/" );
 
         long limit = 100000000;
         int bufferSize = 2 * 1024 * 1024;
         int repetitions = 1;
-        Extractors extractors = new Extractors(';', ',');
+        Extractors extractors = new Extractors( ';', ',' );
         int columnDelimiter = '|';
         {
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
+            for ( int i = 0; i < repetitions; i++ )
+            {
 
                 EventDecoder<Object[]> decoder1 = new Query1EventStreamReader.Query1Decoder();
-                CharSeeker charSeeker1 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_1_param.txt" ))), bufferSize);
+                CharSeeker charSeeker1 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_1_param.txt" ) ) ), bufferSize );
                 Mark mark1 = new Mark();
                 // skip headers
-                charSeeker1.seek(mark1, new int[]{columnDelimiter});
-                charSeeker1.seek(mark1, new int[]{columnDelimiter});
+                charSeeker1.seek( mark1, new int[]{columnDelimiter} );
+                charSeeker1.seek( mark1, new int[]{columnDelimiter} );
                 Iterator<Operation> query1OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query1EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -349,14 +402,15 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder2 = new Query2EventStreamReader.Query2Decoder();
-                CharSeeker charSeeker2 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_2_param.txt" ))), bufferSize);
+                CharSeeker charSeeker2 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_2_param.txt" ) ) ), bufferSize );
                 Mark mark2 = new Mark();
                 // skip headers
-                charSeeker2.seek(mark2, new int[]{columnDelimiter});
-                charSeeker2.seek(mark2, new int[]{columnDelimiter});
+                charSeeker2.seek( mark2, new int[]{columnDelimiter} );
+                charSeeker2.seek( mark2, new int[]{columnDelimiter} );
                 Iterator<Operation> query2OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query2EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -371,17 +425,18 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder3 = new Query3EventStreamReader.Query3Decoder();
-                CharSeeker charSeeker3 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_3_param.txt" ))), bufferSize);
+                CharSeeker charSeeker3 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_3_param.txt" ) ) ), bufferSize );
                 Mark mark3 = new Mark();
                 // skip headers
-                charSeeker3.seek(mark3, new int[]{columnDelimiter});
-                charSeeker3.seek(mark3, new int[]{columnDelimiter});
-                charSeeker3.seek(mark3, new int[]{columnDelimiter});
-                charSeeker3.seek(mark3, new int[]{columnDelimiter});
-                charSeeker3.seek(mark3, new int[]{columnDelimiter});
+                charSeeker3.seek( mark3, new int[]{columnDelimiter} );
+                charSeeker3.seek( mark3, new int[]{columnDelimiter} );
+                charSeeker3.seek( mark3, new int[]{columnDelimiter} );
+                charSeeker3.seek( mark3, new int[]{columnDelimiter} );
+                charSeeker3.seek( mark3, new int[]{columnDelimiter} );
                 Iterator<Operation> query3OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query3EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -396,15 +451,16 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder4 = new Query4EventStreamReader.Query4Decoder();
-                CharSeeker charSeeker4 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_4_param.txt" ))), bufferSize);
+                CharSeeker charSeeker4 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_4_param.txt" ) ) ), bufferSize );
                 Mark mark4 = new Mark();
                 // skip headers
-                charSeeker4.seek(mark4, new int[]{columnDelimiter});
-                charSeeker4.seek(mark4, new int[]{columnDelimiter});
-                charSeeker4.seek(mark4, new int[]{columnDelimiter});
+                charSeeker4.seek( mark4, new int[]{columnDelimiter} );
+                charSeeker4.seek( mark4, new int[]{columnDelimiter} );
+                charSeeker4.seek( mark4, new int[]{columnDelimiter} );
                 Iterator<Operation> query4OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query4EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -419,14 +475,15 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder5 = new Query5EventStreamReader.Query5Decoder();
-                CharSeeker charSeeker5 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_5_param.txt" ))), bufferSize);
+                CharSeeker charSeeker5 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_5_param.txt" ) ) ), bufferSize );
                 Mark mark5 = new Mark();
                 // skip headers
-                charSeeker5.seek(mark5, new int[]{columnDelimiter});
-                charSeeker5.seek(mark5, new int[]{columnDelimiter});
+                charSeeker5.seek( mark5, new int[]{columnDelimiter} );
+                charSeeker5.seek( mark5, new int[]{columnDelimiter} );
                 Iterator<Operation> query5OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query5EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -441,14 +498,15 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder6 = new Query6EventStreamReader.Query6Decoder();
-                CharSeeker charSeeker6 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_6_param.txt" ))), bufferSize);
+                CharSeeker charSeeker6 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_6_param.txt" ) ) ), bufferSize );
                 Mark mark6 = new Mark();
                 // skip headers
-                charSeeker6.seek(mark6, new int[]{columnDelimiter});
-                charSeeker6.seek(mark6, new int[]{columnDelimiter});
+                charSeeker6.seek( mark6, new int[]{columnDelimiter} );
+                charSeeker6.seek( mark6, new int[]{columnDelimiter} );
                 Iterator<Operation> query6OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query6EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -463,13 +521,14 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder7 = new Query7EventStreamReader.Query7Decoder();
-                CharSeeker charSeeker7 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_7_param.txt" ))), bufferSize);
+                CharSeeker charSeeker7 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_7_param.txt" ) ) ), bufferSize );
                 Mark mark7 = new Mark();
                 // skip headers
-                charSeeker7.seek(mark7, new int[]{columnDelimiter});
+                charSeeker7.seek( mark7, new int[]{columnDelimiter} );
                 Iterator<Operation> query7OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query7EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -484,13 +543,14 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder8 = new Query8EventStreamReader.Query8Decoder();
-                CharSeeker charSeeker8 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_8_param.txt" ))), bufferSize);
+                CharSeeker charSeeker8 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_8_param.txt" ) ) ), bufferSize );
                 Mark mark8 = new Mark();
                 // skip headers
-                charSeeker8.seek(mark8, new int[]{columnDelimiter});
+                charSeeker8.seek( mark8, new int[]{columnDelimiter} );
                 Iterator<Operation> query8OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query8EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -505,14 +565,15 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder9 = new Query9EventStreamReader.Query9Decoder();
-                CharSeeker charSeeker9 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_9_param.txt" ))), bufferSize);
+                CharSeeker charSeeker9 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_9_param.txt" ) ) ), bufferSize );
                 Mark mark9 = new Mark();
                 // skip headers
-                charSeeker9.seek(mark9, new int[]{columnDelimiter});
-                charSeeker9.seek(mark9, new int[]{columnDelimiter});
+                charSeeker9.seek( mark9, new int[]{columnDelimiter} );
+                charSeeker9.seek( mark9, new int[]{columnDelimiter} );
                 Iterator<Operation> query9OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query9EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -527,14 +588,15 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder10 = new Query10EventStreamReader.Query10Decoder();
-                CharSeeker charSeeker10 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_10_param.txt" ))), bufferSize);
+                CharSeeker charSeeker10 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_10_param.txt" ) ) ), bufferSize );
                 Mark mark10 = new Mark();
                 // skip headers
-                charSeeker10.seek(mark10, new int[]{columnDelimiter});
-                charSeeker10.seek(mark10, new int[]{columnDelimiter});
+                charSeeker10.seek( mark10, new int[]{columnDelimiter} );
+                charSeeker10.seek( mark10, new int[]{columnDelimiter} );
                 Iterator<Operation> query10OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query10EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -549,15 +611,16 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder11 = new Query11EventStreamReader.Query11Decoder();
-                CharSeeker charSeeker11 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_11_param.txt" ))), bufferSize);
+                CharSeeker charSeeker11 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_11_param.txt" ) ) ), bufferSize );
                 Mark mark11 = new Mark();
                 // skip headers
-                charSeeker11.seek(mark11, new int[]{columnDelimiter});
-                charSeeker11.seek(mark11, new int[]{columnDelimiter});
-                charSeeker11.seek(mark11, new int[]{columnDelimiter});
+                charSeeker11.seek( mark11, new int[]{columnDelimiter} );
+                charSeeker11.seek( mark11, new int[]{columnDelimiter} );
+                charSeeker11.seek( mark11, new int[]{columnDelimiter} );
                 Iterator<Operation> query11OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query11EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -572,14 +635,15 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder12 = new Query12EventStreamReader.Query12Decoder();
-                CharSeeker charSeeker12 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_12_param.txt" ))), bufferSize);
+                CharSeeker charSeeker12 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_12_param.txt" ) ) ), bufferSize );
                 Mark mark12 = new Mark();
                 // skip headers
-                charSeeker12.seek(mark12, new int[]{columnDelimiter});
-                charSeeker12.seek(mark12, new int[]{columnDelimiter});
+                charSeeker12.seek( mark12, new int[]{columnDelimiter} );
+                charSeeker12.seek( mark12, new int[]{columnDelimiter} );
                 Iterator<Operation> query12OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query12EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -594,14 +658,15 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder13 = new Query13EventStreamReader.Query13Decoder();
-                CharSeeker charSeeker13 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_13_param.txt" ))), bufferSize);
+                CharSeeker charSeeker13 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_13_param.txt" ) ) ), bufferSize );
                 Mark mark13 = new Mark();
                 // skip headers
-                charSeeker13.seek(mark13, new int[]{columnDelimiter});
-                charSeeker13.seek(mark13, new int[]{columnDelimiter});
+                charSeeker13.seek( mark13, new int[]{columnDelimiter} );
+                charSeeker13.seek( mark13, new int[]{columnDelimiter} );
                 Iterator<Operation> query13OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query13EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -616,14 +681,15 @@ public class InteractiveEventStreamReaderPerformanceTest
                 );
 
                 EventDecoder<Object[]> decoder14 = new Query14EventStreamReader.Query14Decoder();
-                CharSeeker charSeeker14 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir,
-                        "snb/interactive/query_14_param.txt" ))), bufferSize);
+                CharSeeker charSeeker14 =
+                        new BufferedCharSeeker( Readables.wrap( new FileReader( new File( parentStreamsDir,
+                                "snb/interactive/query_14_param.txt" ) ) ), bufferSize );
                 Mark mark14 = new Mark();
                 // skip headers
-                charSeeker14.seek(mark14, new int[]{columnDelimiter});
-                charSeeker14.seek(mark14, new int[]{columnDelimiter});
+                charSeeker14.seek( mark14, new int[]{columnDelimiter} );
+                charSeeker14.seek( mark14, new int[]{columnDelimiter} );
                 Iterator<Operation> query14OperationsWithTimes = gf.assignStartTimes(
-                        gf.incrementing(0l, 1l),
+                        gf.incrementing( 0l, 1l ),
                         new Query14EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -678,13 +744,13 @@ public class InteractiveEventStreamReaderPerformanceTest
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * 1000l);
+            double linesPerSecond = Math.round( ((double) lines / durationAsMilli) * 1000l );
             System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
+                    format( "%s took %s to read %s line: %s lines/s",
                             "Merged",
-                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format(linesPerSecond)
+                            TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                            numberFormatter.format( lines ),
+                            numberFormatter.format( linesPerSecond )
                     )
             );
         }
@@ -692,129 +758,143 @@ public class InteractiveEventStreamReaderPerformanceTest
 
     @Ignore
     @Test
-    public void forumCsvUpdateStreamReadingRegexParserProfileTest() throws IOException, InterruptedException {
-        Thread.sleep(30000);
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
-        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv");
+    public void forumCsvUpdateStreamReadingRegexParserProfileTest() throws IOException, InterruptedException
+    {
+        Thread.sleep( 30000 );
+        File parentStreamsDir = new File( "/Users/alexaverbuch/IdeaProjects/scale_factor_streams/" );
+        File forumUpdateStream = new File( parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv" );
 
         long lines = 0;
         long startTimeAsMilli = timeSource.nowAsMilli();
-        SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(forumUpdateStream, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(simpleCsvFileReader);
-        lines += readingStreamPerformanceTest(writeEventStreamReader);
+        SimpleCsvFileReader simpleCsvFileReader =
+                new SimpleCsvFileReader( forumUpdateStream, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create( simpleCsvFileReader );
+        lines += readingStreamPerformanceTest( writeEventStreamReader );
         simpleCsvFileReader.close();
         long endTimeAsMilli = timeSource.nowAsMilli();
         long durationAsMilli = (endTimeAsMilli - startTimeAsMilli);
 
         System.out.println(
-                String.format("%s took %s to read %s line: %s lines/s",
+                format( "%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderRegex.class.getSimpleName(),
-                        TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                        numberFormatter.format(lines),
-                        numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
+                        TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                        numberFormatter.format( lines ),
+                        numberFormatter.format( (double) lines / TimeUnit.MILLISECONDS.toSeconds( durationAsMilli ) )
                 )
         );
     }
 
     @Ignore
     @Test
-    public void forumCsvUpdateStreamReadingCharSeekerParserProfileTest() throws IOException, InterruptedException {
-        Thread.sleep(30000);
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/current/");
-        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv");
+    public void forumCsvUpdateStreamReadingCharSeekerParserProfileTest() throws IOException, InterruptedException
+    {
+        Thread.sleep( 30000 );
+        File parentStreamsDir = new File( "/Users/alexaverbuch/IdeaProjects/scale_factor_streams/current/" );
+        File forumUpdateStream = new File( parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv" );
 
         int MB = 1024 * 1024;
         int bufferSize = 2 * MB;
         long lines = 0;
         long startTimeAsMilli = timeSource.nowAsMilli();
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
+        CharSeeker charSeeker = new BufferedCharSeeker(
+                Readables.wrap( new InputStreamReader( new FileInputStream( forumUpdateStream ), Charsets.UTF_8 ) ),
+                bufferSize );
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
-        lines += readingStreamPerformanceTest(writeEventStreamReader);
+        Extractors extractors = new Extractors( ';', ',' );
+        Iterator<Operation> writeEventStreamReader =
+                WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, columnDelimiter );
+        lines += readingStreamPerformanceTest( writeEventStreamReader );
         charSeeker.close();
         long endTimeAsMilli = timeSource.nowAsMilli();
         long durationAsMilli = (endTimeAsMilli - startTimeAsMilli);
 
         System.out.println(
-                String.format("%s took %s to read %s line: %s lines/s",
+                format( "%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
-                        TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                        numberFormatter.format(lines),
-                        numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
+                        TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                        numberFormatter.format( lines ),
+                        numberFormatter.format( (double) lines / TimeUnit.MILLISECONDS.toSeconds( durationAsMilli ) )
                 )
         );
     }
 
     @Ignore
     @Test
-    public void personCsvUpdateStreamReadingRegexParserProfileTest() throws IOException, InterruptedException {
-        Thread.sleep(30000);
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
-        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_person.csv");
+    public void personCsvUpdateStreamReadingRegexParserProfileTest() throws IOException, InterruptedException
+    {
+        Thread.sleep( 30000 );
+        File parentStreamsDir = new File( "/Users/alexaverbuch/IdeaProjects/scale_factor_streams/" );
+        File forumUpdateStream = new File( parentStreamsDir, "sf10_partitions_01/updateStream_0_0_person.csv" );
 
         long lines = 0;
         long startTimeAsMilli = timeSource.nowAsMilli();
-        SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(forumUpdateStream, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(simpleCsvFileReader);
-        lines += readingStreamPerformanceTest(writeEventStreamReader);
+        SimpleCsvFileReader simpleCsvFileReader =
+                new SimpleCsvFileReader( forumUpdateStream, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create( simpleCsvFileReader );
+        lines += readingStreamPerformanceTest( writeEventStreamReader );
         simpleCsvFileReader.close();
         long endTimeAsMilli = timeSource.nowAsMilli();
         long durationAsMilli = (endTimeAsMilli - startTimeAsMilli);
 
         System.out.println(
-                String.format("%s took %s to read %s line: %s lines/s",
+                format( "%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderRegex.class.getSimpleName(),
-                        TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                        numberFormatter.format(lines),
-                        numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
+                        TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                        numberFormatter.format( lines ),
+                        numberFormatter.format( (double) lines / TimeUnit.MILLISECONDS.toSeconds( durationAsMilli ) )
                 )
         );
     }
 
     @Ignore
     @Test
-    public void personCsvUpdateStreamReadingCharSeekerParserProfileTest() throws IOException, InterruptedException {
-        Thread.sleep(30000);
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
-        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_person.csv");
+    public void personCsvUpdateStreamReadingCharSeekerParserProfileTest() throws IOException, InterruptedException
+    {
+        Thread.sleep( 30000 );
+        File parentStreamsDir = new File( "/Users/alexaverbuch/IdeaProjects/scale_factor_streams/" );
+        File forumUpdateStream = new File( parentStreamsDir, "sf10_partitions_01/updateStream_0_0_person.csv" );
 
         int MB = 1024 * 1024;
         int bufferSize = 2 * MB;
         long lines = 0;
         long startTimeAsMilli = timeSource.nowAsMilli();
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
+        CharSeeker charSeeker = new BufferedCharSeeker(
+                Readables.wrap( new InputStreamReader( new FileInputStream( forumUpdateStream ), Charsets.UTF_8 ) ),
+                bufferSize );
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
-        lines += readingStreamPerformanceTest(writeEventStreamReader);
+        Extractors extractors = new Extractors( ';', ',' );
+        Iterator<Operation> writeEventStreamReader =
+                WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, columnDelimiter );
+        lines += readingStreamPerformanceTest( writeEventStreamReader );
         charSeeker.close();
         long endTimeAsMilli = timeSource.nowAsMilli();
         long durationAsMilli = (endTimeAsMilli - startTimeAsMilli);
 
         System.out.println(
-                String.format("%s took %s to read %s line: %s lines/s",
+                format( "%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
-                        TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                        numberFormatter.format(lines),
-                        numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
+                        TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                        numberFormatter.format( lines ),
+                        numberFormatter.format( (double) lines / TimeUnit.MILLISECONDS.toSeconds( durationAsMilli ) )
                 )
         );
     }
 
     @Ignore
     @Test
-    public void forumCsvUpdateStreamReadingPerformanceTest() throws IOException {
+    public void forumCsvUpdateStreamReadingPerformanceTest() throws IOException
+    {
 //        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
 //        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv");
 
-        File parentStreamsDir = new File("/Users/alexaverbuch/hadoopTempDir/output/social_network/");
-        File forumUpdateStream = new File(parentStreamsDir, "snb/interactive/updateStream_0_0_forum.csv" );
+        File parentStreamsDir = new File( "/Users/alexaverbuch/hadoopTempDir/output/social_network/" );
+        File forumUpdateStream = new File( parentStreamsDir, "snb/interactive/updateStream_0_0_forum.csv" );
 
         {
             // warm up file system
-            SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(forumUpdateStream, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-            readingStreamPerformanceTest(simpleCsvFileReader);
+            SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader( forumUpdateStream,
+                    SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
+            readingStreamPerformanceTest( simpleCsvFileReader );
             simpleCsvFileReader.close();
         }
 
@@ -823,19 +903,21 @@ public class InteractiveEventStreamReaderPerformanceTest
             int bufferSize = 2 * 1024 * 1024;
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                lines += doBufferedReaderPerformanceTest(forumUpdateStream, bufferSize);
+            for ( int i = 0; i < repetitions; i++ )
+            {
+                lines += doBufferedReaderPerformanceTest( forumUpdateStream, bufferSize );
             }
             long endTimeAsMilli = timeSource.nowAsMilli();
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
             System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
+                    format( "%s took %s to read %s line: %s lines/s",
                             BufferedReader.class.getSimpleName() + "-" + bufferSize,
-                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
+                            TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                            numberFormatter.format( lines ),
+                            numberFormatter
+                                    .format( (double) lines / TimeUnit.MILLISECONDS.toSeconds( durationAsMilli ) )
                     )
             );
         }
@@ -844,19 +926,21 @@ public class InteractiveEventStreamReaderPerformanceTest
             int bufferSize = 2 * 1024 * 1024;
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                lines += doCharSeekerPerformanceTest(forumUpdateStream, bufferSize);
+            for ( int i = 0; i < repetitions; i++ )
+            {
+                lines += doCharSeekerPerformanceTest( forumUpdateStream, bufferSize );
             }
             long endTimeAsMilli = timeSource.nowAsMilli();
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
             System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
+                    format( "%s took %s to read %s line: %s lines/s",
                             CharSeeker.class.getSimpleName() + "-" + bufferSize,
-                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
+                            TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                            numberFormatter.format( lines ),
+                            numberFormatter
+                                    .format( (double) lines / TimeUnit.MILLISECONDS.toSeconds( durationAsMilli ) )
                     )
             );
         }
@@ -865,19 +949,22 @@ public class InteractiveEventStreamReaderPerformanceTest
             int bufferSize = 2 * 1024 * 1024;
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                lines += doThreadedCharSeekerPerformanceTest(forumUpdateStream, bufferSize);
+            for ( int i = 0; i < repetitions; i++ )
+            {
+                lines += doThreadedCharSeekerPerformanceTest( forumUpdateStream, bufferSize );
             }
             long endTimeAsMilli = timeSource.nowAsMilli();
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
             System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
-                            CharSeeker.class.getSimpleName() + "-" + ThreadAheadReadable.class.getSimpleName() + "-" + bufferSize,
-                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
+                    format( "%s took %s to read %s line: %s lines/s",
+                            CharSeeker.class.getSimpleName() + "-" + ThreadAheadReadable.class.getSimpleName() + "-" +
+                            bufferSize,
+                            TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                            numberFormatter.format( lines ),
+                            numberFormatter
+                                    .format( (double) lines / TimeUnit.MILLISECONDS.toSeconds( durationAsMilli ) )
                     )
             );
         }
@@ -885,9 +972,11 @@ public class InteractiveEventStreamReaderPerformanceTest
         {
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(forumUpdateStream, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-                lines += readingStreamPerformanceTest(simpleCsvFileReader);
+            for ( int i = 0; i < repetitions; i++ )
+            {
+                SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader( forumUpdateStream,
+                        SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
+                lines += readingStreamPerformanceTest( simpleCsvFileReader );
                 simpleCsvFileReader.close();
             }
             long endTimeAsMilli = timeSource.nowAsMilli();
@@ -895,11 +984,12 @@ public class InteractiveEventStreamReaderPerformanceTest
             lines = lines / repetitions;
 
             System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
+                    format( "%s took %s to read %s line: %s lines/s",
                             SimpleCsvFileReader.class.getSimpleName(),
-                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
+                            TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                            numberFormatter.format( lines ),
+                            numberFormatter
+                                    .format( (double) lines / TimeUnit.MILLISECONDS.toSeconds( durationAsMilli ) )
                     )
             );
         }
@@ -907,10 +997,12 @@ public class InteractiveEventStreamReaderPerformanceTest
         {
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(forumUpdateStream, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-                Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(simpleCsvFileReader);
-                lines += readingStreamPerformanceTest(writeEventStreamReader);
+            for ( int i = 0; i < repetitions; i++ )
+            {
+                SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader( forumUpdateStream,
+                        SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
+                Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create( simpleCsvFileReader );
+                lines += readingStreamPerformanceTest( writeEventStreamReader );
                 simpleCsvFileReader.close();
             }
             long endTimeAsMilli = timeSource.nowAsMilli();
@@ -918,27 +1010,33 @@ public class InteractiveEventStreamReaderPerformanceTest
             lines = lines / repetitions;
 
             System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
+                    format( "%s took %s to read %s line: %s lines/s",
                             WriteEventStreamReaderRegex.class.getSimpleName(),
-                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
+                            TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                            numberFormatter.format( lines ),
+                            numberFormatter
+                                    .format( (double) lines / TimeUnit.MILLISECONDS.toSeconds( durationAsMilli ) )
                     )
             );
         }
 
         int MB = 1024 * 1024;
-        List<Integer> bufferSizes = Lists.newArrayList(1 * MB, 2 * MB, 4 * MB, 8 * MB, 16 * MB);
-        for (int bufferSize : bufferSizes) {
+        List<Integer> bufferSizes = Lists.newArrayList( 1 * MB, 2 * MB, 4 * MB, 8 * MB, 16 * MB );
+        for ( int bufferSize : bufferSizes )
+        {
             {
                 long lines = 0;
                 long startTimeAsMilli = timeSource.nowAsMilli();
-                for (int i = 0; i < repetitions; i++) {
-                    CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
+                for ( int i = 0; i < repetitions; i++ )
+                {
+                    CharSeeker charSeeker = new BufferedCharSeeker( Readables
+                            .wrap( new InputStreamReader( new FileInputStream( forumUpdateStream ), Charsets.UTF_8 ) ),
+                            bufferSize );
                     int columnDelimiter = '|';
-                    Extractors extractors = new Extractors(';', ',');
-                    Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
-                    lines += readingStreamPerformanceTest(writeEventStreamReader);
+                    Extractors extractors = new Extractors( ';', ',' );
+                    Iterator<Operation> writeEventStreamReader =
+                            WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, columnDelimiter );
+                    lines += readingStreamPerformanceTest( writeEventStreamReader );
                     charSeeker.close();
                 }
                 long endTimeAsMilli = timeSource.nowAsMilli();
@@ -946,11 +1044,12 @@ public class InteractiveEventStreamReaderPerformanceTest
                 lines = lines / repetitions;
 
                 System.out.println(
-                        String.format("%s took %s to read %s line: %s lines/s",
+                        format( "%s took %s to read %s line: %s lines/s",
                                 WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
-                                TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                                numberFormatter.format(lines),
-                                numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
+                                TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                                numberFormatter.format( lines ),
+                                numberFormatter
+                                        .format( (double) lines / TimeUnit.MILLISECONDS.toSeconds( durationAsMilli ) )
                         )
                 );
             }
@@ -958,13 +1057,16 @@ public class InteractiveEventStreamReaderPerformanceTest
             {
                 long lines = 0;
                 long startTimeAsMilli = timeSource.nowAsMilli();
-                for (int i = 0; i < repetitions; i++) {
-                    Reader reader = new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8);
-                    CharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(Readables.wrap(reader), bufferSize), bufferSize);
+                for ( int i = 0; i < repetitions; i++ )
+                {
+                    Reader reader = new InputStreamReader( new FileInputStream( forumUpdateStream ), Charsets.UTF_8 );
+                    CharSeeker charSeeker = new BufferedCharSeeker(
+                            ThreadAheadReadable.threadAhead( Readables.wrap( reader ), bufferSize ), bufferSize );
                     int columnDelimiter = '|';
-                    Extractors extractors = new Extractors(';', ',');
-                    Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
-                    lines += readingStreamPerformanceTest(writeEventStreamReader);
+                    Extractors extractors = new Extractors( ';', ',' );
+                    Iterator<Operation> writeEventStreamReader =
+                            WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, columnDelimiter );
+                    lines += readingStreamPerformanceTest( writeEventStreamReader );
                     charSeeker.close();
                 }
                 long endTimeAsMilli = timeSource.nowAsMilli();
@@ -972,60 +1074,72 @@ public class InteractiveEventStreamReaderPerformanceTest
                 lines = lines / repetitions;
 
                 System.out.println(
-                        String.format("%s took %s to read %s line: %s lines/s",
-                                WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + ThreadAheadReadable.class.getSimpleName() + "-" + bufferSize,
-                                TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
-                                numberFormatter.format(lines),
-                                numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
+                        format( "%s took %s to read %s line: %s lines/s",
+                                WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" +
+                                ThreadAheadReadable.class.getSimpleName() + "-" + bufferSize,
+                                TEMPORAL_UTIL.milliDurationToString( durationAsMilli ),
+                                numberFormatter.format( lines ),
+                                numberFormatter
+                                        .format( (double) lines / TimeUnit.MILLISECONDS.toSeconds( durationAsMilli ) )
                         )
                 );
             }
         }
     }
 
-    public long readingStreamPerformanceTest(Iterator parser) throws FileNotFoundException {
+    public long readingStreamPerformanceTest( Iterator parser ) throws FileNotFoundException
+    {
         long lines = 0;
-        while (parser.hasNext()) {
+        while ( parser.hasNext() )
+        {
             parser.next();
             lines++;
         }
         return lines;
     }
 
-    public long doCharSeekerPerformanceTest(File forumUpdateStream, int bufferSize) throws IOException {
-        CharSeeker seeker = new BufferedCharSeeker(Readables.wrap(new FileReader(forumUpdateStream)), bufferSize);
+    public long doCharSeekerPerformanceTest( File forumUpdateStream, int bufferSize ) throws IOException
+    {
+        CharSeeker seeker = new BufferedCharSeeker( Readables.wrap( new FileReader( forumUpdateStream ) ), bufferSize );
         long lines = 0;
         Mark mark = new Mark();
         int[] delimiters = new int[]{'|'};
-        Extractors extractors = new Extractors(';', ',');
-        while (seeker.seek(mark, delimiters)) {
-            seeker.extract(mark, extractors.string()).value();
-            if (mark.isEndOfLine())
-                lines++;
+        Extractors extractors = new Extractors( ';', ',' );
+        while ( seeker.seek( mark, delimiters ) )
+        {
+            seeker.extract( mark, extractors.string() ).value();
+            if ( mark.isEndOfLine() )
+            { lines++; }
         }
         seeker.close();
         return lines;
     }
 
-    public long doThreadedCharSeekerPerformanceTest(File forumUpdateStream, int bufferSize) throws IOException {
-        CharSeeker seeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(Readables.wrap(new FileReader(forumUpdateStream)), bufferSize), bufferSize);
+    public long doThreadedCharSeekerPerformanceTest( File forumUpdateStream, int bufferSize ) throws IOException
+    {
+        CharSeeker seeker = new BufferedCharSeeker(
+                ThreadAheadReadable.threadAhead( Readables.wrap( new FileReader( forumUpdateStream ) ), bufferSize ),
+                bufferSize );
         long lines = 0;
         Mark mark = new Mark();
         int[] delimiters = new int[]{'|'};
-        Extractors extractors = new Extractors(';', ',');
-        while (seeker.seek(mark, delimiters)) {
-            seeker.extract(mark, extractors.string()).value();
-            if (mark.isEndOfLine())
-                lines++;
+        Extractors extractors = new Extractors( ';', ',' );
+        while ( seeker.seek( mark, delimiters ) )
+        {
+            seeker.extract( mark, extractors.string() ).value();
+            if ( mark.isEndOfLine() )
+            { lines++; }
         }
         seeker.close();
         return lines;
     }
 
-    public long doBufferedReaderPerformanceTest(File forumUpdateStream, int bufferSize) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(forumUpdateStream), bufferSize);
+    public long doBufferedReaderPerformanceTest( File forumUpdateStream, int bufferSize ) throws IOException
+    {
+        BufferedReader bufferedReader = new BufferedReader( new FileReader( forumUpdateStream ), bufferSize );
         long lines = 0;
-        while (null != bufferedReader.readLine()) {
+        while ( null != bufferedReader.readLine() )
+        {
             lines++;
         }
         bufferedReader.close();

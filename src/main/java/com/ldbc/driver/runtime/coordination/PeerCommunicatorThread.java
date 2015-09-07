@@ -9,7 +9,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class PeerCommunicatorThread extends Thread {
+import static java.lang.String.format;
+
+public class PeerCommunicatorThread extends Thread
+{
     private final TimeSource timeSource;
 
     // TODO heartbeat failure detection
@@ -32,17 +35,18 @@ public class PeerCommunicatorThread extends Thread {
     private long lastHeartbeatAsMilli;
 
 
-    public PeerCommunicatorThread(TimeSource timeSource,
-                                  String myId,
-                                  ConcurrentErrorReporter errorReporter,
-                                  long heartbeatPeriodAsMilli,
-                                  AtomicBoolean terminate,
-                                  AtomicLong sharedLctReference,
-                                  BlockingQueue<CompletionTimeEvent> completionTimeQueue,
-                                  // TODO temporary until Akka/network is integrated
-                                  BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent> peerReceiveQueue,
-                                  List<BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent>> peerSendQueues) {
-        super(PeerCommunicatorThread.class.getSimpleName() + "-" + System.currentTimeMillis());
+    public PeerCommunicatorThread( TimeSource timeSource,
+            String myId,
+            ConcurrentErrorReporter errorReporter,
+            long heartbeatPeriodAsMilli,
+            AtomicBoolean terminate,
+            AtomicLong sharedLctReference,
+            BlockingQueue<CompletionTimeEvent> completionTimeQueue,
+            // TODO temporary until Akka/network is integrated
+            BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent> peerReceiveQueue,
+            List<BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent>> peerSendQueues )
+    {
+        super( PeerCommunicatorThread.class.getSimpleName() + "-" + System.currentTimeMillis() );
         this.timeSource = timeSource;
         this.myId = myId;
         this.errorReporter = errorReporter;
@@ -58,28 +62,36 @@ public class PeerCommunicatorThread extends Thread {
     }
 
     @Override
-    public void run() {
-        while (false == terminate.get()) {
-            try {
-                if (timeSource.nowAsMilli() - lastHeartbeatAsMilli > heartbeatPeriodAsMilli) {
+    public void run()
+    {
+        while ( false == terminate.get() )
+        {
+            try
+            {
+                if ( timeSource.nowAsMilli() - lastHeartbeatAsMilli > heartbeatPeriodAsMilli )
+                {
                     sendCompletionTimeToPeers();
                     lastHeartbeatAsMilli = timeSource.nowAsMilli();
                 }
-                CompletionTimeEvent.ExternalCompletionTimeEvent event = peerReceiveQueue.poll(PEER_RECEIVE_QUEUE_POLL_TIMEOUT_AS_MILLI, TimeUnit.MILLISECONDS);
-                if (null != event)
-                    completionTimeQueue.put(event);
-            } catch (InterruptedException e) {
+                CompletionTimeEvent.ExternalCompletionTimeEvent event =
+                        peerReceiveQueue.poll( PEER_RECEIVE_QUEUE_POLL_TIMEOUT_AS_MILLI, TimeUnit.MILLISECONDS );
+                if ( null != event )
+                { completionTimeQueue.put( event ); }
+            }
+            catch ( InterruptedException e )
+            {
                 errorReporter.reportError(
                         this,
-                        String.format("Thread was interrupted"));
+                        format( "Thread was interrupted" ) );
                 break;
             }
         }
     }
 
-    private void sendCompletionTimeToPeers() throws InterruptedException {
+    private void sendCompletionTimeToPeers() throws InterruptedException
+    {
         long ct = sharedLctReference.get();
-        for (BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent> peerSendChannel : peerSendQueues)
-            CompletionTimeEvent.writeExternalCompletionTime(myId, ct);
+        for ( BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent> peerSendChannel : peerSendQueues )
+        { CompletionTimeEvent.writeExternalCompletionTime( myId, ct ); }
     }
 }

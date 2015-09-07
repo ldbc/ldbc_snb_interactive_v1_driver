@@ -10,7 +10,10 @@ import com.ldbc.driver.temporal.TimeSource;
 import stormpot.Poolable;
 import stormpot.Slot;
 
-public class OperationHandlerRunnableContext implements Runnable, Poolable {
+import static java.lang.String.format;
+
+public class OperationHandlerRunnableContext implements Runnable, Poolable
+{
     // set by OperationHandlerRunnerFactory
     private Slot slot = null;
 
@@ -33,27 +36,34 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
 
     private final ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
 
-    public final void setSlot(Slot slot) {
+    public final void setSlot( Slot slot )
+    {
         this.slot = slot;
     }
 
-    public final void init(TimeSource timeSource,
-                           Spinner spinner,
-                           Operation operation,
-                           LocalCompletionTimeWriter localCompletionTimeWriter,
-                           ConcurrentErrorReporter errorReporter,
-                           MetricsService metricsService) throws OperationException {
-        if (initialized) {
-            throw new OperationException(String.format("%s can not be initialized twice", getClass().getSimpleName()));
+    public final void init( TimeSource timeSource,
+            Spinner spinner,
+            Operation operation,
+            LocalCompletionTimeWriter localCompletionTimeWriter,
+            ConcurrentErrorReporter errorReporter,
+            MetricsService metricsService ) throws OperationException
+    {
+        if ( initialized )
+        {
+            throw new OperationException( format( "%s can not be initialized twice", getClass().getSimpleName() ) );
         }
-        if (null == this.timeSource) {
+        if ( null == this.timeSource )
+        {
             this.timeSource = timeSource;
             this.spinner = spinner;
             this.errorReporter = errorReporter;
-            try {
+            try
+            {
                 this.metricsServiceWriter = metricsService.getWriter();
-            } catch (MetricsCollectionException e) {
-                throw new OperationException("Error while retrieving metrics writer", e);
+            }
+            catch ( MetricsCollectionException e )
+            {
+                throw new OperationException( "Error while retrieving metrics writer", e );
             }
         }
         this.operation = operation;
@@ -62,35 +72,43 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
         this.initialized = true;
     }
 
-    public final void setOperationHandler(OperationHandler operationHandler) {
+    public final void setOperationHandler( OperationHandler operationHandler )
+    {
         this.operationHandler = operationHandler;
     }
 
-    public final void setDbConnectionState(DbConnectionState dbConnectionState) {
+    public final void setDbConnectionState( DbConnectionState dbConnectionState )
+    {
         this.dbConnectionState = dbConnectionState;
     }
 
-    public final void setBeforeExecuteCheck(SpinnerCheck check) {
+    public final void setBeforeExecuteCheck( SpinnerCheck check )
+    {
         beforeExecuteCheck = check;
     }
 
-    public final Operation operation() {
+    public final Operation operation()
+    {
         return operation;
     }
 
-    public final OperationHandler operationHandler() {
+    public final OperationHandler operationHandler()
+    {
         return operationHandler;
     }
 
-    public final LocalCompletionTimeWriter localCompletionTimeWriter() {
+    public final LocalCompletionTimeWriter localCompletionTimeWriter()
+    {
         return localCompletionTimeWriter;
     }
 
-    public final DbConnectionState dbConnectionState() {
+    public final DbConnectionState dbConnectionState()
+    {
         return dbConnectionState;
     }
 
-    public final ResultReporter resultReporter() {
+    public final ResultReporter resultReporter()
+    {
         return resultReporter;
     }
 
@@ -104,24 +122,28 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
      * @return an OperationResultReport if Operation execution was successful, otherwise null
      */
     @Override
-    public void run() {
-        if (false == initialized) {
-            errorReporter.reportError(this, "Handler was executed before being initialized");
+    public void run()
+    {
+        if ( false == initialized )
+        {
+            errorReporter.reportError( this, "Handler was executed before being initialized" );
             return;
         }
-        try {
-            if (false == spinner.waitForScheduledStartTime(operation, beforeExecuteCheck)) {
+        try
+        {
+            if ( false == spinner.waitForScheduledStartTime( operation, beforeExecuteCheck ) )
+            {
                 // TODO something more elaborate here? see comments in Spinner
                 // TODO should probably report failed operation
                 // Spinner result indicates operation should not be processed
                 return;
             }
-            resultReporter.setActualStartTimeAsMilli(timeSource.nowAsMilli());
+            resultReporter.setActualStartTimeAsMilli( timeSource.nowAsMilli() );
             long startOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
-            operationHandler.executeOperation(operation, dbConnectionState, resultReporter);
+            operationHandler.executeOperation( operation, dbConnectionState, resultReporter );
             long endOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
-            resultReporter.setRunDurationAsNano(endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano);
-            localCompletionTimeWriter.submitLocalCompletedTime(operation.timeStamp());
+            resultReporter.setRunDurationAsNano( endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano );
+            localCompletionTimeWriter.submitLocalCompletedTime( operation.timeStamp() );
             metricsServiceWriter.submitOperationResult(
                     operation.type(),
                     operation.scheduledStartTimeAsMilli(),
@@ -129,42 +151,47 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
                     resultReporter.runDurationAsNano(),
                     resultReporter.resultCode()
             );
-        } catch (Throwable e) {
-            String errMsg = String.format(
+        }
+        catch ( Throwable e )
+        {
+            String errMsg = format(
                     "Error encountered\n%s\n%s",
                     operation.toString(),
-                    ConcurrentErrorReporter.stackTraceToString(e));
-            errorReporter.reportError(this, errMsg);
+                    ConcurrentErrorReporter.stackTraceToString( e ) );
+            errorReporter.reportError( this, errMsg );
         }
     }
 
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "OperationHandlerRunner{" +
-                "slot=" + slot +
-                ", timeSource=" + timeSource +
-                ", spinner=" + spinner +
-                ", operation=" + operation +
-                ", dbConnectionState=" + dbConnectionState +
-                ", localCompletionTimeWriter=" + localCompletionTimeWriter +
-                ", errorReporter=" + errorReporter +
-                ", metricsServiceWriter=" + metricsServiceWriter +
-                ", beforeExecuteCheck=" + beforeExecuteCheck +
-                ", operationHandler=" + operationHandler +
-                ", initialized=" + initialized +
-                '}';
+               "slot=" + slot +
+               ", timeSource=" + timeSource +
+               ", spinner=" + spinner +
+               ", operation=" + operation +
+               ", dbConnectionState=" + dbConnectionState +
+               ", localCompletionTimeWriter=" + localCompletionTimeWriter +
+               ", errorReporter=" + errorReporter +
+               ", metricsServiceWriter=" + metricsServiceWriter +
+               ", beforeExecuteCheck=" + beforeExecuteCheck +
+               ", operationHandler=" + operationHandler +
+               ", initialized=" + initialized +
+               '}';
     }
 
-    public final void cleanup() {
+    public final void cleanup()
+    {
         release();
     }
 
     // Note, this should not really be public API, it is from the StormPot Poolable interface
     @Override
-    public final void release() {
+    public final void release()
+    {
         initialized = false;
-        if (null != slot)
-            slot.release(this);
+        if ( null != slot )
+        { slot.release( this ); }
     }
 }

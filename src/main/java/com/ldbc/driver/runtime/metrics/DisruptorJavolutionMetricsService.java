@@ -26,6 +26,7 @@ import static com.ldbc.driver.runtime.metrics.DisruptorJavolutionMetricsEvent.Me
 import static com.ldbc.driver.runtime.metrics.DisruptorJavolutionMetricsEvent.SET_AS_REQUEST_WORKLOAD_RESULT;
 import static com.ldbc.driver.runtime.metrics.DisruptorJavolutionMetricsEvent.SET_AS_STATUS;
 import static com.ldbc.driver.runtime.metrics.DisruptorJavolutionMetricsEvent.SET_AS_SUBMIT_OPERATION_RESULT;
+import static java.lang.String.format;
 
 public class DisruptorJavolutionMetricsService implements MetricsService
 {
@@ -121,7 +122,7 @@ public class DisruptorJavolutionMetricsService implements MetricsService
         if ( false == shutdownSuccessful )
         {
             String errMsg =
-                    String.format( "%s timed out waiting for last operations to complete\n%s/%s operations completed",
+                    format( "%s timed out waiting for last operations to complete\n%s/%s operations completed",
                             getClass().getSimpleName(),
                             eventHandler.processedEventCount(),
                             initiatedEvents.get()
@@ -139,7 +140,7 @@ public class DisruptorJavolutionMetricsService implements MetricsService
                 List<Runnable> stillRunningThreads = executor.shutdownNow();
                 if ( false == stillRunningThreads.isEmpty() )
                 {
-                    String errMsg = String.format(
+                    String errMsg = format(
                             "%s shutdown before all executor threads could complete\n%s threads were queued for " +
                             "execution but not yet started",
                             getClass().getSimpleName(),
@@ -161,7 +162,7 @@ public class DisruptorJavolutionMetricsService implements MetricsService
         }
         catch ( TimeoutException e )
         {
-            String errMsg = String.format( "%s timed out waiting for %s to shutdown",
+            String errMsg = format( "%s timed out waiting for %s to shutdown",
                     getClass().getSimpleName(),
                     disruptor.getClass().getSimpleName()
             );

@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -141,7 +142,7 @@ public class DbValidatorTest
 
         // Then
         System.out.println( validationResult.resultMessage() );
-        assertThat( String.format( "Validation Result\n%s", validationResult.resultMessage() ),
+        assertThat( format( "Validation Result\n%s", validationResult.resultMessage() ),
                 validationResult.isSuccessful(), is( true ) );
     }
 

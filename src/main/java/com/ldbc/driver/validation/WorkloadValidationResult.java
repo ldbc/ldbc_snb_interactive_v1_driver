@@ -1,14 +1,18 @@
 package com.ldbc.driver.validation;
 
-public class WorkloadValidationResult {
-    public enum ResultType {
+public class WorkloadValidationResult
+{
+    public enum ResultType
+    {
         SUCCESSFUL,
         UNEXPECTED,
+        UNASSIGNED_TIME_STAMP,
         UNASSIGNED_SCHEDULED_START_TIME,
+        TIME_STAMPS_DO_NOT_INCREASE_MONOTONICALLY,
         SCHEDULED_START_TIMES_DO_NOT_INCREASE_MONOTONICALLY,
         SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM,
-        UNASSIGNED_DEPENDENCY_TIME,
-        DEPENDENCY_TIME_IS_NOT_BEFORE_SCHEDULED_START_TIME,
+        UNASSIGNED_DEPENDENCY_TIME_STAMP,
+        DEPENDENCY_TIME_STAMP_IS_NOT_BEFORE_TIME_STAMP,
         INSUFFICIENT_INTERVAL_BETWEEN_DEPENDENCY_TIME_AND_SCHEDULED_START_TIME,
         SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM_FOR_GCT_MODE,
         SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM_FOR_OPERATION_TYPE,
@@ -21,28 +25,33 @@ public class WorkloadValidationResult {
     private final ResultType resultType;
     private final String errorMessage;
 
-    public WorkloadValidationResult(ResultType resultType, String errorMessage) {
+    public WorkloadValidationResult( ResultType resultType, String errorMessage )
+    {
         this.errorMessage = errorMessage;
         this.resultType = resultType;
     }
 
-    public boolean isSuccessful() {
-        return resultType.equals(ResultType.SUCCESSFUL);
+    public boolean isSuccessful()
+    {
+        return resultType.equals( ResultType.SUCCESSFUL );
     }
 
-    public ResultType resultType() {
+    public ResultType resultType()
+    {
         return resultType;
     }
 
-    public String errorMessage() {
+    public String errorMessage()
+    {
         return errorMessage;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "WorkloadValidationResult{" +
-                "resultType=" + resultType +
-                ", errorMessage='" + errorMessage + '\'' +
-                '}';
+               "resultType=" + resultType +
+               ", errorMessage='" + errorMessage + '\'' +
+               '}';
     }
 }

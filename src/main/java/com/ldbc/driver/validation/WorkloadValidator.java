@@ -11,8 +11,10 @@ import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.ContinuousMetricManager;
 import com.ldbc.driver.temporal.SystemTimeSource;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Tuple3;
+import com.ldbc.driver.workloads.WorkloadFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static com.ldbc.driver.validation.WorkloadValidationResult.ResultType;
+import static java.lang.String.format;
 
 // TODO the below could be used as a guide for how to do this
 // Synchronous      NONE    makesSense(y)    dependencyTime(n)  startTimeDependencyTimeDifference(n)
@@ -58,6 +61,8 @@ public class WorkloadValidator
         Iterator<Operation> operationsPass1;
         try
         {
+            long offset = 0;
+            long limit = configuration.operationCount();
             boolean returnStreamsWithDbConnector = false;
             Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
@@ -65,19 +70,23 @@ public class WorkloadValidator
                             configuration,
                             gf,
                             returnStreamsWithDbConnector,
-                            0,
-                            configuration.operationCount(),
+                            offset,
+                            limit,
                             loggingServiceFactory
                     );
-            operationsPass1 = WorkloadStreams
-                    .mergeSortedByStartTimeExcludingChildOperationGenerators( gf, streamsAndWorkload._1() );
+            operationsPass1 = WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
+                    gf,
+                    streamsAndWorkload._1()
+            );
             workloadPass1 = streamsAndWorkload._2();
         }
         catch ( Exception e )
         {
-            return new WorkloadValidationResult( ResultType.UNEXPECTED,
-                    String.format( "Error while retrieving operations from workload\n%s",
-                            ConcurrentErrorReporter.stackTraceToString( e ) ) );
+            return new WorkloadValidationResult(
+                    ResultType.UNEXPECTED,
+                    format( "Error retrieving operations from workload\n%s",
+                            ConcurrentErrorReporter.stackTraceToString( e ) )
+            );
         }
 
         operationCount = 0;
@@ -86,42 +95,57 @@ public class WorkloadValidator
             Operation operation = operationsPass1.next();
             operationCount++;
 
+            // Operation has time stamp
+            long operationTimeStampAsMilli = operation.timeStamp();
+            if ( 0 > operationTimeStampAsMilli )
+            {
+                return new WorkloadValidationResult(
+                        ResultType.UNASSIGNED_TIME_STAMP,
+                        format( "Operation %s - Unassigned operation time stamp\n" +
+                                "  --> %s",
+                                operationCount,
+                                operation ) );
+            }
+
             // Operation has start time
             long operationStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
-            if ( -1 == operationStartTimeAsMilli )
+            if ( 0 > operationStartTimeAsMilli )
             {
                 return new WorkloadValidationResult(
                         ResultType.UNASSIGNED_SCHEDULED_START_TIME,
-                        String.format( "Operation %s - Unassigned operation scheduled start time\n  %s",
+                        format( "Operation %s - Unassigned operation scheduled start time\n" +
+                                "  --> %s",
                                 operationCount,
                                 operation ) );
             }
 
-            long operationDependencyTimeAsMilli = operation.dependencyTimeStamp();
-            // Operation has dependency time
-            if ( -1 == operationDependencyTimeAsMilli )
+            long operationDependencyTimeStamp = operation.dependencyTimeStamp();
+            // Operation has dependency time stamp
+            if ( 0 > operationDependencyTimeStamp )
             {
                 return new WorkloadValidationResult(
-                        ResultType.UNASSIGNED_DEPENDENCY_TIME,
-                        String.format( "Operation %s - Unassigned operation dependency time\nOperation: %s",
+                        ResultType.UNASSIGNED_DEPENDENCY_TIME_STAMP,
+                        format( "Operation %s - Unassigned operation dependency time stamp\n" +
+                                "  --> Operation: %s",
                                 operationCount,
                                 operation ) );
             }
 
-            // Ensure operation dependency time is less than operation start time
-            if ( false == operationDependencyTimeAsMilli < operationStartTimeAsMilli )
+            // Ensure operation dependency time stamp is less than operation time stamp
+            if ( operationDependencyTimeStamp >= operationStartTimeAsMilli )
             {
                 return new WorkloadValidationResult(
-                        ResultType.DEPENDENCY_TIME_IS_NOT_BEFORE_SCHEDULED_START_TIME,
-                        String.format( ""
-                                       +
-                                       "Operation %s - Operation dependency time is not less than operation start " +
-                                       "time\n"
-                                       + "  Operation: %s\n"
-                                       + "  Start Time: %s\n"
-                                       + "  Dependency Time: %s",
+                        ResultType.DEPENDENCY_TIME_STAMP_IS_NOT_BEFORE_TIME_STAMP,
+                        format( ""
+                                +
+                                "Operation %s - Operation dependency time is not less than operation start time\n"
+                                + "  Operation: %s\n"
+                                + "  Time Stamp: %s\n"
+                                + "  Start Time: %s\n"
+                                + "  Dependency Time: %s",
                                 operationCount,
                                 operation,
+                                operation.timeStamp(),
                                 operation.scheduledStartTimeAsMilli(),
                                 operation.dependencyTimeStamp() ) );
             }
@@ -148,6 +172,8 @@ public class WorkloadValidator
         Iterator<Operation> operationsPass2;
         try
         {
+            long offset = 0;
+            long limit = configuration.operationCount();
             boolean returnStreamsWithDbConnector = false;
             Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
@@ -155,14 +181,16 @@ public class WorkloadValidator
                             configuration,
                             gf,
                             returnStreamsWithDbConnector,
-                            0,
-                            configuration.operationCount(),
+                            offset,
+                            limit,
                             loggingServiceFactory
                     );
             workloadPass2 = streamsAndWorkload._2();
             operationsPass2 = gf.timeOffsetAndCompress(
-                    WorkloadStreams
-                            .mergeSortedByStartTimeExcludingChildOperationGenerators( gf, streamsAndWorkload._1() ),
+                    WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
+                            gf,
+                            streamsAndWorkload._1()
+                    ),
                     nowAsMilli,
                     configuration.timeCompressionRatio()
             );
@@ -171,11 +199,12 @@ public class WorkloadValidator
         catch ( Exception e )
         {
             return new WorkloadValidationResult( ResultType.UNEXPECTED,
-                    String.format( "Error while retrieving operations from workload\n%s",
+                    format( "Error while retrieving operations from workload\n%s",
                             ConcurrentErrorReporter.stackTraceToString( e ) ) );
         }
 
         Operation previousOperation = null;
+        long previousOperationTimeStampAsMilli = -1;
         long previousOperationStartTimeAsMilli = -1;
 
         Map<Class,Long> previousOperationStartTimesAsMilliByOperationType = new HashMap<>();
@@ -189,31 +218,56 @@ public class WorkloadValidator
             operationCount++;
 
             // Operation has start time
-            long operationStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
-            if ( -1 == operationStartTimeAsMilli )
+            long operationTimeStamp = operation.timeStamp();
+            if ( 0 > operationTimeStamp )
             {
                 return new WorkloadValidationResult(
-                        ResultType.UNASSIGNED_SCHEDULED_START_TIME,
-                        String.format( "Operation %s - Unassigned operation scheduled start time\n  %s",
+                        ResultType.UNASSIGNED_TIME_STAMP,
+                        format( "Operation %s - Unassigned operation time stamp\n" +
+                                "  --> %s",
                                 operationCount,
                                 operation ) );
             }
 
-            // Operation start times increase monotonically
-            if ( -1 != previousOperationStartTimeAsMilli )
+            // Operation has start time
+            long operationStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
+            if ( 0 > operationStartTimeAsMilli )
             {
-                if ( operationStartTimeAsMilli < previousOperationStartTimeAsMilli )
-                {
-                    return new WorkloadValidationResult(
-                            ResultType.SCHEDULED_START_TIMES_DO_NOT_INCREASE_MONOTONICALLY,
-                            String.format( ""
-                                           + "Operation %s - Operation start times do not increase monotonically\n"
-                                           + "  Previous: %s\n"
-                                           + "  Current: %s",
-                                    operationCount,
-                                    previousOperation,
-                                    operation ) );
-                }
+                return new WorkloadValidationResult(
+                        ResultType.UNASSIGNED_SCHEDULED_START_TIME,
+                        format( "Operation %s - Unassigned operation scheduled start time\n  %s",
+                                operationCount,
+                                operation ) );
+            }
+
+            // Operation time stamps increase monotonically
+            if ( -1 != previousOperationTimeStampAsMilli &&
+                 operationTimeStamp < previousOperationTimeStampAsMilli )
+            {
+                return new WorkloadValidationResult(
+                        ResultType.TIME_STAMPS_DO_NOT_INCREASE_MONOTONICALLY,
+                        format( ""
+                                + "Operation %s - Operation time stamps do not increase monotonically\n"
+                                + "  Previous: %s\n"
+                                + "  Current: %s",
+                                operationCount,
+                                previousOperation,
+                                operation ) );
+            }
+
+            // Operation start times increase monotonically
+            if ( -1 != previousOperationStartTimeAsMilli &&
+                 operationStartTimeAsMilli < previousOperationStartTimeAsMilli )
+            {
+                return new WorkloadValidationResult(
+                        ResultType.SCHEDULED_START_TIMES_DO_NOT_INCREASE_MONOTONICALLY,
+                        format( ""
+                                + "Operation %s - Operation start times do not increase monotonically\n"
+                                + "  Previous: %s\n"
+                                + "  Current: %s",
+                                operationCount,
+                                previousOperation,
+                                operation ) );
             }
 
             // Interleaves do not exceed maximum
@@ -224,46 +278,45 @@ public class WorkloadValidator
                 {
                     return new WorkloadValidationResult(
                             ResultType.SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM,
-                            String.format( ""
-                                           +
-                                           "Operation %s - Encountered interleave duration (%s) exceeds maximum " +
-                                           "expected interleave (%s)\n"
-                                           + "  Previous: %s\n"
-                                           + "  Current: %s",
+                            format( "Operation %s - encountered interleave exceeds maximum\n" +
+                                    "  Interleave: %s (ms)/ %s\n" +
+                                    "  Maximum: %s\n" +
+                                    "  Previous: %s\n" +
+                                    "  Current: %s",
                                     operationCount,
                                     interleaveDurationAsMilli,
+                                    new TemporalUtil().milliDurationToString( interleaveDurationAsMilli ),
                                     workloadPass2.maxExpectedInterleaveAsMilli(),
                                     previousOperation,
                                     operation ) );
                 }
             }
 
-            long operationDependencyTimeAsMilli = operation.dependencyTimeStamp();
-            // Operation has dependency time
-            if ( -1 == operationDependencyTimeAsMilli )
+            long operationDependencyTimeStamp = operation.dependencyTimeStamp();
+
+            // Operation has dependency time stamp
+            if ( 0 > operationDependencyTimeStamp )
             {
                 return new WorkloadValidationResult(
-                        ResultType.UNASSIGNED_DEPENDENCY_TIME,
-                        String.format( "Operation %s - Unassigned operation dependency time\nOperation: %s",
+                        ResultType.UNASSIGNED_DEPENDENCY_TIME_STAMP,
+                        format( "Operation %s - Unassigned operation dependency time stamp\n" +
+                                "  --> Operation: %s",
                                 operationCount,
                                 operation ) );
             }
 
-            // Ensure operation dependency time is less than operation start time
-            if ( false == operationDependencyTimeAsMilli < operationStartTimeAsMilli )
+            // Ensure operation dependency time stamp is less than operation time stamp
+            if ( operationDependencyTimeStamp >= operationTimeStamp )
             {
                 return new WorkloadValidationResult(
-                        ResultType.DEPENDENCY_TIME_IS_NOT_BEFORE_SCHEDULED_START_TIME,
-                        String.format( ""
-                                       +
-                                       "Operation %s - Operation dependency time is not less than operation start " +
-                                       "time\n"
-                                       + "  Operation: %s\n"
-                                       + "  Start Time: %s\n"
-                                       + "  Dependency Time: %s",
+                        ResultType.DEPENDENCY_TIME_STAMP_IS_NOT_BEFORE_TIME_STAMP,
+                        format( "Operation %s - dependency time stamp is not less than operation time stamp\n"
+                                + "  Operation: %s\n"
+                                + "  Start Time: %s\n"
+                                + "  Dependency Time: %s",
                                 operationCount,
                                 operation,
-                                operation.scheduledStartTimeAsMilli(),
+                                operation.timeStamp(),
                                 operation.dependencyTimeStamp() ) );
             }
 
@@ -288,12 +341,12 @@ public class WorkloadValidator
                 {
                     return new WorkloadValidationResult(
                             ResultType.SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM_FOR_OPERATION_TYPE,
-                            String.format( ""
-                                           +
-                                           "Operation %s - Encountered interleave duration (for %s) %s that exceeds " +
-                                           "maximum expected value (%s)\n"
-                                           + "  Previous: %s\n"
-                                           + "  Current: %s",
+                            format( ""
+                                    +
+                                    "Operation %s - Encountered interleave duration (for %s) %s that exceeds " +
+                                    "maximum expected value (%s)\n"
+                                    + "  Previous: %s\n"
+                                    + "  Current: %s",
                                     operationCount,
                                     operationType.getSimpleName(),
                                     interleaveDurationAsMilli,
@@ -313,7 +366,7 @@ public class WorkloadValidator
             {
                 return new WorkloadValidationResult(
                         ResultType.UNABLE_TO_SERIALIZE_OPERATION,
-                        String.format( "Operation %s - Unable to serialize operation\nOperation: %s",
+                        format( "Operation %s - Unable to serialize operation\nOperation: %s",
                                 operationCount,
                                 operation ) );
             }
@@ -326,18 +379,18 @@ public class WorkloadValidator
             {
                 return new WorkloadValidationResult(
                         ResultType.UNABLE_TO_MARSHAL_OPERATION,
-                        String.format( "Unable to marshal operation\nOperation: %s",
+                        format( "Unable to marshal operation\nOperation: %s",
                                 serializedOperation ) );
             }
             if ( false == operation.equals( marshaledOperation ) )
             {
                 return new WorkloadValidationResult(
                         ResultType.OPERATIONS_DO_NOT_EQUAL_AFTER_SERIALIZING_AND_MARSHALLING,
-                        String.format( ""
-                                       + "Operation %s - Operations do not equal after serializing and marshalling\n"
-                                       + "  Original Operation: %s\n"
-                                       + "  Serialized Operation: %s\n"
-                                       + "  Marshaled Operation: %s",
+                        format( ""
+                                + "Operation %s - Operations do not equal after serializing and marshalling\n"
+                                + "  Original Operation: %s\n"
+                                + "  Serialized Operation: %s\n"
+                                + "  Marshaled Operation: %s",
                                 operationCount,
                                 operation,
                                 serializedOperation,
@@ -411,7 +464,7 @@ public class WorkloadValidator
         catch ( Exception e )
         {
             return new WorkloadValidationResult( ResultType.UNEXPECTED,
-                    String.format( "Error while retrieving operations from workload\n%s",
+                    format( "Error while retrieving operations from workload\n%s",
                             ConcurrentErrorReporter.stackTraceToString( e ) ) );
         }
 
@@ -432,7 +485,7 @@ public class WorkloadValidator
         {
             return new WorkloadValidationResult(
                     ResultType.UNEXPECTED,
-                    String.format( "Unexpected error encountered while checking if workload is deterministic\n%s",
+                    format( "Unexpected error encountered while checking if workload is deterministic\n%s",
                             ConcurrentErrorReporter.stackTraceToString( e ) ) );
         }
 

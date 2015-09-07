@@ -7,44 +7,58 @@ import com.ldbc.driver.generator.GeneratorException;
 
 import java.util.Iterator;
 
-public class ValidationParamsFromCsvRows implements Iterator<ValidationParam> {
+import static java.lang.String.format;
+
+public class ValidationParamsFromCsvRows implements Iterator<ValidationParam>
+{
     private final Iterator<String[]> csvRows;
     private final Workload workload;
 
-    public ValidationParamsFromCsvRows(Iterator<String[]> csvRows, Workload workload) {
+    public ValidationParamsFromCsvRows( Iterator<String[]> csvRows, Workload workload )
+    {
         this.csvRows = csvRows;
         this.workload = workload;
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNext()
+    {
         return csvRows.hasNext();
     }
 
     @Override
-    public ValidationParam next() {
+    public ValidationParam next()
+    {
         String[] csvRow = csvRows.next();
         String serializedOperation = csvRow[0];
         String serializedOperationResult = csvRow[1];
 
         Operation operation;
-        try {
-            operation = workload.marshalOperation(serializedOperation);
-        } catch (SerializingMarshallingException e) {
-            throw new GeneratorException(String.format("Error marshalling operation\n%s", serializedOperation), e);
+        try
+        {
+            operation = workload.marshalOperation( serializedOperation );
+        }
+        catch ( SerializingMarshallingException e )
+        {
+            throw new GeneratorException( format( "Error marshalling operation\n%s", serializedOperation ), e );
         }
 
         Object operationResult;
-        try {
-            operationResult = operation.marshalResult(serializedOperationResult);
-        } catch (SerializingMarshallingException e) {
-            throw new GeneratorException(String.format("Error marshalling operation result\n%s", serializedOperationResult), e);
+        try
+        {
+            operationResult = operation.marshalResult( serializedOperationResult );
         }
-        return ValidationParam.createUntyped(operation, operationResult);
+        catch ( SerializingMarshallingException e )
+        {
+            throw new GeneratorException( format( "Error marshalling operation result\n%s", serializedOperationResult ),
+                    e );
+        }
+        return ValidationParam.createUntyped( operation, operationResult );
     }
 
     @Override
-    public void remove() {
-        throw new UnsupportedOperationException("remove() not supported by " + getClass().getName());
+    public void remove()
+    {
+        throw new UnsupportedOperationException( "remove() not supported by " + getClass().getName() );
     }
 }

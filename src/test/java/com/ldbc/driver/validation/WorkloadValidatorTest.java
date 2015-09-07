@@ -15,6 +15,7 @@ import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
+import com.ldbc.driver.workloads.WorkloadFactory;
 import com.ldbc.driver.workloads.dummy.DummyWorkloadFactory;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1Factory;
@@ -129,7 +130,7 @@ public class WorkloadValidatorTest
         assertThat( validResult.errorMessage(), validResult.isSuccessful(), is( true ) );
 
         assertThat( invalidResult.errorMessage(), invalidResult.resultType(),
-                anyOf( is( ResultType.UNASSIGNED_DEPENDENCY_TIME ), is( ResultType.UNEXPECTED ) ) );
+                anyOf( is( ResultType.UNASSIGNED_DEPENDENCY_TIME_STAMP ), is( ResultType.UNEXPECTED ) ) );
         assertThat( invalidResult.errorMessage(), invalidResult.isSuccessful(), is( false ) );
     }
 
@@ -225,7 +226,7 @@ public class WorkloadValidatorTest
         assertThat( validResult.errorMessage(), validResult.isSuccessful(), is( true ) );
 
         assertThat( invalidResult.errorMessage(), invalidResult.resultType(),
-                is( ResultType.DEPENDENCY_TIME_IS_NOT_BEFORE_SCHEDULED_START_TIME ) );
+                is( ResultType.DEPENDENCY_TIME_STAMP_IS_NOT_BEFORE_TIME_STAMP ) );
         assertThat( invalidResult.errorMessage(), invalidResult.isSuccessful(), is( false ) );
     }
 

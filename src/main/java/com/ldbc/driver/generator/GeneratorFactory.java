@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.lang.String.format;
+
 public class GeneratorFactory
 {
 
@@ -113,7 +115,7 @@ public class GeneratorFactory
             if ( false == operationStream2.hasNext() )
             {
                 return new OperationStreamComparisonResult(
-                        String.format( "operation %s\nstream 2 is shorter", operationNumber ),
+                        format( "operation %s\nstream 2 is shorter", operationNumber ),
                         OperationStreamComparisonResultType.FAIL_STREAMS_HAVE_DIFFERENT_LENGTH );
             }
             Operation next1 = operationStream1.next();
@@ -123,7 +125,7 @@ public class GeneratorFactory
             if ( null == next1 || null == next2 )
             {
                 return new OperationStreamComparisonResult(
-                        String.format( "operation %s\none operation is null\nstream 1: %s\nstream 2: %s",
+                        format( "operation %s\none operation is null\nstream 1: %s\nstream 2: %s",
                                 operationNumber, next1, next2 ),
                         OperationStreamComparisonResultType.FAIL_ONE_OPERATION_IS_NULL );
             }
@@ -131,7 +133,7 @@ public class GeneratorFactory
             else if ( false == next1.equals( next2 ) )
             {
                 return new OperationStreamComparisonResult(
-                        String.format( "operation %s\noperations not equal\nstream 1: %s\nstream 2: %s",
+                        format( "operation %s\noperations not equal\nstream 1: %s\nstream 2: %s",
                                 operationNumber, next1, next2 ),
                         OperationStreamComparisonResultType.FAIL_OPERATIONS_NOT_EQUAL );
             }
@@ -146,14 +148,14 @@ public class GeneratorFactory
                 else if ( -1 == scheduledStartTimeAsMilli1 || -1 == scheduledStartTimeAsMilli2 )
                 {
                     return new OperationStreamComparisonResult(
-                            String.format( "operation %s\none start time is null\nstream 1: %s\nstream 2: %s",
+                            format( "operation %s\none start time is null\nstream 1: %s\nstream 2: %s",
                                     scheduledStartTimeAsMilli1, scheduledStartTimeAsMilli2, operationNumber ),
                             OperationStreamComparisonResultType.FAIL_ONE_START_TIME_IS_NULL );
                 }
                 else if ( scheduledStartTimeAsMilli1 != scheduledStartTimeAsMilli2 )
                 {
                     return new OperationStreamComparisonResult(
-                            String.format( "operation %s\nstart times not equal\nstream 1: %s\nstream 2: %s",
+                            format( "operation %s\nstart times not equal\nstream 1: %s\nstream 2: %s",
                                     operationNumber, scheduledStartTimeAsMilli1, scheduledStartTimeAsMilli2 ),
                             OperationStreamComparisonResultType.FAIL_START_TIMES_NOT_EQUAL );
                 }
@@ -166,14 +168,14 @@ public class GeneratorFactory
                 else if ( -1 == timeStamp1 || -1 == timeStamp2 )
                 {
                     return new OperationStreamComparisonResult(
-                            String.format( "operation %s\none time stamp is null\nstream 1: %s\nstream 2: %s",
+                            format( "operation %s\none time stamp is null\nstream 1: %s\nstream 2: %s",
                                     timeStamp1, timeStamp2, operationNumber ),
                             OperationStreamComparisonResultType.FAIL_ONE_START_TIME_IS_NULL );
                 }
                 else if ( timeStamp1 != timeStamp2 )
                 {
                     return new OperationStreamComparisonResult(
-                            String.format( "operation %s\ntime stamps not equal\nstream 1: %s\nstream 2: %s",
+                            format( "operation %s\ntime stamps not equal\nstream 1: %s\nstream 2: %s",
                                     operationNumber, timeStamp1, timeStamp2 ),
                             OperationStreamComparisonResultType.FAIL_TIME_STAMPS_NOT_EQUAL );
                 }
@@ -186,14 +188,14 @@ public class GeneratorFactory
                 else if ( -1 == dependencyTimeStamp1 || -1 == dependencyTimeStamp2 )
                 {
                     return new OperationStreamComparisonResult(
-                            String.format( "operation %s\none dependency time is null\nstream1: %s\nstream2: %s",
+                            format( "operation %s\none dependency time is null\nstream1: %s\nstream2: %s",
                                     dependencyTimeStamp1, dependencyTimeStamp2, operationNumber ),
                             OperationStreamComparisonResultType.FAIL_ONE_DEPENDENCY_TIME_IS_NULL );
                 }
                 else if ( dependencyTimeStamp1 != dependencyTimeStamp2 )
                 {
                     return new OperationStreamComparisonResult(
-                            String.format( "operation %s\ndependency times not equal\nstream 1: %s\nstream 2: %s",
+                            format( "operation %s\ndependency times not equal\nstream 1: %s\nstream 2: %s",
                                     operationNumber, dependencyTimeStamp1, dependencyTimeStamp2 ),
                             OperationStreamComparisonResultType.FAIL_DEPENDENCY_TIME_STAMPS_NOT_EQUAL );
                 }
@@ -202,7 +204,7 @@ public class GeneratorFactory
         if ( operationStream2.hasNext() )
         {
             return new OperationStreamComparisonResult(
-                    String.format( "operation %s\nstream 1 is shorter", operationNumber ),
+                    format( "operation %s\nstream 1 is shorter", operationNumber ),
                     OperationStreamComparisonResultType.FAIL_STREAMS_HAVE_DIFFERENT_LENGTH );
         }
         return new OperationStreamComparisonResult( "", OperationStreamComparisonResultType.PASS );
@@ -236,7 +238,8 @@ public class GeneratorFactory
     }
 
     /**
-     * Wraps any generator, writes its contents into a bounded queue with a background thread, and reads from that queue
+     * Wraps any generator, writes its contents into a bounded queue with a background thread, and reads from that
+     * queue
      * on next
      *
      * @param generator
@@ -795,7 +798,8 @@ public class GeneratorFactory
     }
 
     /**
-     * next() returns single item from set of items. Probability of selecting an item depends on weight assigned to that
+     * next() returns single item from set of items. Probability of selecting an item depends on weight assigned to
+     * that
      * element.
      *
      * @param weightedItems

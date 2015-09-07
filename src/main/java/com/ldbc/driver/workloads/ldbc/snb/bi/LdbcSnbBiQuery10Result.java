@@ -11,12 +11,12 @@ public class LdbcSnbBiQuery10Result
         this.score = score;
     }
 
-    public long getPersonId()
+    public long personId()
     {
         return personId;
     }
 
-    public int getScore()
+    public int score()
     {
         return score;
     }

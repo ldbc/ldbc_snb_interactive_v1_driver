@@ -31,6 +31,7 @@ import static com.ldbc.driver.runtime.metrics.DisruptorSbeMetricsEvent.GET_WORKL
 import static com.ldbc.driver.runtime.metrics.DisruptorSbeMetricsEvent.MESSAGE_HEADER_SIZE;
 import static com.ldbc.driver.runtime.metrics.DisruptorSbeMetricsEvent.MetricsCollectionEventFactory;
 import static com.ldbc.driver.runtime.metrics.DisruptorSbeMetricsEvent.SUBMIT_OPERATION_RESULT;
+import static java.lang.String.format;
 
 public class DisruptorSbeMetricsService implements MetricsService
 {
@@ -122,7 +123,7 @@ public class DisruptorSbeMetricsService implements MetricsService
         if ( false == shutdownSuccessful )
         {
             String errMsg =
-                    String.format( "%s timed out waiting for last operations to complete\n%s/%s operations completed",
+                    format( "%s timed out waiting for last operations to complete\n%s/%s operations completed",
                             getClass().getSimpleName(),
                             eventHandler.processedEventCount(),
                             initiatedEvents.get()
@@ -140,7 +141,7 @@ public class DisruptorSbeMetricsService implements MetricsService
                 List<Runnable> stillRunningThreads = executor.shutdownNow();
                 if ( false == stillRunningThreads.isEmpty() )
                 {
-                    String errMsg = String.format(
+                    String errMsg = format(
                             "%s shutdown before all executor threads could complete\n%s threads were queued for " +
                             "execution but not yet started",
                             getClass().getSimpleName(),
@@ -161,7 +162,7 @@ public class DisruptorSbeMetricsService implements MetricsService
         }
         catch ( TimeoutException e )
         {
-            String errMsg = String.format( "%s timed out waiting for %s to shutdown",
+            String errMsg = format( "%s timed out waiting for %s to shutdown",
                     getClass().getSimpleName(),
                     disruptor.getClass().getSimpleName()
             );

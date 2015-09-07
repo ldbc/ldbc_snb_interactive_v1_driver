@@ -5,7 +5,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.validation.WorkloadFactory;
+import com.ldbc.driver.workloads.WorkloadFactory;
 
 import java.util.Iterator;
 import java.util.List;

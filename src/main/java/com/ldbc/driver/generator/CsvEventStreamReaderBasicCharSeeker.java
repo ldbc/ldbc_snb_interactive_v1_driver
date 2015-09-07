@@ -7,6 +7,8 @@ import com.ldbc.driver.csv.charseeker.Mark;
 import java.io.IOException;
 import java.util.Iterator;
 
+import static java.lang.String.format;
+
 
 public class CsvEventStreamReaderBasicCharSeeker<BASE_EVENT_TYPE> implements Iterator<BASE_EVENT_TYPE>
 {
@@ -69,7 +71,7 @@ public class CsvEventStreamReaderBasicCharSeeker<BASE_EVENT_TYPE> implements Ite
     public void remove()
     {
         throw new UnsupportedOperationException(
-                String.format( "%s does not support remove()", getClass().getSimpleName() ) );
+                format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
 
 

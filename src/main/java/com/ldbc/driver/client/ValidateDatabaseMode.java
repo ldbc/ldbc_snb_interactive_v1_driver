@@ -24,6 +24,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Iterator;
 
+import static java.lang.String.format;
+
 public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
 {
     private final ControlService controlService;
@@ -48,10 +50,10 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
         }
         catch ( Exception e )
         {
-            throw new ClientException( String.format( "Error loading Workload class: %s",
+            throw new ClientException( format( "Error loading Workload class: %s",
                     controlService.configuration().workloadClassName() ), e );
         }
-        loggingService.info( String.format( "Loaded Workload: %s", workload.getClass().getName() ) );
+        loggingService.info( format( "Loaded Workload: %s", workload.getClass().getName() ) );
 
         try
         {
@@ -64,9 +66,9 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
         catch ( DbException e )
         {
             throw new ClientException(
-                    String.format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
+                    format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
         }
-        loggingService.info( String.format( "Loaded DB: %s", database.getClass().getName() ) );
+        loggingService.info( format( "Loaded DB: %s", database.getClass().getName() ) );
 
         loggingService.info( "Driver Configuration" );
         loggingService.info( controlService.toString() );
@@ -79,8 +81,8 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
         {
             File validationParamsFile = new File( controlService.configuration().databaseValidationFilePath() );
 
-            loggingService.info( String
-                    .format( "Validating database against expected results\n * Db: %s\n * Validation Params File: %s",
+            loggingService.info(
+                    format( "Validating database against expected results\n * Db: %s\n * Validation Params File: %s",
                             db.getClass().getName(), validationParamsFile.getAbsolutePath() ) );
 
             int validationParamsCount;
@@ -114,7 +116,7 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
             }
             catch ( WorkloadException e )
             {
-                throw new ClientException( String.format( "Error reading validation parameters file\nFile: %s",
+                throw new ClientException( format( "Error reading validation parameters file\nFile: %s",
                         validationParamsFile.getAbsolutePath() ), e );
             }
             validationParamsReader.close();
@@ -136,7 +138,7 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
             catch ( Exception e )
             {
                 throw new ClientException(
-                        String.format( "Encountered error while writing to file\nFile: %s",
+                        format( "Encountered error while writing to file\nFile: %s",
                                 failedValidationOperationsFile.getAbsolutePath() ),
                         e
                 );
@@ -159,14 +161,14 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
             catch ( Exception e )
             {
                 throw new ClientException(
-                        String.format( "Encountered error while writing to file\nFile: %s",
+                        format( "Encountered error while writing to file\nFile: %s",
                                 failedValidationOperationsFile.getAbsolutePath() ),
                         e
                 );
             }
 
             loggingService.info( databaseValidationResult.resultMessage() );
-            loggingService.info( String.format(
+            loggingService.info( format(
                     "For details see the following files:\n * %s\n * %s",
                     failedValidationOperationsFile.getAbsolutePath(),
                     expectedResultsForFailedValidationOperationsFile.getAbsolutePath()

@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 public class TemporalUtil
 {
     private final SimpleDateFormat timeFormat;
@@ -53,11 +55,11 @@ public class TemporalUtil
                 long us = TimeUnit.NANOSECONDS.toMicros( durationAsNano ) - TimeUnit.HOURS.toMicros( h ) -
                           TimeUnit.MINUTES.toMicros( m ) - TimeUnit.SECONDS.toMicros( s ) -
                           TimeUnit.MILLISECONDS.toMicros( ms );
-                return String.format( "%02d:%02d:%02d.%03d.%03d (h:m:s.ms.us)", h, m, s, ms, us );
+                return format( "%02d:%02d:%02d.%03d.%03d (h:m:s.ms.us)", h, m, s, ms, us );
             }
             else
             {
-                return String.format( "%02d:%02d:%02d.%03d (h:m:s.ms)", h, m, s, ms );
+                return format( "%02d:%02d:%02d.%03d (h:m:s.ms)", h, m, s, ms );
             }
         }
         else
@@ -70,11 +72,11 @@ public class TemporalUtil
             {
                 long us = TimeUnit.NANOSECONDS.toMicros( durationAsNano ) - TimeUnit.MINUTES.toMicros( m ) -
                           TimeUnit.SECONDS.toMicros( s ) - TimeUnit.MILLISECONDS.toMicros( ms );
-                return String.format( "%02d:%02d.%03d.%03d (m:s.ms.us)", m, s, ms, us );
+                return format( "%02d:%02d.%03d.%03d (m:s.ms.us)", m, s, ms, us );
             }
             else
             {
-                return String.format( "%02d:%02d.%03d (m:s.ms)", m, s, ms );
+                return format( "%02d:%02d.%03d (m:s.ms)", m, s, ms );
             }
         }
     }

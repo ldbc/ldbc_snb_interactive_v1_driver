@@ -258,7 +258,7 @@ public class LdbcSnbBiWorkload extends Workload
     @Override
     protected WorkloadStreams getStreams( GeneratorFactory gf, boolean hasDbConnected ) throws WorkloadException
     {
-        long workloadStartTimeAsMilli = System.currentTimeMillis();
+        long workloadStartTimeAsMilli = 0;
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
         List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
 
@@ -777,10 +777,42 @@ public class LdbcSnbBiWorkload extends Workload
     }
 
     @Override
-    public DbValidationParametersFilter dbValidationParametersFilter( Integer requiredValidationParameterCount )
+    public DbValidationParametersFilter dbValidationParametersFilter( final Integer requiredValidationParameterCount )
     {
-        // TODO implement
-        return null;
+        // TODO may need to treat different operation types differently, or insert other logic
+        return new DbValidationParametersFilter()
+        {
+            private final List<Operation> injectedOperations = new ArrayList<>();
+            int validationParameterCount = 0;
+
+            @Override
+            public boolean useOperation( Operation operation )
+            {
+                return true;
+            }
+
+            @Override
+            public DbValidationParametersFilterResult useOperationAndResultForValidation(
+                    Operation operation,
+                    Object operationResult )
+            {
+                if ( validationParameterCount < requiredValidationParameterCount )
+                {
+                    validationParameterCount++;
+                    return new DbValidationParametersFilterResult(
+                            DbValidationParametersFilterAcceptance.ACCEPT_AND_CONTINUE,
+                            injectedOperations
+                    );
+                }
+                else
+                {
+                    return new DbValidationParametersFilterResult(
+                            DbValidationParametersFilterAcceptance.REJECT_AND_FINISH,
+                            injectedOperations
+                    );
+                }
+            }
+        };
     }
 
     @Override

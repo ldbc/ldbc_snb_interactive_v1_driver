@@ -16,8 +16,8 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Tuple3;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -36,6 +36,7 @@ import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -147,7 +148,7 @@ public class QueuePerformanceTests
         long opsPerSecond = Math.round(
                 ((double) config.operationCount() / TimeUnit.MILLISECONDS.toNanos( duration )) * 1000000000 );
         System.out.println(
-                String.format( "%s operations in %s: %s op/sec", config.operationCount(), duration, opsPerSecond ) );
+                format( "%s operations in %s: %s op/sec", config.operationCount(), duration, opsPerSecond ) );
         workload.close();
     }
 

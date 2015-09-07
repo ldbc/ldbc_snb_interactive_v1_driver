@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 public class InteractiveWorkloadPerformanceTest
 {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
@@ -171,7 +173,7 @@ public class InteractiveWorkloadPerformanceTest
                     (double) TimeUnit.NANOSECONDS.toMicros( resultsSnapshot.totalRunDurationAsNano() ) / operationCount;
             DecimalFormat numberFormatter = new DecimalFormat( "###,###,###,###" );
             System.out.println(
-                    String.format( "[%s]Completed %s operations in %s = %s op/sec = 1 op/%s us",
+                    format( "[%s]Completed %s operations in %s = %s op/sec = 1 op/%s us",
                             name,
                             numberFormatter.format( operationCount ),
                             TEMPORAL_UTIL.nanoDurationToString( resultsSnapshot.totalRunDurationAsNano() ),
@@ -341,7 +343,7 @@ public class InteractiveWorkloadPerformanceTest
                     actualOperationCount;
             DecimalFormat numberFormatter = new DecimalFormat( "###,###,###,###" );
             System.out.println(
-                    String.format( "[%s]Completed %s operations in %s = %s op/sec = 1 op/%s us",
+                    format( "[%s]Completed %s operations in %s = %s op/sec = 1 op/%s us",
                             name,
                             numberFormatter.format( actualOperationCount ),
                             TEMPORAL_UTIL.nanoDurationToString( resultsSnapshot.totalRunDurationAsNano() ),

@@ -11,7 +11,6 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-@Ignore
 public class BiSerializeMarshalOperationResultsTest
 {
     @Test

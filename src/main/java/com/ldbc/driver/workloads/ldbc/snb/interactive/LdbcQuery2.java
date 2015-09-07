@@ -10,8 +10,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>> {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+import static java.lang.String.format;
+
+public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
+{
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static final int TYPE = 2;
     public static final int DEFAULT_LIMIT = 20;
@@ -19,41 +22,52 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>> {
     private final Date maxDate;
     private final int limit;
 
-    public LdbcQuery2(long personId, Date maxDate, int limit) {
+    public LdbcQuery2( long personId, Date maxDate, int limit )
+    {
         super();
         this.personId = personId;
         this.maxDate = maxDate;
         this.limit = limit;
     }
 
-    public long personId() {
+    public long personId()
+    {
         return personId;
     }
 
-    public Date maxDate() {
+    public Date maxDate()
+    {
         return maxDate;
     }
 
-    public int limit() {
+    public int limit()
+    {
         return limit;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals( Object o )
+    {
+        if ( this == o )
+        { return true; }
+        if ( o == null || getClass() != o.getClass() )
+        { return false; }
 
         LdbcQuery2 that = (LdbcQuery2) o;
 
-        if (limit != that.limit) return false;
-        if (personId != that.personId) return false;
-        if (maxDate != null ? !maxDate.equals(that.maxDate) : that.maxDate != null) return false;
+        if ( limit != that.limit )
+        { return false; }
+        if ( personId != that.personId )
+        { return false; }
+        if ( maxDate != null ? !maxDate.equals( that.maxDate ) : that.maxDate != null )
+        { return false; }
 
         return true;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int result = (int) (personId ^ (personId >>> 32));
         result = 31 * result + (maxDate != null ? maxDate.hashCode() : 0);
         result = 31 * result + limit;
@@ -61,72 +75,87 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>> {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "LdbcQuery2{" +
-                "personId=" + personId +
-                ", maxDate=" + maxDate +
-                ", limit=" + limit +
-                '}';
+               "personId=" + personId +
+               ", maxDate=" + maxDate +
+               ", limit=" + limit +
+               '}';
     }
 
     @Override
-    public List<LdbcQuery2Result> marshalResult(String serializedResults) throws SerializingMarshallingException {
+    public List<LdbcQuery2Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    {
         List<List<Object>> resultsAsList;
-        try {
-            resultsAsList = objectMapper.readValue(serializedResults, new TypeReference<List<List<Object>>>() {
-            });
-        } catch (IOException e) {
-            throw new SerializingMarshallingException(String.format("Error while parsing serialized results\n%s", serializedResults), e);
+        try
+        {
+            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
+            {
+            } );
+        }
+        catch ( IOException e )
+        {
+            throw new SerializingMarshallingException(
+                    format( "Error parsing serialized result\n%s", serializedResults ), e );
         }
 
         List<LdbcQuery2Result> results = new ArrayList<>();
-        for (int i = 0; i < resultsAsList.size(); i++) {
-            List<Object> resultAsList = resultsAsList.get(i);
-            long personId = ((Number) resultAsList.get(0)).longValue();
-            String personFirstName = (String) resultAsList.get(1);
-            String personLastName = (String) resultAsList.get(2);
-            long postOrCommentId = ((Number) resultAsList.get(3)).longValue();
-            String postOrCommentContent = (String) resultAsList.get(4);
-            long postOrCommentCreationDate = ((Number) resultAsList.get(5)).longValue();
+        for ( int i = 0; i < resultsAsList.size(); i++ )
+        {
+            List<Object> resultAsList = resultsAsList.get( i );
+            long personId = ((Number) resultAsList.get( 0 )).longValue();
+            String personFirstName = (String) resultAsList.get( 1 );
+            String personLastName = (String) resultAsList.get( 2 );
+            long postOrCommentId = ((Number) resultAsList.get( 3 )).longValue();
+            String postOrCommentContent = (String) resultAsList.get( 4 );
+            long postOrCommentCreationDate = ((Number) resultAsList.get( 5 )).longValue();
 
-            results.add(new LdbcQuery2Result(
+            results.add( new LdbcQuery2Result(
                     personId,
                     personFirstName,
                     personLastName,
                     postOrCommentId,
                     postOrCommentContent,
                     postOrCommentCreationDate
-            ));
+            ) );
         }
 
         return results;
     }
 
     @Override
-    public String serializeResult(Object resultsObject) throws SerializingMarshallingException {
+    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
+    {
         List<LdbcQuery2Result> results = (List<LdbcQuery2Result>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
-        for (int i = 0; i < results.size(); i++) {
-            LdbcQuery2Result result = results.get(i);
+        for ( int i = 0; i < results.size(); i++ )
+        {
+            LdbcQuery2Result result = results.get( i );
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add(result.personId());
-            resultFields.add(result.personFirstName());
-            resultFields.add(result.personLastName());
-            resultFields.add(result.postOrCommentId());
-            resultFields.add(result.postOrCommentContent());
-            resultFields.add(result.postOrCommentCreationDate());
-            resultsFields.add(resultFields);
+            resultFields.add( result.personId() );
+            resultFields.add( result.personFirstName() );
+            resultFields.add( result.personLastName() );
+            resultFields.add( result.postOrCommentId() );
+            resultFields.add( result.postOrCommentContent() );
+            resultFields.add( result.postOrCommentCreationDate() );
+            resultsFields.add( resultFields );
         }
 
-        try {
-            return objectMapper.writeValueAsString(resultsFields);
-        } catch (IOException e) {
-            throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", results.toString()), e);
+        try
+        {
+            return OBJECT_MAPPER.writeValueAsString( resultsFields );
+        }
+        catch ( IOException e )
+        {
+            throw new SerializingMarshallingException(
+                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
         }
     }
 
     @Override
-    public int type() {
+    public int type()
+    {
         return TYPE;
     }
 }

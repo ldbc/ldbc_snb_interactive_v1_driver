@@ -9,32 +9,44 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5MessageCreatorResult> {
+import static java.lang.String.format;
+
+public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5MessageCreatorResult>
+{
     public static final int TYPE = 105;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final long messageId;
 
-    public LdbcShortQuery5MessageCreator(long messageId) {
+    public LdbcShortQuery5MessageCreator( long messageId )
+    {
         this.messageId = messageId;
     }
 
-    public long messageId() {
+    public long messageId()
+    {
         return messageId;
     }
 
     @Override
-    public LdbcShortQuery5MessageCreatorResult marshalResult(String serializedResult) throws SerializingMarshallingException {
+    public LdbcShortQuery5MessageCreatorResult marshalResult( String serializedResult )
+            throws SerializingMarshallingException
+    {
         List<Object> resultAsList;
-        try {
-            resultAsList = objectMapper.readValue(serializedResult, new TypeReference<List<Object>>() {
-            });
-        } catch (IOException e) {
-            throw new SerializingMarshallingException(String.format("Error while parsing serialized results\n%s", serializedResult), e);
+        try
+        {
+            resultAsList = objectMapper.readValue( serializedResult, new TypeReference<List<Object>>()
+            {
+            } );
+        }
+        catch ( IOException e )
+        {
+            throw new SerializingMarshallingException( format( "Error while parsing serialized results\n%s",
+                    serializedResult ), e );
         }
 
-        long personId = ((Number) resultAsList.get(0)).longValue();
-        String firstName = (String) resultAsList.get(1);
-        String lastName = (String) resultAsList.get(2);
+        long personId = ((Number) resultAsList.get( 0 )).longValue();
+        String firstName = (String) resultAsList.get( 1 );
+        String lastName = (String) resultAsList.get( 2 );
 
         return new LdbcShortQuery5MessageCreatorResult(
                 personId,
@@ -44,46 +56,58 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
     }
 
     @Override
-    public String serializeResult(Object operationResultInstance) throws SerializingMarshallingException {
+    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
+    {
         LdbcShortQuery5MessageCreatorResult result = (LdbcShortQuery5MessageCreatorResult) operationResultInstance;
         List<Object> resultFields = new ArrayList<>();
-        resultFields.add(result.personId());
-        resultFields.add(result.firstName());
-        resultFields.add(result.lastName());
+        resultFields.add( result.personId() );
+        resultFields.add( result.firstName() );
+        resultFields.add( result.lastName() );
 
-        try {
-            return objectMapper.writeValueAsString(resultFields);
-        } catch (IOException e) {
-            throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", result.toString()), e);
+        try
+        {
+            return objectMapper.writeValueAsString( resultFields );
+        }
+        catch ( IOException e )
+        {
+            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
+                    result.toString() ), e );
         }
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals( Object o )
+    {
+        if ( this == o )
+        { return true; }
+        if ( o == null || getClass() != o.getClass() )
+        { return false; }
 
         LdbcShortQuery5MessageCreator that = (LdbcShortQuery5MessageCreator) o;
 
-        if (messageId != that.messageId) return false;
+        if ( messageId != that.messageId )
+        { return false; }
 
         return true;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return (int) (messageId ^ (messageId >>> 32));
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "LdbcShortQuery5MessageCreator{" +
-                "messageId=" + messageId +
-                '}';
+               "messageId=" + messageId +
+               '}';
     }
 
     @Override
-    public int type() {
+    public int type()
+    {
         return TYPE;
     }
 }

@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -251,15 +252,15 @@ public class OperationStreamExecutorPerformanceTest
         }
 
         long meanThreadPool = meanDuration( threadPoolExecutorTimes );
-        System.out.println( String.format( "Spinner [Sleep = %s ms] (thread pool executor) %s ops in %s: %s ops/ms",
+        System.out.println( format( "Spinner [Sleep = %s ms] (thread pool executor) %s ops in %s: %s ops/ms",
                 spinnerSleepDuration, operationCount, meanThreadPool,
                 (operationCount / (double) TimeUnit.MILLISECONDS.toNanos( meanThreadPool )) * 1000000 ) );
         long meanSingleThread = meanDuration( singleThreadExecutorTimes );
-        System.out.println( String.format( "Spinner [Sleep = %s ms] (single thread executor) %s ops in %s: %s ops/ms",
+        System.out.println( format( "Spinner [Sleep = %s ms] (single thread executor) %s ops in %s: %s ops/ms",
                 spinnerSleepDuration, operationCount, meanSingleThread,
                 (operationCount / (double) TimeUnit.MILLISECONDS.toNanos( meanSingleThread )) * 1000000 ) );
         long meanSameThread = meanDuration( sameThreadExecutorTimes );
-        System.out.println( String.format( "Spinner [Sleep = %s ms] (same thread executor) %s ops in %s: %s ops/ms",
+        System.out.println( format( "Spinner [Sleep = %s ms] (same thread executor) %s ops in %s: %s ops/ms",
                 spinnerSleepDuration, operationCount, meanSameThread,
                 (operationCount / (double) TimeUnit.MILLISECONDS.toNanos( meanSameThread )) * 1000000 ) );
         System.out.println();
@@ -300,7 +301,7 @@ public class OperationStreamExecutorPerformanceTest
             Spinner.powerNap( 500 );
         }
         long numberResultsCollected = metricsServiceWriter.results().totalOperationCount();
-        assertThat( String.format( "%s of %s results collected by metrics service", numberResultsCollected,
+        assertThat( format( "%s of %s results collected by metrics service", numberResultsCollected,
                 operationCount ), numberResultsCollected, is( operationCount ) );
 
         return benchmarkDuration;

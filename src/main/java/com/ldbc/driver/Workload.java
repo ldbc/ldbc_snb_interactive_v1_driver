@@ -69,7 +69,8 @@ public abstract class Workload implements Closeable
             }
 
             @Override
-            public DbValidationParametersFilterResult useOperationAndResultForValidation( Operation operation,
+            public DbValidationParametersFilterResult useOperationAndResultForValidation(
+                    Operation operation,
                     Object operationResult )
             {
                 if ( validationParameterCount < requiredValidationParameterCount )
@@ -80,10 +81,13 @@ public abstract class Workload implements Closeable
                             injectedOperations
                     );
                 }
-                return new DbValidationParametersFilterResult(
-                        DbValidationParametersFilterAcceptance.REJECT_AND_FINISH,
-                        injectedOperations
-                );
+                else
+                {
+                    return new DbValidationParametersFilterResult(
+                            DbValidationParametersFilterAcceptance.REJECT_AND_FINISH,
+                            injectedOperations
+                    );
+                }
             }
         };
     }
@@ -100,11 +104,12 @@ public abstract class Workload implements Closeable
     public abstract boolean resultsEqual( Operation operation, Object result1, Object result2 )
             throws WorkloadException;
 
-    public static interface DbValidationParametersFilter
+    public interface DbValidationParametersFilter
     {
         boolean useOperation( Operation operation );
 
-        DbValidationParametersFilterResult useOperationAndResultForValidation( Operation operation,
+        DbValidationParametersFilterResult useOperationAndResultForValidation(
+                Operation operation,
                 Object operationResult );
     }
 
@@ -121,7 +126,8 @@ public abstract class Workload implements Closeable
         private final DbValidationParametersFilterAcceptance acceptance;
         private final List<Operation> injectedOperations;
 
-        public DbValidationParametersFilterResult( DbValidationParametersFilterAcceptance acceptance,
+        public DbValidationParametersFilterResult(
+                DbValidationParametersFilterAcceptance acceptance,
                 List<Operation> injectedOperations )
         {
             this.acceptance = acceptance;

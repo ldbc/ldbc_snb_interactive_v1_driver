@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
+import static java.lang.String.format;
 
 public class WorkloadRunner
 {
@@ -168,7 +169,7 @@ public class WorkloadRunner
             default:
                 // Fail because task has already completed
                 throw new IllegalStateException(
-                        String.format( "Unrecognized %s: %s",
+                        format( "Unrecognized %s: %s",
                                 workloadRunnerThread.state().getClass().getSimpleName(),
                                 workloadRunnerThread.state() )
                 );
@@ -235,7 +236,7 @@ public class WorkloadRunner
                 switch ( workloadRunnerThread.state() )
                 {
                 case NOT_STARTED:
-                    throw new IllegalStateException( String.format(
+                    throw new IllegalStateException( format(
                             "%s is in %s state, but should have already started",
                             WorkloadRunnerThread.class.getSimpleName(),
                             WorkloadRunnerThreadState.NOT_STARTED.name()
@@ -248,7 +249,7 @@ public class WorkloadRunner
                 case COMPLETED_FAILED:
                     return;
                 default:
-                    throw new IllegalStateException( String.format(
+                    throw new IllegalStateException( format(
                             "Unknown %s: %s",
                             WorkloadRunnerThreadState.class.getSimpleName(),
                             WorkloadRunnerThreadState.NOT_STARTED.name()
@@ -478,7 +479,7 @@ public class WorkloadRunner
             {
                 errorReporter.reportError(
                         this,
-                        String.format( "Encountered error while shutting down %s\n%s\n",
+                        format( "Encountered error while shutting down %s\n%s\n",
                                 asynchronousStreamExecutorService.getClass().getSimpleName(),
                                 ConcurrentErrorReporter.stackTraceToString( e ) )
                 );
@@ -494,7 +495,7 @@ public class WorkloadRunner
                 {
                     errorReporter.reportError(
                             this,
-                            String.format( "Encountered error while shutting down %s\n%s\n",
+                            format( "Encountered error while shutting down %s\n%s\n",
                                     blockingStreamExecutorService.getClass().getSimpleName(),
                                     ConcurrentErrorReporter.stackTraceToString( e ) )
                     );
@@ -516,7 +517,7 @@ public class WorkloadRunner
             {
                 errorReporter.reportError(
                         this,
-                        String.format( "Encountered error while shutting down\n%s",
+                        format( "Encountered error while shutting down\n%s",
                                 ConcurrentErrorReporter.stackTraceToString( e ) )
                 );
             }

@@ -3,6 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcSnbBiQuery6 extends Operation<List<LdbcSnbBiQuery6Result>>
@@ -65,15 +66,46 @@ public class LdbcSnbBiQuery6 extends Operation<List<LdbcSnbBiQuery6Result>>
     @Override
     public List<LdbcSnbBiQuery6Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
+        List<LdbcSnbBiQuery6Result> result = new ArrayList<>();
+        for ( int i = 0; i < resultsAsList.size(); i++ )
+        {
+            List<Object> row = resultsAsList.get( i );
+            long personId = ((Number) row.get( 0 )).longValue();
+            int postCount = ((Number) row.get( 1 )).intValue();
+            int replyCount = ((Number) row.get( 2 )).intValue();
+            int likeCount = ((Number) row.get( 3 )).intValue();
+            int score = ((Number) row.get( 4 )).intValue();
+            result.add(
+                    new LdbcSnbBiQuery6Result(
+                            personId,
+                            postCount,
+                            replyCount,
+                            likeCount,
+                            score
+                    )
+            );
+        }
+        return result;
     }
 
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<LdbcSnbBiQuery6Result> result = (List<LdbcSnbBiQuery6Result>) resultsObject;
+        List<List<Object>> resultsFields = new ArrayList<>();
+        for ( int i = 0; i < result.size(); i++ )
+        {
+            LdbcSnbBiQuery6Result row = result.get( i );
+            List<Object> resultFields = new ArrayList<>();
+            resultFields.add( row.personId() );
+            resultFields.add( row.postCount() );
+            resultFields.add( row.replyCount() );
+            resultFields.add( row.likeCount() );
+            resultFields.add( row.score() );
+            resultsFields.add( resultFields );
+        }
+        return SerializationUtil.toJson( resultsFields );
     }
 
     @Override

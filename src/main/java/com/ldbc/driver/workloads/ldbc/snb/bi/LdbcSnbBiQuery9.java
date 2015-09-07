@@ -3,6 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcSnbBiQuery9 extends Operation<List<LdbcSnbBiQuery9Result>>
@@ -76,15 +77,40 @@ public class LdbcSnbBiQuery9 extends Operation<List<LdbcSnbBiQuery9Result>>
     @Override
     public List<LdbcSnbBiQuery9Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
+        List<LdbcSnbBiQuery9Result> result = new ArrayList<>();
+        for ( int i = 0; i < resultsAsList.size(); i++ )
+        {
+            List<Object> row = resultsAsList.get( i );
+            String forumTitle = (String) row.get( 0 );
+            int sumA = ((Number) row.get( 1 )).intValue();
+            int sumB = ((Number) row.get( 2 )).intValue();
+            result.add(
+                    new LdbcSnbBiQuery9Result(
+                            forumTitle,
+                            sumA,
+                            sumB
+                    )
+            );
+        }
+        return result;
     }
 
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<LdbcSnbBiQuery9Result> result = (List<LdbcSnbBiQuery9Result>) resultsObject;
+        List<List<Object>> resultsFields = new ArrayList<>();
+        for ( int i = 0; i < result.size(); i++ )
+        {
+            LdbcSnbBiQuery9Result row = result.get( i );
+            List<Object> resultFields = new ArrayList<>();
+            resultFields.add( row.forumTitle() );
+            resultFields.add( row.sumA() );
+            resultFields.add( row.sumB() );
+            resultsFields.add( resultFields );
+        }
+        return SerializationUtil.toJson( resultsFields );
     }
 
     @Override

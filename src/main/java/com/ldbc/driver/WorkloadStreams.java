@@ -8,8 +8,8 @@ import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple3;
-import com.ldbc.driver.validation.ClassNameWorkloadFactory;
-import com.ldbc.driver.validation.WorkloadFactory;
+import com.ldbc.driver.workloads.ClassNameWorkloadFactory;
+import com.ldbc.driver.workloads.WorkloadFactory;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
+import static java.lang.String.format;
 
 public class WorkloadStreams
 {
@@ -397,13 +399,13 @@ public class WorkloadStreams
                     if ( -1 == streamHeadTimeStampAsMilli )
                     {
                         throw new WorkloadException(
-                                String.format( "Operation must have time stamp\n%s", streamHeads[i] ) );
+                                format( "Operation must have time stamp\n%s", streamHeads[i] ) );
                     }
 
                     if ( -1 == streamHeads[i].dependencyTimeStamp() )
                     {
                         throw new WorkloadException(
-                                String.format( "Operation must have dependency time stamp\n%s", streamHeads[i] ) );
+                                format( "Operation must have dependency time stamp\n%s", streamHeads[i] ) );
                     }
 
                     if ( null != streamHeads[i] && streamHeadTimeStampAsMilli < minAsMilli )
@@ -439,7 +441,7 @@ public class WorkloadStreams
             if ( kSoFarOffset % 1000000 == 0 )
             {
                 loggingService.info(
-                        String.format(
+                        format(
                                 "Scanned %s of %s - OFFSET\r",
                                 numberFormat.format( kSoFarOffset ),
                                 numberFormat.format( offset )
@@ -448,7 +450,7 @@ public class WorkloadStreams
             }
         }
         loggingService.info(
-                String.format(
+                format(
                         "Scanned %s of %s - OFFSET",
                         numberFormat.format( kSoFarOffset ),
                         numberFormat.format( offset )
@@ -487,13 +489,13 @@ public class WorkloadStreams
                     if ( -1 == streamHeadTimeStampAsMilli )
                     {
                         throw new WorkloadException(
-                                String.format( "Operation must have time stamp\n%s", streamHeads[i] ) );
+                                format( "Operation must have time stamp\n%s", streamHeads[i] ) );
                     }
 
                     if ( -1 == streamHeadDependencyTimeStampAsMilli )
                     {
                         throw new WorkloadException(
-                                String.format( "Operation must have dependency time stamp\n%s", streamHeads[i] ) );
+                                format( "Operation must have dependency time stamp\n%s", streamHeads[i] ) );
                     }
 
                     if ( streamHeadTimeStampAsMilli < minimumTimeStamp )
@@ -534,7 +536,7 @@ public class WorkloadStreams
             if ( kSoFarRun % 1000000 == 0 )
             {
                 loggingService.info(
-                        String.format( "Scanned %s of %s - RUN\r",
+                        format( "Scanned %s of %s - RUN\r",
                                 numberFormat.format( kSoFarRun ),
                                 numberFormat.format( limit )
                         )
@@ -542,7 +544,7 @@ public class WorkloadStreams
             }
         }
         loggingService.info(
-                String.format(
+                format(
                         "Scanned %s of %s - RUN",
                         numberFormat.format( kSoFarRun ),
                         numberFormat.format( limit )

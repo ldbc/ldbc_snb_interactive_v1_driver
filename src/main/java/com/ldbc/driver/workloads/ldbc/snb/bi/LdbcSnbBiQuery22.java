@@ -3,6 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcSnbBiQuery22 extends Operation<List<LdbcSnbBiQuery22Result>>
@@ -77,15 +78,30 @@ public class LdbcSnbBiQuery22 extends Operation<List<LdbcSnbBiQuery22Result>>
     public List<LdbcSnbBiQuery22Result> marshalResult( String serializedResults ) throws
             SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
+        List<LdbcSnbBiQuery22Result> result = new ArrayList<>();
+        for ( int i = 0; i < resultsAsList.size(); i++ )
+        {
+            // TODO update when result is defined
+            result.add(
+                    new LdbcSnbBiQuery22Result()
+            );
+        }
+        return result;
     }
 
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<LdbcSnbBiQuery23Result> result = (List<LdbcSnbBiQuery23Result>) resultsObject;
+        List<List<Object>> resultsFields = new ArrayList<>();
+        for ( int i = 0; i < result.size(); i++ )
+        {
+            // TODO update when result is defined
+            List<Object> resultFields = new ArrayList<>();
+            resultsFields.add( resultFields );
+        }
+        return SerializationUtil.toJson( resultsFields );
     }
 
     @Override

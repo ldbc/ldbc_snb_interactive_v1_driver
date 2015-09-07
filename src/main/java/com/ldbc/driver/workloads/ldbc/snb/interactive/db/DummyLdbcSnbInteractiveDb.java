@@ -63,6 +63,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 public class DummyLdbcSnbInteractiveDb extends Db
 {
     private static class DummyDbConnectionState extends DbConnectionState
@@ -108,7 +110,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
             }
             catch ( NumberFormatException e )
             {
-                throw new DbException( String.format( "Error encountered while trying to parse value [%s] for %s",
+                throw new DbException( format( "Error encountered while trying to parse value [%s] for %s",
                         sleepDurationAsNanoAsString, SLEEP_DURATION_NANO_ARG ), e );
             }
         }
@@ -125,7 +127,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
             }
             catch ( IllegalArgumentException e )
             {
-                throw new DbException( String.format( "Invalid sleep type: %s", sleepTypeString ) );
+                throw new DbException( format( "Invalid sleep type: %s", sleepTypeString ) );
             }
         }
 

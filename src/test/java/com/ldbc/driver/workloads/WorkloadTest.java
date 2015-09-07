@@ -25,10 +25,9 @@ import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.Tuple2;
-import com.ldbc.driver.validation.ClassNameWorkloadFactory;
 import com.ldbc.driver.validation.DbValidationResult;
-import com.ldbc.driver.validation.WorkloadFactory;
-import org.junit.Ignore;
+import com.ldbc.driver.validation.WorkloadValidationResult;
+import com.ldbc.driver.validation.WorkloadValidator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -96,7 +95,8 @@ public abstract class WorkloadTest
             long operationCount = 1_000_000;
             long timeoutAsMilli = TimeUnit.SECONDS.toMillis( 5 );
 
-            try ( Workload workload = new ClassNameWorkloadFactory( configuration.workloadClassName() ).createWorkload() )
+            try ( Workload workload = new ClassNameWorkloadFactory( configuration.workloadClassName() )
+                    .createWorkload() )
             {
                 workload.init( configuration );
                 GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
@@ -184,7 +184,6 @@ public abstract class WorkloadTest
         }
     }
 
-    @Ignore
     @Test
     public void shouldGenerateConfiguredQueryMix()
             throws Exception
@@ -315,13 +314,17 @@ public abstract class WorkloadTest
         }
     }
 
-    @Ignore
     @Test
     public void shouldRunWorkload() throws Exception
     {
         for ( DriverConfiguration configuration : configurations() )
         {
-            File resultsDir = new File( configuration.resultDirPath() );
+            File resultsDir = temporaryFolder.newFolder();
+            configuration =
+                    configuration.applyArg(
+                            ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG,
+                            resultsDir.getAbsolutePath()
+                    );
             assertFalse( resultsDir.listFiles().length > 0 );
 
             Client client = new Client();
@@ -346,11 +349,16 @@ public abstract class WorkloadTest
                     resultsLog,
                     SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING
             );
-            assertThat( (long) Iterators.size( csvResultsLogReader ), is( configuration.operationCount() ) );
+            long resultsLogSize = (long) Iterators.size( csvResultsLogReader );
+            assertTrue(
+                    format( "Expected %s entries in results log, found %s",
+                            configuration.operationCount() + 1,
+                            resultsLogSize ),
+                    resultsLogSize >= configuration.operationCount() + 1
+            );
         }
     }
 
-    @Ignore
     @Test
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass() throws Exception
     {
@@ -426,6 +434,21 @@ public abstract class WorkloadTest
             assertThat( dbValidationResult, is( notNullValue() ) );
             assertTrue( format( "Validation with following error\n%s", dbValidationResult.resultMessage() ),
                     dbValidationResult.isSuccessful() );
+        }
+    }
+
+    @Test
+    public void shouldPassWorkloadValidation() throws Exception
+    {
+        for ( DriverConfiguration configuration : configurations() )
+        {
+            WorkloadValidator workloadValidator = new WorkloadValidator();
+            WorkloadValidationResult workloadValidationResult = workloadValidator.validate(
+                    new ClassNameWorkloadFactory( configuration.workloadClassName() ),
+                    configuration,
+                    new Log4jLoggingServiceFactory( true )
+            );
+            assertTrue( workloadValidationResult.errorMessage(), workloadValidationResult.isSuccessful() );
         }
     }
 }

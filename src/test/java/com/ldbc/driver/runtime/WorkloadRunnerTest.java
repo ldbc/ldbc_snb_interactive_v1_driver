@@ -52,6 +52,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -261,7 +262,7 @@ public class WorkloadRunnerTest
             double microSecondPerOperation =
                     (double) TimeUnit.NANOSECONDS.toMicros( workloadResults.totalRunDurationAsNano() ) / operationCount;
             System.out.println(
-                    String.format( "[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
+                    format( "[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
                             threadCount,
                             numberFormatter.format( operationCount ),
                             TEMPORAL_UTIL.nanoDurationToString( workloadResults.totalRunDurationAsNano() ),
@@ -482,7 +483,7 @@ public class WorkloadRunnerTest
             double microSecondPerOperation =
                     (double) TimeUnit.NANOSECONDS.toMicros( workloadResults.totalRunDurationAsNano() ) / operationCount;
             System.out.println(
-                    String.format( "[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
+                    format( "[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
                             threadCount,
                             numberFormatter.format( operationCount ),
                             TEMPORAL_UTIL.nanoDurationToString( workloadResults.totalRunDurationAsNano() ),
@@ -733,7 +734,7 @@ public class WorkloadRunnerTest
             double microSecondPerOperation =
                     (double) TimeUnit.NANOSECONDS.toMicros( workloadResults.totalRunDurationAsNano() ) / operationCount;
             System.out.println(
-                    String.format( "[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
+                    format( "[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
                             threadCount,
                             numberFormatter.format( operationCount ),
                             TEMPORAL_UTIL.nanoDurationToString( workloadResults.totalRunDurationAsNano() ),

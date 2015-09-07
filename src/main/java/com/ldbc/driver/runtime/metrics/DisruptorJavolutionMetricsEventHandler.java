@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicStampedReference;
 
+import static java.lang.String.format;
+
 class DisruptorJavolutionMetricsEventHandler implements EventHandler<DisruptorJavolutionMetricsEvent>
 {
     private final AtomicStampedReference<WorkloadStatusSnapshot> statusSnapshotReference =
@@ -111,9 +113,7 @@ class DisruptorJavolutionMetricsEventHandler implements EventHandler<DisruptorJa
         }
         default:
         {
-            errorReporter.reportError(
-                    this,
-                    String.format( "Encountered unexpected event: %s", event.toString() ) );
+            errorReporter.reportError( this, format( "Encountered unexpected event: %s", event.toString() ) );
             break;
         }
         }

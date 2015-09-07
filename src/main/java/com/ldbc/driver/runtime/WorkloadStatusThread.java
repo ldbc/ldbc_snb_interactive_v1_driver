@@ -10,6 +10,8 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.lang.String.format;
+
 class WorkloadStatusThread extends Thread
 {
     private final long statusUpdateIntervalAsMilli;
@@ -70,7 +72,7 @@ class WorkloadStatusThread extends Thread
             {
                 errorReporter.reportError(
                         this,
-                        String.format(
+                        format(
                                 "Status reporting thread encountered unexpected error - exiting\n%s",
                                 ConcurrentErrorReporter.stackTraceToString( e )
                         )

@@ -9,75 +9,92 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.lang.String.format;
+
 // TODO rewrite like sync GCT tracker class, to be more threadsafe
-public class ConcurrentErrorReporter {
-    public static String stackTraceToString(Throwable e) {
+public class ConcurrentErrorReporter
+{
+    public static String stackTraceToString( Throwable e )
+    {
         StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
+        PrintWriter pw = new PrintWriter( sw );
+        e.printStackTrace( pw );
         return sw.toString();
     }
 
     // TODO include machine/process name
-    public static String whoAmI(Object caller) {
+    public static String whoAmI( Object caller )
+    {
         Thread myThread = Thread.currentThread();
-        return String.format("%s (Thread: ID=%s, Name=%s, Priority=%s)",
+        return format( "%s (Thread: ID=%s, Name=%s, Priority=%s)",
                 caller.getClass().getSimpleName(),
                 myThread.getId(),
                 myThread.getName(),
-                myThread.getPriority());
+                myThread.getPriority() );
     }
 
-    public static String formatErrors(List<ErrorReport> errors) {
+    public static String formatErrors( List<ErrorReport> errors )
+    {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n- Start Error Log -");
+        sb.append( "\n- Start Error Log -" );
         // Do this to avoid ConcurrentModificationException in case error is reported while iterating through errors
-        Iterator<ErrorReport> errorsIterator = ImmutableList.copyOf(errors).iterator();
-        while (errorsIterator.hasNext()) {
+        Iterator<ErrorReport> errorsIterator = ImmutableList.copyOf( errors ).iterator();
+        while ( errorsIterator.hasNext() )
+        {
             ErrorReport error = errorsIterator.next();
-            sb.append("\n\tSOURCE:\t").append(error.source());
-            sb.append("\n\tERROR:\t").append(error.error());
+            sb.append( "\n\tSOURCE:\t" ).append( error.source() );
+            sb.append( "\n\tERROR:\t" ).append( error.error() );
         }
-        sb.append("\n- End Error Log -\n");
+        sb.append( "\n- End Error Log -\n" );
         return sb.toString();
     }
 
-    private final AtomicBoolean errorEncountered = new AtomicBoolean(false);
+    private final AtomicBoolean errorEncountered = new AtomicBoolean( false );
     private final List<ErrorReport> errorMessages = new ArrayList<>();
 
-    synchronized public void reportError(Object caller, String errMsg) {
-        errorMessages.add(new ErrorReport(whoAmI(caller), errMsg));
-        errorEncountered.set(true);
+    synchronized public void reportError( Object caller, String errMsg )
+    {
+        errorMessages.add( new ErrorReport( whoAmI( caller ), errMsg ) );
+        errorEncountered.set( true );
     }
 
-    public boolean errorEncountered() {
+    public boolean errorEncountered()
+    {
         return errorEncountered.get();
     }
 
-    public List<ErrorReport> errorMessages() {
+    public List<ErrorReport> errorMessages()
+    {
         return errorMessages;
     }
 
     @Override
-    public String toString() {
-        if (errorMessages.isEmpty()) return "No Reported Errors";
-        else return formatErrors(errorMessages());
+    public String toString()
+    {
+        if ( errorMessages.isEmpty() )
+        { return "No Reported Errors"; }
+        else
+        { return formatErrors( errorMessages() ); }
     }
 
-    public static class ErrorReport {
+    public static class ErrorReport
+    {
         private final String source;
         private final String error;
 
-        public ErrorReport(String source, String error) {
+        public ErrorReport( String source, String error )
+        {
             this.source = source;
             this.error = error;
         }
 
-        public String source() {
+        public String source()
+        {
             return source;
         }
 
-        public String error() {
+        public String error()
+        {
             return error;
         }
     }

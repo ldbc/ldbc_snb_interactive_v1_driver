@@ -3,10 +3,12 @@ package com.ldbc.driver.client;
 import com.ldbc.driver.ClientException;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.LoggingService;
-import com.ldbc.driver.validation.ClassNameWorkloadFactory;
-import com.ldbc.driver.validation.WorkloadFactory;
+import com.ldbc.driver.workloads.ClassNameWorkloadFactory;
+import com.ldbc.driver.workloads.WorkloadFactory;
 import com.ldbc.driver.validation.WorkloadValidationResult;
 import com.ldbc.driver.validation.WorkloadValidator;
+
+import static java.lang.String.format;
 
 public class ValidateWorkloadMode implements ClientMode<WorkloadValidationResult>
 {
@@ -32,7 +34,7 @@ public class ValidateWorkloadMode implements ClientMode<WorkloadValidationResult
     public WorkloadValidationResult startExecutionAndAwaitCompletion() throws ClientException
     {
         loggingService
-                .info( String.format( "Validating workload: %s", controlService.configuration().workloadClassName() ) );
+                .info( format( "Validating workload: %s", controlService.configuration().workloadClassName() ) );
         WorkloadValidator workloadValidator = new WorkloadValidator();
         WorkloadValidationResult workloadValidationResult = workloadValidator.validate(
                 workloadFactory,
@@ -46,7 +48,7 @@ public class ValidateWorkloadMode implements ClientMode<WorkloadValidationResult
         else
         {
             loggingService.info(
-                    String.format( "Workload Validation Result: FAIL\n%s", workloadValidationResult.errorMessage() )
+                    format( "Workload Validation Result: FAIL\n%s", workloadValidationResult.errorMessage() )
             );
         }
         return workloadValidationResult;

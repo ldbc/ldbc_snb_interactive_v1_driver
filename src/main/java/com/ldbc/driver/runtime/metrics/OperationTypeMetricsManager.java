@@ -7,6 +7,8 @@ import com.ldbc.driver.temporal.TemporalUtil;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 public class OperationTypeMetricsManager
 {
     private static final String METRIC_RUNTIME = "Runtime";
@@ -43,13 +45,12 @@ public class OperationTypeMetricsManager
         //
         if ( runDurationAsNano > highestExpectedRuntimeDurationAsNano )
         {
-            String errMsg = String.format( ""
-                                           +
-                                           "Error recording runtime - reported value exceeds maximum allowed. Time " +
-                                           "reported as maximum.\n"
-                                           + "Reported: %s %s / %s\n"
-                                           + "For: %s\n"
-                                           + "Maximum: %s %s / %s",
+            String errMsg = format(
+                    "Error recording runtime - reported value exceeds maximum allowed. Time " +
+                    "reported as maximum.\n"
+                    + "Reported: %s %s / %s\n"
+                    + "For: %s\n"
+                    + "Maximum: %s %s / %s",
                     runDurationAsNano,
                     TimeUnit.NANOSECONDS.name(),
                     temporalUtil.nanoDurationToString( runDurationAsNano ),
@@ -70,7 +71,7 @@ public class OperationTypeMetricsManager
         }
         catch ( Throwable e )
         {
-            String errMsg = String.format(
+            String errMsg = format(
                     "Error encountered adding runtime: %s %s / %s %s\nTo: %s\nHighest expected value: %s %s / %s %s",
                     runDurationAsNano,
                     TimeUnit.NANOSECONDS.name(),

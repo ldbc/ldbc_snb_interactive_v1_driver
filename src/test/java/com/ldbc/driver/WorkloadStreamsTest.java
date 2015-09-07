@@ -10,7 +10,7 @@ import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.Tuple3;
-import com.ldbc.driver.validation.WorkloadFactory;
+import com.ldbc.driver.workloads.WorkloadFactory;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1Factory;

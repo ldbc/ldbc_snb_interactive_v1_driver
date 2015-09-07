@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static java.lang.String.format;
+
 public class ThreadedQueuedMetricsService implements MetricsService
 {
     private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.MINUTES.toMillis( 1 );
@@ -123,7 +125,7 @@ public class ThreadedQueuedMetricsService implements MetricsService
         }
         catch ( InterruptedException e )
         {
-            String errMsg = String.format( "Thread was interrupted while waiting for %s to complete",
+            String errMsg = format( "Thread was interrupted while waiting for %s to complete",
                     threadedQueuedMetricsServiceThread.getClass().getSimpleName() );
             throw new MetricsCollectionException( errMsg, e );
         }
@@ -192,7 +194,7 @@ public class ThreadedQueuedMetricsService implements MetricsService
             }
             catch ( InterruptedException e )
             {
-                String errMsg = String.format(
+                String errMsg = format(
                         "Error submitting result\n"
                         + "Operation Type: %s\n"
                         + "Scheduled Start Time Ms: %s\n"

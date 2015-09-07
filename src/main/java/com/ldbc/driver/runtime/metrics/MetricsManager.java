@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 public class MetricsManager
 {
     private final TimeSource timeSource;
@@ -52,7 +54,7 @@ public class MetricsManager
             if ( minOperationType < 0 )
             {
                 throw new MetricsCollectionException(
-                        String.format( "Encountered Operation with type code lower than 0: %s", minOperationType ) );
+                        format( "Encountered Operation with type code lower than 0: %s", minOperationType ) );
             }
 
             final int maxOperationType = Ordering.<Integer>natural().max( operationTypeToClassMapping.keySet() );
@@ -92,7 +94,7 @@ public class MetricsManager
             if ( minOperationType < 0 )
             {
                 throw new MetricsCollectionException(
-                        String.format( "Encountered Operation with type code lower than 0: %s", minOperationType ) );
+                        format( "Encountered Operation with type code lower than 0: %s", minOperationType ) );
             }
             final int maxOperationType = Ordering.<Integer>natural().max( operationTypeToClassMapping.keySet() );
             String[] operationNames = new String[maxOperationType + 1];

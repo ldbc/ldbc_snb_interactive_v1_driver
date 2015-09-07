@@ -11,20 +11,26 @@ import com.ldbc.driver.generator.GeneratorException;
 import java.io.IOException;
 import java.util.Iterator;
 
-public class Query11EventStreamReader implements Iterator<Operation> {
+import static java.lang.String.format;
+
+public class Query11EventStreamReader implements Iterator<Operation>
+{
     private final Iterator<Object[]> csvRows;
 
-    public Query11EventStreamReader(Iterator<Object[]> csvRows) {
+    public Query11EventStreamReader( Iterator<Object[]> csvRows )
+    {
         this.csvRows = csvRows;
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNext()
+    {
         return csvRows.hasNext();
     }
 
     @Override
-    public Operation next() {
+    public Operation next()
+    {
         Object[] rowAsObjects = csvRows.next();
         Operation operation = new LdbcQuery11(
                 (long) rowAsObjects[0],
@@ -32,42 +38,55 @@ public class Query11EventStreamReader implements Iterator<Operation> {
                 (int) rowAsObjects[2],
                 LdbcQuery11.DEFAULT_LIMIT
         );
-        operation.setDependencyTimeStamp(0);
+        operation.setDependencyTimeStamp( 0 );
         return operation;
     }
 
     @Override
-    public void remove() {
-        throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
+    public void remove()
+    {
+        throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
 
-    public static class Query11Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> {
+    public static class Query11Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
+    {
         /*
         Person|Country|Year
         2199032251700|Egypt|1995
         */
         @Override
-        public Object[] decodeEvent(CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) throws IOException {
+        public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark )
+                throws IOException
+        {
             long personId;
-            if (charSeeker.seek(mark, columnDelimiters)) {
-                personId = charSeeker.extract(mark, extractors.long_()).longValue();
-            } else {
+            if ( charSeeker.seek( mark, columnDelimiters ) )
+            {
+                personId = charSeeker.extract( mark, extractors.long_() ).longValue();
+            }
+            else
+            {
                 // if first column of next row contains nothing it means the file is finished
                 return null;
             }
 
             String countryName;
-            if (charSeeker.seek(mark, columnDelimiters)) {
-                countryName = charSeeker.extract(mark, extractors.string()).value();
-            } else {
-                throw new GeneratorException("Error retrieving country name");
+            if ( charSeeker.seek( mark, columnDelimiters ) )
+            {
+                countryName = charSeeker.extract( mark, extractors.string() ).value();
+            }
+            else
+            {
+                throw new GeneratorException( "Error retrieving country name" );
             }
 
             int year;
-            if (charSeeker.seek(mark, columnDelimiters)) {
-                year = charSeeker.extract(mark, extractors.int_()).intValue();
-            } else {
-                throw new GeneratorException("Error retrieving year");
+            if ( charSeeker.seek( mark, columnDelimiters ) )
+            {
+                year = charSeeker.extract( mark, extractors.int_() ).intValue();
+            }
+            else
+            {
+                throw new GeneratorException( "Error retrieving year" );
             }
 
             return new Object[]{personId, countryName, year};

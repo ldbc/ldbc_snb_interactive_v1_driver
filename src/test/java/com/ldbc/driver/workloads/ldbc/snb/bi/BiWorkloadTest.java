@@ -1,7 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 import com.google.common.collect.Lists;
-import com.ldbc.driver.ClientException;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
@@ -15,12 +14,11 @@ import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple2;
 import com.ldbc.driver.util.TypeChangeFun;
-import com.ldbc.driver.validation.ClassNameWorkloadFactory;
+import com.ldbc.driver.workloads.ClassNameWorkloadFactory;
 import com.ldbc.driver.workloads.OperationMixBuilder;
 import com.ldbc.driver.workloads.WorkloadTest;
 import com.ldbc.driver.workloads.ldbc.snb.bi.db.DummyLdbcSnbBiDb;
 import com.ldbc.driver.workloads.ldbc.snb.bi.db.DummyLdbcSnbBiOperationInstances;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -37,13 +35,16 @@ public class BiWorkloadTest extends WorkloadTest
     @Override
     public Workload workload() throws Exception
     {
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration
-                .fromDefaults( DummyLdbcSnbBiDb.class.getName(), LdbcSnbBiWorkload.class.getName(), 1 )
-                .applyArgs( LdbcSnbBiWorkloadConfiguration.defaultConfigSF1() )
-                .applyArg(
-                        LdbcSnbBiWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                        TestUtils.getResource( "/snb/bi/" ).getAbsolutePath()
-                );
+        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(
+                DummyLdbcSnbBiDb.class.getName(),
+                LdbcSnbBiWorkload.class.getName(),
+                1
+        ).applyArgs(
+                LdbcSnbBiWorkloadConfiguration.defaultConfigSF1()
+        ).applyArg(
+                LdbcSnbBiWorkloadConfiguration.PARAMETERS_DIRECTORY,
+                TestUtils.getResource( "/snb/bi/" ).getAbsolutePath()
+        );
         Workload workload = new ClassNameWorkloadFactory( configuration.workloadClassName() ).createWorkload();
         workload.init( configuration );
         return workload;
@@ -138,7 +139,11 @@ public class BiWorkloadTest extends WorkloadTest
                                         1_000_000
                                 )
                                 .applyArgs( LdbcSnbBiWorkloadConfiguration.defaultConfigSF1() )
-                                .applyArg( ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG, "true" ),
+                                .applyArg( ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG, "true" )
+                                .applyArg(
+                                        LdbcSnbBiWorkloadConfiguration.PARAMETERS_DIRECTORY,
+                                        TestUtils.getResource( "/snb/bi/" ).getAbsolutePath()
+                                ),
                         expectedQueryMixHistogram
                 )
         );
@@ -146,7 +151,7 @@ public class BiWorkloadTest extends WorkloadTest
 
     @Test
     public void shouldConvertFrequenciesToInterleavesWhenFrequenciesProvidedAndSomeInterleavesNotProvided()
-            throws WorkloadException, DriverConfigurationException, IOException
+            throws Exception
     {
         // Given
         long updateInterleave = 10;
@@ -527,33 +532,6 @@ public class BiWorkloadTest extends WorkloadTest
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_24_INTERLEAVE_KEY ),
                     equalTo( "240" ) );
-        }
-    }
-
-    // TODO move workload validation code to WorkloadTest and remove it from driver code
-    @Ignore
-    @Test
-    public void shouldPassWorkloadValidation()
-            throws ClientException, IOException, DriverConfigurationException, WorkloadException
-    {
-        // TODO get from somewhere
-        Iterable<DriverConfiguration> configurations = null;
-
-        for ( DriverConfiguration configuration : configurations )
-        {
-            configuration = configuration.applyArg(
-                    ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG,
-                    Long.toString( 100_000 )
-            );
-
-            // TODO create using factory & configuration
-            try ( Workload workload = null )
-            {
-                workload.init( configuration );
-
-                // TODO validate workload
-                assertTrue( false );
-            }
         }
     }
 }

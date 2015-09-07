@@ -316,29 +316,33 @@ public class LdbcSnbInteractiveWorkload extends Workload
         if ( enabledWriteOperationTypes.isEmpty() &&
              false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
         {
-            // if UPDATE_INTERLEAVE is missing, set it to DEFAULT
-            params.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE,
-                    LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE );
+            // if UPDATE_INTERLEAVE is missing and writes are disabled set it to DEFAULT
+            params.put(
+                    LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE,
+                    LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE
+            );
         }
         if ( false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
         {
-            throw new WorkloadException( format( "Workload could not initialize. Missing parameter: %s",
-                    LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) );
+            // if UPDATE_INTERLEAVE is missing but writes are enabled it is an error
+            throw new WorkloadException(
+                    format( "Workload could not initialize. Missing parameter: %s",
+                            LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) );
         }
         updateInterleaveAsMilli =
                 Integer.parseInt( params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) );
         if ( missingFrequencyKeys.isEmpty() )
         {
-            // compute interleave based on frequencies
+            // all frequency arguments were given, compute interleave based on frequencies
             params = LdbcSnbInteractiveWorkloadConfiguration.convertFrequenciesToInterleaves( params );
         }
         else
         {
             // if any frequencies are not set, there should be specified interleave times for read queries
-            List<String> interleaveKeys =
-                    Lists.newArrayList( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_INTERLEAVE_KEYS );
-            Set<String> missingInterleaveKeys =
-                    LdbcSnbInteractiveWorkloadConfiguration.missingParameters( params, interleaveKeys );
+            Set<String> missingInterleaveKeys = LdbcSnbInteractiveWorkloadConfiguration.missingParameters(
+                    params,
+                    LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_INTERLEAVE_KEYS
+            );
             if ( false == missingInterleaveKeys.isEmpty() )
             {
                 throw new WorkloadException( format(
@@ -350,48 +354,34 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         try
         {
-            readOperation1InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ) );
-            readOperation2InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ) );
-            readOperation3InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ) );
-            readOperation4InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ) );
-            readOperation5InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ) );
-            readOperation6InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ) );
-            readOperation7InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ) );
-            readOperation8InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ) );
-            readOperation9InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ) );
-            readOperation10InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ) );
-            readOperation11InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ) );
-            readOperation12InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ) );
-            readOperation13InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ) );
-            readOperation14InterleaveAsMilli =
-                    Long.parseLong(
-                            params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ) );
+            readOperation1InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ) );
+            readOperation2InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ) );
+            readOperation3InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ) );
+            readOperation4InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ) );
+            readOperation5InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ) );
+            readOperation6InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ) );
+            readOperation7InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ) );
+            readOperation8InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ) );
+            readOperation9InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ) );
+            readOperation10InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ) );
+            readOperation11InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ) );
+            readOperation12InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ) );
+            readOperation13InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ) );
+            readOperation14InterleaveAsMilli = Long.parseLong(
+                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ) );
         }
         catch ( NumberFormatException e )
         {
@@ -400,7 +390,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         String parserString = params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_STREAM_PARSER );
         if ( null == parserString )
-        { parserString = LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_STREAM_PARSER.name(); }
+        {
+            parserString = LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_STREAM_PARSER.name();
+        }
         if ( false == LdbcSnbInteractiveWorkloadConfiguration.isValidParser( parserString ) )
         {
             throw new WorkloadException( "Invalid parser: " + parserString );

@@ -11,12 +11,12 @@ public class LdbcSnbBiQuery8Result
         this.count = count;
     }
 
-    public String getTag()
+    public String tag()
     {
         return tag;
     }
 
-    public int getCount()
+    public int count()
     {
         return count;
     }

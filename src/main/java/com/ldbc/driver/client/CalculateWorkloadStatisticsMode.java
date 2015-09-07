@@ -16,6 +16,8 @@ import com.ldbc.driver.util.Tuple3;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 public class CalculateWorkloadStatisticsMode implements ClientMode<WorkloadStatistics>
 {
     private final ControlService controlService;
@@ -54,13 +56,13 @@ public class CalculateWorkloadStatisticsMode implements ClientMode<WorkloadStati
         }
         catch ( Exception e )
         {
-            throw new ClientException( String.format( "Error loading Workload class: %s",
+            throw new ClientException( format( "Error loading Workload class: %s",
                     controlService.configuration().workloadClassName() ), e );
         }
-        loggingService.info( String.format( "Loaded Workload: %s", workload.getClass().getName() ) );
+        loggingService.info( format( "Loaded Workload: %s", workload.getClass().getName() ) );
 
         loggingService.info(
-                String.format( "Retrieving operation stream for workload: %s", workload.getClass().getSimpleName() ) );
+                format( "Retrieving operation stream for workload: %s", workload.getClass().getSimpleName() ) );
         try
         {
             timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
@@ -83,7 +85,7 @@ public class CalculateWorkloadStatisticsMode implements ClientMode<WorkloadStati
     public WorkloadStatistics startExecutionAndAwaitCompletion() throws ClientException
     {
         loggingService.info(
-                String.format( "Calculating workload statistics for: %s", workload.getClass().getSimpleName() ) );
+                format( "Calculating workload statistics for: %s", workload.getClass().getSimpleName() ) );
         WorkloadStatistics workloadStatistics;
         try ( Workload w = workload )
         {

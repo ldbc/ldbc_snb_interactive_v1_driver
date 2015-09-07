@@ -3,6 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcSnbBiQuery15 extends Operation<List<LdbcSnbBiQuery15Result>>
@@ -65,15 +66,37 @@ public class LdbcSnbBiQuery15 extends Operation<List<LdbcSnbBiQuery15Result>>
     @Override
     public List<LdbcSnbBiQuery15Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
+        List<LdbcSnbBiQuery15Result> result = new ArrayList<>();
+        for ( int i = 0; i < resultsAsList.size(); i++ )
+        {
+            List<Object> row = resultsAsList.get( i );
+            long personId = ((Number) row.get( 0 )).longValue();
+            int count = ((Number) row.get( 1 )).intValue();
+            result.add(
+                    new LdbcSnbBiQuery15Result(
+                            personId,
+                            count
+                    )
+            );
+        }
+        return result;
     }
 
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<LdbcSnbBiQuery15Result> result = (List<LdbcSnbBiQuery15Result>) resultsObject;
+        List<List<Object>> resultsFields = new ArrayList<>();
+        for ( int i = 0; i < result.size(); i++ )
+        {
+            LdbcSnbBiQuery15Result row = result.get( i );
+            List<Object> resultFields = new ArrayList<>();
+            resultFields.add( row.personId() );
+            resultFields.add( row.count() );
+            resultsFields.add( resultFields );
+        }
+        return SerializationUtil.toJson( resultsFields );
     }
 
     @Override

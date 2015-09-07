@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.lang.String.format;
+
 public class LdbcSnbInteractiveWorkloadConfiguration
 {
     public static final int WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT = -1;
@@ -145,6 +147,27 @@ public class LdbcSnbInteractiveWorkloadConfiguration
             READ_OPERATION_14_FREQUENCY_KEY
     );
 
+    private static final Map<Integer,String> typeToInterleaveKeyMapping()
+    {
+        Map<Integer,String> mapping = new HashMap<>();
+        mapping.put( LdbcQuery1.TYPE, READ_OPERATION_1_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery2.TYPE, READ_OPERATION_2_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery3.TYPE, READ_OPERATION_3_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery4.TYPE, READ_OPERATION_4_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery5.TYPE, READ_OPERATION_5_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery6.TYPE, READ_OPERATION_6_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery7.TYPE, READ_OPERATION_7_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery8.TYPE, READ_OPERATION_8_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery9.TYPE, READ_OPERATION_9_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery10.TYPE, READ_OPERATION_10_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery11.TYPE, READ_OPERATION_11_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery12.TYPE, READ_OPERATION_12_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery13.TYPE, READ_OPERATION_13_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery14.TYPE, READ_OPERATION_14_INTERLEAVE_KEY );
+        return mapping;
+    }
+
+    public final static Map<Integer,String> OPERATION_TYPE_TO_INTERLEAVE_KEY_MAPPING = typeToInterleaveKeyMapping();
 
     // Default value in case there is no update stream
     public final static String DEFAULT_UPDATE_INTERLEAVE = "1";
@@ -501,7 +524,7 @@ public class LdbcSnbInteractiveWorkloadConfiguration
         }
         catch ( IllegalArgumentException e )
         {
-            throw new WorkloadException( String.format( "Unsupported parser value: %s", parserString ), e );
+            throw new WorkloadException( format( "Unsupported parser value: %s", parserString ), e );
         }
     }
 

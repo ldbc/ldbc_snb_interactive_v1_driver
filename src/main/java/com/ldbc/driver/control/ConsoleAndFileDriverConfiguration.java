@@ -33,6 +33,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
@@ -52,14 +54,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     public static final String WORKLOAD_DEFAULT_STRING = WORKLOAD_DEFAULT;
     private static final String WORKLOAD_EXAMPLE = com.ldbc.driver.workloads.simple.SimpleWorkload.class.getName();
     private static final String WORKLOAD_DESCRIPTION =
-            String.format( "class name of the Workload to use (e.g. %s)", WORKLOAD_EXAMPLE );
+            format( "class name of the Workload to use (e.g. %s)", WORKLOAD_EXAMPLE );
 
     public static final String DB_ARG = "db";
     private static final String DB_ARG_LONG = "database";
     public static final String DB_DEFAULT = null;
     public static final String DB_DEFAULT_STRING = DB_DEFAULT;
     private static final String DB_EXAMPLE = com.ldbc.driver.workloads.simple.db.BasicDb.class.getName();
-    private static final String DB_DESCRIPTION = String.format( "class name of the DB to use (e.g. %s)", DB_EXAMPLE );
+    private static final String DB_DESCRIPTION = format( "class name of the DB to use (e.g. %s)", DB_EXAMPLE );
 
     // --- OPTIONAL ---
     public static final String IGNORE_SCHEDULED_START_TIMES_ARG = "ignore_scheduled_start_times";
@@ -79,14 +81,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     public static final String NAME_DEFAULT = "LDBC";
     public static final String NAME_DEFAULT_STRING = NAME_DEFAULT;
     private static final String NAME_DESCRIPTION =
-            String.format( "name of the benchmark run. default = %s", NAME_DEFAULT );
+            format( "name of the benchmark run. default = %s", NAME_DEFAULT );
 
     public static final String RESULT_DIR_PATH_ARG = "rd";
     private static final String RESULT_DIR_PATH_ARG_LONG = "results_dir";
     public static final String RESULT_DIR_PATH_DEFAULT = "results";
     public static final String RESULT_DIR_PATH_DEFAULT_STRING = RESULT_DIR_PATH_DEFAULT;
     private static final String RESULT_DIR_PATH_DESCRIPTION =
-            String.format( "directory where benchmark results will be written. default = %s", RESULT_DIR_PATH_DEFAULT );
+            format( "directory where benchmark results will be written. default = %s", RESULT_DIR_PATH_DEFAULT );
 
     public static final String RESULTS_LOG_ARG = "rl";
     public static final String RESULTS_LOG_ARG_LONG = "results_log";
@@ -100,7 +102,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     public static final int THREADS_DEFAULT = 1;
     public static final String THREADS_DEFAULT_STRING = Integer.toString( THREADS_DEFAULT );
     private static final String THREADS_DESCRIPTION =
-            String.format( "number of worker threads to execute with (default: %s)", THREADS_DEFAULT_STRING );
+            format( "number of worker threads to execute with (default: %s)", THREADS_DEFAULT_STRING );
 
     public static final String SHOW_STATUS_ARG = "s";
     private static final String SHOW_STATUS_ARG_LONG = "status";
@@ -143,7 +145,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     public static final String TIME_UNIT_DEFAULT_STRING = TIME_UNIT_DEFAULT.toString();
     private static final TimeUnit[] VALID_TIME_UNITS = new TimeUnit[]{TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS,
             TimeUnit.MILLISECONDS, TimeUnit.SECONDS, TimeUnit.MINUTES};
-    private static final String TIME_UNIT_DESCRIPTION = String.format(
+    private static final String TIME_UNIT_DESCRIPTION = format(
             "time unit to use when gathering metrics. default:%s, valid:%s", TIME_UNIT_DEFAULT_STRING,
             Arrays.toString( VALID_TIME_UNITS ) );
 
@@ -173,7 +175,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     public static final long WARMUP_COUNT_DEFAULT = 0;
     public static final String WARMUP_COUNT_DEFAULT_STRING = Long.toString( WARMUP_COUNT_DEFAULT );
     private static final String WARMUP_COUNT_DESCRIPTION =
-            String.format( "number of operations to execute during warmup phase (default: %s)",
+            format( "number of operations to execute during warmup phase (default: %s)",
                     WARMUP_COUNT_DEFAULT_STRING );
 
     public static final String PROPERTY_FILE_ARG = "P";
@@ -231,12 +233,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         }
         catch ( ParseException e )
         {
-            throw new DriverConfigurationException( String.format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
+            throw new DriverConfigurationException( format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
                     e );
         }
         catch ( DriverConfigurationException e )
         {
-            throw new DriverConfigurationException( String.format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
+            throw new DriverConfigurationException( format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
                     e );
         }
     }
@@ -255,7 +257,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         }
         catch ( DriverConfigurationException e )
         {
-            throw new DriverConfigurationException( String.format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
+            throw new DriverConfigurationException( format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
                     e );
         }
     }
@@ -324,7 +326,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         }
         catch ( DriverConfigurationException e )
         {
-            throw new DriverConfigurationException( String.format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
+            throw new DriverConfigurationException( format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
                     e );
         }
     }
@@ -343,7 +345,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         }
         catch ( IllegalArgumentException e )
         {
-            throw new DriverConfigurationException( String.format( "Unsupported TimeUnit value: %s", timeUnitString ) );
+            throw new DriverConfigurationException( format( "Unsupported TimeUnit value: %s", timeUnitString ) );
         }
     }
 
@@ -494,7 +496,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 catch ( IOException e )
                 {
                     throw new ParseException(
-                            String.format( "Error loading properties file %s\n%s", propertyFilePath, e.getMessage() ) );
+                            format( "Error loading properties file %s\n%s", propertyFilePath, e.getMessage() ) );
                 }
             }
         }
@@ -1425,50 +1427,50 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         int padRightDistance = 32;
         StringBuilder sb = new StringBuilder();
         sb.append( "Parameters:" ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Name:" ) ).append( name )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Name:" ) ).append( name )
                 .append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "DB:" ) ).append( dbClassName )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "DB:" ) ).append( dbClassName )
                 .append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Workload:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Workload:" ) )
                 .append( workloadClassName ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Operation Count:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Operation Count:" ) )
                 .append( INTEGRAL_FORMAT.format( operationCount ) ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Warmup Count:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Warmup Count:" ) )
                 .append( INTEGRAL_FORMAT.format( warmupCount ) ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Worker Threads:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Worker Threads:" ) )
                 .append( threadCount ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Status Display Interval:" ) ).append(
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Status Display Interval:" ) ).append(
                 TEMPORAL_UTIL.milliDurationToString( TimeUnit.SECONDS.toMillis( statusDisplayIntervalAsSeconds ) ) )
                 .append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Time Unit:" ) ).append( timeUnit )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Time Unit:" ) ).append( timeUnit )
                 .append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Results Directory:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Results Directory:" ) )
                 .append( resultDirPath() ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Create Results Log:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Create Results Log:" ) )
                 .append( shouldCreateResultsLog ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Time Compression Ratio:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Time Compression Ratio:" ) )
                 .append( FLOAT_FORMAT.format( timeCompressionRatio ) ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Peer IDs:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Peer IDs:" ) )
                 .append( peerIds.toString() ).append( "\n" );
         String validationCreationParamsString = (null == validationCreationParams) ?
                                                 null :
-                                                String.format( "File (%s) Validation Set Size (%s)",
+                                                format( "File (%s) Validation Set Size (%s)",
                                                         validationCreationParams.filePath(),
                                                         validationCreationParams.validationSetSize );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Validation Creation Params:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Validation Creation Params:" ) )
                 .append( validationCreationParamsString ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Database Validation File:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Database Validation File:" ) )
                 .append( databaseValidationFilePath ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Validate Workload:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Validate Workload:" ) )
                 .append( validateWorkload ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Calculate Workload Statistics:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Calculate Workload Statistics:" ) )
                 .append( calculateWorkloadStatistics ).append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Spinner Sleep Duration:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Spinner Sleep Duration:" ) )
                 .append( TEMPORAL_UTIL.milliDurationToString( spinnerSleepDurationAsMilli ) ).append( " / " )
                 .append( spinnerSleepDurationAsMilli ).append( " (ms)\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Print Help:" ) ).append( printHelp )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Print Help:" ) ).append( printHelp )
                 .append( "\n" );
-        sb.append( "\t" ).append( String.format( "%1$-" + padRightDistance + "s", "Ignore Scheduled Start Times:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Ignore Scheduled Start Times:" ) )
                 .append( ignoreScheduledStartTimes ).append( "\n" );
 
         Set<String> excludedKeys = coreConfigurationParameterKeys();
@@ -1618,7 +1620,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             if ( false == (commandlineStringArray.length == 2) )
             {
                 throw new DriverConfigurationException(
-                        String.format( "Unexpected string value (%s). Should contain exactly 2 values.",
+                        format( "Unexpected string value (%s). Should contain exactly 2 values.",
                                 commandlineString ) );
             }
             String filePath = commandlineStringArray[0];
@@ -1649,7 +1651,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
         public String toCommandlineString()
         {
-            return String.format( "%s%s%s", filePath, COMMANDLINE_SEPARATOR_CHAR, validationSetSize );
+            return format( "%s%s%s", filePath, COMMANDLINE_SEPARATOR_CHAR, validationSetSize );
         }
 
         @Override

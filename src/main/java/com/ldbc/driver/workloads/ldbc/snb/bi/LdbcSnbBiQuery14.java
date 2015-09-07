@@ -3,6 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcSnbBiQuery14 extends Operation<List<LdbcSnbBiQuery14Result>>
@@ -65,15 +66,46 @@ public class LdbcSnbBiQuery14 extends Operation<List<LdbcSnbBiQuery14Result>>
     @Override
     public List<LdbcSnbBiQuery14Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
+        List<LdbcSnbBiQuery14Result> result = new ArrayList<>();
+        for ( int i = 0; i < resultsAsList.size(); i++ )
+        {
+            List<Object> row = resultsAsList.get( i );
+            long personId = ((Number) row.get( 0 )).longValue();
+            String firstName = (String) row.get( 1 );
+            String lastName = (String) row.get( 2 );
+            int count = ((Number) row.get( 3 )).intValue();
+            int threadCount = ((Number) row.get( 4 )).intValue();
+            result.add(
+                    new LdbcSnbBiQuery14Result(
+                            personId,
+                            firstName,
+                            lastName,
+                            count,
+                            threadCount
+                    )
+            );
+        }
+        return result;
     }
 
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<LdbcSnbBiQuery14Result> result = (List<LdbcSnbBiQuery14Result>) resultsObject;
+        List<List<Object>> resultsFields = new ArrayList<>();
+        for ( int i = 0; i < result.size(); i++ )
+        {
+            LdbcSnbBiQuery14Result row = result.get( i );
+            List<Object> resultFields = new ArrayList<>();
+            resultFields.add( row.personId() );
+            resultFields.add( row.firstName() );
+            resultFields.add( row.lastName() );
+            resultFields.add( row.count() );
+            resultFields.add( row.threadCount() );
+            resultsFields.add( resultFields );
+        }
+        return SerializationUtil.toJson( resultsFields );
     }
 
     @Override

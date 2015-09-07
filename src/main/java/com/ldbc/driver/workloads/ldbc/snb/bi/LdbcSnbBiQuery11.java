@@ -3,6 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcSnbBiQuery11 extends Operation<List<LdbcSnbBiQuery11Result>>
@@ -76,15 +77,43 @@ public class LdbcSnbBiQuery11 extends Operation<List<LdbcSnbBiQuery11Result>>
     @Override
     public List<LdbcSnbBiQuery11Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
+        List<LdbcSnbBiQuery11Result> result = new ArrayList<>();
+        for ( int i = 0; i < resultsAsList.size(); i++ )
+        {
+            List<Object> row = resultsAsList.get( i );
+            long personId = ((Number) row.get( 0 )).longValue();
+            String tag = (String) row.get( 1 );
+            int likeCount = ((Number) row.get( 2 )).intValue();
+            int replyCount = ((Number) row.get( 3 )).intValue();
+            result.add(
+                    new LdbcSnbBiQuery11Result(
+                            personId,
+                            tag,
+                            likeCount,
+                            replyCount
+                    )
+            );
+        }
+        return result;
     }
 
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<LdbcSnbBiQuery11Result> result = (List<LdbcSnbBiQuery11Result>) resultsObject;
+        List<List<Object>> resultsFields = new ArrayList<>();
+        for ( int i = 0; i < result.size(); i++ )
+        {
+            LdbcSnbBiQuery11Result row = result.get( i );
+            List<Object> resultFields = new ArrayList<>();
+            resultFields.add( row.personId() );
+            resultFields.add( row.tag() );
+            resultFields.add( row.likeCount() );
+            resultFields.add( row.replyCount() );
+            resultsFields.add( resultFields );
+        }
+        return SerializationUtil.toJson( resultsFields );
     }
 
     @Override

@@ -22,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.lang.String.format;
+
 public class ThreadPoolOperationExecutor implements OperationExecutor
 {
     private final ExecutorService threadPoolExecutorService;
@@ -91,7 +93,7 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
         catch ( Throwable e )
         {
             throw new OperationExecutorException(
-                    String.format( "Error retrieving handler\nOperation: %s\n%s",
+                    format( "Error retrieving handler\nOperation: %s\n%s",
                             operation,
                             ConcurrentErrorReporter.stackTraceToString( e ) ),
                     e
@@ -116,7 +118,7 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
                 List<Runnable> stillRunningThreads = threadPoolExecutorService.shutdownNow();
                 if ( false == stillRunningThreads.isEmpty() )
                 {
-                    String errMsg = String.format(
+                    String errMsg = format(
                             "%s shutdown before all handlers could complete\n%s handlers were queued for execution " +
                             "but not yet started\n%s handlers were mid-execution",
                             getClass().getSimpleName(),
@@ -230,7 +232,7 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
                 }
                 catch ( Throwable e )
                 {
-                    errorReporter.reportError( this, String.format( "Error retrieving handler\n%s",
+                    errorReporter.reportError( this, format( "Error retrieving handler\n%s",
                             ConcurrentErrorReporter.stackTraceToString( e ) ) );
                 }
             }

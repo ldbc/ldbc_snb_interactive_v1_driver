@@ -7,6 +7,8 @@ import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.lang.String.format;
+
 public class OperationStreamExecutorService
 {
     public static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.SECONDS.toMillis( 10 );
@@ -76,7 +78,7 @@ public class OperationStreamExecutorService
         }
         catch ( Exception e )
         {
-            String errMsg = String.format( "Unexpected error encountered while shutting down thread\n%s",
+            String errMsg = format( "Unexpected error encountered while shutting down thread\n%s",
                     ConcurrentErrorReporter.stackTraceToString( e ) );
             errorReporter.reportError( this, errMsg );
         }

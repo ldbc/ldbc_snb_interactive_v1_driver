@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import static java.lang.String.format;
+
 public class CreateValidationParamsMode implements ClientMode<Object>
 {
     private final ControlService controlService;
@@ -49,10 +51,10 @@ public class CreateValidationParamsMode implements ClientMode<Object>
         }
         catch ( Exception e )
         {
-            throw new ClientException( String.format( "Error loading Workload class: %s",
+            throw new ClientException( format( "Error loading Workload class: %s",
                     controlService.configuration().workloadClassName() ), e );
         }
-        loggingService.info( String.format( "Loaded Workload: %s", workload.getClass().getName() ) );
+        loggingService.info( format( "Loaded Workload: %s", workload.getClass().getName() ) );
 
         try
         {
@@ -65,14 +67,14 @@ public class CreateValidationParamsMode implements ClientMode<Object>
         catch ( DbException e )
         {
             throw new ClientException(
-                    String.format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
+                    format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
         }
-        loggingService.info( String.format( "Loaded DB: %s", database.getClass().getName() ) );
+        loggingService.info( format( "Loaded DB: %s", database.getClass().getName() ) );
 
         GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( randomSeed ) );
 
-        loggingService.info( String
-                .format( "Retrieving operation stream for workload: %s", workload.getClass().getSimpleName() ) );
+        loggingService.info(
+                format( "Retrieving operation stream for workload: %s", workload.getClass().getSimpleName() ) );
         try
         {
             boolean returnStreamsWithDbConnector = false;
@@ -115,8 +117,8 @@ public class CreateValidationParamsMode implements ClientMode<Object>
             // TODO get from config parameter
             boolean performSerializationMarshallingChecks = true;
 
-            loggingService.info( String
-                    .format( "Generating database validation file: %s", validationFileToGenerate.getAbsolutePath() ) );
+            loggingService.info(
+                    format( "Generating database validation file: %s", validationFileToGenerate.getAbsolutePath() ) );
 
             Iterator<ValidationParam> validationParamsGenerator =
                     new ValidationParamsGenerator( db, w.dbValidationParametersFilter( validationSetSize ),
@@ -159,7 +161,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
             int validationParametersGenerated =
                     ((ValidationParamsGenerator) validationParamsGenerator).entriesWrittenSoFar();
 
-            loggingService.info( String.format( "Successfully generated %s database validation parameters",
+            loggingService.info( format( "Successfully generated %s database validation parameters",
                     validationParametersGenerated ) );
         }
         catch ( IOException e )

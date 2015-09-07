@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.lang.String.format;
+
 public abstract class Db implements Closeable
 {
     private boolean isInitialized = false;
@@ -83,8 +85,7 @@ public abstract class Db implements Closeable
     {
         if ( operationHandlers.containsKey( operationType ) )
         {
-            throw new DbException(
-                    String.format( "Client already has handler registered for %s", operationType.getClass() ) );
+            throw new DbException( format( "Client already has handler registered for %s", operationType.getClass() ) );
         }
         try
         {
@@ -94,7 +95,7 @@ public abstract class Db implements Closeable
         catch ( OperationException e )
         {
             throw new DbException(
-                    String.format( "%s could not instantiate instance of %s",
+                    format( "%s could not instantiate instance of %s",
                             getClass().getSimpleName(),
                             operationHandlerType.getSimpleName()
                     ),
@@ -107,7 +108,7 @@ public abstract class Db implements Closeable
     {
         OperationHandler operationHandler = operationHandlers.get( operation.getClass() );
         if ( null == operationHandler )
-        { throw new DbException( String.format( "No handler registered for %s", operation.getClass() ) ); }
+        { throw new DbException( format( "No handler registered for %s", operation.getClass() ) ); }
 
         try
         {
@@ -119,7 +120,7 @@ public abstract class Db implements Closeable
         }
         catch ( Exception e )
         {
-            throw new DbException( String.format( "Unable to instantiate handler for operation:\n%s", operation ), e );
+            throw new DbException( format( "Unable to instantiate handler for operation:\n%s", operation ), e );
         }
     }
 

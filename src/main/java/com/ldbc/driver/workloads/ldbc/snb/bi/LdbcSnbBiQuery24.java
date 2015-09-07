@@ -3,6 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcSnbBiQuery24 extends Operation<List<LdbcSnbBiQuery24Result>>
@@ -66,15 +67,43 @@ public class LdbcSnbBiQuery24 extends Operation<List<LdbcSnbBiQuery24Result>>
     public List<LdbcSnbBiQuery24Result> marshalResult( String serializedResults ) throws
             SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
+        List<LdbcSnbBiQuery24Result> result = new ArrayList<>();
+        for ( int i = 0; i < resultsAsList.size(); i++ )
+        {
+            List<Object> row = resultsAsList.get( i );
+            int year = ((Number) row.get( 0 )).intValue();
+            int month = ((Number) row.get( 1 )).intValue();
+            String continent = (String) row.get( 2 );
+            int postCount = ((Number) row.get( 3 )).intValue();
+            result.add(
+                    new LdbcSnbBiQuery24Result(
+                            year,
+                            month,
+                            continent,
+                            postCount
+                    )
+            );
+        }
+        return result;
     }
 
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        List<LdbcSnbBiQuery24Result> result = (List<LdbcSnbBiQuery24Result>) resultsObject;
+        List<List<Object>> resultsFields = new ArrayList<>();
+        for ( int i = 0; i < result.size(); i++ )
+        {
+            LdbcSnbBiQuery24Result row = result.get( i );
+            List<Object> resultFields = new ArrayList<>();
+            resultFields.add( row.year() );
+            resultFields.add( row.month() );
+            resultFields.add( row.continent() );
+            resultFields.add( row.postCount() );
+            resultsFields.add( resultFields );
+        }
+        return SerializationUtil.toJson( resultsFields );
     }
 
     @Override

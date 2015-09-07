@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
+import static java.lang.String.format;
+
 public class DriverConfigurationFileHelper
 {
     private static final String CONFIGURATION_DIR_NAME = "configuration";
@@ -31,7 +33,7 @@ public class DriverConfigurationFileHelper
         if ( false == readConfigurationFileAt( baseConfigurationFilePublicLocation ).equals( baseConfiguration() ) )
         {
             throw new DriverConfigurationException(
-                    String.format( "Default config file not equal to base configuration\n%s\n%s",
+                    format( "Default config file not equal to base configuration\n%s\n%s",
                             baseConfiguration().toString(),
                             readConfigurationFileAt( baseConfigurationFilePublicLocation ) ) );
         }

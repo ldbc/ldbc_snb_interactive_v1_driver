@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 public class ThreadedQueuedMetricsServiceThread extends Thread
 {
     private final MetricsManager metricsManager;
@@ -86,7 +88,7 @@ public class ThreadedQueuedMetricsServiceThread extends Thread
             {
                 errorReporter.reportError(
                         this,
-                        String.format( "Encountered unexpected exception\n%s",
+                        format( "Encountered unexpected exception\n%s",
                                 ConcurrentErrorReporter.stackTraceToString( e ) ) );
                 return;
             }
@@ -123,7 +125,7 @@ public class ThreadedQueuedMetricsServiceThread extends Thread
             {
                 errorReporter.reportError(
                         this,
-                        String.format(
+                        format(
                                 "Encountered error while collecting metrics for result\n"
                                 + "Operation Type: %s\n"
                                 + "Scheduled Start Time Ms: %s\n"
@@ -163,7 +165,7 @@ public class ThreadedQueuedMetricsServiceThread extends Thread
                 // this is not the first termination event that the thread has received
                 errorReporter.reportError(
                         this,
-                        String.format(
+                        format(
                                 "Encountered multiple %s events. First expectedEventCount[%s]. Second " +
                                 "expectedEventCount[%s]",
                                 ThreadedQueuedMetricsEvent.MetricsEventType.SHUTDOWN_SERVICE.name(),
@@ -174,7 +176,7 @@ public class ThreadedQueuedMetricsServiceThread extends Thread
         default:
             errorReporter.reportError(
                     this,
-                    String.format( "Encountered unexpected event type: %s", event.type().name() ) );
+                    format( "Encountered unexpected event type: %s", event.type().name() ) );
             return;
         }
     }

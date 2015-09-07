@@ -31,6 +31,7 @@ import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.Tuple3;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -93,7 +94,18 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             }
             else if ( false == resultDir.exists() )
             {
-                resultDir.mkdir();
+                try
+                {
+                    FileUtils.forceMkdir( resultDir );
+                }
+                catch ( IOException e )
+                {
+                    throw new ClientException(
+                            format( "Results directory does not exist and could not be created: %s",
+                                    resultDir.getAbsolutePath() ),
+                            e
+                    );
+                }
             }
         }
 

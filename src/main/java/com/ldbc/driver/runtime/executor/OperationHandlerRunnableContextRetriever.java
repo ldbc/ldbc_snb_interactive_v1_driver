@@ -1,6 +1,10 @@
 package com.ldbc.driver.runtime.executor;
 
-import com.ldbc.driver.*;
+import com.ldbc.driver.Db;
+import com.ldbc.driver.DbException;
+import com.ldbc.driver.Operation;
+import com.ldbc.driver.OperationHandlerRunnableContext;
+import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
@@ -13,9 +17,13 @@ import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Set;
 
+import static java.lang.String.format;
+
 // TODO test
-class OperationHandlerRunnableContextRetriever {
-    private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
+class OperationHandlerRunnableContextRetriever
+{
+    private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER =
+            new DummyLocalCompletionTimeWriter();
     private final Db db;
     private final LocalCompletionTimeWriter localCompletionTimeWriter;
     private final GlobalCompletionTimeReader globalCompletionTimeReader;
@@ -26,14 +34,15 @@ class OperationHandlerRunnableContextRetriever {
     private final Set<Class<? extends Operation>> dependencyOperationTypes;
     private final Set<Class<? extends Operation>> dependentOperationTypes;
 
-    OperationHandlerRunnableContextRetriever(WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-                                             Db db,
-                                             LocalCompletionTimeWriter localCompletionTimeWriter,
-                                             GlobalCompletionTimeReader globalCompletionTimeReader,
-                                             Spinner spinner,
-                                             TimeSource timeSource,
-                                             ConcurrentErrorReporter errorReporter,
-                                             MetricsService metricsService) {
+    OperationHandlerRunnableContextRetriever( WorkloadStreams.WorkloadStreamDefinition streamDefinition,
+            Db db,
+            LocalCompletionTimeWriter localCompletionTimeWriter,
+            GlobalCompletionTimeReader globalCompletionTimeReader,
+            Spinner spinner,
+            TimeSource timeSource,
+            ConcurrentErrorReporter errorReporter,
+            MetricsService metricsService )
+    {
         this.db = db;
         this.localCompletionTimeWriter = localCompletionTimeWriter;
         this.globalCompletionTimeReader = globalCompletionTimeReader;
@@ -45,26 +54,43 @@ class OperationHandlerRunnableContextRetriever {
         this.dependencyOperationTypes = streamDefinition.dependencyOperationTypes();
     }
 
-    public OperationHandlerRunnableContext getInitializedHandlerFor(Operation operation) throws OperationExecutorException, CompletionTimeException, DbException {
+    public OperationHandlerRunnableContext getInitializedHandlerFor( Operation operation )
+            throws OperationExecutorException, CompletionTimeException, DbException
+    {
         OperationHandlerRunnableContext operationHandlerRunnableContext;
-        try {
-            operationHandlerRunnableContext = db.getOperationHandlerRunnableContext(operation);
-        } catch (Exception e) {
-            throw new OperationExecutorException(String.format("Error while retrieving handler for operation\nOperation: %s", operation), e);
+        try
+        {
+            operationHandlerRunnableContext = db.getOperationHandlerRunnableContext( operation );
+        }
+        catch ( Exception e )
+        {
+            throw new OperationExecutorException( format( "Error while retrieving handler for operation\nOperation: %s",
+                    operation ), e );
         }
         LocalCompletionTimeWriter localCompletionTimeWriterForHandler;
-        if (dependencyOperationTypes.contains(operation.getClass())) {
+        if ( dependencyOperationTypes.contains( operation.getClass() ) )
+        {
             localCompletionTimeWriterForHandler = localCompletionTimeWriter;
-        } else {
+        }
+        else
+        {
             localCompletionTimeWriterForHandler = DUMMY_LOCAL_COMPLETION_TIME_WRITER;
         }
-        try {
-            operationHandlerRunnableContext.init(timeSource, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
-        } catch (Exception e) {
-            throw new OperationExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation), e);
+        try
+        {
+            operationHandlerRunnableContext
+                    .init( timeSource, spinner, operation, localCompletionTimeWriterForHandler, errorReporter,
+                            metricsService );
         }
-        if (dependentOperationTypes.contains(operation.getClass())) {
-            operationHandlerRunnableContext.setBeforeExecuteCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));
+        catch ( Exception e )
+        {
+            throw new OperationExecutorException( format(
+                    "Error while initializing handler for operation\nOperation: %s", operation ), e );
+        }
+        if ( dependentOperationTypes.contains( operation.getClass() ) )
+        {
+            operationHandlerRunnableContext.setBeforeExecuteCheck(
+                    new GctDependencyCheck( globalCompletionTimeReader, operation, errorReporter ) );
         }
         return operationHandlerRunnableContext;
     }

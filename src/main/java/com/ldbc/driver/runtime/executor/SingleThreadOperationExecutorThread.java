@@ -10,21 +10,25 @@ import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class SingleThreadOperationExecutorThread extends Thread {
+import static java.lang.String.format;
+
+public class SingleThreadOperationExecutorThread extends Thread
+{
     private final QueueEventFetcher<Operation> operationQueueEventFetcher;
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicLong uncompletedHandlers;
-    private final AtomicBoolean forcedShutdownRequested = new AtomicBoolean(false);
+    private final AtomicBoolean forcedShutdownRequested = new AtomicBoolean( false );
     private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever;
     private final ChildOperationGenerator childOperationGenerator;
 
-    SingleThreadOperationExecutorThread(Queue<Operation> operationHandlerRunnerQueue,
-                                        ConcurrentErrorReporter errorReporter,
-                                        AtomicLong uncompletedHandlers,
-                                        OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever,
-                                        ChildOperationGenerator childOperationGenerator) {
-        super(SingleThreadOperationExecutorThread.class.getSimpleName() + "-" + System.currentTimeMillis());
-        this.operationQueueEventFetcher = QueueEventFetcher.queueEventFetcherFor(operationHandlerRunnerQueue);
+    SingleThreadOperationExecutorThread( Queue<Operation> operationHandlerRunnerQueue,
+            ConcurrentErrorReporter errorReporter,
+            AtomicLong uncompletedHandlers,
+            OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever,
+            ChildOperationGenerator childOperationGenerator )
+    {
+        super( SingleThreadOperationExecutorThread.class.getSimpleName() + "-" + System.currentTimeMillis() );
+        this.operationQueueEventFetcher = QueueEventFetcher.queueEventFetcherFor( operationHandlerRunnerQueue );
         this.errorReporter = errorReporter;
         this.uncompletedHandlers = uncompletedHandlers;
         this.operationHandlerRunnableContextRetriever = operationHandlerRunnableContextRetriever;
@@ -32,15 +36,20 @@ public class SingleThreadOperationExecutorThread extends Thread {
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         Operation operation = null;
-        try {
+        try
+        {
             operation = operationQueueEventFetcher.fetchNextEvent();
-            while (operation != SingleThreadOperationExecutor.TERMINATE_OPERATION && false == forcedShutdownRequested.get()) {
+            while ( operation != SingleThreadOperationExecutor.TERMINATE_OPERATION &&
+                    false == forcedShutdownRequested.get() )
+            {
                 OperationHandlerRunnableContext operationHandlerRunnableContext =
-                        operationHandlerRunnableContextRetriever.getInitializedHandlerFor(operation);
+                        operationHandlerRunnableContextRetriever.getInitializedHandlerFor( operation );
                 operationHandlerRunnableContext.run();
-                if (null != childOperationGenerator) {
+                if ( null != childOperationGenerator )
+                {
                     double state = childOperationGenerator.initialState();
                     operation = childOperationGenerator.nextOperation(
                             state,
@@ -49,11 +58,12 @@ public class SingleThreadOperationExecutorThread extends Thread {
                             operationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
                             operationHandlerRunnableContext.resultReporter().runDurationAsNano()
                     );
-                    while (null != operation) {
+                    while ( null != operation )
+                    {
                         OperationHandlerRunnableContext childOperationHandlerRunnableContext =
-                                operationHandlerRunnableContextRetriever.getInitializedHandlerFor(operation);
+                                operationHandlerRunnableContextRetriever.getInitializedHandlerFor( operation );
                         childOperationHandlerRunnableContext.run();
-                        state = childOperationGenerator.updateState(state, operation.type());
+                        state = childOperationGenerator.updateState( state, operation.type() );
                         operation = childOperationGenerator.nextOperation(
                                 state,
                                 childOperationHandlerRunnableContext.operation(),
@@ -68,17 +78,20 @@ public class SingleThreadOperationExecutorThread extends Thread {
                 uncompletedHandlers.decrementAndGet();
                 operation = operationQueueEventFetcher.fetchNextEvent();
             }
-        } catch (Exception e) {
+        }
+        catch ( Exception e )
+        {
             errorReporter.reportError(
                     this,
-                    String.format("Error retrieving handler\nOperation: %s\n%s",
+                    format( "Error retrieving handler\nOperation: %s\n%s",
                             operation,
-                            ConcurrentErrorReporter.stackTraceToString(e))
+                            ConcurrentErrorReporter.stackTraceToString( e ) )
             );
         }
     }
 
-    void forceShutdown() {
-        forcedShutdownRequested.set(true);
+    void forceShutdown()
+    {
+        forcedShutdownRequested.set( true );
     }
 }

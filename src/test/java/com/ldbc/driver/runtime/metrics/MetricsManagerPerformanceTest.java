@@ -52,6 +52,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicStampedReference;
 import java.util.concurrent.locks.LockSupport;
 
+import static java.lang.String.format;
+
 @Ignore
 public class MetricsManagerPerformanceTest
 {
@@ -231,7 +233,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -262,7 +264,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -299,7 +301,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -336,7 +338,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -373,7 +375,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -412,7 +414,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -468,7 +470,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -507,7 +509,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -555,7 +557,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -596,7 +598,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -641,7 +643,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -686,7 +688,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "Completed %s operations in %s --> %s op/s",
                         decimalFormat.format( benchmarkOperationCount ),
                         temporalUtil.milliDurationToString( benchmarkDurationMs ),
@@ -828,7 +830,7 @@ public class MetricsManagerPerformanceTest
         final double operationsPerSecond = operationsPerMs * 1000;
 
         System.out.println(
-                String.format(
+                format(
                         "%s %s threads %s operations in %s --> %s op/s",
                         metricsService.getClass().getSimpleName(),
                         threadCount,

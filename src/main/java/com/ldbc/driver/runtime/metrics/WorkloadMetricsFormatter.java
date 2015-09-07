@@ -1,5 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
-public interface WorkloadMetricsFormatter {
-    String format(WorkloadResultsSnapshot workloadResultsSnapshot);
+public interface WorkloadMetricsFormatter
+{
+    String format( WorkloadResultsSnapshot workloadResultsSnapshot );
 }
