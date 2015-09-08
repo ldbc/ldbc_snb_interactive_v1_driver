@@ -77,7 +77,7 @@ public class BiReadEventStreamReadersTestData
     {
         return "Param0\n"
                + "Alanis_Morissette\n"
-               + "Éamon_de_Valera\n"
+               + "\u00c9amon_de_Valera\n"
                + "Juhi_Chawla\n"
                + "Manuel_Noriega";
     }

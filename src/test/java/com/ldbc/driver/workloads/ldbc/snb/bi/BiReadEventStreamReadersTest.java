@@ -300,7 +300,7 @@ public class BiReadEventStreamReadersTest
         assertThat( operation.tag(), is( "Alanis_Morissette" ) );
 
         operation = (LdbcSnbBiQuery8) reader.next();
-        assertThat( operation.tag(), is( "Éamon_de_Valera" ) );
+        assertThat( operation.tag(), is( "\u00c9amon_de_Valera" ) );
 
         operation = (LdbcSnbBiQuery8) reader.next();
         assertThat( operation.tag(), is( "Juhi_Chawla" ) );
@@ -743,7 +743,7 @@ public class BiReadEventStreamReadersTest
         assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20.class ) );
         assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20.class ) );
         assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20.class ) );
-        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20.class )  );
+        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20.class ) );
 
         // loops back around to first
 
