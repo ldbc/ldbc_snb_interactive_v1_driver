@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
-public class BasicDb extends Db
+public class SimpleDb extends Db
 {
     private static final Object OBJECT_RESULT = "";
     private static final Map<String,Iterator<Byte>> MAP_RESULT = new HashMap<>();
@@ -84,9 +84,9 @@ public class BasicDb extends Db
                 ResultReporter resultReporter )
         {
             Map<String,Object> queryParams = new HashMap<>();
-            queryParams.put( "table", operation.getTable() );
-            queryParams.put( "key", operation.getKey() );
-            queryParams.put( "valuedFields", operation.getValuedFields() );
+            queryParams.put( "table", operation.table() );
+            queryParams.put( "key", operation.key() );
+            queryParams.put( "valuedFields", operation.fields() );
 
             // TODO replace with actual query string
             String queryString = null;
@@ -106,9 +106,9 @@ public class BasicDb extends Db
                 ResultReporter resultReporter )
         {
             Map<String,Object> queryParams = new HashMap<>();
-            queryParams.put( "table", operation.getTable() );
-            queryParams.put( "key", operation.getKey() );
-            queryParams.put( "fields", operation.getFields() );
+            queryParams.put( "table", operation.table() );
+            queryParams.put( "key", operation.key() );
+            queryParams.put( "fields", operation.fields() );
 
             // TODO replace with actual query string
             String queryString = null;
@@ -128,9 +128,9 @@ public class BasicDb extends Db
                 ResultReporter resultReporter )
         {
             Map<String,Object> queryParams = new HashMap<>();
-            queryParams.put( "table", operation.getTable() );
-            queryParams.put( "key", operation.getKey() );
-            queryParams.put( "values", operation.getValues() );
+            queryParams.put( "table", operation.table() );
+            queryParams.put( "key", operation.key() );
+            queryParams.put( "values", operation.fields() );
 
             // TODO replace with actual query string
             String queryString = null;
@@ -150,10 +150,10 @@ public class BasicDb extends Db
                 ResultReporter resultReporter )
         {
             Map<String,Object> queryParams = new HashMap<>();
-            queryParams.put( "table", operation.getTable() );
-            queryParams.put( "key", operation.getStartkey() );
-            queryParams.put( "recordCount", operation.getRecordcount() );
-            queryParams.put( "fields", operation.getFields() );
+            queryParams.put( "table", operation.table() );
+            queryParams.put( "key", operation.startkey() );
+            queryParams.put( "recordCount", operation.recordCount() );
+            queryParams.put( "fields", operation.fields() );
 
             // TODO replace with actual query string
             String queryString = null;
@@ -174,10 +174,10 @@ public class BasicDb extends Db
                 ResultReporter resultReporter )
         {
             Map<String,Object> queryParams = new HashMap<>();
-            queryParams.put( "table", operation.getTable() );
-            queryParams.put( "key", operation.getKey() );
-            queryParams.put( "fields", operation.getFields() );
-            queryParams.put( "values", operation.getValues() );
+            queryParams.put( "table", operation.table() );
+            queryParams.put( "key", operation.key() );
+            queryParams.put( "fields", operation.fields() );
+            queryParams.put( "values", operation.values() );
 
             // TODO replace with actual query string
             String queryString = null;

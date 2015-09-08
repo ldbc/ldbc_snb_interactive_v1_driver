@@ -7,6 +7,7 @@ import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
+import com.ldbc.driver.workloads.simple.db.SimpleDb;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -60,7 +61,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private static final String DB_ARG_LONG = "database";
     public static final String DB_DEFAULT = null;
     public static final String DB_DEFAULT_STRING = DB_DEFAULT;
-    private static final String DB_EXAMPLE = com.ldbc.driver.workloads.simple.db.BasicDb.class.getName();
+    private static final String DB_EXAMPLE = SimpleDb.class.getName();
     private static final String DB_DESCRIPTION = format( "class name of the DB to use (e.g. %s)", DB_EXAMPLE );
 
     // --- OPTIONAL ---

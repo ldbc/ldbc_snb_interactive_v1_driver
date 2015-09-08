@@ -34,7 +34,6 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +62,9 @@ public abstract class WorkloadTest
     public abstract List<Tuple2<DriverConfiguration,Histogram<Class,Double>>> configurationsWithExpectedQueryMix()
             throws Exception;
 
+    // TODO for testing operation result serialization
+    // TODO public abstract List<Operation<RESULT>, Iterable<RESULT>> operationsAndResults() throws Exception;
+
     @Test
     public void shouldBeAbleToSerializeAndMarshalAllOperations() throws Exception
     {
@@ -72,17 +74,20 @@ public abstract class WorkloadTest
             List<Operation> operations = operations();
 
             // When
-            List<String> serializedOperations = new ArrayList<>();
-            for ( Operation operation : operations )
-            {
-                serializedOperations.add( workload.serializeOperation( operation ) );
-            }
 
             // Then
-            for ( int i = 0; i < serializedOperations.size(); i++ )
+            for ( int i = 0; i < operations.size(); i++ )
             {
-                String serializedOperation = serializedOperations.get( i );
-                assertThat( workload.marshalOperation( serializedOperation ), equalTo( operations.get( i ) ) );
+                assertThat(
+                        format( "original != marshal(serialize(original))\n" +
+                                "Original: %s\n" +
+                                "Serialized: %s\n" +
+                                "Marshalled: %s",
+                                operations.get( i ),
+                                workload.serializeOperation( operations.get( i ) ),
+                                workload.marshalOperation( workload.serializeOperation( operations.get( i ) ) ) ),
+                        workload.marshalOperation( workload.serializeOperation( operations.get( i ) ) ),
+                        equalTo( operations.get( i ) ) );
             }
         }
     }

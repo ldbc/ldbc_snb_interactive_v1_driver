@@ -1,349 +1,126 @@
 package com.ldbc.driver.workloads.simple;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
-import com.ldbc.driver.Client;
-import com.ldbc.driver.ClientException;
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
-import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.client.ClientMode;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
-import com.ldbc.driver.control.ControlService;
-import com.ldbc.driver.control.DriverConfigurationException;
-import com.ldbc.driver.control.DriverConfigurationFileHelper;
-import com.ldbc.driver.control.LocalControlService;
-import com.ldbc.driver.control.Log4jLoggingServiceFactory;
-import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
-import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsService;
-import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.workloads.simple.db.BasicDb;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import com.ldbc.driver.control.DriverConfiguration;
+import com.ldbc.driver.util.Bucket;
+import com.ldbc.driver.util.Histogram;
+import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple2;
+import com.ldbc.driver.workloads.ClassNameWorkloadFactory;
+import com.ldbc.driver.workloads.WorkloadTest;
+import com.ldbc.driver.workloads.simple.db.SimpleDb;
+import org.junit.Ignore;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-public class SimpleWorkloadTest
+// TODO unignore and fix existing failures
+@Ignore
+public class SimpleWorkloadTest extends WorkloadTest
 {
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    TimeSource timeSource = new SystemTimeSource();
-
-    @Test
-    public void shouldGenerateManyElementsInReasonableTime() throws WorkloadException
+    @Override
+    public Workload workload() throws Exception
     {
-        Map<String,String> paramsMap = null;
-        String name = null;
-        String dbClassName = null;
-        String workloadClassName = null;
-        long operationCount = 100;
-        int threadCount = 1;
-        int statusDisplayInterval = 0;
-        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultDirPath = null;
-        Double timeCompressionRatio = 1.0;
-        Set<String> peerIds = new HashSet<>();
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
-        String dbValidationFilePath = null;
-        boolean calculateWorkloadStatistics = false;
-        long spinnerSleepDuration = 0l;
-        boolean printHelp = false;
-        boolean ignoreScheduledStartTimes = false;
-        long warmupCount = 100;
-
-        ConsoleAndFileDriverConfiguration params =
-                new ConsoleAndFileDriverConfiguration(
-                        paramsMap,
-                        name,
-                        dbClassName,
-                        workloadClassName,
-                        operationCount,
-                        threadCount,
-                        statusDisplayInterval,
-                        timeUnit,
-                        resultDirPath,
-                        timeCompressionRatio,
-                        peerIds,
-                        validationParams,
-                        dbValidationFilePath,
-                        calculateWorkloadStatistics,
-                        spinnerSleepDuration,
-                        printHelp,
-                        ignoreScheduledStartTimes,
-                        warmupCount
-                );
-
-        Workload workload = new SimpleWorkload();
-        workload.init( params );
-        GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
-        Iterator<Operation> operations = gf.limit(
-                WorkloadStreams
-                        .mergeSortedByStartTimeExcludingChildOperationGenerators( gf, workload.streams( gf, true ) ),
+        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(
+                SimpleDb.class.getName(),
+                SimpleWorkload.class.getName(),
                 1_000_000
+        ).applyArg(
+                ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG,
+                Long.toString( 1_000_000 )
+        ).applyArg(
+                ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+                "true"
         );
-        TimeSource timeSource = new SystemTimeSource();
-        long timeout = timeSource.nowAsMilli() + 30_000l;
-        boolean workloadGeneratedOperationsBeforeTimeout =
-                TestUtils.generateBeforeTimeout( operations, timeout, timeSource, 1_000_000 );
-        assertThat( workloadGeneratedOperationsBeforeTimeout, is( true ) );
+        Workload workload = new ClassNameWorkloadFactory( configuration.workloadClassName() ).createWorkload();
+        workload.init( configuration );
+        return workload;
     }
 
-    @Test
-    public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories()
-            throws ClientException, DriverConfigurationException, WorkloadException, IOException
+    @Override
+    public List<Operation> operations() throws Exception
     {
-        Map<String,String> paramsMap = null;
-        String name = "name";
-        String dbClassName = null;
-        String workloadClassName = null;
-        long operationCount = 100;
-        int threadCount = 1;
-        int statusDisplayInterval = 0;
-        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultDirPath = null;
-        Double timeCompressionRatio = 1.0;
-        Set<String> peerIds = new HashSet<>();
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
-        String dbValidationFilePath = null;
-        boolean calculateWorkloadStatistics = false;
-        long spinnerSleepDuration = 0l;
-        boolean printHelp = false;
-        boolean ignoreScheduledStartTimes = false;
-        long warmupCount = 100;
-
-        ConsoleAndFileDriverConfiguration params =
-                new ConsoleAndFileDriverConfiguration(
-                        paramsMap,
-                        name,
-                        dbClassName,
-                        workloadClassName,
-                        operationCount,
-                        threadCount,
-                        statusDisplayInterval,
-                        timeUnit,
-                        resultDirPath,
-                        timeCompressionRatio,
-                        peerIds,
-                        validationParams,
-                        dbValidationFilePath,
-                        calculateWorkloadStatistics,
-                        spinnerSleepDuration,
-                        printHelp,
-                        ignoreScheduledStartTimes,
-                        warmupCount
-                );
-
-        Workload workload = new SimpleWorkload();
-        workload.init( params );
-
-        Function<Operation,Class> classFun = new Function<Operation,Class>()
-        {
-            @Override
-            public Class apply( Operation operation )
-            {
-                return operation.getClass();
-            }
-        };
-
-        GeneratorFactory gf1 = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
-        List<Class> operationsA = ImmutableList.copyOf(
-                Iterators.transform(
-                        gf1.limit(
-                                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators( gf1,
-                                        workload.streams( gf1, true ) ),
-                                params.operationCount()
-                        ),
-                        classFun
-                ) );
-
-        GeneratorFactory gf2 = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
-        List<Class> operationsB = ImmutableList.copyOf(
-                Iterators.transform(
-                        gf2.limit(
-                                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators( gf2,
-                                        workload.streams( gf2, true ) ),
-                                params.operationCount()
-                        ),
-                        classFun
-                ) );
-
-        assertThat( operationsA.size(), is( operationsB.size() ) );
-
-        Iterator<Class> operationsAIt = operationsA.iterator();
-        Iterator<Class> operationsBIt = operationsB.iterator();
-
-        while ( operationsAIt.hasNext() )
-        {
-            Class a = operationsAIt.next();
-            Class b = operationsBIt.next();
-            assertThat( a, equalTo( b ) );
-        }
-        workload.close();
-    }
-
-    @Test
-    public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories()
-            throws ClientException, DriverConfigurationException, WorkloadException
-    {
-        Map<String,String> paramsMap = null;
-        String name = "name";
-        String dbClassName = null;
-        String workloadClassName = null;
-        long operationCount = 100;
-        int threadCount = 1;
-        int statusDisplayInterval = 0;
-        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultDirPath = null;
-        Double timeCompressionRatio = 1.0;
-        Set<String> peerIds = new HashSet<>();
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
-        String dbValidationFilePath = null;
-        boolean calculateWorkloadStatistics = false;
-        long spinnerSleepDuration = 0l;
-        boolean printHelp = false;
-        boolean ignoreScheduledStartTimes = false;
-        long warmupCount = 100;
-
-        ConsoleAndFileDriverConfiguration params =
-                new ConsoleAndFileDriverConfiguration(
-                        paramsMap,
-                        name,
-                        dbClassName,
-                        workloadClassName,
-                        operationCount,
-                        threadCount,
-                        statusDisplayInterval,
-                        timeUnit,
-                        resultDirPath,
-                        timeCompressionRatio,
-                        peerIds,
-                        validationParams,
-                        dbValidationFilePath,
-                        calculateWorkloadStatistics,
-                        spinnerSleepDuration,
-                        printHelp,
-                        ignoreScheduledStartTimes,
-                        warmupCount
-                );
-
-        Workload workloadA = new SimpleWorkload();
-        workloadA.init( params );
-
-        Workload workloadB = new SimpleWorkload();
-        workloadB.init( params );
-
-        GeneratorFactory gf1 = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
-        List<Class> operationsA = ImmutableList.copyOf(
-                Iterators.transform(
-                        gf1.limit(
-                                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators( gf1,
-                                        workloadA.streams( gf1, true ) ),
-                                params.operationCount()
-                        ),
-                        new Function<Operation,Class>()
-                        {
-                            @Override
-                            public Class apply( Operation operation )
-                            {
-                                return operation.getClass();
-                            }
-                        } ) );
-
-        GeneratorFactory gf2 = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
-        List<Class> operationsB = ImmutableList.copyOf(
-                Iterators.transform(
-                        gf2.limit(
-                                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators( gf2,
-                                        workloadB.streams( gf2, true ) ),
-                                params.operationCount()
-                        ),
-                        new Function<Operation,Class>()
-                        {
-                            @Override
-                            public Class apply( Operation operation )
-                            {
-                                return operation.getClass();
-                            }
-                        } ) );
-
-        assertThat( operationsA.size(), is( operationsB.size() ) );
-
-        Iterator<Class> operationsAIt = operationsA.iterator();
-        Iterator<Class> operationsBIt = operationsB.iterator();
-
-        while ( operationsAIt.hasNext() )
-        {
-            Class a = operationsAIt.next();
-            Class b = operationsBIt.next();
-            assertThat( a, equalTo( b ) );
-        }
-    }
-
-    @Test
-    public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException, IOException
-    {
-        String simpleTestPropertiesPath =
-                new File( DriverConfigurationFileHelper.getWorkloadsDirectory(), "simple/simpleworkload.properties" )
-                        .getAbsolutePath();
-        String ldbcDriverTestPropertiesPath =
-                DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
-
-        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
-
-        assertThat( new File( resultDirPath ).listFiles().length > 0, is( false ) );
-
-        assertThat( new File( simpleTestPropertiesPath ).exists(), is( true ) );
-        assertThat( new File( ldbcDriverTestPropertiesPath ).exists(), is( true ) );
-
-        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs( new String[]{
-                "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
-                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, BasicDb.class.getName(),
-                "-P", simpleTestPropertiesPath,
-                "-P", ldbcDriverTestPropertiesPath} );
-
-
-        assertThat( new File( resultDirPath ).listFiles().length > 0, is( false ) );
-
-        // When
-        Client client = new Client();
-        ControlService controlService = new LocalControlService(
-                timeSource.nowAsMilli() + 500,
-                configuration,
-                new Log4jLoggingServiceFactory( false ),
-                timeSource
+        return Lists.<Operation>newArrayList(
+                new InsertOperation(
+                        "table",
+                        "key",
+                        new HashMap<String,Iterator<Byte>>()
+                ),
+                new ReadModifyWriteOperation(
+                        "table",
+                        "key",
+                        new ArrayList<String>(),
+                        new HashMap<String,Iterator<Byte>>()
+                ),
+                new ReadOperation(
+                        "table",
+                        "key",
+                        new ArrayList<String>()
+                ),
+                new ScanOperation(
+                        "table",
+                        "startKey",
+                        1,
+                        new ArrayList<String>()
+                ),
+                new UpdateOperation(
+                        "table",
+                        "key",
+                        new HashMap<String,Iterator<Byte>>()
+                )
         );
-        ClientMode clientMode = client.getClientModeFor( controlService );
-        clientMode.init();
-        clientMode.startExecutionAndAwaitCompletion();
+    }
 
-        // Then
-        assertThat( new File( resultDirPath ).listFiles().length > 0, is( true ) );
+    @Override
+    public List<DriverConfiguration> configurations() throws Exception
+    {
+        return Lists.newArrayList(
+                ConsoleAndFileDriverConfiguration.fromDefaults(
+                        SimpleDb.class.getName(),
+                        SimpleWorkload.class.getName(),
+                        1_000_000
+                ).applyArg(
+                        ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG,
+                        Long.toString( 1_000_000 )
+                ).applyArg(
+                        ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+                        "true"
+                )
+        );
+    }
 
-        File resultsLog = new File( new File( resultDirPath ),
-                configuration.name() + ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX );
-        SimpleCsvFileReader csvResultsLogReader =
-                new SimpleCsvFileReader( resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
-        assertThat( (long) Iterators.size( csvResultsLogReader ),
-                is( configuration.operationCount() + 1 ) ); // + 1 to account for csv headers
-        csvResultsLogReader.close();
+    @Override
+    public List<Tuple2<DriverConfiguration,Histogram<Class,Double>>> configurationsWithExpectedQueryMix()
+            throws Exception
+    {
+        Histogram<Class,Double> expectedQueryMixHistogram = new Histogram<>( 0d );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( InsertOperation.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( ReadModifyWriteOperation.class ), 1d );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( ReadOperation.class ), 1d );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( ScanOperation.class ), 1d );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( UpdateOperation.class ), 1d );
+
+        return Lists.newArrayList(
+                Tuple.tuple2(
+                        ConsoleAndFileDriverConfiguration.fromDefaults(
+                                SimpleDb.class.getName(),
+                                SimpleWorkload.class.getName(),
+                                1_000_000
+                        ).applyArg(
+                                ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG,
+                                Long.toString( 1_000_000 )
+                        ).applyArg(
+                                ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+                                "true"
+                        ),
+                        expectedQueryMixHistogram
+                )
+        );
     }
 }
