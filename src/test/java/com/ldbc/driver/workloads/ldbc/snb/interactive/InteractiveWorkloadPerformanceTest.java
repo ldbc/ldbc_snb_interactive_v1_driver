@@ -264,8 +264,8 @@ public class InteractiveWorkloadPerformanceTest
         try
         {
             Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
-//            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
-//            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+//            Map<String, String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultWriteOnlyConfig();
+//            Map<String, String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultReadOnlyConfig();
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY, parametersDir );
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, updateStreamsDir );
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_STREAM_PARSER,

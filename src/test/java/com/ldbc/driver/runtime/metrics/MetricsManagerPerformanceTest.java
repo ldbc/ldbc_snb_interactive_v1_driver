@@ -782,7 +782,7 @@ public class MetricsManagerPerformanceTest
 //                timeUnit,
 //                highestExpectedRuntimeDurationAsNano,
 //                null,
-//                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
+//                LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping()
 //        );
 
         MetricsService metricsService = new DisruptorSbeMetricsService(
@@ -802,7 +802,7 @@ public class MetricsManagerPerformanceTest
 //                timeUnit,
 //                highestExpectedRuntimeDurationAsNano,
 //                null,
-//                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
+//                LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping()
 //        );
 
         for ( int i = 0; i < threadCount; i++ )
