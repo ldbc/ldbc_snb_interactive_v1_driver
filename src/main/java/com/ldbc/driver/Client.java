@@ -6,7 +6,6 @@ import com.ldbc.driver.client.CreateValidationParamsMode;
 import com.ldbc.driver.client.ExecuteWorkloadMode;
 import com.ldbc.driver.client.PrintHelpMode;
 import com.ldbc.driver.client.ValidateDatabaseMode;
-import com.ldbc.driver.client.ValidateWorkloadMode;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfiguration;
@@ -123,25 +122,6 @@ public class Client
                 throw new ClientException( format( "Missing required parameters: %s", missingParams.toString() ) );
             }
             return new ValidateDatabaseMode( controlService );
-        }
-        else if ( controlService.configuration().validateWorkload() )
-        {
-            // Validate Workload
-            DriverConfiguration configuration = controlService.configuration();
-            List<String> missingParams = new ArrayList<>();
-            if ( null == configuration.workloadClassName() )
-            {
-                missingParams.add( ConsoleAndFileDriverConfiguration.WORKLOAD_ARG );
-            }
-            if ( 0 == configuration.operationCount() )
-            {
-                missingParams.add( ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG );
-            }
-            if ( false == missingParams.isEmpty() )
-            {
-                throw new ClientException( format( "Missing required parameters: %s", missingParams.toString() ) );
-            }
-            return new ValidateWorkloadMode( controlService );
         }
         else if ( controlService.configuration().calculateWorkloadStatistics() )
         {

@@ -116,7 +116,6 @@ public class InteractiveWorkloadPerformanceTest
             Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
-            boolean validateWorkload = false;
             boolean calculateWorkloadStatistics = false;
             long spinnerSleepDuration = 0;
             boolean printHelp = false;
@@ -138,7 +137,6 @@ public class InteractiveWorkloadPerformanceTest
                     peerIds,
                     validationParams,
                     dbValidationFilePath,
-                    validateWorkload,
                     calculateWorkloadStatistics,
                     spinnerSleepDuration,
                     printHelp,
@@ -283,7 +281,6 @@ public class InteractiveWorkloadPerformanceTest
             Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
-            boolean validateWorkload = false;
             // TODO should be false
             boolean calculateWorkloadStatistics = true;
             long spinnerSleepDuration = 0;
@@ -307,7 +304,6 @@ public class InteractiveWorkloadPerformanceTest
                     peerIds,
                     validationParams,
                     dbValidationFilePath,
-                    validateWorkload,
                     calculateWorkloadStatistics,
                     spinnerSleepDuration,
                     printHelp,

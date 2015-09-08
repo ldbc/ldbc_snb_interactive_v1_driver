@@ -30,8 +30,6 @@ public interface DriverConfiguration
 
     String databaseValidationFilePath();
 
-    boolean validateWorkload();
-
     boolean calculateWorkloadStatistics();
 
     long spinnerSleepDurationAsMilli();

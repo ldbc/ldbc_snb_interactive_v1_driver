@@ -10,7 +10,6 @@ import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.client.ClientMode;
-import com.ldbc.driver.client.ValidateWorkloadMode;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfigurationException;
@@ -24,16 +23,13 @@ import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsService;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.validation.WorkloadValidationResult;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -43,7 +39,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 public class SimpleWorkloadTest
@@ -69,7 +64,6 @@ public class SimpleWorkloadTest
         Set<String> peerIds = new HashSet<>();
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
-        boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
@@ -92,7 +86,6 @@ public class SimpleWorkloadTest
                         peerIds,
                         validationParams,
                         dbValidationFilePath,
-                        validateWorkload,
                         calculateWorkloadStatistics,
                         spinnerSleepDuration,
                         printHelp,
@@ -133,7 +126,6 @@ public class SimpleWorkloadTest
         Set<String> peerIds = new HashSet<>();
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
-        boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
@@ -156,7 +148,6 @@ public class SimpleWorkloadTest
                         peerIds,
                         validationParams,
                         dbValidationFilePath,
-                        validateWorkload,
                         calculateWorkloadStatistics,
                         spinnerSleepDuration,
                         printHelp,
@@ -213,76 +204,6 @@ public class SimpleWorkloadTest
         workload.close();
     }
 
-    // TODO operation & operation result serialization/marshalling
-    @Ignore
-    @Test
-    public void shouldPassWorkloadValidation() throws WorkloadException, ClientException
-    {
-        // Given
-        Map<String,String> paramsMap = new HashMap<>();
-        String name = null;
-        String dbClassName = BasicDb.class.getName();
-        String workloadClassName = SimpleWorkload.class.getName();
-        long operationCount = 1000;
-        int threadCount = 1;
-        int statusDisplayInterval = 1000;
-        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultDirPath = null;
-        Double timeCompressionRatio = 1.0;
-        Set<String> peerIds = new HashSet<>();
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
-        String dbValidationFilePath = null;
-        boolean validateWorkload = true;
-        boolean calculateWorkloadStatistics = false;
-        long spinnerSleepDuration = 0l;
-        boolean printHelp = false;
-        boolean ignoreScheduledStartTimes = false;
-        boolean shouldCreateResultsLog = true;
-        long warmupCount = 100;
-
-        ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
-                paramsMap,
-                name,
-                dbClassName,
-                workloadClassName,
-                operationCount,
-                threadCount,
-                statusDisplayInterval,
-                timeUnit,
-                resultDirPath,
-                timeCompressionRatio,
-                peerIds,
-                validationParams,
-                dbValidationFilePath,
-                validateWorkload,
-                calculateWorkloadStatistics,
-                spinnerSleepDuration,
-                printHelp,
-                ignoreScheduledStartTimes,
-                shouldCreateResultsLog,
-                warmupCount
-        );
-
-        Workload workload = new SimpleWorkload();
-        workload.init( configuration );
-
-        // When
-        Client client = new Client();
-        ControlService controlService = new LocalControlService(
-                timeSource.nowAsMilli() + 500,
-                configuration,
-                new Log4jLoggingServiceFactory( false ),
-                timeSource
-        );
-        ValidateWorkloadMode clientMode = (ValidateWorkloadMode) client.getClientModeFor( controlService );
-        clientMode.init();
-        WorkloadValidationResult workloadValidationResult = clientMode.startExecutionAndAwaitCompletion();
-
-        // Then
-        assertThat( workloadValidationResult.errorMessage(), workloadValidationResult, is( notNullValue() ) );
-        assertThat( workloadValidationResult.errorMessage(), workloadValidationResult.isSuccessful(), is( true ) );
-    }
-
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories()
             throws ClientException, DriverConfigurationException, WorkloadException
@@ -300,7 +221,6 @@ public class SimpleWorkloadTest
         Set<String> peerIds = new HashSet<>();
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
-        boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
@@ -323,7 +243,6 @@ public class SimpleWorkloadTest
                         peerIds,
                         validationParams,
                         dbValidationFilePath,
-                        validateWorkload,
                         calculateWorkloadStatistics,
                         spinnerSleepDuration,
                         printHelp,

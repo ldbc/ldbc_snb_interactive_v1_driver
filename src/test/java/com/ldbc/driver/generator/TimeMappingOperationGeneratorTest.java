@@ -359,7 +359,6 @@ public class TimeMappingOperationGeneratorTest
         Set<String> peerIds = new HashSet<>();
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
-        boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
@@ -381,7 +380,6 @@ public class TimeMappingOperationGeneratorTest
                 peerIds,
                 validationParams,
                 dbValidationFilePath,
-                validateWorkload,
                 calculateWorkloadStatistics,
                 spinnerSleepDuration,
                 printHelp,

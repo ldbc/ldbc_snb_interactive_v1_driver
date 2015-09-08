@@ -124,13 +124,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private static final String CREATE_VALIDATION_PARAMS_DESCRIPTION =
             "path to where validation parameters file should be created, and size of validation set to create";
 
-    public static final String VALIDATE_WORKLOAD_ARG = "vw";
-    private static final String VALIDATE_WORKLOAD_ARG_LONG = "validate_workload";
-    public static final boolean VALIDATE_WORKLOAD_DEFAULT = false;
-    public static final String VALIDATE_WORKLOAD_DEFAULT_STRING = Boolean.toString( VALIDATE_WORKLOAD_DEFAULT );
-    private static final String VALIDATE_WORKLOAD_DESCRIPTION =
-            "validate that provided workload implementation is correct";
-
     public static final String CALCULATE_WORKLOAD_STATISTICS_ARG = "stats";
     private static final String CALCULATE_WORKLOAD_STATISTICS_ARG_LONG = "workload_statistics";
     public static final boolean CALCULATE_WORKLOAD_STATISTICS_DEFAULT = false;
@@ -214,7 +207,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             defaultParamsMap
                     .put( CREATE_VALIDATION_PARAMS_ARG, CREATE_VALIDATION_PARAMS_DEFAULT.toCommandlineString() );
         }
-        defaultParamsMap.put( VALIDATE_WORKLOAD_ARG, VALIDATE_WORKLOAD_DEFAULT_STRING );
         defaultParamsMap.put( CALCULATE_WORKLOAD_STATISTICS_ARG, CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING );
         defaultParamsMap.put( TIME_UNIT_ARG, TIME_UNIT_DEFAULT_STRING );
         defaultParamsMap.put( TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT_STRING );
@@ -243,7 +235,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         }
     }
 
-    public static ConsoleAndFileDriverConfiguration fromDefaults( String databaseClassName,
+    public static ConsoleAndFileDriverConfiguration fromDefaults(
+            String databaseClassName,
             String workloadClassName,
             long operationCount ) throws DriverConfigurationException
     {
@@ -292,7 +285,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     ConsoleAndFileValidationParamOptions
                             .fromCommandlineString( paramsMap.get( CREATE_VALIDATION_PARAMS_ARG ) );
             String databaseValidationFilePath = paramsMap.get( DB_VALIDATION_FILE_PATH_ARG );
-            boolean validateWorkload = Boolean.parseBoolean( paramsMap.get( VALIDATE_WORKLOAD_ARG ) );
             boolean calculateWorkloadStatistics =
                     Boolean.parseBoolean( paramsMap.get( CALCULATE_WORKLOAD_STATISTICS_ARG ) );
             long spinnerSleepDurationAsMilli = Long.parseLong( paramsMap.get( SPINNER_SLEEP_DURATION_ARG ) );
@@ -315,7 +307,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     peerIds,
                     databaseConsoleAndFileValidationParams,
                     databaseValidationFilePath,
-                    validateWorkload,
                     calculateWorkloadStatistics,
                     spinnerSleepDurationAsMilli,
                     printHelp,
@@ -418,11 +409,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         if ( cmd.hasOption( DB_VALIDATION_FILE_PATH_ARG ) )
         {
             cmdParams.put( DB_VALIDATION_FILE_PATH_ARG, cmd.getOptionValue( DB_VALIDATION_FILE_PATH_ARG ) );
-        }
-
-        if ( cmd.hasOption( VALIDATE_WORKLOAD_ARG ) )
-        {
-            cmdParams.put( VALIDATE_WORKLOAD_ARG, Boolean.toString( true ) );
         }
 
         if ( cmd.hasOption( CALCULATE_WORKLOAD_STATISTICS_ARG ) )
@@ -529,7 +515,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         paramsMap = replaceKey( paramsMap, PEER_IDS_ARG_LONG, PEER_IDS_ARG );
         paramsMap = replaceKey( paramsMap, CREATE_VALIDATION_PARAMS_ARG_LONG, CREATE_VALIDATION_PARAMS_ARG );
         paramsMap = replaceKey( paramsMap, DB_VALIDATION_FILE_PATH_ARG_LONG, DB_VALIDATION_FILE_PATH_ARG );
-        paramsMap = replaceKey( paramsMap, VALIDATE_WORKLOAD_ARG_LONG, VALIDATE_WORKLOAD_ARG );
         paramsMap = replaceKey( paramsMap, CALCULATE_WORKLOAD_STATISTICS_ARG_LONG, CALCULATE_WORKLOAD_STATISTICS_ARG );
         paramsMap = replaceKey( paramsMap, SPINNER_SLEEP_DURATION_ARG_LONG, SPINNER_SLEEP_DURATION_ARG );
         paramsMap = replaceKey( paramsMap, WARMUP_COUNT_ARG_LONG, WARMUP_COUNT_ARG );
@@ -622,10 +607,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                         .withLongOpt(
                                 DB_VALIDATION_FILE_PATH_ARG_LONG ).create( DB_VALIDATION_FILE_PATH_ARG );
         options.addOption( databaseValidationFilePathOption );
-
-        Option validateWorkloadOption = OptionBuilder.withDescription( VALIDATE_WORKLOAD_DESCRIPTION ).withLongOpt(
-                VALIDATE_WORKLOAD_ARG_LONG ).create( VALIDATE_WORKLOAD_ARG );
-        options.addOption( validateWorkloadOption );
 
         Option calculateWorkloadStatisticsOption =
                 OptionBuilder.withDescription( CALCULATE_WORKLOAD_STATISTICS_DESCRIPTION ).withLongOpt(
@@ -723,7 +704,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 PEER_IDS_ARG,
                 CREATE_VALIDATION_PARAMS_ARG,
                 DB_VALIDATION_FILE_PATH_ARG,
-                VALIDATE_WORKLOAD_ARG,
                 CALCULATE_WORKLOAD_STATISTICS_ARG,
                 SPINNER_SLEEP_DURATION_ARG,
                 HELP_ARG,
@@ -766,7 +746,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private final Set<String> peerIds;
     private final ConsoleAndFileValidationParamOptions validationCreationParams;
     private final String databaseValidationFilePath;
-    private final boolean validateWorkload;
     private final boolean calculateWorkloadStatistics;
     private final long spinnerSleepDurationAsMilli;
     private final boolean printHelp;
@@ -787,7 +766,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             Set<String> peerIds,
             ConsoleAndFileValidationParamOptions validationCreationParams,
             String databaseValidationFilePath,
-            boolean validateWorkload,
             boolean calculateWorkloadStatistics,
             long spinnerSleepDurationAsMilli,
             boolean printHelp,
@@ -812,7 +790,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         this.peerIds = peerIds;
         this.validationCreationParams = validationCreationParams;
         this.databaseValidationFilePath = databaseValidationFilePath;
-        this.validateWorkload = validateWorkload;
         this.calculateWorkloadStatistics = calculateWorkloadStatistics;
         this.spinnerSleepDurationAsMilli = spinnerSleepDurationAsMilli;
         this.printHelp = printHelp;
@@ -850,7 +827,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         {
             paramsMap.put( DB_VALIDATION_FILE_PATH_ARG, databaseValidationFilePath );
         }
-        paramsMap.put( VALIDATE_WORKLOAD_ARG, Boolean.toString( validateWorkload ) );
         paramsMap.put( CALCULATE_WORKLOAD_STATISTICS_ARG, Boolean.toString( calculateWorkloadStatistics ) );
         paramsMap.put( SPINNER_SLEEP_DURATION_ARG, Long.toString( spinnerSleepDurationAsMilli ) );
         paramsMap.put( HELP_ARG, Boolean.toString( printHelp ) );
@@ -936,12 +912,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     public String databaseValidationFilePath()
     {
         return databaseValidationFilePath;
-    }
-
-    @Override
-    public boolean validateWorkload()
-    {
-        return validateWorkload;
     }
 
     @Override
@@ -1084,9 +1054,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         String newDatabaseValidationFilePath = (newParamsMapWithShortKeys.containsKey( DB_VALIDATION_FILE_PATH_ARG )) ?
                                                newParamsMapWithShortKeys.get( DB_VALIDATION_FILE_PATH_ARG ) :
                                                databaseValidationFilePath;
-        boolean newValidateWorkload = (newParamsMapWithShortKeys.containsKey( VALIDATE_WORKLOAD_ARG )) ?
-                                      Boolean.parseBoolean( newParamsMapWithShortKeys.get( VALIDATE_WORKLOAD_ARG ) ) :
-                                      validateWorkload;
         boolean newCalculateWorkloadStatistics =
                 (newParamsMapWithShortKeys.containsKey( CALCULATE_WORKLOAD_STATISTICS_ARG )) ?
                 Boolean.parseBoolean( newParamsMapWithShortKeys.get( CALCULATE_WORKLOAD_STATISTICS_ARG ) ) :
@@ -1123,7 +1090,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 newPeerIds,
                 newValidationParams,
                 newDatabaseValidationFilePath,
-                newValidateWorkload,
                 newCalculateWorkloadStatistics,
                 newSpinnerSleepDurationAsMilli,
                 newPrintHelp,
@@ -1177,10 +1143,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         {
             argsList.addAll( Lists.newArrayList( "-" + CREATE_VALIDATION_PARAMS_ARG,
                     validationCreationParams.toCommandlineString() ) );
-        }
-        if ( validateWorkload )
-        {
-            argsList.add( "-" + VALIDATE_WORKLOAD_ARG );
         }
         if ( calculateWorkloadStatistics )
         {
@@ -1327,12 +1289,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     .append( validationCreationParams.toCommandlineString() ).append( "\n" );
         }
         sb.append( "\n" );
-        sb.append( "# enable validation that will check if the provided workload implementation is correct\n" );
-        sb.append( "# BOOLEAN\n" );
-        sb.append( "# COMMAND: " ).append( "-" ).append( VALIDATE_WORKLOAD_ARG ).append( "/--" )
-                .append( VALIDATE_WORKLOAD_ARG_LONG ).append( "\n" );
-        sb.append( VALIDATE_WORKLOAD_ARG_LONG ).append( "=" ).append( validateWorkload ).append( "\n" );
-        sb.append( "\n" );
         sb.append( "# calculate & display workload statistics (operation mix, etc.)\n" );
         sb.append( "# BOOLEAN\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( CALCULATE_WORKLOAD_STATISTICS_ARG ).append( "/--" )
@@ -1461,8 +1417,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 .append( validationCreationParamsString ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Database Validation File:" ) )
                 .append( databaseValidationFilePath ).append( "\n" );
-        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Validate Workload:" ) )
-                .append( validateWorkload ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Calculate Workload Statistics:" ) )
                 .append( calculateWorkloadStatistics ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Spinner Sleep Duration:" ) )
@@ -1532,10 +1486,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         {
             return false;
         }
-        if ( validateWorkload != that.validateWorkload )
-        {
-            return false;
-        }
         if ( databaseValidationFilePath != null ? !databaseValidationFilePath.equals( that.databaseValidationFilePath )
                                                 : that.databaseValidationFilePath != null )
         {
@@ -1602,7 +1552,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         result = 31 * result + (peerIds != null ? peerIds.hashCode() : 0);
         result = 31 * result + (validationCreationParams != null ? validationCreationParams.hashCode() : 0);
         result = 31 * result + (databaseValidationFilePath != null ? databaseValidationFilePath.hashCode() : 0);
-        result = 31 * result + (validateWorkload ? 1 : 0);
         result = 31 * result + (calculateWorkloadStatistics ? 1 : 0);
         result = 31 * result + (int) (spinnerSleepDurationAsMilli ^ (spinnerSleepDurationAsMilli >>> 32));
         result = 31 * result + (printHelp ? 1 : 0);
