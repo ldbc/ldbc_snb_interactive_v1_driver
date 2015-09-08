@@ -19,12 +19,12 @@ public class InteractiveOperationResultEqualityTest
         int friendDistance1 = 1;
         long friendBirthday1 = 1;
         long friendCreationDate1 = 1;
-        String friendGender1 = "ᚠ";
-        String friendBrowserUsed1 = "ᚠ";
-        String friendLocationIp1 = "ᚠ";
+        String friendGender1 = "\u16a0";
+        String friendBrowserUsed1 = "\u16a0";
+        String friendLocationIp1 = "\u16a0";
         Iterable<String> friendEmails1 = Lists.newArrayList("1a", "1b");
         Iterable<String> friendLanguages1 = Lists.newArrayList("1a", "1b");
-        String friendCityName1 = "ᚠ";
+        String friendCityName1 = "\u16a0";
         Iterable<List<Object>> friendUniversities1 = Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("1a", "1b", "1c"), Lists.<Object>newArrayList("1d", "1e", "1f"));
         Iterable<List<Object>> friendCompanies1 = Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("1a", 1, "1c"), Lists.<Object>newArrayList("1d", 2, "1f"));
 
@@ -33,12 +33,12 @@ public class InteractiveOperationResultEqualityTest
         int friendDistance2 = 2;
         long friendBirthday2 = 2;
         long friendCreationDate2 = 2;
-        String friendGender2 = "さ";
-        String friendBrowserUsed2 = "さ";
-        String friendLocationIp2 = "さ";
+        String friendGender2 = "\u3055";
+        String friendBrowserUsed2 = "\u3055";
+        String friendLocationIp2 = "\u3055";
         Iterable<String> friendEmails2 = Lists.newArrayList("2a", "2b");
         Iterable<String> friendLanguages2 = Lists.newArrayList("2a", "2b");
-        String friendCityName2 = "さ";
+        String friendCityName2 = "\u3055";
         Iterable<List<Object>> friendUniversities2 = Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("2a", "2b", "2c"), Lists.<Object>newArrayList("2d", "2e", "2f"));
         Iterable<List<Object>> friendCompanies2 = Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("2a", "2b", "2c"), Lists.<Object>newArrayList("2d", "2e", "2f"));
 
@@ -133,17 +133,17 @@ public class InteractiveOperationResultEqualityTest
     @Test
     public void ldbcQuery2ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "ᚠ";
-        String personLastName1 = "ᚠ";
+        String personFirstName1 = "\u16a0";
+        String personLastName1 = "\u16a0";
         long postOrCommentId1 = 1;
-        String postOrCommentContent1 = "ᚠ";
+        String postOrCommentContent1 = "\u16a0";
         long postOrCommentCreationDate1 = 1;
 
         long personId2 = 2;
-        String personFirstName2 = "さ";
-        String personLastName2 = "さ";
+        String personFirstName2 = "\u3055";
+        String personLastName2 = "\u3055";
         long postOrCommentId2 = 2;
-        String postOrCommentContent2 = "さ";
+        String postOrCommentContent2 = "\u3055";
         long postOrCommentCreationDate2 = 2;
 
         LdbcQuery2Result result1a = new LdbcQuery2Result(personId1, personFirstName1, personLastName1, postOrCommentId1, postOrCommentContent1, postOrCommentCreationDate1);
@@ -160,8 +160,8 @@ public class InteractiveOperationResultEqualityTest
     @Test
     public void ldbcQuery3ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
         int xCount1 = 4;
         int yCount1 = 5;
         int count1 = 6;
@@ -186,10 +186,10 @@ public class InteractiveOperationResultEqualityTest
 
     @Test
     public void ldbcQuery4ResultShouldDoEqualsCorrectly() {
-        String tagName1 = "ᚠ";
+        String tagName1 = "\u16a0";
         int tagCount1 = 2;
 
-        String tagName2 = "丵";
+        String tagName2 = "\u4e35";
         int tagCount2 = 4;
 
         LdbcQuery4Result result1a = new LdbcQuery4Result(tagName1, tagCount1);
@@ -205,10 +205,10 @@ public class InteractiveOperationResultEqualityTest
 
     @Test
     public void ldbcQuery5ResultShouldDoEqualsCorrectly() {
-        String forumTitle1 = "ᚠ";
+        String forumTitle1 = "\u16a0";
         int postCount1 = 2;
 
-        String forumTitle2 = "丵";
+        String forumTitle2 = "\u4e35";
         int postCount2 = 4;
 
         LdbcQuery5Result result1a = new LdbcQuery5Result(forumTitle1, postCount1);
@@ -224,10 +224,10 @@ public class InteractiveOperationResultEqualityTest
 
     @Test
     public void ldbcQuery6ResultShouldDoEqualsCorrectly() {
-        String tagName1 = "ᚠ";
+        String tagName1 = "\u16a0";
         int tagCount1 = 2;
 
-        String tagName2 = "丵";
+        String tagName2 = "\u4e35";
         int tagCount2 = 4;
 
         LdbcQuery6Result result1a = new LdbcQuery6Result(tagName1, tagCount1);
@@ -244,8 +244,8 @@ public class InteractiveOperationResultEqualityTest
     @Test
     public void ldbcQuery7ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
         long likeCreationDate1 = 4;
         long commentOrPostId1 = 5;
         String commentOrPostContent1 = "6";
@@ -275,8 +275,8 @@ public class InteractiveOperationResultEqualityTest
     @Test
     public void ldbcQuery8ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
         long commentCreationDate1 = 4;
         long commentId1 = 5;
         String commentContent1 = "6";
@@ -302,10 +302,10 @@ public class InteractiveOperationResultEqualityTest
     @Test
     public void ldbcQuery9ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
         long commentOrPostId1 = 4;
-        String commentOrPostContent1 = "ش";
+        String commentOrPostContent1 = "\u0634";
         long commentOrPostCreationDate1 = 6;
 
         long personId2 = 7;
@@ -329,10 +329,10 @@ public class InteractiveOperationResultEqualityTest
     @Test
     public void ldbcQuery10ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
         int commonInterestScore1 = 4;
-        String personGender1 = "ش";
+        String personGender1 = "\u0634";
         String personCityName1 = "6";
 
         long personId2 = 7;
@@ -356,9 +356,9 @@ public class InteractiveOperationResultEqualityTest
     @Test
     public void ldbcQuery11ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
-        String organizationName1 = "פ";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
+        String organizationName1 = "\u05e4";
         int organizationWorkFromYear1 = 5;
 
         long personId2 = 6;
@@ -381,9 +381,9 @@ public class InteractiveOperationResultEqualityTest
     @Test
     public void ldbcQuery12ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
-        Iterable<String> tagNames1 = Lists.newArrayList("פ", "ش");
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
+        Iterable<String> tagNames1 = Lists.newArrayList("\u05e4", "\u0634");
         int replyCount1 = 1;
 
         long personId2 = 6;
@@ -393,7 +393,7 @@ public class InteractiveOperationResultEqualityTest
         int replyCount2 = 11;
 
         LdbcQuery12Result result1a = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, tagNames1, replyCount1);
-        LdbcQuery12Result result1b = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, Lists.newArrayList("ش", "פ"), replyCount1);
+        LdbcQuery12Result result1b = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, Lists.newArrayList("\u0634", "\u05e4"), replyCount1);
         LdbcQuery12Result result2a = new LdbcQuery12Result(personId2, personFirstName2, personLastName2, tagNames2, replyCount2);
         LdbcQuery12Result result3a = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, tagNames1, replyCount2);
         LdbcQuery12Result result4a = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, null, replyCount1);

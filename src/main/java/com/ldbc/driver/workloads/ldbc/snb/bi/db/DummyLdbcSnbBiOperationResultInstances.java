@@ -39,7 +39,7 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery2Result read2Result()
     {
-        return new LdbcSnbBiQuery2Result( "ᚠ", 1, "さ", "丵", 2 );
+        return new LdbcSnbBiQuery2Result( "\u16a0", 1, "\u3055", "\u4e35", 2 );
     }
 
     public static LdbcSnbBiQuery3Result read3Result()
@@ -49,12 +49,12 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery4Result read4Result()
     {
-        return new LdbcSnbBiQuery4Result( 1, "ᚠ", Long.MAX_VALUE, Long.MIN_VALUE, 2 );
+        return new LdbcSnbBiQuery4Result( 1, "\u16a0", Long.MAX_VALUE, Long.MIN_VALUE, 2 );
     }
 
     public static LdbcSnbBiQuery5Result read5Result()
     {
-        return new LdbcSnbBiQuery5Result( 1, "ش", "ᚠ", 2, 3 );
+        return new LdbcSnbBiQuery5Result( 1, "\u0634", "\u16a0", 2, 3 );
     }
 
     public static LdbcSnbBiQuery6Result read6Result()
@@ -69,12 +69,12 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery8Result read8Result()
     {
-        return new LdbcSnbBiQuery8Result( "丵", 2 );
+        return new LdbcSnbBiQuery8Result( "\u4e35", 2 );
     }
 
     public static LdbcSnbBiQuery9Result read9Result()
     {
-        return new LdbcSnbBiQuery9Result( "さ", 1, 2 );
+        return new LdbcSnbBiQuery9Result( "\u3055", 1, 2 );
     }
 
     public static LdbcSnbBiQuery10Result read10Result()
@@ -84,12 +84,12 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery11Result read11Result()
     {
-        return new LdbcSnbBiQuery11Result( 1, "ᚠ", 2, 3 );
+        return new LdbcSnbBiQuery11Result( 1, "\u16a0", 2, 3 );
     }
 
     public static LdbcSnbBiQuery12Result read12Result()
     {
-        return new LdbcSnbBiQuery12Result( 1, "ᚠ", "さ", 2, 3 );
+        return new LdbcSnbBiQuery12Result( 1, "\u16a0", "\u3055", 2, 3 );
     }
 
     public static LdbcSnbBiQuery13Result read13Result()
@@ -129,7 +129,7 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery20Result read20Result()
     {
-        return new LdbcSnbBiQuery20Result( "ᚠ", 1 );
+        return new LdbcSnbBiQuery20Result( "\u16a0", 1 );
     }
 
     public static LdbcSnbBiQuery21Result read21Result()
@@ -144,7 +144,7 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery23Result read23Result()
     {
-        return new LdbcSnbBiQuery23Result( "さ", 2, 3 );
+        return new LdbcSnbBiQuery23Result( "\u3055", 2, 3 );
     }
 
     public static LdbcSnbBiQuery24Result read24Result()

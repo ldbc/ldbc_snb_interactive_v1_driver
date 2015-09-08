@@ -74,13 +74,13 @@ public class BiOperationResultEqualityTest
     @Test
     public void ldbcQuery2ResultShouldDoEqualsCorrectly()
     {
-        String country1 = "さ";
+        String country1 = "\u3055";
         int month1 = 1;
         String gender1 = "gender1";
-        String tag1 = "丵";
+        String tag1 = "\u4e35";
         int count1 = 2;
 
-        String country2 = "ᚠ";
+        String country2 = "\u16a0";
         int month2 = 3;
         String gender2 = "gender2";
         String tag2 = "tag";
@@ -124,12 +124,12 @@ public class BiOperationResultEqualityTest
     @Test
     public void ldbcQuery3ResultShouldDoEqualsCorrectly()
     {
-        String tag1 = "さ";
+        String tag1 = "\u3055";
         int countA1 = 1;
         int countB1 = 2;
         int difference1 = 3;
 
-        String tag2 = "丵";
+        String tag2 = "\u4e35";
         int countA2 = 4;
         int countB2 = 5;
         int difference2 = 6;
@@ -169,13 +169,13 @@ public class BiOperationResultEqualityTest
     public void ldbcQuery4ResultShouldDoEqualsCorrectly()
     {
         long forumId1 = Long.MAX_VALUE;
-        String title1 = "さ";
+        String title1 = "\u3055";
         long creationDate1 = Long.MIN_VALUE;
         long moderator1 = 1;
         int count1 = 2;
 
         long forumId2 = 3;
-        String title2 = "丵";
+        String title2 = "\u4e35";
         long creationDate2 = 4;
         long moderator2 = 5;
         int count2 = 6;
@@ -219,8 +219,8 @@ public class BiOperationResultEqualityTest
     public void ldbcQuery5ResultShouldDoEqualsCorrectly()
     {
         long personId1 = 1;
-        String firstName1 = "さ";
-        String lastName1 = "丵";
+        String firstName1 = "\u3055";
+        String lastName1 = "\u4e35";
         long createDate1 = 2;
         int count1 = Integer.MAX_VALUE;
 
@@ -350,10 +350,10 @@ public class BiOperationResultEqualityTest
     @Test
     public void ldbcQuery8ResultShouldDoEqualsCorrectly()
     {
-        String tag1 = "さ";
+        String tag1 = "\u3055";
         int count1 = 1;
 
-        String tag2 = "丵";
+        String tag2 = "\u4e35";
         int count2 = 2;
 
         LdbcSnbBiQuery8Result result1a = new LdbcSnbBiQuery8Result(
@@ -382,11 +382,11 @@ public class BiOperationResultEqualityTest
     @Test
     public void ldbcQuery9ResultShouldDoEqualsCorrectly()
     {
-        String forumTitle1 = "さ";
+        String forumTitle1 = "\u3055";
         int sumA1 = 1;
         int sumB1 = 2;
 
-        String forumTitle2 = "丵";
+        String forumTitle2 = "\u4e35";
         int sumA2 = 3;
         int sumB2 = 4;
 
@@ -453,12 +453,12 @@ public class BiOperationResultEqualityTest
     public void ldbcQuery11ResultShouldDoEqualsCorrectly()
     {
         long personId1 = 1;
-        String tag1 = "さ";
+        String tag1 = "\u3055";
         int likeCount1 = 2;
         int replyCount1 = 3;
 
         long personId2 = 4;
-        String tag2 = "丵";
+        String tag2 = "\u4e35";
         int likeCount2 = 5;
         int replyCount2 = 6;
 

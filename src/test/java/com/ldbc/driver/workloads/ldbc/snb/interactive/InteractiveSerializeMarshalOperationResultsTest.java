@@ -23,12 +23,12 @@ public class InteractiveSerializeMarshalOperationResultsTest
         int friendDistance1 = 2;
         long friendBirthday1 = 3;
         long friendCreationDate1 = 4;
-        String friendGender1 = "ش";
+        String friendGender1 = "\u0634";
         String friendBrowserUsed1 = "6";
         String friendLocationIp1 = "7";
         Iterable<String> friendEmails1 = Lists.newArrayList( "1a", "1b" );
         Iterable<String> friendLanguages1 = Lists.newArrayList( "1c", "1d" );
-        String friendCityName1 = "ᚠ";
+        String friendCityName1 = "\u16a0";
         Iterable<List<Object>> friendUniversities1 =
                 Lists.<List<Object>>newArrayList( Lists.<Object>newArrayList( "1e", "1f", "1g" ) );
         Iterable<List<Object>> friendCompanies1 =
@@ -69,10 +69,10 @@ public class InteractiveSerializeMarshalOperationResultsTest
         LdbcQuery2 operation = DummyLdbcSnbInteractiveOperationInstances.read2();
 
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
         long postOrCommentId1 = 4;
-        String postOrCommentContent1 = "ش";
+        String postOrCommentContent1 = "\u0634";
         long postOrCommentCreationDate1 = 6;
         List<LdbcQuery2Result> before = Lists.newArrayList( new LdbcQuery2Result(
                 personId1,
@@ -102,8 +102,8 @@ public class InteractiveSerializeMarshalOperationResultsTest
         LdbcQuery3 operation = DummyLdbcSnbInteractiveOperationInstances.read3();
 
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
         int xCount1 = 4;
         int yCount1 = 5;
         int count1 = 6;
@@ -133,7 +133,7 @@ public class InteractiveSerializeMarshalOperationResultsTest
         // Given
         LdbcQuery4 operation = DummyLdbcSnbInteractiveOperationInstances.read4();
 
-        String tagName1 = "ᚠ";
+        String tagName1 = "\u16a0";
         int tagCount1 = 2;
         List<LdbcQuery4Result> before = Lists.newArrayList( new LdbcQuery4Result(
                 tagName1,
@@ -158,7 +158,7 @@ public class InteractiveSerializeMarshalOperationResultsTest
         // Given
         LdbcQuery5 operation = DummyLdbcSnbInteractiveOperationInstances.read5();
 
-        String forumTitle1 = "ᚠ";
+        String forumTitle1 = "\u16a0";
         int postCount1 = 2;
         List<LdbcQuery5Result> before = Lists.newArrayList( new LdbcQuery5Result(
                 forumTitle1,
@@ -183,7 +183,7 @@ public class InteractiveSerializeMarshalOperationResultsTest
         // Given
         LdbcQuery6 operation = DummyLdbcSnbInteractiveOperationInstances.read6();
 
-        String tagName1 = "ᚠ";
+        String tagName1 = "\u16a0";
         int tagCount1 = 2;
         List<LdbcQuery6Result> before = Lists.newArrayList( new LdbcQuery6Result(
                 tagName1,
@@ -209,8 +209,8 @@ public class InteractiveSerializeMarshalOperationResultsTest
         LdbcQuery7 operation = DummyLdbcSnbInteractiveOperationInstances.read7();
 
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
         long likeCreationDate1 = 4;
         long commentOrPostId1 = 5;
         String commentOrPostContent1 = "6";
@@ -246,8 +246,8 @@ public class InteractiveSerializeMarshalOperationResultsTest
         LdbcQuery8 operation = DummyLdbcSnbInteractiveOperationInstances.read8();
 
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
         long commentCreationDate1 = 4;
         long commentId1 = 5;
         String commentContent1 = "6";
@@ -279,10 +279,10 @@ public class InteractiveSerializeMarshalOperationResultsTest
         LdbcQuery9 operation = DummyLdbcSnbInteractiveOperationInstances.read9();
 
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
         long commentOrPostId1 = 4;
-        String commentOrPostContent1 = "ش";
+        String commentOrPostContent1 = "\u0634";
         long commentOrPostCreationDate1 = 6;
         List<LdbcQuery9Result> before = Lists.newArrayList( new LdbcQuery9Result(
                 personId1,
@@ -312,11 +312,11 @@ public class InteractiveSerializeMarshalOperationResultsTest
         LdbcQuery10 operation = DummyLdbcSnbInteractiveOperationInstances.read10();
 
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
         int commonInterestScore1 = 10;
-        String personGender1 = "פ";
-        String personCityName1 = "ش";
+        String personGender1 = "\u05e4";
+        String personCityName1 = "\u0634";
         List<LdbcQuery10Result> before = Lists.newArrayList( new LdbcQuery10Result(
                 personId1,
                 personFirstName1,
@@ -345,9 +345,9 @@ public class InteractiveSerializeMarshalOperationResultsTest
         LdbcQuery11 operation = DummyLdbcSnbInteractiveOperationInstances.read11();
 
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
-        String organizationName1 = "פ";
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
+        String organizationName1 = "\u05e4";
         int organizationWorkFromYear1 = 5;
         List<LdbcQuery11Result> before = Lists.newArrayList( new LdbcQuery11Result(
                 personId1,
@@ -376,9 +376,9 @@ public class InteractiveSerializeMarshalOperationResultsTest
         LdbcQuery12 operation = DummyLdbcSnbInteractiveOperationInstances.read12();
 
         long personId1 = 1;
-        String personFirstName1 = "さ";
-        String personLastName1 = "丵";
-        Iterable<String> tagNames1 = Lists.newArrayList( "ش", "6" );
+        String personFirstName1 = "\u3055";
+        String personLastName1 = "\u4e35";
+        Iterable<String> tagNames1 = Lists.newArrayList( "\u0634", "6" );
         int replyCount1 = 7;
         List<LdbcQuery12Result> before = Lists.newArrayList( new LdbcQuery12Result(
                 personId1,

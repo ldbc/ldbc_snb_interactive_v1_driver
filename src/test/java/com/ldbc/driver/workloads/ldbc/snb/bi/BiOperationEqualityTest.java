@@ -86,11 +86,11 @@ public class BiOperationEqualityTest
     {
         // Given
         String tagClass1 = "1";
-        String country1 = "さ";
+        String country1 = "\u3055";
         int limit1 = 1;
 
         String tagClass2 = "2";
-        String country2 = "丵";
+        String country2 = "\u4e35";
         int limit2 = 2;
 
         // When
@@ -110,10 +110,10 @@ public class BiOperationEqualityTest
     public void ldbcQuery5ShouldDoEqualsCorrectly()
     {
         // Given
-        String country1 = "さ";
+        String country1 = "\u3055";
         int limit1 = 1;
 
-        String country2 = "丵";
+        String country2 = "\u4e35";
         int limit2 = 2;
 
         // When
@@ -133,10 +133,10 @@ public class BiOperationEqualityTest
     public void ldbcQuery6ShouldDoEqualsCorrectly()
     {
         // Given
-        String tag1 = "さ";
+        String tag1 = "\u3055";
         int limit1 = 1;
 
-        String tag2 = "丵";
+        String tag2 = "\u4e35";
         int limit2 = 2;
 
         // When
@@ -156,10 +156,10 @@ public class BiOperationEqualityTest
     public void ldbcQuery7ShouldDoEqualsCorrectly()
     {
         // Given
-        String tag1 = "さ";
+        String tag1 = "\u3055";
         int limit1 = 1;
 
-        String tag2 = "丵";
+        String tag2 = "\u4e35";
         int limit2 = 2;
 
         // When
@@ -179,10 +179,10 @@ public class BiOperationEqualityTest
     public void ldbcQuery8ShouldDoEqualsCorrectly()
     {
         // Given
-        String tag1 = "さ";
+        String tag1 = "\u3055";
         int limit1 = 1;
 
-        String tag2 = "丵";
+        String tag2 = "\u4e35";
         int limit2 = 2;
 
         // When
@@ -202,11 +202,11 @@ public class BiOperationEqualityTest
     public void ldbcQuery9ShouldDoEqualsCorrectly()
     {
         // Given
-        String tagClassA1 = "さ";
+        String tagClassA1 = "\u3055";
         String tagClassB1 = "1";
         int limit1 = 1;
 
-        String tagClassA2 = "丵";
+        String tagClassA2 = "\u4e35";
         String tagClassB2 = "2";
         int limit2 = 2;
 
@@ -227,10 +227,10 @@ public class BiOperationEqualityTest
     public void ldbcQuery10ShouldDoEqualsCorrectly()
     {
         // Given
-        String tag1 = "さ";
+        String tag1 = "\u3055";
         int limit1 = 1;
 
-        String tag2 = "丵";
+        String tag2 = "\u4e35";
         int limit2 = 2;
 
         // When
@@ -250,11 +250,11 @@ public class BiOperationEqualityTest
     public void ldbcQuery11ShouldDoEqualsCorrectly()
     {
         // Given
-        String keyWord1 = "さ";
-        String country1 = "ᚠ";
+        String keyWord1 = "\u3055";
+        String country1 = "\u16a0";
         int limit1 = 1;
 
-        String keyWord2 = "丵";
+        String keyWord2 = "\u4e35";
         String country2 = "tag";
         int limit2 = 2;
 
@@ -298,10 +298,10 @@ public class BiOperationEqualityTest
     public void ldbcQuery13ShouldDoEqualsCorrectly()
     {
         // Given
-        String country1 = "さ";
+        String country1 = "\u3055";
         int limit1 = 1;
 
-        String country2 = "丵";
+        String country2 = "\u4e35";
         int limit2 = 2;
 
         // When
@@ -344,10 +344,10 @@ public class BiOperationEqualityTest
     public void ldbcQuery15ShouldDoEqualsCorrectly()
     {
         // Given
-        String country1 = "さ";
+        String country1 = "\u3055";
         int limit1 = 1;
 
-        String country2 = "丵";
+        String country2 = "\u4e35";
         int limit2 = 2;
 
         // When
@@ -367,11 +367,11 @@ public class BiOperationEqualityTest
     public void ldbcQuery16ShouldDoEqualsCorrectly()
     {
         // Given
-        String tagClass1 = "さ";
-        String country1 = "ᚠ";
+        String tagClass1 = "\u3055";
+        String country1 = "\u16a0";
         int limit1 = 1;
 
-        String tagClass2 = "丵";
+        String tagClass2 = "\u4e35";
         String country2 = "tag";
         int limit2 = 2;
 
@@ -392,10 +392,10 @@ public class BiOperationEqualityTest
     public void ldbcQuery17ShouldDoEqualsCorrectly()
     {
         // Given
-        String country1 = "さ";
+        String country1 = "\u3055";
         int limit1 = 1;
 
-        String country2 = "丵";
+        String country2 = "\u4e35";
         int limit2 = 2;
 
         // When
@@ -438,11 +438,11 @@ public class BiOperationEqualityTest
     public void ldbcQuery19ShouldDoEqualsCorrectly()
     {
         // Given
-        String tagClassA1 = "さ";
-        String tagClassB1 = "ᚠ";
+        String tagClassA1 = "\u3055";
+        String tagClassB1 = "\u16a0";
         int limit1 = 1;
 
-        String tagClassA2 = "丵";
+        String tagClassA2 = "\u4e35";
         String tagClassB2 = "tag";
         int limit2 = 2;
 
@@ -481,10 +481,10 @@ public class BiOperationEqualityTest
     public void ldbcQuery21ShouldDoEqualsCorrectly()
     {
         // Given
-        String country1 = "さ";
+        String country1 = "\u3055";
         int limit1 = 1;
 
-        String country2 = "丵";
+        String country2 = "\u4e35";
         int limit2 = 2;
 
         // When
@@ -504,11 +504,11 @@ public class BiOperationEqualityTest
     public void ldbcQuery22ShouldDoEqualsCorrectly()
     {
         // Given
-        String countryA1 = "さ";
-        String countryB1 = "ᚠ";
+        String countryA1 = "\u3055";
+        String countryB1 = "\u16a0";
         int limit1 = 1;
 
-        String countryA2 = "丵";
+        String countryA2 = "\u4e35";
         String countryB2 = "tag";
         int limit2 = 2;
 
@@ -529,10 +529,10 @@ public class BiOperationEqualityTest
     public void ldbcQuery23ShouldDoEqualsCorrectly()
     {
         // Given
-        String country1 = "さ";
+        String country1 = "\u3055";
         int limit1 = 1;
 
-        String country2 = "丵";
+        String country2 = "\u4e35";
         int limit2 = 2;
 
         // When
@@ -552,10 +552,10 @@ public class BiOperationEqualityTest
     public void ldbcQuery24ShouldDoEqualsCorrectly()
     {
         // Given
-        String tagClass1 = "さ";
+        String tagClass1 = "\u3055";
         int limit1 = 1;
 
-        String tagClass2 = "丵";
+        String tagClass2 = "\u4e35";
         int limit2 = 2;
 
         // When

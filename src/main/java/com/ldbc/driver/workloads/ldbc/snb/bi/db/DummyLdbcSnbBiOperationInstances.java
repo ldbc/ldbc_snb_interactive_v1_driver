@@ -54,32 +54,32 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery5 read5()
     {
-        return new LdbcSnbBiQuery5( "ᚠ", 1 );
+        return new LdbcSnbBiQuery5( "\u16a0", 1 );
     }
 
     public static LdbcSnbBiQuery6 read6()
     {
-        return new LdbcSnbBiQuery6( "さ", 1 );
+        return new LdbcSnbBiQuery6( "\u3055", 1 );
     }
 
     public static LdbcSnbBiQuery7 read7()
     {
-        return new LdbcSnbBiQuery7( "丵", 1 );
+        return new LdbcSnbBiQuery7( "\u4e35", 1 );
     }
 
     public static LdbcSnbBiQuery8 read8()
     {
-        return new LdbcSnbBiQuery8( "ش", 1 );
+        return new LdbcSnbBiQuery8( "\u0634", 1 );
     }
 
     public static LdbcSnbBiQuery9 read9()
     {
-        return new LdbcSnbBiQuery9( "1", "ش", 1 );
+        return new LdbcSnbBiQuery9( "1", "\u0634", 1 );
     }
 
     public static LdbcSnbBiQuery10 read10()
     {
-        return new LdbcSnbBiQuery10( "さ", 1 );
+        return new LdbcSnbBiQuery10( "\u3055", 1 );
     }
 
     public static LdbcSnbBiQuery11 read11()
@@ -94,7 +94,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery13 read13()
     {
-        return new LdbcSnbBiQuery13( "丵", 1 );
+        return new LdbcSnbBiQuery13( "\u4e35", 1 );
     }
 
     public static LdbcSnbBiQuery14 read14()
@@ -124,7 +124,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery19 read19()
     {
-        return new LdbcSnbBiQuery19( "丵", "ᚠ", 1 );
+        return new LdbcSnbBiQuery19( "\u4e35", "\u16a0", 1 );
     }
 
     public static LdbcSnbBiQuery20 read20()
@@ -139,12 +139,12 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery22 read22()
     {
-        return new LdbcSnbBiQuery22( "丵", "ش", 1 );
+        return new LdbcSnbBiQuery22( "\u4e35", "\u0634", 1 );
     }
 
     public static LdbcSnbBiQuery23 read23()
     {
-        return new LdbcSnbBiQuery23( "丵", 1 );
+        return new LdbcSnbBiQuery23( "\u4e35", 1 );
     }
 
     public static LdbcSnbBiQuery24 read24()

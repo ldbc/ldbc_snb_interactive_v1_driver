@@ -16,11 +16,11 @@ public class InteractiveOperationEqualityTest
     public void ldbcQuery1ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String firstName1 = "さ";
+        String firstName1 = "\u3055";
         int limit1 = 4;
 
         long personId2 = 5;
-        String firstName2 = "פ";
+        String firstName2 = "\u05e4";
         int limit2 = 8;
 
         // When
@@ -64,14 +64,14 @@ public class InteractiveOperationEqualityTest
     public void ldbcQuery3ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String countryXName1 = "さ";
-        String countryYName1 = "丵";
+        String countryXName1 = "\u3055";
+        String countryYName1 = "\u4e35";
         Date startDate1 = new Date(5);
         int durationDays1 = 6;
         int limit1 = 7;
 
         long personId2 = 8;
-        String countryXName2 = "ش";
+        String countryXName2 = "\u0634";
         String countryYName2 = "11";
         Date startDate2 = new Date(12);
         int durationDays2 = 13;
@@ -144,11 +144,11 @@ public class InteractiveOperationEqualityTest
     public void ldbcQuery6ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String tagName1 = "さ";
+        String tagName1 = "\u3055";
         int limit1 = 7;
 
         long personId2 = 8;
-        String tagName2 = "פ";
+        String tagName2 = "\u05e4";
         int limit2 = 14;
 
         // When
@@ -260,12 +260,12 @@ public class InteractiveOperationEqualityTest
     public void ldbcQuery11ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String countryName1 = "さ";
+        String countryName1 = "\u3055";
         int workFromYear1 = 4;
         int limit1 = 7;
 
         long personId2 = 8;
-        String countryName2 = "פ";
+        String countryName2 = "\u05e4";
         int workFromYear2 = 11;
         int limit2 = 12;
 
@@ -286,11 +286,11 @@ public class InteractiveOperationEqualityTest
     public void ldbcQuery12ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String tagClassName1 = "さ";
+        String tagClassName1 = "\u3055";
         int limit1 = 7;
 
         long personId2 = 8;
-        String tagClassName2 = "פ";
+        String tagClassName2 = "\u05e4";
         int limit2 = 12;
 
         // When
@@ -354,13 +354,13 @@ public class InteractiveOperationEqualityTest
     public void ldbcUpdate1ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personFirstName1 = "ᚠ";
-        String personLastName1 = "さ";
-        String gender1 = "丵";
+        String personFirstName1 = "\u16a0";
+        String personLastName1 = "\u3055";
+        String gender1 = "\u4e35";
         Date birthday1 = new Date(5);
         Date creationDate1 = new Date(6);
-        String locationIp1 = "פ";
-        String browserUsed1 = "ش";
+        String locationIp1 = "\u05e4";
+        String browserUsed1 = "\u0634";
         long cityId1 = 9;
         List<String> languages1 = Lists.newArrayList("10");
         List<String> emails1 = Lists.newArrayList("11", "12");
@@ -497,13 +497,13 @@ public class InteractiveOperationEqualityTest
     public void ldbcUpdate4ShouldDoEqualsCorrectly() {
         // Given
         long forumId1 = 1;
-        String forumTitle1 = "ᚠ";
+        String forumTitle1 = "\u16a0";
         Date creationDate1 = new Date(3);
         long moderatorPersonId1 = 4;
         List<Long> tagIds1 = Lists.newArrayList(5l, 6l);
 
         long forumId2 = 7;
-        String forumTitle2 = "丵";
+        String forumTitle2 = "\u4e35";
         Date creationDate2 = new Date(9);
         long moderatorPersonId2 = 10;
         List<Long> tagIds2 = Lists.newArrayList();
@@ -549,11 +549,11 @@ public class InteractiveOperationEqualityTest
     public void ldbcUpdate6ShouldDoEqualsCorrectly() {
         // Given
         long postId1 = 1;
-        String imageFile1 = "ᚠ";
+        String imageFile1 = "\u16a0";
         Date creationDate1 = new Date(3);
-        String locationIp1 = "丵";
-        String browserUsed1 = "פ";
-        String language1 = "ش";
+        String locationIp1 = "\u4e35";
+        String browserUsed1 = "\u05e4";
+        String language1 = "\u0634";
         String content1 = "7";
         int length1 = 8;
         long authorPersonId1 = 9;
@@ -644,9 +644,9 @@ public class InteractiveOperationEqualityTest
         // Given
         long commentId1 = 1;
         Date creationDate1 = new Date(2);
-        String locationIp1 = "さ";
-        String browserUsed1 = "丵";
-        String content1 = "פ";
+        String locationIp1 = "\u3055";
+        String browserUsed1 = "\u4e35";
+        String content1 = "\u05e4";
         int length1 = 6;
         long authorPersonId1 = 7;
         long countryId1 = 8;
@@ -656,7 +656,7 @@ public class InteractiveOperationEqualityTest
 
         long commentId2 = 11;
         Date creationDate2 = new Date(12);
-        String locationIp2 = "ش";
+        String locationIp2 = "\u0634";
         String browserUsed2 = "14";
         String content2 = "15";
         int length2 = 16;
