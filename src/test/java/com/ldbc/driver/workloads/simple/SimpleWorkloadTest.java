@@ -68,7 +68,6 @@ public class SimpleWorkloadTest
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
-        boolean shouldCreateResultsLog = false;
         long warmupCount = 100;
 
         ConsoleAndFileDriverConfiguration params =
@@ -90,7 +89,6 @@ public class SimpleWorkloadTest
                         spinnerSleepDuration,
                         printHelp,
                         ignoreScheduledStartTimes,
-                        shouldCreateResultsLog,
                         warmupCount
                 );
 
@@ -130,7 +128,6 @@ public class SimpleWorkloadTest
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
-        boolean shouldCreateResultsLog = false;
         long warmupCount = 100;
 
         ConsoleAndFileDriverConfiguration params =
@@ -152,7 +149,6 @@ public class SimpleWorkloadTest
                         spinnerSleepDuration,
                         printHelp,
                         ignoreScheduledStartTimes,
-                        shouldCreateResultsLog,
                         warmupCount
                 );
 
@@ -225,7 +221,6 @@ public class SimpleWorkloadTest
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
-        boolean shouldCreateResultsLog = false;
         long warmupCount = 100;
 
         ConsoleAndFileDriverConfiguration params =
@@ -247,7 +242,6 @@ public class SimpleWorkloadTest
                         spinnerSleepDuration,
                         printHelp,
                         ignoreScheduledStartTimes,
-                        shouldCreateResultsLog,
                         warmupCount
                 );
 
@@ -323,7 +317,6 @@ public class SimpleWorkloadTest
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs( new String[]{
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, BasicDb.class.getName(),
-                "-" + ConsoleAndFileDriverConfiguration.RESULTS_LOG_ARG,
                 "-P", simpleTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath} );
 

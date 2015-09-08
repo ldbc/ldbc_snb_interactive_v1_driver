@@ -120,7 +120,6 @@ public class InteractiveWorkloadPerformanceTest
             long spinnerSleepDuration = 0;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
-            boolean shouldCreateResultsLog = true;
             long warmupCount = 0;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
@@ -141,7 +140,6 @@ public class InteractiveWorkloadPerformanceTest
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog,
                     warmupCount
             );
 
@@ -286,8 +284,6 @@ public class InteractiveWorkloadPerformanceTest
             long spinnerSleepDuration = 0;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
-            // TODO
-            boolean shouldCreateResultsLog = false;
             long warmupCount = 0;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
@@ -308,7 +304,6 @@ public class InteractiveWorkloadPerformanceTest
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog,
                     warmupCount
             );
 

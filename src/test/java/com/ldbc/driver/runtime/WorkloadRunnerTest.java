@@ -125,7 +125,6 @@ public class WorkloadRunnerTest
             long spinnerSleepDuration = 0l;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
-            boolean shouldCreateResultsLog = true;
             long warmupCount = 100;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
@@ -146,7 +145,6 @@ public class WorkloadRunnerTest
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog,
                     warmupCount
             );
 
@@ -343,7 +341,6 @@ public class WorkloadRunnerTest
             long spinnerSleepDuration = 0l;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
-            boolean shouldCreateResultsLog = true;
             long warmupCount = 100;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
@@ -364,7 +361,6 @@ public class WorkloadRunnerTest
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog,
                     warmupCount
             );
 
@@ -608,7 +604,6 @@ public class WorkloadRunnerTest
             long spinnerSleepDuration = 0l;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
-            boolean shouldCreateResultsLog = true;
             long warmupCount = 100;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
@@ -629,7 +624,6 @@ public class WorkloadRunnerTest
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog,
                     warmupCount
             );
 

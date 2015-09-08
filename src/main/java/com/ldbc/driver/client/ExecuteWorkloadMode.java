@@ -189,8 +189,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         //  ================================
         //  ===  Results Log CSV Writer  ===
         //  ================================
-        if ( null != controlService.configuration().resultDirPath() &&
-             controlService.configuration().shouldCreateResultsLog() )
+        if ( null != controlService.configuration().resultDirPath() )
         {
             File resultDir = new File( controlService.configuration().resultDirPath() );
             String resultsLogFilename = (warmup)

@@ -363,7 +363,6 @@ public class TimeMappingOperationGeneratorTest
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
-        boolean shouldCreateResultsLog = false;
         long warmupCount = 0;
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
@@ -384,7 +383,6 @@ public class TimeMappingOperationGeneratorTest
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog,
                 warmupCount
         );
 

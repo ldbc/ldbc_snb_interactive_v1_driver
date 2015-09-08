@@ -94,7 +94,6 @@ public class QueuePerformanceTests
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
-        boolean shouldCreateResultsLog = false;
         long warmupCount = 0;
 
         DriverConfiguration config = new ConsoleAndFileDriverConfiguration(
@@ -115,7 +114,6 @@ public class QueuePerformanceTests
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog,
                 warmupCount
         );
 

@@ -90,13 +90,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private static final String RESULT_DIR_PATH_DESCRIPTION =
             format( "directory where benchmark results will be written. default = %s", RESULT_DIR_PATH_DEFAULT );
 
-    public static final String RESULTS_LOG_ARG = "rl";
-    public static final String RESULTS_LOG_ARG_LONG = "results_log";
-    public static final boolean RESULTS_LOG_DEFAULT = true;
-    public static final String RESULTS_LOG_DEFAULT_STRING = Boolean.toString( RESULTS_LOG_DEFAULT );
-    private static final String RESULTS_LOG_DESCRIPTION =
-            "create a csv file containing simple data about the execution of every operation in the workload";
-
     public static final String THREADS_ARG = "tc";
     private static final String THREADS_ARG_LONG = "thread_count";
     public static final int THREADS_DEFAULT = 1;
@@ -195,7 +188,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         defaultParamsMap.put( NAME_ARG, NAME_DEFAULT_STRING );
         defaultParamsMap.put( DB_ARG, DB_DEFAULT_STRING );
         defaultParamsMap.put( RESULT_DIR_PATH_ARG, RESULT_DIR_PATH_DEFAULT_STRING );
-        defaultParamsMap.put( RESULTS_LOG_ARG, RESULTS_LOG_DEFAULT_STRING );
         defaultParamsMap.put( THREADS_ARG, THREADS_DEFAULT_STRING );
         defaultParamsMap.put( SHOW_STATUS_ARG, SHOW_STATUS_DEFAULT_STRING );
         if ( null != DB_VALIDATION_FILE_PATH_DEFAULT_STRING )
@@ -292,7 +284,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             boolean printHelp = Boolean.parseBoolean( paramsMap.get( HELP_ARG ) );
             boolean ignoreScheduledStartTimes =
                     Boolean.parseBoolean( paramsMap.get( IGNORE_SCHEDULED_START_TIMES_ARG ) );
-            boolean shouldCreateResultsLog = Boolean.parseBoolean( paramsMap.get( RESULTS_LOG_ARG ) );
             return new ConsoleAndFileDriverConfiguration(
                     paramsMap,
                     name,
@@ -311,7 +302,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     spinnerSleepDurationAsMilli,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog,
                     warmupCount
             );
         }
@@ -436,11 +426,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             cmdParams.put( IGNORE_SCHEDULED_START_TIMES_ARG, Boolean.toString( true ) );
         }
 
-        if ( cmd.hasOption( RESULTS_LOG_ARG ) )
-        {
-            cmdParams.put( RESULTS_LOG_ARG, Boolean.toString( true ) );
-        }
-
         if ( cmd.hasOption( WARMUP_COUNT_ARG ) )
         {
             cmdParams.put( WARMUP_COUNT_ARG, cmd.getOptionValue( WARMUP_COUNT_ARG ) );
@@ -510,7 +495,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         paramsMap = replaceKey( paramsMap, SHOW_STATUS_ARG_LONG, SHOW_STATUS_ARG );
         paramsMap = replaceKey( paramsMap, TIME_UNIT_ARG_LONG, TIME_UNIT_ARG );
         paramsMap = replaceKey( paramsMap, RESULT_DIR_PATH_ARG_LONG, RESULT_DIR_PATH_ARG );
-        paramsMap = replaceKey( paramsMap, RESULTS_LOG_ARG_LONG, RESULTS_LOG_ARG );
         paramsMap = replaceKey( paramsMap, TIME_COMPRESSION_RATIO_ARG_LONG, TIME_COMPRESSION_RATIO_ARG );
         paramsMap = replaceKey( paramsMap, PEER_IDS_ARG_LONG, PEER_IDS_ARG );
         paramsMap = replaceKey( paramsMap, CREATE_VALIDATION_PARAMS_ARG_LONG, CREATE_VALIDATION_PARAMS_ARG );
@@ -632,11 +616,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                         .create( IGNORE_SCHEDULED_START_TIMES_ARG );
         options.addOption( ignoreScheduledStartTimesOption );
 
-        Option shouldCreateResultsLogOption =
-                OptionBuilder.withDescription( RESULTS_LOG_DESCRIPTION ).withLongOpt( RESULTS_LOG_ARG_LONG )
-                        .create( RESULTS_LOG_ARG );
-        options.addOption( shouldCreateResultsLogOption );
-
         Option propertyFileOption = OptionBuilder.hasArgs().withValueSeparator( COMMANDLINE_SEPARATOR_CHAR )
                 .withArgName( "file1" + COMMANDLINE_SEPARATOR_CHAR + "file2" ).withDescription(
                         PROPERTY_FILE_DESCRIPTION ).create( PROPERTY_FILE_ARG );
@@ -708,7 +687,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 SPINNER_SLEEP_DURATION_ARG,
                 HELP_ARG,
                 IGNORE_SCHEDULED_START_TIMES_ARG,
-                RESULTS_LOG_ARG,
                 WARMUP_COUNT_ARG
         );
     }
@@ -750,7 +728,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private final long spinnerSleepDurationAsMilli;
     private final boolean printHelp;
     private final boolean ignoreScheduledStartTimes;
-    private final boolean shouldCreateResultsLog;
     private final long warmupCount;
 
     public ConsoleAndFileDriverConfiguration( Map<String,String> paramsMap,
@@ -770,7 +747,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             long spinnerSleepDurationAsMilli,
             boolean printHelp,
             boolean ignoreScheduledStartTimes,
-            boolean shouldCreateResultsLog,
             long warmupCount )
     {
         if ( null == paramsMap )
@@ -794,7 +770,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         this.spinnerSleepDurationAsMilli = spinnerSleepDurationAsMilli;
         this.printHelp = printHelp;
         this.ignoreScheduledStartTimes = ignoreScheduledStartTimes;
-        this.shouldCreateResultsLog = shouldCreateResultsLog;
         this.warmupCount = warmupCount;
 
         if ( null != name )
@@ -831,7 +806,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         paramsMap.put( SPINNER_SLEEP_DURATION_ARG, Long.toString( spinnerSleepDurationAsMilli ) );
         paramsMap.put( HELP_ARG, Boolean.toString( printHelp ) );
         paramsMap.put( IGNORE_SCHEDULED_START_TIMES_ARG, Boolean.toString( ignoreScheduledStartTimes ) );
-        paramsMap.put( RESULTS_LOG_ARG, Boolean.toString( shouldCreateResultsLog ) );
         paramsMap.put( WARMUP_COUNT_ARG, Long.toString( warmupCount ) );
     }
 
@@ -942,12 +916,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     public boolean ignoreScheduledStartTimes()
     {
         return ignoreScheduledStartTimes;
-    }
-
-    @Override
-    public boolean shouldCreateResultsLog()
-    {
-        return shouldCreateResultsLog;
     }
 
     @Override
@@ -1069,9 +1037,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 (newParamsMapWithShortKeys.containsKey( IGNORE_SCHEDULED_START_TIMES_ARG )) ?
                 Boolean.parseBoolean( newParamsMapWithShortKeys.get( IGNORE_SCHEDULED_START_TIMES_ARG ) ) :
                 ignoreScheduledStartTimes;
-        boolean newShouldCreateResultsLog = (newParamsMapWithShortKeys.containsKey( RESULTS_LOG_ARG )) ?
-                                            Boolean.parseBoolean( newParamsMapWithShortKeys.get( RESULTS_LOG_ARG ) ) :
-                                            shouldCreateResultsLog;
         long newWarmupCount = (newParamsMapWithShortKeys.containsKey( WARMUP_COUNT_ARG )) ?
                               Long.parseLong( newParamsMapWithShortKeys.get( WARMUP_COUNT_ARG ) ) :
                               warmupCount;
@@ -1094,7 +1059,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 newSpinnerSleepDurationAsMilli,
                 newPrintHelp,
                 newIgnoreScheduledStartTimes,
-                newShouldCreateResultsLog,
                 newWarmupCount
         );
     }
@@ -1123,10 +1087,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         if ( null != resultDirPath )
         {
             argsList.addAll( Lists.newArrayList( "-" + RESULT_DIR_PATH_ARG, resultDirPath ) );
-        }
-        if ( shouldCreateResultsLog )
-        {
-            argsList.add( "-" + RESULTS_LOG_ARG );
         }
         argsList.addAll( Lists.newArrayList( "-" + TIME_UNIT_ARG, timeUnit.name() ) );
         argsList.addAll(
@@ -1225,13 +1185,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         {
             sb.append( RESULT_DIR_PATH_ARG_LONG ).append( "=" ).append( resultDirPath ).append( "\n" );
         }
-        sb.append( "\n" );
-        sb.append(
-                "# create a csv file containing simple data about the execution of every operation in the workload\n" );
-        sb.append( "# BOOLEAN\n" );
-        sb.append( "# COMMAND: " ).append( "-" ).append( RESULTS_LOG_ARG ).append( "/--" )
-                .append( RESULTS_LOG_ARG_LONG ).append( "\n" );
-        sb.append( RESULTS_LOG_ARG_LONG ).append( "=" ).append( shouldCreateResultsLog ).append( "\n" );
         sb.append( "\n" );
         sb.append( "# time unit to use for measuring performance metrics (e.g., query response time)\n" );
         sb.append( "# ENUM (" ).append( Arrays.toString( VALID_TIME_UNITS ) ).append( ")\n" );
@@ -1402,8 +1355,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 .append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Results Directory:" ) )
                 .append( resultDirPath() ).append( "\n" );
-        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Create Results Log:" ) )
-                .append( shouldCreateResultsLog ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Time Compression Ratio:" ) )
                 .append( FLOAT_FORMAT.format( timeCompressionRatio ) ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Peer IDs:" ) )
@@ -1471,10 +1422,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             return false;
         }
         if ( ignoreScheduledStartTimes != that.ignoreScheduledStartTimes )
-        {
-            return false;
-        }
-        if ( shouldCreateResultsLog != that.shouldCreateResultsLog )
         {
             return false;
         }
@@ -1556,7 +1503,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         result = 31 * result + (int) (spinnerSleepDurationAsMilli ^ (spinnerSleepDurationAsMilli >>> 32));
         result = 31 * result + (printHelp ? 1 : 0);
         result = 31 * result + (ignoreScheduledStartTimes ? 1 : 0);
-        result = 31 * result + (shouldCreateResultsLog ? 1 : 0);
         return result;
     }
 
