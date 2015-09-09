@@ -55,15 +55,12 @@ public abstract class WorkloadTest
 
     public abstract Workload workload() throws Exception;
 
-    public abstract List<Operation> operations() throws Exception;
+    public abstract List<Tuple2<Operation,Object>> operationsAndResults() throws Exception;
 
     public abstract List<DriverConfiguration> configurations() throws Exception;
 
     public abstract List<Tuple2<DriverConfiguration,Histogram<Class,Double>>> configurationsWithExpectedQueryMix()
             throws Exception;
-
-    // TODO for testing operation result serialization
-    // TODO public abstract List<Operation<RESULT>, Iterable<RESULT>> operationsAndResults() throws Exception;
 
     @Test
     public void shouldBeAbleToSerializeAndMarshalAllOperations() throws Exception
@@ -71,24 +68,70 @@ public abstract class WorkloadTest
         // Given
         try ( Workload workload = workload() )
         {
-            List<Operation> operations = operations();
+            List<Tuple2<Operation,Object>> operationsAndResults = operationsAndResults();
 
             // When
 
             // Then
-            for ( int i = 0; i < operations.size(); i++ )
+            for ( int i = 0; i < operationsAndResults.size(); i++ )
             {
                 assertThat(
                         format( "original != marshal(serialize(original))\n" +
                                 "Original: %s\n" +
                                 "Serialized: %s\n" +
-                                "Marshalled: %s",
-                                operations.get( i ),
-                                workload.serializeOperation( operations.get( i ) ),
-                                workload.marshalOperation( workload.serializeOperation( operations.get( i ) ) ) ),
-                        workload.marshalOperation( workload.serializeOperation( operations.get( i ) ) ),
-                        equalTo( operations.get( i ) ) );
+                                "Marshaled: %s",
+                                operationsAndResults.get( i )._1(),
+                                workload.serializeOperation(
+                                        operationsAndResults.get( i )._1()
+                                ),
+                                workload.marshalOperation(
+                                        workload.serializeOperation(
+                                                operationsAndResults.get( i )._1()
+                                        )
+                                )
+                        ),
+                        workload.marshalOperation(
+                                workload.serializeOperation(
+                                        operationsAndResults.get( i )._1()
+                                )
+                        ),
+                        equalTo( operationsAndResults.get( i )._1() ) );
             }
+        }
+    }
+
+    @Test
+    public void shouldBeAbleToSerializeAndMarshalAllOperationResults() throws Exception
+    {
+        // Given
+        List<Tuple2<Operation,Object>> operationsAndResults = operationsAndResults();
+
+        // When
+
+        // Then
+        for ( int i = 0; i < operationsAndResults.size(); i++ )
+        {
+            assertThat(
+                    format( "original != marshal(serialize(original))\n" +
+                            "Original: %s\n" +
+                            "Serialized: %s\n" +
+                            "Marshaled: %s",
+                            operationsAndResults.get( i )._2(),
+                            operationsAndResults.get( i )._1().serializeResult(
+                                    operationsAndResults.get( i )._2()
+                            ),
+                            operationsAndResults.get( i )._1().marshalResult(
+                                    operationsAndResults.get( i )._1().serializeResult(
+                                            operationsAndResults.get( i )._2()
+                                    )
+                            )
+                    ),
+                    operationsAndResults.get( i )._1().marshalResult(
+                            operationsAndResults.get( i )._1().serializeResult(
+                                    operationsAndResults.get( i )._2()
+                            )
+                    ),
+                    equalTo( operationsAndResults.get( i )._2() ) );
         }
     }
 

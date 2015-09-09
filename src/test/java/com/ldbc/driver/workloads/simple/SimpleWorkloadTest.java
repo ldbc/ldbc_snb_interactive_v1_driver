@@ -43,35 +43,50 @@ public class SimpleWorkloadTest extends WorkloadTest
     }
 
     @Override
-    public List<Operation> operations() throws Exception
+    public List<Tuple2<Operation,Object>> operationsAndResults() throws Exception
     {
-        return Lists.<Operation>newArrayList(
-                new InsertOperation(
-                        "table",
-                        "key",
-                        new HashMap<String,Iterator<Byte>>()
+        return Lists.newArrayList(
+                Tuple.<Operation,Object>tuple2(
+                        new InsertOperation(
+                                "table",
+                                "key",
+                                new HashMap<String,Iterator<Byte>>()
+                        ),
+                        "nothing"
                 ),
-                new ReadModifyWriteOperation(
-                        "table",
-                        "key",
-                        new ArrayList<String>(),
-                        new HashMap<String,Iterator<Byte>>()
+                Tuple.<Operation,Object>tuple2(
+                        new ReadModifyWriteOperation(
+                                "table",
+                                "key",
+                                new ArrayList<String>(),
+                                new HashMap<String,Iterator<Byte>>()
+                        ),
+                        "nothing"
                 ),
-                new ReadOperation(
-                        "table",
-                        "key",
-                        new ArrayList<String>()
+                Tuple.<Operation,Object>tuple2(
+                        new ReadOperation(
+                                "table",
+                                "key",
+                                new ArrayList<String>()
+                        ),
+                        "nothing"
                 ),
-                new ScanOperation(
-                        "table",
-                        "startKey",
-                        1,
-                        new ArrayList<String>()
+                Tuple.<Operation,Object>tuple2(
+                        new ScanOperation(
+                                "table",
+                                "startKey",
+                                1,
+                                new ArrayList<String>()
+                        ),
+                        "nothing"
                 ),
-                new UpdateOperation(
-                        "table",
-                        "key",
-                        new HashMap<String,Iterator<Byte>>()
+                Tuple.<Operation,Object>tuple2(
+                        new UpdateOperation(
+                                "table",
+                                "key",
+                                new HashMap<String,Iterator<Byte>>()
+                        ),
+                        "nothing"
                 )
         );
     }

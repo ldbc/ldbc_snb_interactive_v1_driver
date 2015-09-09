@@ -1,4 +1,4 @@
-package com.ldbc.driver.workloads.ldbc.snb.interactive;
+package com.ldbc.driver.workloads.ldbc.snb.interactive.performance;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Client;
@@ -21,6 +21,8 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.MapUtils;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Ignore;
 import org.junit.Rule;

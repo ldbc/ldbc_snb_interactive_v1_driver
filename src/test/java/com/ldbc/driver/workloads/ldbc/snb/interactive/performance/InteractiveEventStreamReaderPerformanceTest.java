@@ -1,4 +1,4 @@
-package com.ldbc.driver.workloads.ldbc.snb.interactive;
+package com.ldbc.driver.workloads.ldbc.snb.interactive.performance;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
@@ -18,6 +18,23 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query10EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query11EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query12EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query13EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query14EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query1EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query2EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query3EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query4EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query5EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query6EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query7EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query8EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.Query9EventStreamReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.WriteEventStreamReaderCharSeeker;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.WriteEventStreamReaderRegex;
 import org.junit.Ignore;
 import org.junit.Test;
 
