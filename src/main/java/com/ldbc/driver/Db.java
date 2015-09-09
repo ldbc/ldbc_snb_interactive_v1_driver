@@ -1,5 +1,6 @@
 package com.ldbc.driver;
 
+import com.google.common.collect.Ordering;
 import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.util.ClassLoaderHelper;
 
@@ -16,21 +17,27 @@ public abstract class Db implements Closeable
     private boolean isInitialized = false;
     private AtomicBoolean isShutdown = new AtomicBoolean( false );
     private DbConnectionState dbConnectionState = null;
-    private final Map<Class<? extends Operation>,OperationHandler> operationHandlers = new HashMap<>();
+    private Map<Class<? extends Operation>,OperationHandler> operationHandlers = new HashMap<>();
+    private OperationHandler[] operationHandlersArray = null;
     private OperationHandlerRunnerFactory operationHandlerRunnableContextFactory = null;
 
-    synchronized public final void init( Map<String,String> properties, LoggingService loggingService )
+    synchronized public final void init(
+            Map<String,String> params,
+            LoggingService loggingService,
+            Map<Integer,Class<? extends Operation>> operationTypeToClassMapping )
             throws DbException
     {
         if ( true == isInitialized )
         {
             throw new DbException( "DB may be initialized only once" );
         }
-        onInit( properties, loggingService );
+        onInit( params, loggingService );
         dbConnectionState = getConnectionState();
         operationHandlerRunnableContextFactory = new PoolingOperationHandlerRunnerFactory(
                 new InstantiatingOperationHandlerRunnerFactory()
         );
+        operationHandlersArray = toOperationHandlerArray( operationTypeToClassMapping, operationHandlers );
+        operationHandlers = null;
         isInitialized = true;
     }
 
@@ -106,10 +113,11 @@ public abstract class Db implements Closeable
     public final OperationHandlerRunnableContext getOperationHandlerRunnableContext( Operation operation )
             throws DbException
     {
-        OperationHandler operationHandler = operationHandlers.get( operation.getClass() );
+        OperationHandler operationHandler = operationHandlersArray[operation.type()];
         if ( null == operationHandler )
-        { throw new DbException( format( "No handler registered for %s", operation.getClass() ) ); }
-
+        {
+            throw new DbException( format( "No handler registered for %s", operation.getClass() ) );
+        }
         try
         {
             OperationHandlerRunnableContext operationHandlerRunnableContext =
@@ -121,6 +129,36 @@ public abstract class Db implements Closeable
         catch ( Exception e )
         {
             throw new DbException( format( "Unable to instantiate handler for operation:\n%s", operation ), e );
+        }
+    }
+
+    private static OperationHandler[] toOperationHandlerArray(
+            Map<Integer,Class<? extends Operation>> operationTypeToClassMapping,
+            Map<Class<? extends Operation>,OperationHandler> operationHandlers ) throws DbException
+    {
+        if ( operationTypeToClassMapping.isEmpty() )
+        {
+            return new OperationHandler[]{};
+        }
+        else
+        {
+            int minOperationType = Ordering.<Integer>natural().min( operationTypeToClassMapping.keySet() );
+            if ( minOperationType < 0 )
+            {
+                throw new DbException( format( "Operation type code lower than 0: %s", minOperationType ) );
+            }
+
+            int maxOperationType = Ordering.<Integer>natural().max( operationTypeToClassMapping.keySet() );
+            OperationHandler[] operationHandlersArray = new OperationHandler[maxOperationType + 1];
+            for ( int i = 0; i < operationHandlersArray.length; i++ )
+            {
+                if ( operationTypeToClassMapping.containsKey( i ) )
+                {
+                    operationHandlersArray[i] = operationHandlers.get( operationTypeToClassMapping.get( i ) );
+                }
+            }
+
+            return operationHandlersArray;
         }
     }
 

@@ -78,7 +78,7 @@ public class LdbcSnbBiWorkload extends Workload
     );
 
     @Override
-    public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping( Map<String,String> params )
+    public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
     {
         return LdbcSnbBiWorkloadConfiguration.operationTypeToClassMapping();
     }

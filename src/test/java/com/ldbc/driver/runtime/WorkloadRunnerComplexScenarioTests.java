@@ -24,6 +24,7 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.ManualTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.workloads.dummy.DummyDb;
+import com.ldbc.driver.workloads.dummy.DummyWorkload;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2Factory;
@@ -179,7 +180,11 @@ public class WorkloadRunnerComplexScenarioTests
 
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params, loggingService );
+            db.init(
+                    params,
+                    loggingService,
+                    DummyWorkload.OPERATION_TYPE_CLASS_MAPPING
+            );
 
             db.setNameAllowedValue( "S(2)D(0)", false );
             db.setNameAllowedValue( "S(3)D(0)", false );
@@ -426,7 +431,11 @@ public class WorkloadRunnerComplexScenarioTests
 
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params, loggingService );
+            db.init(
+                    params,
+                    loggingService,
+                    DummyWorkload.OPERATION_TYPE_CLASS_MAPPING
+            );
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
@@ -632,7 +641,11 @@ public class WorkloadRunnerComplexScenarioTests
         params.put( DummyDb.ALLOWED_DEFAULT_ARG, "false" );
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params, loggingService );
+            db.init(
+                    params,
+                    loggingService,
+                    DummyWorkload.OPERATION_TYPE_CLASS_MAPPING
+            );
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
@@ -914,7 +927,11 @@ public class WorkloadRunnerComplexScenarioTests
         params.put( DummyDb.ALLOWED_DEFAULT_ARG, "false" );
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params, loggingService );
+            db.init(
+                    params,
+                    loggingService,
+                    DummyWorkload.OPERATION_TYPE_CLASS_MAPPING
+            );
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
@@ -1235,7 +1252,11 @@ public class WorkloadRunnerComplexScenarioTests
         params.put( DummyDb.ALLOWED_DEFAULT_ARG, "false" );
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params, loggingService );
+            db.init(
+                    params,
+                    loggingService,
+                    DummyWorkload.OPERATION_TYPE_CLASS_MAPPING
+            );
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
@@ -1519,7 +1540,11 @@ public class WorkloadRunnerComplexScenarioTests
         params.put( DummyDb.ALLOWED_DEFAULT_ARG, "false" );
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params, loggingService );
+            db.init(
+                    params,
+                    loggingService,
+                    DummyWorkload.OPERATION_TYPE_CLASS_MAPPING
+            );
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,

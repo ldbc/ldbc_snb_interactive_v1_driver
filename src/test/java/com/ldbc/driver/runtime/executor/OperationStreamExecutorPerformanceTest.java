@@ -20,7 +20,6 @@ import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.ManualTimeSource;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.workloads.dummy.DummyDb;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1Factory;
@@ -45,7 +44,6 @@ import static org.junit.Assert.assertThat;
 @Ignore
 public class OperationStreamExecutorPerformanceTest
 {
-    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     private final ManualTimeSource timeSource = new ManualTimeSource( 0 );
     private final GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42l ) );
 
@@ -99,7 +97,7 @@ public class OperationStreamExecutorPerformanceTest
                 DummyDb db = new DummyDb();
                 Map<String,String> dummyDbParameters = new HashMap<>();
                 dummyDbParameters.put( DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString( true ) );
-                db.init( dummyDbParameters, loggingService );
+                db.init( dummyDbParameters, loggingService, new HashMap<Integer,Class<? extends Operation>>() );
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
                 MetricsService metricsService = new DummyCountingMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
@@ -153,7 +151,7 @@ public class OperationStreamExecutorPerformanceTest
                 DummyDb db = new DummyDb();
                 Map<String,String> dummyDbParameters = new HashMap<>();
                 dummyDbParameters.put( DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString( true ) );
-                db.init( dummyDbParameters, loggingService );
+                db.init( dummyDbParameters, loggingService, new HashMap<Integer,Class<? extends Operation>>() );
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
                 MetricsService metricsService = new DummyCountingMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
@@ -206,7 +204,7 @@ public class OperationStreamExecutorPerformanceTest
                 DummyDb db = new DummyDb();
                 Map<String,String> dummyDbParameters = new HashMap<>();
                 dummyDbParameters.put( DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString( true ) );
-                db.init( dummyDbParameters, loggingService );
+                db.init( dummyDbParameters, loggingService, new HashMap<Integer,Class<? extends Operation>>() );
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
                 MetricsService metricsService = new DummyCountingMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();

@@ -15,6 +15,7 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.workloads.dummy.DummyDb;
+import com.ldbc.driver.workloads.dummy.DummyWorkload;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
 import org.junit.Test;
 
@@ -48,7 +49,11 @@ public class ThreadPoolOperationExecutorTest
                 null
         );
         Db db = new DummyDb();
-        db.init( new HashMap<String,String>(), loggingService );
+        db.init(
+                new HashMap<String,String>(),
+                loggingService,
+                DummyWorkload.OPERATION_TYPE_CLASS_MAPPING
+        );
 
         int threadCount = 1;
         int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
@@ -109,7 +114,11 @@ public class ThreadPoolOperationExecutorTest
                 null
         );
         Db db = new DummyDb();
-        db.init( new HashMap<String,String>(), loggingService );
+        db.init(
+                new HashMap<String,String>(),
+                loggingService,
+                DummyWorkload.OPERATION_TYPE_CLASS_MAPPING
+        );
 
         int threadCount = 1;
         int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
@@ -176,7 +185,11 @@ public class ThreadPoolOperationExecutorTest
                 null
         );
         Db db = new DummyDb();
-        db.init( new HashMap<String,String>(), loggingService );
+        db.init(
+                new HashMap<String,String>(),
+                loggingService,
+                DummyWorkload.OPERATION_TYPE_CLASS_MAPPING
+        );
 
         int threadCount = 1;
         int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;

@@ -79,7 +79,11 @@ public class DbValidatorTest
 
         Iterator<ValidationParam> validationParams = correctValidationParamsList.iterator();
         Db db = new DummyLdbcSnbInteractiveDb();
-        db.init( new HashMap<String,String>(), loggingService );
+        db.init(
+                new HashMap<String,String>(),
+                loggingService,
+                workload.operationTypeToClassMapping()
+        );
         DbValidator dbValidator = new DbValidator();
 
         // When
@@ -128,7 +132,11 @@ public class DbValidatorTest
         );
 
         Db db = new DummyLdbcSnbInteractiveDb();
-        db.init( new HashMap<String,String>(), loggingService );
+        db.init(
+                new HashMap<String,String>(),
+                loggingService,
+                workload.operationTypeToClassMapping()
+        );
 
         DbValidator dbValidator = new DbValidator();
 

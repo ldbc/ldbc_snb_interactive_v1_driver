@@ -159,8 +159,6 @@ public class WorkloadRunnerTest
                     timeSource
             );
             LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
-            db = new DummyLdbcSnbInteractiveDb();
-            db.init( configuration.asMap(), loggingService );
 
             GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
             boolean returnStreamsWithDbConnector = true;
@@ -192,13 +190,20 @@ public class WorkloadRunnerTest
                     configuration.timeUnit(),
                     ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     csvResultsLogWriter,
-                    workload.operationTypeToClassMapping( configuration.asMap() ),
+                    workload.operationTypeToClassMapping(),
                     LOGGING_SERVICE_FACTORY
             );
 
             CompletionTimeService concurrentCompletionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
                             controlService.configuration().peerIds() );
+
+            db = new DummyLdbcSnbInteractiveDb();
+            db.init(
+                    configuration.asMap(),
+                    loggingService,
+                    workload.operationTypeToClassMapping()
+            );
 
             int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
             WorkloadRunner runner = new WorkloadRunner(
@@ -375,8 +380,6 @@ public class WorkloadRunnerTest
                     timeSource
             );
             LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
-            db = new DummyLdbcSnbInteractiveDb();
-            db.init( configuration.asMap(), loggingService );
 
             GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
             boolean returnStreamsWithDbConnector = true;
@@ -408,8 +411,15 @@ public class WorkloadRunnerTest
                     configuration.timeUnit(),
                     ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     csvResultsLogWriter,
-                    workload.operationTypeToClassMapping( configuration.asMap() ),
+                    workload.operationTypeToClassMapping(),
                     LOGGING_SERVICE_FACTORY
+            );
+
+            db = new DummyLdbcSnbInteractiveDb();
+            db.init(
+                    configuration.asMap(),
+                    loggingService,
+                    workload.operationTypeToClassMapping()
             );
 
             CompletionTimeService concurrentCompletionTimeService =
@@ -638,10 +648,14 @@ public class WorkloadRunnerTest
                     timeSource
             );
             LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
-            db = new DummyLdbcSnbInteractiveDb();
-            db.init( configuration.asMap(), loggingService );
             workload = new LdbcSnbInteractiveWorkload();
             workload.init( configuration );
+            db = new DummyLdbcSnbInteractiveDb();
+            db.init(
+                    configuration.asMap(),
+                    loggingService,
+                    workload.operationTypeToClassMapping()
+            );
             GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
             Iterator<Operation> operations = gf.limit(
                     WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators( gf,
@@ -668,7 +682,7 @@ public class WorkloadRunnerTest
                     configuration.timeUnit(),
                     ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     csvResultsLogWriter,
-                    workload.operationTypeToClassMapping( configuration.asMap() ),
+                    workload.operationTypeToClassMapping(),
                     LOGGING_SERVICE_FACTORY
             );
 

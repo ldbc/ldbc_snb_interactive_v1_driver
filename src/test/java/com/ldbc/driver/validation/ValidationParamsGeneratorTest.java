@@ -16,8 +16,8 @@ import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
 import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.apache.commons.io.FileUtils;
@@ -72,7 +72,11 @@ public class ValidationParamsGeneratorTest
         workload.init( configuration );
 
         Db db = new DummyLdbcSnbInteractiveDb();
-        db.init( configuration.asMap(), loggingService );
+        db.init(
+                configuration.asMap(),
+                loggingService,
+                workload.operationTypeToClassMapping()
+        );
 
         List<Operation> operationsList = buildOperations();
         Iterator<Operation> operations = operationsList.iterator();
@@ -100,7 +104,7 @@ public class ValidationParamsGeneratorTest
         }
 
         // TODO remove
-        System.out.println(operationsList.size());
+        System.out.println( operationsList.size() );
         System.out.println( Iterators.size( FileUtils.lineIterator( tempValidationFile ) ) );
 
         SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(

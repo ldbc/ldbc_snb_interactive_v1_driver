@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.ldbc.driver.Client;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
@@ -61,6 +62,42 @@ public abstract class WorkloadTest
 
     public abstract List<Tuple2<DriverConfiguration,Histogram<Class,Double>>> configurationsWithExpectedQueryMix()
             throws Exception;
+
+    @Test
+    public void shouldHaveOneToOneMappingBetweenOperationClassesAndOperationTypes() throws Exception
+    {
+        try ( Workload workload = workload() )
+        {
+            Map<Integer,Class<? extends Operation>> typeToClassMapping = workload.operationTypeToClassMapping();
+            assertThat(
+                    typeToClassMapping.keySet().size(),
+                    equalTo( Sets.newHashSet( typeToClassMapping.values() ).size() )
+            );
+        }
+    }
+
+    @Test
+    public void shouldHaveNonNegativeTypesForAllOperations() throws Exception
+    {
+        try ( Workload workload = workload() )
+        {
+            for ( Map.Entry<Integer,Class<? extends Operation>> entry :
+                    workload.operationTypeToClassMapping().entrySet() )
+            {
+                assertTrue(
+                        format( "%s has negative type: %s", entry.getValue().getSimpleName(), entry.getKey() ),
+                        entry.getKey() >= 0
+                );
+            }
+        }
+        for ( Tuple2<Operation,Object> operation : operationsAndResults() )
+        {
+            assertTrue(
+                    format( "%s has negative type: %s", operation.getClass().getSimpleName(), operation._1().type() ),
+                    operation._1().type() >= 0
+            );
+        }
+    }
 
     @Test
     public void shouldBeAbleToSerializeAndMarshalAllOperations() throws Exception

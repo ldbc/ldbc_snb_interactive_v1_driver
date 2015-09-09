@@ -109,24 +109,6 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             }
         }
 
-        //  ================
-        //  =====  DB  =====
-        //  ================
-        try
-        {
-            database = ClassLoaderHelper.loadDb( controlService.configuration().dbClassName() );
-            database.init(
-                    controlService.configuration().asMap(),
-                    controlService.loggingServiceFactory().loggingServiceFor( database.getClass().getSimpleName() )
-            );
-        }
-        catch ( DbException e )
-        {
-            throw new ClientException(
-                    format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
-        }
-        loggingService.info( format( "Loaded DB: %s", database.getClass().getName() ) );
-
         loggingService.info( "Driver Configuration" );
         loggingService.info( controlService.toString() );
     }
@@ -276,6 +258,28 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             throw new ClientException( "Error while retrieving operation stream for workload", e );
         }
 
+        //  ================
+        //  =====  DB  =====
+        //  ================
+        if ( null == database )
+        {
+            try
+            {
+                database = ClassLoaderHelper.loadDb( controlService.configuration().dbClassName() );
+                database.init(
+                        controlService.configuration().asMap(),
+                        controlService.loggingServiceFactory().loggingServiceFor( database.getClass().getSimpleName() ),
+                        workload.operationTypeToClassMapping()
+                );
+            }
+            catch ( DbException e )
+            {
+                throw new ClientException(
+                        format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
+            }
+            loggingService.info( format( "Loaded DB: %s", database.getClass().getName() ) );
+        }
+
         //  ========================
         //  ===  Metrics Service  ==
         //  ========================
@@ -287,14 +291,14 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
 //                        controlService.configuration().timeUnit(),
 //                        ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
 //                        csvResultsLogFileWriter,
-//                        workload.operationTypeToClassMapping(controlService.configuration().asMap()));
+//                        workload.operationTypeToClassMapping());
 //                metricsService = new DisruptorJavolutionMetricsService(
 //                        timeSource,
 //                        errorReporter,
 //                        controlService.configuration().timeUnit(),
 //                        DisruptorJavolutionMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
 //                        csvResultsLogFileWriter,
-//                        workload.operationTypeToClassMapping(controlService.configuration().asMap())
+//                        workload.operationTypeToClassMapping()
 //                );
             metricsService = new DisruptorSbeMetricsService(
                     timeSource,
@@ -302,7 +306,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     controlService.configuration().timeUnit(),
                     DisruptorSbeMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     csvResultsLogFileWriter,
-                    workload.operationTypeToClassMapping( controlService.configuration().asMap() ),
+                    workload.operationTypeToClassMapping(),
                     controlService.loggingServiceFactory()
             );
         }

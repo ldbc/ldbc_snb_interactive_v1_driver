@@ -51,7 +51,7 @@ public class SimpleWorkload extends Workload
     final long INITIAL_INSERT_COUNT = 10;
 
     @Override
-    public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping( Map<String,String> params )
+    public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
     {
         Map<Integer,Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put( LdbcQuery1.TYPE, InsertOperation.class );
