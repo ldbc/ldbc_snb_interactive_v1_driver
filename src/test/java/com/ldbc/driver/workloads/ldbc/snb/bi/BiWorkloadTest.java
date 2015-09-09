@@ -19,6 +19,7 @@ import com.ldbc.driver.workloads.OperationMixBuilder;
 import com.ldbc.driver.workloads.WorkloadTest;
 import com.ldbc.driver.workloads.ldbc.snb.bi.db.DummyLdbcSnbBiDb;
 import com.ldbc.driver.workloads.ldbc.snb.bi.db.DummyLdbcSnbBiOperationInstances;
+import com.ldbc.driver.workloads.ldbc.snb.bi.db.DummyLdbcSnbBiOperationResultSets;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -51,33 +52,105 @@ public class BiWorkloadTest extends WorkloadTest
     }
 
     @Override
-    public List<Operation> operations()
+    public List<Tuple2<Operation,Object>> operationsAndResults()
     {
-        return Lists.<Operation>newArrayList(
-                DummyLdbcSnbBiOperationInstances.read1(),
-                DummyLdbcSnbBiOperationInstances.read2(),
-                DummyLdbcSnbBiOperationInstances.read3(),
-                DummyLdbcSnbBiOperationInstances.read4(),
-                DummyLdbcSnbBiOperationInstances.read5(),
-                DummyLdbcSnbBiOperationInstances.read6(),
-                DummyLdbcSnbBiOperationInstances.read7(),
-                DummyLdbcSnbBiOperationInstances.read8(),
-                DummyLdbcSnbBiOperationInstances.read9(),
-                DummyLdbcSnbBiOperationInstances.read10(),
-                DummyLdbcSnbBiOperationInstances.read11(),
-                DummyLdbcSnbBiOperationInstances.read12(),
-                DummyLdbcSnbBiOperationInstances.read13(),
-                DummyLdbcSnbBiOperationInstances.read14(),
-                DummyLdbcSnbBiOperationInstances.read15(),
-                DummyLdbcSnbBiOperationInstances.read16(),
-                DummyLdbcSnbBiOperationInstances.read17(),
-                DummyLdbcSnbBiOperationInstances.read18(),
-                DummyLdbcSnbBiOperationInstances.read19(),
-                DummyLdbcSnbBiOperationInstances.read20(),
-                DummyLdbcSnbBiOperationInstances.read21(),
-                DummyLdbcSnbBiOperationInstances.read22(),
-                DummyLdbcSnbBiOperationInstances.read23(),
-                DummyLdbcSnbBiOperationInstances.read24()
+        return Lists.newArrayList(
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read1(),
+                        DummyLdbcSnbBiOperationResultSets.read1Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read2(),
+                        DummyLdbcSnbBiOperationResultSets.read2Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read3(),
+                        DummyLdbcSnbBiOperationResultSets.read3Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read4(),
+                        DummyLdbcSnbBiOperationResultSets.read4Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read5(),
+                        DummyLdbcSnbBiOperationResultSets.read5Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read6(),
+                        DummyLdbcSnbBiOperationResultSets.read6Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read7(),
+                        DummyLdbcSnbBiOperationResultSets.read7Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read8(),
+                        DummyLdbcSnbBiOperationResultSets.read8Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read9(),
+                        DummyLdbcSnbBiOperationResultSets.read9Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read10(),
+                        DummyLdbcSnbBiOperationResultSets.read10Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read11(),
+                        DummyLdbcSnbBiOperationResultSets.read11Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read12(),
+                        DummyLdbcSnbBiOperationResultSets.read12Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read13(),
+                        DummyLdbcSnbBiOperationResultSets.read13Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read14(),
+                        DummyLdbcSnbBiOperationResultSets.read14Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read15(),
+                        DummyLdbcSnbBiOperationResultSets.read15Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read16(),
+                        DummyLdbcSnbBiOperationResultSets.read16Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read17(),
+                        DummyLdbcSnbBiOperationResultSets.read17Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read18(),
+                        DummyLdbcSnbBiOperationResultSets.read18Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read19(),
+                        DummyLdbcSnbBiOperationResultSets.read19Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read20(),
+                        DummyLdbcSnbBiOperationResultSets.read20Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read21(),
+                        DummyLdbcSnbBiOperationResultSets.read21Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read22(),
+                        DummyLdbcSnbBiOperationResultSets.read22Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read23(),
+                        DummyLdbcSnbBiOperationResultSets.read23Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read24(),
+                        DummyLdbcSnbBiOperationResultSets.read24Results()
+                )
         );
     }
 
