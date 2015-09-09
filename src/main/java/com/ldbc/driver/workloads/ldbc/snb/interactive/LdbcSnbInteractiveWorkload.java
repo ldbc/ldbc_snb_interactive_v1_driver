@@ -103,7 +103,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser parser;
 
     @Override
-    public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping( Map<String,String> params )
+    public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
     {
         return LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping();
     }

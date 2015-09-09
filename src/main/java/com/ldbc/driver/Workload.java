@@ -17,7 +17,7 @@ public abstract class Workload implements Closeable
     private boolean isInitialized = false;
     private boolean isClosed = false;
 
-    public abstract Map<Integer,Class<? extends Operation>> operationTypeToClassMapping( Map<String,String> params );
+    public abstract Map<Integer,Class<? extends Operation>> operationTypeToClassMapping();
 
     /**
      * Called once to initialize state for workload

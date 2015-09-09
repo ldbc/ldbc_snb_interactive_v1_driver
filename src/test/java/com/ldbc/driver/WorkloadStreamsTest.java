@@ -885,7 +885,7 @@ public class WorkloadStreamsTest
     {
 
         @Override
-        public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping( Map<String,String> params )
+        public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
         {
             Map<Integer,Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
             operationTypeToClassMapping.put( NothingOperation.TYPE, NothingOperation.class );

@@ -60,7 +60,8 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
             database = ClassLoaderHelper.loadDb( controlService.configuration().dbClassName() );
             database.init(
                     controlService.configuration().asMap(),
-                    controlService.loggingServiceFactory().loggingServiceFor( database.getClass().getSimpleName() )
+                    controlService.loggingServiceFactory().loggingServiceFor( database.getClass().getSimpleName() ),
+                    workload.operationTypeToClassMapping()
             );
         }
         catch ( DbException e )
