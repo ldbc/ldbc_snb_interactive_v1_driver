@@ -19,8 +19,9 @@ import static java.lang.String.format;
 public class SameThreadOperationExecutor implements OperationExecutor
 {
     private final AtomicLong uncompletedHandlers = new AtomicLong( 0 );
-    private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextInitializer;
+    private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever;
     private final ChildOperationGenerator childOperationGenerator;
+    private final ChildOperationExecutor childOperationExecutor;
 
     public SameThreadOperationExecutor( Db db,
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
@@ -32,8 +33,9 @@ public class SameThreadOperationExecutor implements OperationExecutor
             MetricsService metricsService,
             ChildOperationGenerator childOperationGenerator )
     {
+        this.childOperationExecutor = new ChildOperationExecutor();
         this.childOperationGenerator = childOperationGenerator;
-        this.operationHandlerRunnableContextInitializer = new OperationHandlerRunnableContextRetriever(
+        this.operationHandlerRunnableContextRetriever = new OperationHandlerRunnableContextRetriever(
                 streamDefinition,
                 db,
                 localCompletionTimeWriter,
@@ -49,45 +51,27 @@ public class SameThreadOperationExecutor implements OperationExecutor
     public final void execute( Operation operation ) throws OperationExecutorException
     {
         uncompletedHandlers.incrementAndGet();
+        OperationHandlerRunnableContext operationHandlerRunnableContext = null;
         try
         {
-            OperationHandlerRunnableContext operationHandlerRunnableContext =
-                    operationHandlerRunnableContextInitializer.getInitializedHandlerFor( operation );
+            operationHandlerRunnableContext =
+                    operationHandlerRunnableContextRetriever.getInitializedHandlerFor( operation );
             operationHandlerRunnableContext.run();
-            if ( null != childOperationGenerator )
-            {
-                double state = childOperationGenerator.initialState();
-                operation = childOperationGenerator.nextOperation(
-                        state,
-                        operationHandlerRunnableContext.operation(),
-                        operationHandlerRunnableContext.resultReporter().result(),
-                        operationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
-                        operationHandlerRunnableContext.resultReporter().runDurationAsNano()
-                );
-                while ( null != operation )
-                {
-                    OperationHandlerRunnableContext childOperationHandlerRunnableContext =
-                            operationHandlerRunnableContextInitializer.getInitializedHandlerFor( operation );
-                    childOperationHandlerRunnableContext.run();
-                    state = childOperationGenerator.updateState( state, operation.type() );
-                    operation = childOperationGenerator.nextOperation(
-                            state,
-                            childOperationHandlerRunnableContext.operation(),
-                            childOperationHandlerRunnableContext.resultReporter().result(),
-                            childOperationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
-                            childOperationHandlerRunnableContext.resultReporter().runDurationAsNano()
-                    );
-                    childOperationHandlerRunnableContext.cleanup();
-                }
-            }
+            childOperationExecutor.execute(
+                    childOperationGenerator,
+                    operationHandlerRunnableContext,
+                    operationHandlerRunnableContextRetriever
+            );
             operationHandlerRunnableContext.cleanup();
         }
         catch ( Throwable e )
         {
             throw new OperationExecutorException(
-                    format( "Error retrieving handler\nOperation: %s\n%s",
+                    format( "Error retrieving or executing handler\n" +
+                            "Operation: %s\n" +
+                            "Handler Context:%s",
                             operation,
-                            ConcurrentErrorReporter.stackTraceToString( e ) ),
+                            operationHandlerRunnableContext ),
                     e
             );
         }

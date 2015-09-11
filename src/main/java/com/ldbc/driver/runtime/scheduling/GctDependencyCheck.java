@@ -15,7 +15,8 @@ public class GctDependencyCheck implements SpinnerCheck
     private final Operation operation;
     private final ConcurrentErrorReporter errorReporter;
 
-    public GctDependencyCheck( GlobalCompletionTimeReader globalCompletionTimeReader,
+    public GctDependencyCheck(
+            GlobalCompletionTimeReader globalCompletionTimeReader,
             Operation operation,
             ConcurrentErrorReporter errorReporter )
     {
@@ -55,7 +56,8 @@ public class GctDependencyCheck implements SpinnerCheck
                             + "Time Stamp: %s\n"
                             + "Dependency Time Stamp: %s",
                             TEMPORAL_UTIL.milliTimeToDateTimeString(
-                                    globalCompletionTimeReader.globalCompletionTimeAsMilli() ),
+                                    globalCompletionTimeReader.globalCompletionTimeAsMilli()
+                            ),
                             operation.toString(),
                             operation.timeStamp(),
                             operation.dependencyTimeStamp() ) );

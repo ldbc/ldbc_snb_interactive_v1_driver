@@ -34,7 +34,8 @@ class OperationHandlerRunnableContextRetriever
     private final Set<Class<? extends Operation>> dependencyOperationTypes;
     private final Set<Class<? extends Operation>> dependentOperationTypes;
 
-    OperationHandlerRunnableContextRetriever( WorkloadStreams.WorkloadStreamDefinition streamDefinition,
+    OperationHandlerRunnableContextRetriever(
+            WorkloadStreams.WorkloadStreamDefinition streamDefinition,
             Db db,
             LocalCompletionTimeWriter localCompletionTimeWriter,
             GlobalCompletionTimeReader globalCompletionTimeReader,
@@ -64,8 +65,8 @@ class OperationHandlerRunnableContextRetriever
         }
         catch ( Exception e )
         {
-            throw new OperationExecutorException( format( "Error while retrieving handler for operation\nOperation: %s",
-                    operation ), e );
+            throw new OperationExecutorException(
+                    format( "Error while retrieving handler for operation\nOperation: %s", operation ), e );
         }
         LocalCompletionTimeWriter localCompletionTimeWriterForHandler;
         if ( dependencyOperationTypes.contains( operation.getClass() ) )
@@ -78,19 +79,25 @@ class OperationHandlerRunnableContextRetriever
         }
         try
         {
-            operationHandlerRunnableContext
-                    .init( timeSource, spinner, operation, localCompletionTimeWriterForHandler, errorReporter,
-                            metricsService );
+            operationHandlerRunnableContext.init(
+                    timeSource,
+                    spinner,
+                    operation,
+                    localCompletionTimeWriterForHandler,
+                    errorReporter,
+                    metricsService
+            );
         }
         catch ( Exception e )
         {
-            throw new OperationExecutorException( format(
-                    "Error while initializing handler for operation\nOperation: %s", operation ), e );
+            throw new OperationExecutorException(
+                    format( "Error while initializing handler for operation\nOperation: %s", operation ), e );
         }
         if ( dependentOperationTypes.contains( operation.getClass() ) )
         {
             operationHandlerRunnableContext.setBeforeExecuteCheck(
-                    new GctDependencyCheck( globalCompletionTimeReader, operation, errorReporter ) );
+                    new GctDependencyCheck( globalCompletionTimeReader, operation, errorReporter )
+            );
         }
         return operationHandlerRunnableContext;
     }

@@ -144,7 +144,8 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
     private static class ThreadPoolExecutorWithAfterExecute extends ThreadPoolExecutor
     {
         private final ChildOperationGenerator childOperationGenerator;
-        private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextInitializer;
+        private final ChildOperationExecutor childOperationExecutor;
+        private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever;
         private final ConcurrentErrorReporter errorReporter;
 
         public static ThreadPoolExecutorWithAfterExecute newFixedThreadPool( int threadCount,
@@ -184,60 +185,36 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
                 ThreadFactory threadFactory,
                 AtomicLong uncompletedHandlers,
                 ChildOperationGenerator childOperationGenerator,
-                OperationHandlerRunnableContextRetriever operationHandlerRunnableContextInitializer,
+                OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever,
                 ConcurrentErrorReporter errorReporter )
         {
             super( corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory );
+            this.childOperationExecutor = new ChildOperationExecutor();
             this.uncompletedHandlers = uncompletedHandlers;
             this.childOperationGenerator = childOperationGenerator;
-            this.operationHandlerRunnableContextInitializer = operationHandlerRunnableContextInitializer;
+            this.operationHandlerRunnableContextRetriever = operationHandlerRunnableContextRetriever;
             this.errorReporter = errorReporter;
         }
 
         // Note, this occurs in same worker thread as beforeExecute() and run()
         @Override
-        protected void afterExecute( Runnable operationHandlerRunner, Throwable throwable )
+        protected void afterExecute( Runnable operationHandlerRunnableContext, Throwable throwable )
         {
-            super.afterExecute( operationHandlerRunner, throwable );
-            OperationHandlerRunnableContext operationHandlerRunnableContext =
-                    (OperationHandlerRunnableContext) operationHandlerRunner;
-
-            if ( null != childOperationGenerator )
+            super.afterExecute( operationHandlerRunnableContext, throwable );
+            try
             {
-                try
-                {
-                    double state = childOperationGenerator.initialState();
-                    Operation operation = childOperationGenerator.nextOperation(
-                            state,
-                            operationHandlerRunnableContext.operation(),
-                            operationHandlerRunnableContext.resultReporter().result(),
-                            operationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
-                            operationHandlerRunnableContext.resultReporter().runDurationAsNano()
-                    );
-                    while ( null != operation )
-                    {
-                        OperationHandlerRunnableContext childOperationHandlerRunnableContext =
-                                operationHandlerRunnableContextInitializer.getInitializedHandlerFor( operation );
-                        childOperationHandlerRunnableContext.run();
-                        state = childOperationGenerator.updateState( state, operation.type() );
-                        operation = childOperationGenerator.nextOperation(
-                                state,
-                                childOperationHandlerRunnableContext.operation(),
-                                childOperationHandlerRunnableContext.resultReporter().result(),
-                                childOperationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
-                                childOperationHandlerRunnableContext.resultReporter().runDurationAsNano()
-                        );
-                        childOperationHandlerRunnableContext.cleanup();
-                    }
-                }
-                catch ( Throwable e )
-                {
-                    errorReporter.reportError( this, format( "Error retrieving handler\n%s",
-                            ConcurrentErrorReporter.stackTraceToString( e ) ) );
-                }
+                childOperationExecutor.execute(
+                        childOperationGenerator,
+                        (OperationHandlerRunnableContext) operationHandlerRunnableContext,
+                        operationHandlerRunnableContextRetriever
+                );
             }
-
-            operationHandlerRunnableContext.cleanup();
+            catch ( Throwable e )
+            {
+                errorReporter.reportError( this, format( "Error retrieving handler\n%s",
+                        ConcurrentErrorReporter.stackTraceToString( e ) ) );
+            }
+            ((OperationHandlerRunnableContext) operationHandlerRunnableContext).cleanup();
             uncompletedHandlers.decrementAndGet();
         }
     }

@@ -166,19 +166,19 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
     @Override
     public String toString()
     {
-        return "OperationHandlerRunner{" +
-               "slot=" + slot +
-               ", timeSource=" + timeSource +
-               ", spinner=" + spinner +
-               ", operation=" + operation +
-               ", dbConnectionState=" + dbConnectionState +
-               ", localCompletionTimeWriter=" + localCompletionTimeWriter +
-               ", errorReporter=" + errorReporter +
-               ", metricsServiceWriter=" + metricsServiceWriter +
-               ", beforeExecuteCheck=" + beforeExecuteCheck +
-               ", operationHandler=" + operationHandler +
-               ", initialized=" + initialized +
-               '}';
+        return "OperationHandlerRunner\n" +
+               "    -> resultReporter=" + resultReporter + "\n" +
+               "    -> slot=" + slot + "\n" +
+               "    -> timeSource=" + timeSource + "\n" +
+               "    -> spinner=" + spinner + "\n" +
+               "    -> operation=" + operation + "\n" +
+               "    -> dbConnectionState=" + dbConnectionState + "\n" +
+               "    -> localCompletionTimeWriter=" + localCompletionTimeWriter + "\n" +
+               "    -> errorReporter=" + errorReporter + "\n" +
+               "    -> metricsServiceWriter=" + metricsServiceWriter + "\n" +
+               "    -> beforeExecuteCheck=" + beforeExecuteCheck + "\n" +
+               "    -> operationHandler=" + operationHandler + "\n" +
+               "    -> initialized=" + initialized;
     }
 
     public final void cleanup()
