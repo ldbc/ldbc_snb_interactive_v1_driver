@@ -72,7 +72,7 @@
     <hdrhistogram.version>1.2.1</hdrhistogram.version>
     <guava.version>18.0</guava.version>
     <maven.compiler.target>1.7</maven.compiler.target>
-    <disruptor-version>3.3.0</disruptor-version>
+    <disruptor-version>3.3.2</disruptor-version>
     <jackson.api.version>1.9.13</jackson.api.version>
     <sbe-version>1.0.3-RC2</sbe-version>
     <commmons.cli.version>1.2</commmons.cli.version>
