@@ -4,7 +4,8 @@ import static java.lang.String.format;
 
 public interface ResultReporter
 {
-    <OTHER_RESULT_TYPE> void report( int resultCode, OTHER_RESULT_TYPE result, Operation<OTHER_RESULT_TYPE> operation );
+    <OTHER_RESULT_TYPE> void report( int resultCode, OTHER_RESULT_TYPE result, Operation<OTHER_RESULT_TYPE> operation )
+            throws DbException;
 
     Object result();
 
@@ -18,22 +19,25 @@ public interface ResultReporter
 
     long actualStartTimeAsMilli();
 
-    public static class SimpleResultReporter implements ResultReporter
+    class SimpleResultReporter implements ResultReporter
     {
         private Object result = null;
         private int resultCode = -1;
         private long actualStartTimeAsMilli = -1;
         private long runDurationAsNano = -1;
 
-        public <OTHER_RESULT_TYPE> void report( int resultCode, OTHER_RESULT_TYPE result,
-                Operation<OTHER_RESULT_TYPE> operation )
+        public <OTHER_RESULT_TYPE> void report(
+                int resultCode,
+                OTHER_RESULT_TYPE result,
+                Operation<OTHER_RESULT_TYPE> operation ) throws DbException
         {
+            this.resultCode = resultCode;
+            this.result = result;
             if ( null == result || null == operation )
             {
-                // TODO rather thrown DbException but don't want to break existing connectors right now
-                throw new RuntimeException(
+                throw new DbException(
                         format(
-                                "Neither Operation nor Result may be null\n"
+                                "Operation and Result may be null\n"
                                 + "Operation: %s\n"
                                 + "Result: %s",
                                 operation,
@@ -41,8 +45,6 @@ public interface ResultReporter
                         )
                 );
             }
-            this.resultCode = resultCode;
-            this.result = result;
         }
 
         public int resultCode()

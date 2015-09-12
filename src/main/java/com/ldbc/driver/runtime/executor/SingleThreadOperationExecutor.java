@@ -103,7 +103,9 @@ public class SingleThreadOperationExecutor implements OperationExecutor
     synchronized public final void shutdown( long waitAsMilli ) throws OperationExecutorException
     {
         if ( shutdown.get() )
-        { throw new OperationExecutorException( "Executor has already been shutdown" ); }
+        {
+            throw new OperationExecutorException( "Executor has already been shutdown" );
+        }
         try
         {
             operationQueueEventSubmitter.submitEventToQueue( TERMINATE_OPERATION );

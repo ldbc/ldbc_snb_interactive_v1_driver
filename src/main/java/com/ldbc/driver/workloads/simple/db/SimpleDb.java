@@ -80,8 +80,10 @@ public class SimpleDb extends Db
     public static class InsertOperationHandler implements OperationHandler<InsertOperation,BasicDbConnectionState>
     {
         @Override
-        public void executeOperation( InsertOperation operation, BasicDbConnectionState dbConnectionState,
-                ResultReporter resultReporter )
+        public void executeOperation(
+                InsertOperation operation,
+                BasicDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
         {
             Map<String,Object> queryParams = new HashMap<>();
             queryParams.put( "table", operation.table() );
@@ -102,8 +104,10 @@ public class SimpleDb extends Db
     public static class ReadOperationHandler implements OperationHandler<ReadOperation,BasicDbConnectionState>
     {
         @Override
-        public void executeOperation( ReadOperation operation, BasicDbConnectionState dbConnectionState,
-                ResultReporter resultReporter )
+        public void executeOperation(
+                ReadOperation operation,
+                BasicDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
         {
             Map<String,Object> queryParams = new HashMap<>();
             queryParams.put( "table", operation.table() );
@@ -124,8 +128,10 @@ public class SimpleDb extends Db
     public static class UpdateOperationHandler implements OperationHandler<UpdateOperation,BasicDbConnectionState>
     {
         @Override
-        public void executeOperation( UpdateOperation operation, BasicDbConnectionState dbConnectionState,
-                ResultReporter resultReporter )
+        public void executeOperation(
+                UpdateOperation operation,
+                BasicDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
         {
             Map<String,Object> queryParams = new HashMap<>();
             queryParams.put( "table", operation.table() );
@@ -146,8 +152,10 @@ public class SimpleDb extends Db
     public static class ScanOperationHandler implements OperationHandler<ScanOperation,BasicDbConnectionState>
     {
         @Override
-        public void executeOperation( ScanOperation operation, BasicDbConnectionState dbConnectionState,
-                ResultReporter resultReporter )
+        public void executeOperation(
+                ScanOperation operation,
+                BasicDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
         {
             Map<String,Object> queryParams = new HashMap<>();
             queryParams.put( "table", operation.table() );
@@ -170,8 +178,10 @@ public class SimpleDb extends Db
             implements OperationHandler<ReadModifyWriteOperation,BasicDbConnectionState>
     {
         @Override
-        public void executeOperation( ReadModifyWriteOperation operation, BasicDbConnectionState dbConnectionState,
-                ResultReporter resultReporter )
+        public void executeOperation(
+                ReadModifyWriteOperation operation,
+                BasicDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
         {
             Map<String,Object> queryParams = new HashMap<>();
             queryParams.put( "table", operation.table() );

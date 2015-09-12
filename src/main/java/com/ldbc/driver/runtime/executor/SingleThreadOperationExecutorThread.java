@@ -20,6 +20,7 @@ public class SingleThreadOperationExecutorThread extends Thread
     private final AtomicBoolean forcedShutdownRequested = new AtomicBoolean( false );
     private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever;
     private final ChildOperationGenerator childOperationGenerator;
+    private final ChildOperationExecutor childOperationExecutor;
 
     SingleThreadOperationExecutorThread( Queue<Operation> operationHandlerRunnerQueue,
             ConcurrentErrorReporter errorReporter,
@@ -28,6 +29,7 @@ public class SingleThreadOperationExecutorThread extends Thread
             ChildOperationGenerator childOperationGenerator )
     {
         super( SingleThreadOperationExecutorThread.class.getSimpleName() + "-" + System.currentTimeMillis() );
+        this.childOperationExecutor = new ChildOperationExecutor();
         this.operationQueueEventFetcher = QueueEventFetcher.queueEventFetcherFor( operationHandlerRunnerQueue );
         this.errorReporter = errorReporter;
         this.uncompletedHandlers = uncompletedHandlers;
@@ -48,32 +50,11 @@ public class SingleThreadOperationExecutorThread extends Thread
                 OperationHandlerRunnableContext operationHandlerRunnableContext =
                         operationHandlerRunnableContextRetriever.getInitializedHandlerFor( operation );
                 operationHandlerRunnableContext.run();
-                if ( null != childOperationGenerator )
-                {
-                    double state = childOperationGenerator.initialState();
-                    operation = childOperationGenerator.nextOperation(
-                            state,
-                            operationHandlerRunnableContext.operation(),
-                            operationHandlerRunnableContext.resultReporter().result(),
-                            operationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
-                            operationHandlerRunnableContext.resultReporter().runDurationAsNano()
-                    );
-                    while ( null != operation )
-                    {
-                        OperationHandlerRunnableContext childOperationHandlerRunnableContext =
-                                operationHandlerRunnableContextRetriever.getInitializedHandlerFor( operation );
-                        childOperationHandlerRunnableContext.run();
-                        state = childOperationGenerator.updateState( state, operation.type() );
-                        operation = childOperationGenerator.nextOperation(
-                                state,
-                                childOperationHandlerRunnableContext.operation(),
-                                childOperationHandlerRunnableContext.resultReporter().result(),
-                                childOperationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
-                                childOperationHandlerRunnableContext.resultReporter().runDurationAsNano()
-                        );
-                        childOperationHandlerRunnableContext.cleanup();
-                    }
-                }
+                childOperationExecutor.execute(
+                        childOperationGenerator,
+                        operationHandlerRunnableContext,
+                        operationHandlerRunnableContextRetriever
+                );
                 operationHandlerRunnableContext.cleanup();
                 uncompletedHandlers.decrementAndGet();
                 operation = operationQueueEventFetcher.fetchNextEvent();
