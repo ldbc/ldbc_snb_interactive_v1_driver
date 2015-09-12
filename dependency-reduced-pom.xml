@@ -66,7 +66,7 @@
     <jctools-core-version>1.0</jctools-core-version>
     <junit.version>4.12</junit.version>
     <commons.io.version>2.4</commons.io.version>
-    <stormpot.version>2.3</stormpot.version>
+    <stormpot.version>2.4</stormpot.version>
     <maven.assembly.version>2.4</maven.assembly.version>
     <javolution-version>6.0.0</javolution-version>
     <hdrhistogram.version>1.2.1</hdrhistogram.version>
