@@ -7,7 +7,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.String.format;
 
@@ -49,18 +48,16 @@ public class ConcurrentErrorReporter
         return sb.toString();
     }
 
-    private final AtomicBoolean errorEncountered = new AtomicBoolean( false );
     private final List<ErrorReport> errorMessages = new ArrayList<>();
 
     synchronized public void reportError( Object caller, String errMsg )
     {
         errorMessages.add( new ErrorReport( whoAmI( caller ), errMsg ) );
-        errorEncountered.set( true );
     }
 
     public boolean errorEncountered()
     {
-        return errorEncountered.get();
+        return !errorMessages.isEmpty();
     }
 
     public List<ErrorReport> errorMessages()
@@ -72,9 +69,13 @@ public class ConcurrentErrorReporter
     public String toString()
     {
         if ( errorMessages.isEmpty() )
-        { return "No Reported Errors"; }
+        {
+            return "No Reported Errors";
+        }
         else
-        { return formatErrors( errorMessages() ); }
+        {
+            return formatErrors( errorMessages() );
+        }
     }
 
     public static class ErrorReport
