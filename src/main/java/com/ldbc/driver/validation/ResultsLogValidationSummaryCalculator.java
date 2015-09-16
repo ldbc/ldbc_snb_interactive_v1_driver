@@ -4,11 +4,9 @@ import org.HdrHistogram.Histogram;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 class ResultsLogValidationSummaryCalculator
 {
-    private static final long DEFAULT_MAX_DELAY_AS_MILLI = TimeUnit.MINUTES.toMillis( 30 );
     private final Histogram delays;
     private final Map<String,Histogram> delaysPerType;
     private final Map<String,Long> delaysAboveThresholdPerType;
@@ -16,16 +14,11 @@ class ResultsLogValidationSummaryCalculator
     private final long excessiveDelayThresholdAsMilli;
     private long delaysAboveThreshold;
 
-    ResultsLogValidationSummaryCalculator( long excessiveDelayThresholdAsMilli )
-    {
-        this( DEFAULT_MAX_DELAY_AS_MILLI, excessiveDelayThresholdAsMilli );
-    }
-
     ResultsLogValidationSummaryCalculator( long maxDelayAsMilli, long excessiveDelayThresholdAsMilli )
     {
         this.maxDelayAsMilli = maxDelayAsMilli;
         this.excessiveDelayThresholdAsMilli = excessiveDelayThresholdAsMilli;
-        this.delays = new Histogram( 1, maxDelayAsMilli, 5 );
+        this.delays = new Histogram( 1, Math.max( 2, maxDelayAsMilli ), 5 );
         this.delaysPerType = new HashMap<>();
         this.delaysAboveThresholdPerType = new HashMap<>();
         this.delaysAboveThreshold = 0;
@@ -38,7 +31,7 @@ class ResultsLogValidationSummaryCalculator
         Histogram delayForType = delaysPerType.get( operationType );
         if ( null == delayForType )
         {
-            delayForType = new Histogram( 1, maxDelayAsMilli, 5 );
+            delayForType = new Histogram( 1, Math.max( 2, maxDelayAsMilli ), 5 );
             delaysPerType.put( operationType, delayForType );
         }
         delayForType.recordValue( delayAsMilli );

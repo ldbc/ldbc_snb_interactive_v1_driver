@@ -5,7 +5,6 @@ import com.ldbc.driver.temporal.TemporalUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Map;
 
 import static com.ldbc.driver.validation.ResultsLogValidationResult.ValidationErrorType;
 import static java.lang.String.format;
@@ -16,32 +15,31 @@ public class ResultsLogValidator
 
     public ResultsLogValidationResult validate(
             ResultsLogValidationSummary summary,
-            long toleratedExcessiveDelayCount,
-            Map<String,Long> toleratedExcessiveDelayCountPerType
-    )
+            ResultsLogValidationTolerances tolerances )
     {
         ResultsLogValidationResult result = new ResultsLogValidationResult();
-        if ( summary.excessiveDelayCount() > toleratedExcessiveDelayCount )
+        if ( summary.excessiveDelayCount() > tolerances.toleratedExcessiveDelayCount() )
         {
             result.addError(
                     ValidationErrorType.TOO_MANY_LATE_OPERATIONS,
                     format( "Late Count (%s) > (%s) Tolerated Late Count",
                             summary.excessiveDelayCount(),
-                            toleratedExcessiveDelayCount )
+                            tolerances.toleratedExcessiveDelayCount() )
             );
         }
         for ( String operationType : summary.excessiveDelayCountPerType().keySet() )
         {
             long excessiveDelayCountForOperationType = summary.excessiveDelayCountPerType().get( operationType );
-            if ( toleratedExcessiveDelayCountPerType.containsKey( operationType ) &&
-                 toleratedExcessiveDelayCountPerType.get( operationType ) < excessiveDelayCountForOperationType )
+            if ( tolerances.toleratedExcessiveDelayCountPerType().containsKey( operationType ) &&
+                 tolerances.toleratedExcessiveDelayCountPerType().get( operationType ) <
+                 excessiveDelayCountForOperationType )
             {
                 result.addError(
                         ValidationErrorType.TOO_MANY_LATE_OPERATIONS_FOR_TYPE,
                         format( "Late Count for %s (%s) > (%s) Tolerated Late Count",
                                 operationType,
                                 summary.excessiveDelayCountPerType().get( operationType ),
-                                toleratedExcessiveDelayCountPerType.get( operationType ) )
+                                tolerances.toleratedExcessiveDelayCountPerType().get( operationType ) )
                 );
             }
         }

@@ -164,6 +164,7 @@ public class BiWorkloadTest extends WorkloadTest
                                 LdbcSnbBiWorkload.class.getName(),
                                 1_000_000
                         )
+                        .applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 0 ) )
                         .applyArgs( LdbcSnbBiWorkloadConfiguration.defaultConfigSF1() )
                         .applyArg(
                                 LdbcSnbBiWorkloadConfiguration.PARAMETERS_DIRECTORY,
@@ -173,6 +174,23 @@ public class BiWorkloadTest extends WorkloadTest
                         .applyArg(
                                 ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
                                 "false"
+                        ),
+                ConsoleAndFileDriverConfiguration
+                        .fromDefaults(
+                                DummyLdbcSnbBiDb.class.getName(),
+                                LdbcSnbBiWorkload.class.getName(),
+                                1_000_000
+                        )
+                        .applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 1_000_000 ) )
+                        .applyArgs( LdbcSnbBiWorkloadConfiguration.defaultConfigSF1() )
+                        .applyArg(
+                                LdbcSnbBiWorkloadConfiguration.PARAMETERS_DIRECTORY,
+                                TestUtils.getResource( "/snb/bi/" ).getAbsolutePath()
+                        )
+                        .applyArg( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, "0.2" )
+                        .applyArg(
+                                ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+                                "true"
                         )
         );
     }

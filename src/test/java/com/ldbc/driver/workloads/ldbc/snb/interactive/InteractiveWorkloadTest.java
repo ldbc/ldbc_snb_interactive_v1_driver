@@ -194,6 +194,7 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         DummyLdbcSnbInteractiveDb.class.getName(),
                         LdbcSnbInteractiveWorkload.class.getName(),
                         1_000_000
+                ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 0 )
                 ).applyArgs(
                         LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
                                 LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
@@ -202,10 +203,10 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         )
                 ).applyArg(
                         ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                        "true"
+                        "false"
                 ).applyArg(
                         ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                        "0.01"
+                        "0.0000001"
                 ).applyArg(
                         LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                         TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
@@ -220,16 +221,17 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         DummyLdbcSnbInteractiveDb.class.getName(),
                         LdbcSnbInteractiveWorkload.class.getName(),
                         1_000_000
+                ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 100_000 )
                 ).applyArgs(
                         LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
                                 LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                         )
                 ).applyArg(
                         ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                        "true"
+                        "false"
                 ).applyArg(
                         ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                        "0.01"
+                        "0.000001"
                 ).applyArg(
                         LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                         TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
@@ -245,6 +247,7 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         DummyLdbcSnbInteractiveDb.class.getName(),
                         LdbcSnbInteractiveWorkload.class.getName(),
                         50_000
+                ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 1_000 )
                 ).applyArgs(
                         LdbcSnbInteractiveWorkloadConfiguration.withoutLongReads(
                                 LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
@@ -253,10 +256,10 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         )
                 ).applyArg(
                         ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                        "true"
+                        "false"
                 ).applyArg(
                         ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                        "0.01"
+                        "0.00001"
                 ).applyArg(
                         LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                         TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
@@ -272,6 +275,31 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         DummyLdbcSnbInteractiveDb.class.getName(),
                         LdbcSnbInteractiveWorkload.class.getName(),
                         1_000_000
+                ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 0 )
+                ).applyArgs(
+                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
+                ).applyArg(
+                        ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+                        "false"
+                ).applyArg(
+                        ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
+                        "0.0000001"
+                ).applyArg(
+                        LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
+                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+                ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
+                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+                ).applyArgs(
+                        MapUtils.loadPropertiesToMap(
+                                TestUtils.getResource( "/snb/interactive/updateStream.properties" )
+                        )
+                ),
+                // FULL WORKLOAD
+                ConsoleAndFileDriverConfiguration.fromDefaults(
+                        DummyLdbcSnbInteractiveDb.class.getName(),
+                        LdbcSnbInteractiveWorkload.class.getName(),
+                        1_000_000
+                ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 100_000 )
                 ).applyArgs(
                         LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                 ).applyArg(
@@ -279,7 +307,7 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         "true"
                 ).applyArg(
                         ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                        "0.01"
+                        "0.001"
                 ).applyArg(
                         LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                         TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()

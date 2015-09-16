@@ -71,10 +71,14 @@ public class ResultsLogValidationTest
         toleratedExcessiveDelayCountPerType.put( "B", excessiveDelayCountPerType.get( "B" ) );
         toleratedExcessiveDelayCountPerType.put( "C", excessiveDelayCountPerType.get( "C" ) );
         ResultsLogValidator validator = new ResultsLogValidator();
-        ResultsLogValidationResult result = validator.validate(
-                summary,
+        ResultsLogValidationTolerances tolerances = new ResultsLogValidationTolerances(
+                excessiveDelayThresholdAsMilli,
                 toleratedExcessiveDelayCount,
                 toleratedExcessiveDelayCountPerType
+        );
+        ResultsLogValidationResult result = validator.validate(
+                summary,
+                tolerances
         );
         assertTrue( result.toString(), result.isSuccessful() );
     }
@@ -112,10 +116,14 @@ public class ResultsLogValidationTest
         toleratedExcessiveDelayCountPerType.put( "B", excessiveDelayCountPerType.get( "B" ) );
         toleratedExcessiveDelayCountPerType.put( "C", excessiveDelayCountPerType.get( "C" ) );
         ResultsLogValidator validator = new ResultsLogValidator();
-        ResultsLogValidationResult result = validator.validate(
-                summary,
+        ResultsLogValidationTolerances tolerances = new ResultsLogValidationTolerances(
+                excessiveDelayThresholdAsMilli,
                 toleratedExcessiveDelayCount,
                 toleratedExcessiveDelayCountPerType
+        );
+        ResultsLogValidationResult result = validator.validate(
+                summary,
+                tolerances
         );
         assertFalse( result.toString(), result.isSuccessful() );
         Assert.assertThat( result.toString(), result.errors().size(), equalTo( 1 ) );
@@ -159,10 +167,14 @@ public class ResultsLogValidationTest
         toleratedExcessiveDelayCountPerType.put( "B", excessiveDelayCountPerType.get( "B" ) - 1 );
         toleratedExcessiveDelayCountPerType.put( "C", excessiveDelayCountPerType.get( "C" ) );
         ResultsLogValidator validator = new ResultsLogValidator();
-        ResultsLogValidationResult result = validator.validate(
-                summary,
+        ResultsLogValidationTolerances tolerances = new ResultsLogValidationTolerances(
+                excessiveDelayThresholdAsMilli,
                 toleratedExcessiveDelayCount,
                 toleratedExcessiveDelayCountPerType
+        );
+        ResultsLogValidationResult result = validator.validate(
+                summary,
+                tolerances
         );
         assertFalse( result.toString(), result.isSuccessful() );
         Assert.assertThat( result.toString(), result.errors().size(), equalTo( 1 ) );

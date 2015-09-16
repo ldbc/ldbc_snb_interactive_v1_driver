@@ -2,10 +2,12 @@ package com.ldbc.driver;
 
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.validation.ResultsLogValidationTolerances;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +20,29 @@ public abstract class Workload implements Closeable
     private boolean isClosed = false;
 
     public abstract Map<Integer,Class<? extends Operation>> operationTypeToClassMapping();
+
+    public ResultsLogValidationTolerances resultsLogValidationTolerances(
+            DriverConfiguration configuration,
+            boolean warmup
+    )
+    {
+        long excessiveDelayThresholdAsMilli = TimeUnit.SECONDS.toMillis( 1 );
+        double toleratedExcessiveDelayCountPercentage = 0.01;
+        long toleratedExcessiveDelayCount =
+                (warmup) ? Math.round( configuration.warmupCount() * toleratedExcessiveDelayCountPercentage )
+                         : Math.round( configuration.operationCount() * toleratedExcessiveDelayCountPercentage );
+        // TODO this should really be percentages instead of absolute numbers
+        Map<String,Long> toleratedExcessiveDelayCountPerType = new HashMap<>();
+        for ( Class operationType : operationTypeToClassMapping().values() )
+        {
+            toleratedExcessiveDelayCountPerType.put( operationType.getSimpleName(), 10l );
+        }
+        return new ResultsLogValidationTolerances(
+                excessiveDelayThresholdAsMilli,
+                toleratedExcessiveDelayCount,
+                toleratedExcessiveDelayCountPerType
+        );
+    }
 
     /**
      * Called once to initialize state for workload

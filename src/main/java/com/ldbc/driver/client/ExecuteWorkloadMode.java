@@ -32,6 +32,7 @@ import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.Tuple3;
 import com.ldbc.driver.validation.ResultsLogValidationResult;
 import com.ldbc.driver.validation.ResultsLogValidationSummary;
+import com.ldbc.driver.validation.ResultsLogValidationTolerances;
 import com.ldbc.driver.validation.ResultsLogValidator;
 
 import java.io.File;
@@ -39,9 +40,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -257,21 +255,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         //  ========================
         try
         {
-//                metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
-//                        timeSource,
-//                        errorReporter,
-//                        controlService.configuration().timeUnit(),
-//                        ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-//                        csvResultsLogFileWriter,
-//                        workload.operationTypeToClassMapping());
-//                metricsService = new DisruptorJavolutionMetricsService(
-//                        timeSource,
-//                        errorReporter,
-//                        controlService.configuration().timeUnit(),
-//                        DisruptorJavolutionMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-//                        csvResultsLogFileWriter,
-//                        workload.operationTypeToClassMapping()
-//                );
+            // TODO create metrics service factory so different ones can be easily created
             metricsService = new DisruptorSbeMetricsService(
                     timeSource,
                     errorReporter,
@@ -397,8 +381,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     {
         try
         {
-            Future<ConcurrentErrorReporter> workloadRunnerFuture = workloadRunner.getFuture();
-            ConcurrentErrorReporter errorReporter = workloadRunnerFuture.get();
+            ConcurrentErrorReporter errorReporter = workloadRunner.getFuture().get();
             loggingService.info( "Shutting down workload..." );
             workload.close();
             if ( errorReporter.errorEncountered() )
@@ -465,17 +448,14 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     loggingService.info( "Validating workload results..." );
                     // TODO make this feature accessible directly
                     ResultsLogValidator resultsLogValidator = new ResultsLogValidator();
-                    // TODO get from somewhere or decide on a fair value -- perhaps from Workload
-                    long excessiveDelayThresholdAsMilli = TimeUnit.SECONDS.toMillis( 1 );
-                    // TODO get from somewhere or decide on a fair value -- perhaps from Workload
-                    long toleratedExcessiveDelayCount =
-                            (warmup) ? Math.round( controlService.configuration().warmupCount() * 0.01 )
-                                     : Math.round( controlService.configuration().operationCount() * 0.01 );
-                    // TODO get from somewhere or decide on a fair value -- perhaps from Workload
-                    Map<String,Long> toleratedExcessiveDelayCountPerType = new HashMap<>();
+                    ResultsLogValidationTolerances resultsLogValidationTolerances =
+                            workload.resultsLogValidationTolerances(
+                                    controlService.configuration(),
+                                    warmup
+                            );
                     ResultsLogValidationSummary resultsLogValidationSummary = resultsLogValidator.compute(
                             resultsDirectory.getOrCreateResultsLogFile( warmup ),
-                            excessiveDelayThresholdAsMilli
+                            resultsLogValidationTolerances.excessiveDelayThresholdAsMilli()
                     );
                     File resultsValidationFile = resultsDirectory.getOrCreateResultsValidationFile( warmup );
                     loggingService.info(
@@ -486,11 +466,10 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                             resultsValidationFile.toPath(),
                             resultsLogValidationSummary.toJson().getBytes( StandardCharsets.UTF_8 )
                     );
-                    // TODO validate & export result
+                    // TODO export result
                     ResultsLogValidationResult validationResult = resultsLogValidator.validate(
                             resultsLogValidationSummary,
-                            toleratedExcessiveDelayCount,
-                            toleratedExcessiveDelayCountPerType
+                            resultsLogValidationTolerances
                     );
                     loggingService.info( validationResult.toString() );
                     Files.write(

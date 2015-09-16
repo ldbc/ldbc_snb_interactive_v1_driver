@@ -43,9 +43,12 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -390,23 +393,33 @@ public abstract class WorkloadTest
             if ( configuration.warmupCount() > 0 )
             {
                 long resultsLogSize = resultsDirectory.getResultsLogFileLength( true );
-                assertTrue(
-                        format( "Expected %s entries in results log %s\nFound %s",
-                                configuration.operationCount() + 1,
-                                resultsDirectory.getResultsLogFile( true ).getAbsolutePath(),
-                                resultsLogSize
+                assertThat(
+                        format( "Expected %s <= entries in results log <= %s\nFound %s\nResults Log: %s",
+                                operationCountLower( configuration.warmupCount() ),
+                                operationCountUpper( configuration.warmupCount() ),
+                                resultsLogSize,
+                                resultsDirectory.getResultsLogFile( true ).getAbsolutePath()
                         ),
-                        resultsLogSize >= configuration.operationCount() + 1
+                        resultsLogSize,
+                        allOf(
+                                greaterThanOrEqualTo( operationCountLower( configuration.warmupCount() ) ),
+                                lessThanOrEqualTo( operationCountUpper( configuration.warmupCount() ) )
+                        )
                 );
             }
             long resultsLogSize = resultsDirectory.getResultsLogFileLength( false );
-            assertTrue(
-                    format( "Expected %s entries in results log %s\nFound %s",
-                            configuration.operationCount() + 1,
-                            resultsDirectory.getResultsLogFile( false ).getAbsolutePath(),
-                            resultsLogSize
+            assertThat(
+                    format( "Expected %s <= entries in results log <= %s\nFound %s\nResults Log: %s",
+                            operationCountLower( configuration.operationCount() ),
+                            operationCountUpper( configuration.operationCount() ),
+                            resultsLogSize,
+                            resultsDirectory.getResultsLogFile( false ).getAbsolutePath()
                     ),
-                    resultsLogSize >= configuration.operationCount() + 1
+                    resultsLogSize,
+                    allOf(
+                            greaterThanOrEqualTo( operationCountLower( configuration.operationCount() ) ),
+                            lessThanOrEqualTo( operationCountUpper( configuration.operationCount() ) )
+                    )
             );
         }
     }
@@ -474,23 +487,33 @@ public abstract class WorkloadTest
             if ( configuration.warmupCount() > 0 )
             {
                 long resultsLogSize = resultsDirectory.getResultsLogFileLength( true );
-                assertTrue(
-                        format( "Expected %s entries in results log %s\nFound %s",
-                                configuration.operationCount() + 1,
-                                resultsDirectory.getResultsLogFile( true ).getAbsolutePath(),
-                                resultsLogSize
+                assertThat(
+                        format( "Expected %s <= entries in results log <= %s\nFound %s\nResults Log: %s",
+                                operationCountLower( configuration.warmupCount() ),
+                                operationCountUpper( configuration.warmupCount() ),
+                                resultsLogSize,
+                                resultsDirectory.getResultsLogFile( true ).getAbsolutePath()
                         ),
-                        resultsLogSize >= configuration.operationCount() + 1
+                        resultsLogSize,
+                        allOf(
+                                greaterThanOrEqualTo( operationCountLower( configuration.warmupCount() ) ),
+                                lessThanOrEqualTo( operationCountUpper( configuration.warmupCount() ) )
+                        )
                 );
             }
             long resultsLogSize = resultsDirectory.getResultsLogFileLength( false );
-            assertTrue(
-                    format( "Expected %s entries in results log %s\nFound %s",
-                            configuration.operationCount() + 1,
-                            resultsDirectory.getResultsLogFile( false ).getAbsolutePath(),
-                            resultsLogSize
+            assertThat(
+                    format( "Expected %s <= entries in results log <= %s\nFound %s\nResults Log: %s",
+                            operationCountLower( configuration.operationCount() ),
+                            operationCountUpper( configuration.operationCount() ),
+                            resultsLogSize,
+                            resultsDirectory.getResultsLogFile( false ).getAbsolutePath()
                     ),
-                    resultsLogSize >= configuration.operationCount() + 1
+                    resultsLogSize,
+                    allOf(
+                            greaterThanOrEqualTo( operationCountLower( configuration.operationCount() ) ),
+                            lessThanOrEqualTo( operationCountUpper( configuration.operationCount() ) )
+                    )
             );
         }
     }
@@ -593,5 +616,32 @@ public abstract class WorkloadTest
             );
             assertTrue( workloadValidationResult.errorMessage(), workloadValidationResult.isSuccessful() );
         }
+    }
+
+    // TODO add tests related to the results log tolerances that are provided by the workload
+
+    public static final double LOWER_PERCENT = 0.9;
+    public static final double UPPER_PERCENT = 1.1;
+    public static final long DIFFERENCE_ABSOLUTE = 50;
+
+    public static long operationCountLower( long operationCount )
+    {
+        return Math.min(
+                percent( operationCount, LOWER_PERCENT ),
+                operationCount - DIFFERENCE_ABSOLUTE
+        );
+    }
+
+    public static long operationCountUpper( long operationCount )
+    {
+        return Math.max(
+                percent( operationCount, UPPER_PERCENT ),
+                operationCount + DIFFERENCE_ABSOLUTE
+        );
+    }
+
+    public static long percent( long value, double percent )
+    {
+        return Math.round( value * percent );
     }
 }

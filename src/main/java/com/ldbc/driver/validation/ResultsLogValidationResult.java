@@ -62,11 +62,11 @@ public class ResultsLogValidationResult
         StringBuffer sb = new StringBuffer();
         if ( isSuccessful() )
         {
-            sb.append( "PASSED VALIDATION -- workload operations executed to schedule" );
+            sb.append( "PASSED SCHEDULE AUDIT -- workload operations executed to schedule" );
         }
         else
         {
-            sb.append( "FAILED VALIDATION -- errors:" );
+            sb.append( "FAILED SCHEDULE AUDIT -- errors:" );
             for ( ValidationError error : errors )
             {
                 sb.append( "\n\t" ).append( error.errorType().name() ).append( " : " ).append( error.message() );
