@@ -389,6 +389,7 @@ public abstract class WorkloadTest
             {
                 assertTrue( file.exists() );
             }
+            assertThat( resultsDirectory.expectedFiles(), equalTo( resultsDirectory.files() ) );
 
             if ( configuration.warmupCount() > 0 )
             {
@@ -483,6 +484,7 @@ public abstract class WorkloadTest
             {
                 assertTrue( file.exists() );
             }
+            assertThat( resultsDirectory.expectedFiles(), equalTo( resultsDirectory.files() ) );
 
             if ( configuration.warmupCount() > 0 )
             {

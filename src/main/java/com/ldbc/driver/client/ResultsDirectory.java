@@ -1,6 +1,7 @@
 package com.ldbc.driver.client;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 import com.ldbc.driver.ClientException;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
@@ -9,9 +10,9 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -208,15 +209,27 @@ public class ResultsDirectory
         }
     }
 
-    public Iterable<File> expectedFiles() throws ClientException
+    public Set<File> files() throws ClientException
     {
         if ( null == resultsDir )
         {
-            return Collections.emptyList();
+            throw new ClientException( "Results directory is null" );
         }
         else
         {
-            List<File> expectedFiles = new ArrayList<>();
+            return Sets.newHashSet( resultsDir.listFiles() );
+        }
+    }
+
+    public Set<File> expectedFiles() throws ClientException
+    {
+        if ( null == resultsDir )
+        {
+            return Collections.emptySet();
+        }
+        else
+        {
+            Set<File> expectedFiles = new HashSet<>();
             if ( configuration.warmupCount() > 0 )
             {
                 if ( false == configuration.ignoreScheduledStartTimes() )
