@@ -24,19 +24,23 @@ import com.ldbc.driver.runtime.metrics.JsonWorkloadMetricsFormatter;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsManager;
 import com.ldbc.driver.runtime.metrics.MetricsService;
-import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsService;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.Tuple3;
-import org.apache.commons.io.FileUtils;
+import com.ldbc.driver.validation.ResultsLogValidationResult;
+import com.ldbc.driver.validation.ResultsLogValidationSummary;
+import com.ldbc.driver.validation.ResultsLogValidator;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +53,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     private final LoggingService loggingService;
     private final long randomSeed;
     private final TemporalUtil temporalUtil;
+    private final ResultsDirectory resultsDirectory;
 
     private Workload workload = null;
     private Db database = null;
@@ -67,6 +72,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
         this.randomSeed = randomSeed;
         this.temporalUtil = new TemporalUtil();
+        this.resultsDirectory = new ResultsDirectory( controlService.configuration() );
     }
 
     /*
@@ -82,33 +88,6 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     @Override
     public void init() throws ClientException
     {
-        //  =====================
-        //  ===  Results Dir  ===
-        //  =====================
-        if ( null != controlService.configuration().resultDirPath() )
-        {
-            File resultDir = new File( controlService.configuration().resultDirPath() );
-            if ( resultDir.exists() && false == resultDir.isDirectory() )
-            {
-                throw new ClientException( "Results directory is not directory: " + resultDir.getAbsolutePath() );
-            }
-            else if ( false == resultDir.exists() )
-            {
-                try
-                {
-                    FileUtils.forceMkdir( resultDir );
-                }
-                catch ( IOException e )
-                {
-                    throw new ClientException(
-                            format( "Results directory does not exist and could not be created: %s",
-                                    resultDir.getAbsolutePath() ),
-                            e
-                    );
-                }
-            }
-        }
-
         loggingService.info( "Driver Configuration" );
         loggingService.info( controlService.toString() );
     }
@@ -118,7 +97,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     {
         if ( controlService.configuration().warmupCount() > 0 )
         {
-            loggingService.info( " --------------------\n"
+            loggingService.info( " \n--------------------\n"
                                  + " --- Warmup Phase ---\n"
                                  + " --------------------\n" );
             doInit( true );
@@ -138,12 +117,12 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         }
         else
         {
-            loggingService.info( " ---------------------------------\n"
+            loggingService.info( " \n---------------------------------\n"
                                  + " --- No Warmup Phase Requested ---\n"
                                  + " ---------------------------------\n" );
         }
 
-        loggingService.info( " -----------------\n"
+        loggingService.info( " \n-----------------\n"
                              + " --- Run Phase ---\n"
                              + " -----------------" );
         doInit( false );
@@ -171,20 +150,15 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         //  ================================
         //  ===  Results Log CSV Writer  ===
         //  ================================
-        if ( null != controlService.configuration().resultDirPath() )
+        File resultsLog = resultsDirectory.getOrCreateResultsLogFile( warmup );
+        if ( null != resultsLog )
         {
-            File resultDir = new File( controlService.configuration().resultDirPath() );
-            String resultsLogFilename = (warmup)
-                                        ? controlService.configuration().name() + "-WARMUP-" +
-                                          ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX
-                                        : controlService.configuration().name() +
-                                          ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX;
-            File resultsLog = new File( resultDir, resultsLogFilename );
             try
             {
-                resultsLog.createNewFile();
-                csvResultsLogFileWriter =
-                        new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR );
+                csvResultsLogFileWriter = new SimpleCsvFileWriter(
+                        resultsLog,
+                        SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR
+                );
 
                 csvResultsLogFileWriter.writeRow(
                         "operation_type",
@@ -197,8 +171,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             catch ( IOException e )
             {
                 throw new ClientException(
-                        format( "Error while creating results log file: ", resultsLog.getAbsolutePath() ),
-                        e
+                        format( "Error while creating results log file: ", resultsLog.getAbsolutePath() ), e
                 );
             }
         }
@@ -240,8 +213,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         }
         loggingService.info( format( "Loaded workload: %s", workload.getClass().getName() ) );
 
-        loggingService.info(
-                format( "Retrieving operation stream for workload: %s", workload.getClass().getSimpleName() ) );
+        loggingService.info( format( "Retrieving workload stream: %s", workload.getClass().getSimpleName() ) );
         controlService.setWorkloadStartTimeAsMilli( System.currentTimeMillis() + TimeUnit.SECONDS.toMillis( 5 ) );
         WorkloadStreams timeMappedWorkloadStreams;
         try
@@ -463,42 +435,68 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
 
         try
         {
-            File resultDir = new File( controlService.configuration().resultDirPath() );
-            String resultsSummaryFilename;
             if ( warmup )
             {
                 loggingService.summaryResult( workloadResults );
-                resultsSummaryFilename = controlService.configuration().name() + "-WARMUP-" +
-                                         ThreadedQueuedMetricsService.RESULTS_METRICS_FILENAME_SUFFIX;
             }
             else
             {
                 loggingService.detailedResult( workloadResults );
-                resultsSummaryFilename = controlService.configuration().name() +
-                                         ThreadedQueuedMetricsService.RESULTS_METRICS_FILENAME_SUFFIX;
             }
-            if ( null != controlService.configuration().resultDirPath() )
+            if ( resultsDirectory.exists() )
             {
-                File resultFile = new File( resultDir, resultsSummaryFilename );
-                loggingService.info( format( "Exporting workload metrics to %s...", resultFile.getAbsolutePath() ) );
+                File resultsSummaryFile = resultsDirectory.getOrCreateResultsSummaryFile( warmup );
+                loggingService.info(
+                        format( "Exporting workload metrics to %s...", resultsSummaryFile.getAbsolutePath() )
+                );
                 MetricsManager.export( workloadResults,
                         new JsonWorkloadMetricsFormatter(),
-                        new FileOutputStream( resultFile ),
+                        new FileOutputStream( resultsSummaryFile ),
                         Charsets.UTF_8
                 );
-                String configurationFilename = (warmup)
-                                               ? controlService.configuration().name() + "-WARMUP-" +
-                                                 ThreadedQueuedMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX
-                                               : controlService.configuration().name() +
-                                                 ThreadedQueuedMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX;
-                File configurationFile = new File( resultDir, configurationFilename );
+                File configurationFile = resultsDirectory.getOrCreateConfigurationFile( warmup );
                 Files.write(
                         configurationFile.toPath(),
-                        controlService.configuration().toPropertiesString().getBytes()
+                        controlService.configuration().toPropertiesString().getBytes( StandardCharsets.UTF_8 )
                 );
-                if ( null != csvResultsLogFileWriter )
+                csvResultsLogFileWriter.close();
+                if ( false == controlService.configuration().ignoreScheduledStartTimes() )
                 {
-                    csvResultsLogFileWriter.close();
+                    loggingService.info( "Validating workload results..." );
+                    // TODO make this feature accessible directly
+                    ResultsLogValidator resultsLogValidator = new ResultsLogValidator();
+                    // TODO get from somewhere or decide on a fair value -- perhaps from Workload
+                    long excessiveDelayThresholdAsMilli = TimeUnit.SECONDS.toMillis( 1 );
+                    // TODO get from somewhere or decide on a fair value -- perhaps from Workload
+                    long toleratedExcessiveDelayCount =
+                            (warmup) ? Math.round( controlService.configuration().warmupCount() * 0.01 )
+                                     : Math.round( controlService.configuration().operationCount() * 0.01 );
+                    // TODO get from somewhere or decide on a fair value -- perhaps from Workload
+                    Map<String,Long> toleratedExcessiveDelayCountPerType = new HashMap<>();
+                    ResultsLogValidationSummary resultsLogValidationSummary = resultsLogValidator.compute(
+                            resultsDirectory.getOrCreateResultsLogFile( warmup ),
+                            excessiveDelayThresholdAsMilli
+                    );
+                    File resultsValidationFile = resultsDirectory.getOrCreateResultsValidationFile( warmup );
+                    loggingService.info(
+                            format( "Exporting workload results validation to: %s",
+                                    resultsValidationFile.getAbsolutePath() )
+                    );
+                    Files.write(
+                            resultsValidationFile.toPath(),
+                            resultsLogValidationSummary.toJson().getBytes( StandardCharsets.UTF_8 )
+                    );
+                    // TODO validate & export result
+                    ResultsLogValidationResult validationResult = resultsLogValidator.validate(
+                            resultsLogValidationSummary,
+                            toleratedExcessiveDelayCount,
+                            toleratedExcessiveDelayCountPerType
+                    );
+                    loggingService.info( validationResult.toString() );
+                    Files.write(
+                            resultsValidationFile.toPath(),
+                            resultsLogValidationSummary.toJson().getBytes( StandardCharsets.UTF_8 )
+                    );
                 }
             }
         }

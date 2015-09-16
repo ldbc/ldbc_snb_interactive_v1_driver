@@ -54,11 +54,11 @@ public class SimpleWorkload extends Workload
     public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
     {
         Map<Integer,Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
-        operationTypeToClassMapping.put( LdbcQuery1.TYPE, InsertOperation.class );
-        operationTypeToClassMapping.put( LdbcQuery2.TYPE, ReadModifyWriteOperation.class );
-        operationTypeToClassMapping.put( LdbcQuery3.TYPE, ReadOperation.class );
-        operationTypeToClassMapping.put( LdbcQuery4.TYPE, ScanOperation.class );
-        operationTypeToClassMapping.put( LdbcQuery5.TYPE, UpdateOperation.class );
+        operationTypeToClassMapping.put( InsertOperation.TYPE, InsertOperation.class );
+        operationTypeToClassMapping.put( ReadModifyWriteOperation.TYPE, ReadModifyWriteOperation.class );
+        operationTypeToClassMapping.put( ReadOperation.TYPE, ReadOperation.class );
+        operationTypeToClassMapping.put( ScanOperation.TYPE, ScanOperation.class );
+        operationTypeToClassMapping.put( UpdateOperation.TYPE, UpdateOperation.class );
         return operationTypeToClassMapping;
     }
 

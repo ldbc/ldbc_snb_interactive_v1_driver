@@ -38,11 +38,11 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         LdbcSnbInteractiveWorkloadConfiguration.class.getName(),
                         LdbcSnbInteractiveWorkload.class.getName(),
                         1
+                ).applyArgs( LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
+                ).applyArg( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, "1.0"
                 ).applyArg(
                         ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                        "true"
-                ).applyArgs(
-                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
+                        "false"
                 ).applyArg(
                         LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE,
                         "10"

@@ -1,0 +1,267 @@
+package com.ldbc.driver.client;
+
+import com.google.common.collect.Iterators;
+import com.ldbc.driver.ClientException;
+import com.ldbc.driver.control.DriverConfiguration;
+import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static java.lang.String.format;
+
+public class ResultsDirectory
+{
+    private static final String WARMUP_IDENTIFIER = "-WARMUP-";
+
+    public static final String RESULTS_LOG_FILENAME_SUFFIX = "-results_log.csv";
+    public static final String RESULTS_METRICS_FILENAME_SUFFIX = "-results.json";
+    public static final String RESULTS_CONFIGURATION_FILENAME_SUFFIX = "-configuration.properties";
+
+    public static final String RESULTS_VALIDATION_FILENAME_SUFFIX = "-validation.json";
+
+    private final DriverConfiguration configuration;
+    private final File resultsDir;
+
+    public ResultsDirectory( DriverConfiguration configuration ) throws ClientException
+    {
+        this.configuration = configuration;
+        if ( null == configuration.resultDirPath() )
+        {
+            this.resultsDir = null;
+        }
+        else
+        {
+            this.resultsDir = new File( configuration.resultDirPath() );
+            if ( this.resultsDir.exists() && false == resultsDir.isDirectory() )
+            {
+                throw new ClientException( "Results directory is not directory: " + this.resultsDir.getAbsolutePath() );
+            }
+            else if ( false == this.resultsDir.exists() )
+            {
+                try
+                {
+                    FileUtils.forceMkdir( this.resultsDir );
+                }
+                catch ( IOException e )
+                {
+                    throw new ClientException(
+                            format( "Results directory does not exist and could not be created: %s",
+                                    this.resultsDir.getAbsolutePath() ),
+                            e
+                    );
+                }
+            }
+        }
+    }
+
+    public boolean exists()
+    {
+        return null != resultsDir;
+    }
+
+    public File getOrCreateResultsLogFile( boolean warmup ) throws ClientException
+    {
+        File resultsLog = getResultsLogFile( warmup );
+        if ( false == resultsLog.exists() )
+        {
+            try
+            {
+                resultsLog.createNewFile();
+            }
+            catch ( IOException e )
+            {
+                throw new ClientException(
+                        format( "Error creating results log file: ", resultsLog.getAbsolutePath() ), e
+                );
+            }
+        }
+        return resultsLog;
+    }
+
+    public File getResultsLogFile( boolean warmup ) throws ClientException
+    {
+        if ( null == resultsDir )
+        {
+            throw new ClientException( "Results directory is null" );
+        }
+        else
+        {
+            return new File( resultsDir, resultsLogFilename( warmup ) );
+        }
+    }
+
+    public long getResultsLogFileLength( boolean warmup ) throws ClientException
+    {
+        try ( SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(
+                getResultsLogFile( warmup ),
+                SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING
+        ) )
+        {
+            return Iterators.size( csvResultsLogReader );
+        }
+        catch ( FileNotFoundException e )
+        {
+            throw new ClientException(
+                    format( "Error calculating length of %s", getResultsLogFile( warmup ).getAbsolutePath() ), e
+            );
+        }
+    }
+
+    public File getOrCreateResultsSummaryFile( boolean warmup ) throws ClientException
+    {
+        File resultsSummary = getResultsSummaryFile( warmup );
+        if ( false == resultsSummary.exists() )
+        {
+            try
+            {
+                resultsSummary.createNewFile();
+            }
+            catch ( IOException e )
+            {
+                throw new ClientException(
+                        format( "Error creating results summary file: ", resultsSummary.getAbsolutePath() ), e
+                );
+            }
+        }
+        return resultsSummary;
+    }
+
+    public File getResultsSummaryFile( boolean warmup ) throws ClientException
+    {
+        if ( null == resultsDir )
+        {
+            throw new ClientException( "Results directory is null" );
+        }
+        else
+        {
+            return new File( resultsDir, resultsSummaryFilename( warmup ) );
+        }
+    }
+
+    public File getOrCreateConfigurationFile( boolean warmup ) throws ClientException
+    {
+        File configurationFile = getConfigurationFile( warmup );
+        if ( false == configurationFile.exists() )
+        {
+            try
+            {
+                configurationFile.createNewFile();
+            }
+            catch ( IOException e )
+            {
+                throw new ClientException(
+                        format( "Error creating configuration file: ", configurationFile.getAbsolutePath() ), e
+                );
+            }
+        }
+        return configurationFile;
+    }
+
+    public File getConfigurationFile( boolean warmup ) throws ClientException
+    {
+        if ( null == resultsDir )
+        {
+            throw new ClientException( "Results directory is null" );
+        }
+        else
+        {
+            return new File( resultsDir, configurationFilename( warmup ) );
+        }
+    }
+
+    public File getOrCreateResultsValidationFile( boolean warmup ) throws ClientException
+    {
+        File resultsValidationFile = getResultsValidationFile( warmup );
+        if ( false == resultsValidationFile.exists() )
+        {
+            try
+            {
+                resultsValidationFile.createNewFile();
+            }
+            catch ( IOException e )
+            {
+                throw new ClientException(
+                        format( "Error creating results validation file: ",
+                                resultsValidationFile.getAbsolutePath() ),
+                        e
+                );
+            }
+        }
+        return resultsValidationFile;
+    }
+
+    public File getResultsValidationFile( boolean warmup ) throws ClientException
+    {
+        if ( null == resultsDir )
+        {
+            throw new ClientException( "Results directory is null" );
+        }
+        else
+        {
+            return new File( resultsDir, resultsValidationFilename( warmup ) );
+        }
+    }
+
+    public Iterable<File> expectedFiles() throws ClientException
+    {
+        if ( null == resultsDir )
+        {
+            return Collections.emptyList();
+        }
+        else
+        {
+            List<File> expectedFiles = new ArrayList<>();
+            if ( configuration.warmupCount() > 0 )
+            {
+                if ( false == configuration.ignoreScheduledStartTimes() )
+                {
+                    expectedFiles.add( getResultsValidationFile( true ) );
+                }
+                expectedFiles.add( getResultsLogFile( true ) );
+                expectedFiles.add( getResultsSummaryFile( true ) );
+                expectedFiles.add( getConfigurationFile( true ) );
+            }
+            if ( false == configuration.ignoreScheduledStartTimes() )
+            {
+                expectedFiles.add( getResultsValidationFile( false ) );
+            }
+            expectedFiles.add( getResultsLogFile( false ) );
+            expectedFiles.add( getResultsSummaryFile( false ) );
+            expectedFiles.add( getConfigurationFile( false ) );
+            return expectedFiles;
+        }
+    }
+
+    private String resultsValidationFilename( boolean warmup )
+    {
+        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER + RESULTS_VALIDATION_FILENAME_SUFFIX
+                        : configuration.name() + RESULTS_VALIDATION_FILENAME_SUFFIX;
+    }
+
+    private String resultsLogFilename( boolean warmup )
+    {
+        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER +
+                          RESULTS_LOG_FILENAME_SUFFIX
+                        : configuration.name() + RESULTS_LOG_FILENAME_SUFFIX;
+    }
+
+    private String resultsSummaryFilename( boolean warmup )
+    {
+        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER +
+                          RESULTS_METRICS_FILENAME_SUFFIX
+                        : configuration.name() + RESULTS_METRICS_FILENAME_SUFFIX;
+    }
+
+    private String configurationFilename( boolean warmup )
+    {
+        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER +
+                          RESULTS_CONFIGURATION_FILENAME_SUFFIX
+                        : configuration.name() + RESULTS_CONFIGURATION_FILENAME_SUFFIX;
+    }
+}

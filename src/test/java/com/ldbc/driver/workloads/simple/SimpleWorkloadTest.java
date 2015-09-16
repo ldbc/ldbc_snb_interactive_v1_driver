@@ -104,7 +104,10 @@ public class SimpleWorkloadTest extends WorkloadTest
                         Long.toString( 1_000_000 )
                 ).applyArg(
                         ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                        "true"
+                        "false"
+                ).applyArg(
+                        ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
+                        "0.0001"
                 )
         );
     }

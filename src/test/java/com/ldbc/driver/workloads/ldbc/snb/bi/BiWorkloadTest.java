@@ -165,10 +165,14 @@ public class BiWorkloadTest extends WorkloadTest
                                 1_000_000
                         )
                         .applyArgs( LdbcSnbBiWorkloadConfiguration.defaultConfigSF1() )
-                        .applyArg( ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG, "true" )
                         .applyArg(
                                 LdbcSnbBiWorkloadConfiguration.PARAMETERS_DIRECTORY,
                                 TestUtils.getResource( "/snb/bi/" ).getAbsolutePath()
+                        )
+                        .applyArg( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, "0.2" )
+                        .applyArg(
+                                ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+                                "false"
                         )
         );
     }

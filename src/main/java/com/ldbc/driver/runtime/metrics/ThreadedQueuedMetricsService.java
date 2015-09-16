@@ -25,10 +25,6 @@ public class ThreadedQueuedMetricsService implements MetricsService
     private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.MINUTES.toMillis( 1 );
     private static final long FUTURE_GET_TIMEOUT_AS_MILLI = TimeUnit.MINUTES.toMillis( 30 );
 
-    public static final String RESULTS_LOG_FILENAME_SUFFIX = "-results_log.csv";
-    public static final String RESULTS_METRICS_FILENAME_SUFFIX = "-results.json";
-    public static final String RESULTS_CONFIGURATION_FILENAME_SUFFIX = "-configuration.properties";
-
     // TODO this could come from config, if we had a max_runtime parameter. for now, it can default to something
     public static final long DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO = TimeUnit.MINUTES.toNanos( 90 );
 

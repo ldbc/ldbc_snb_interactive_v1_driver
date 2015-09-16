@@ -66,13 +66,13 @@ public class Log4jLoggingService implements LoggingService
     @Override
     public void summaryResult( WorkloadResultsSnapshot workloadResultsSnapshot )
     {
-        logger.info( summaryWorkloadMetricsFormatter.format( workloadResultsSnapshot ) );
+        logger.info( "\n" + summaryWorkloadMetricsFormatter.format( workloadResultsSnapshot ) );
     }
 
     @Override
     public void detailedResult( WorkloadResultsSnapshot workloadResultsSnapshot )
     {
-        logger.info( detailedWorkloadMetricsFormatter.format( workloadResultsSnapshot ) );
+        logger.info( "\n" + detailedWorkloadMetricsFormatter.format( workloadResultsSnapshot ) );
     }
 
     private String formatWithoutGct( long operationCount, long runDurationAsMilli,

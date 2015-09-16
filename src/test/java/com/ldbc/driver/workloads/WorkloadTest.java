@@ -10,16 +10,16 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.client.ClientMode;
+import com.ldbc.driver.client.ResultsDirectory;
 import com.ldbc.driver.client.ValidateDatabaseMode;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfiguration;
+import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.control.Log4jLoggingServiceFactory;
-import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsService;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
@@ -34,7 +34,9 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +61,22 @@ public abstract class WorkloadTest
     public abstract List<Tuple2<Operation,Object>> operationsAndResults() throws Exception;
 
     public abstract List<DriverConfiguration> configurations() throws Exception;
+
+    private List<DriverConfiguration> withTempResultDirs( List<DriverConfiguration> configurations )
+            throws IOException, DriverConfigurationException
+    {
+        List<DriverConfiguration> configurationsWithTempResultDirs = new ArrayList<>();
+        for ( DriverConfiguration configuration : configurations )
+        {
+            configurationsWithTempResultDirs.add(
+                    configuration.applyArg(
+                            ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG,
+                            temporaryFolder.newFolder().getAbsolutePath()
+                    )
+            );
+        }
+        return configurationsWithTempResultDirs;
+    }
 
     public abstract List<Tuple2<DriverConfiguration,Histogram<Class,Double>>> configurationsWithExpectedQueryMix()
             throws Exception;
@@ -175,7 +193,7 @@ public abstract class WorkloadTest
     @Test
     public void shouldGenerateManyOperationsInReasonableTimeForLongReadOnly() throws Exception
     {
-        for ( DriverConfiguration configuration : configurations() )
+        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
         {
             long operationCount = 1_000_000;
             long timeoutAsMilli = TimeUnit.SECONDS.toMillis( 5 );
@@ -203,7 +221,7 @@ public abstract class WorkloadTest
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws Exception
     {
-        for ( DriverConfiguration configuration : configurations() )
+        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
         {
             WorkloadFactory workloadFactory = new ClassNameWorkloadFactory( configuration.workloadClassName() );
             GeneratorFactory gf1 = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
@@ -334,27 +352,28 @@ public abstract class WorkloadTest
     @Test
     public void shouldLoadFromConfigFile() throws Exception
     {
-        for ( DriverConfiguration configuration : configurations() )
+        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
         {
             File configurationFile = temporaryFolder.newFile();
             Files.write( configurationFile.toPath(), configuration.toPropertiesString().getBytes() );
-            File resultDir = temporaryFolder.newFolder();
-            assertFalse( resultDir.listFiles().length > 0 );
             assertTrue( configurationFile.exists() );
 
-            ConsoleAndFileDriverConfiguration loadedConfiguration =
-                    ConsoleAndFileDriverConfiguration.fromArgs( new String[]{
-                                    "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG,
-                                    resultDir.getAbsolutePath(),
-                                    "-P", configurationFile.getAbsolutePath()
-                            }
-                    );
+            configuration = ConsoleAndFileDriverConfiguration.fromArgs( new String[]{
+                    "-P", configurationFile.getAbsolutePath()
+            } );
+
+            ResultsDirectory resultsDirectory = new ResultsDirectory( configuration );
+
+            for ( File file : resultsDirectory.expectedFiles() )
+            {
+                assertFalse( format( "Did not expect file to exist %s", file.getAbsolutePath() ), file.exists() );
+            }
 
             // When
             Client client = new Client();
             ControlService controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
-                    loadedConfiguration,
+                    configuration,
                     new Log4jLoggingServiceFactory( false ),
                     timeSource
             );
@@ -363,7 +382,32 @@ public abstract class WorkloadTest
             clientMode.startExecutionAndAwaitCompletion();
 
             // Then
-            assertTrue( resultDir.listFiles().length > 0 );
+            for ( File file : resultsDirectory.expectedFiles() )
+            {
+                assertTrue( file.exists() );
+            }
+
+            if ( configuration.warmupCount() > 0 )
+            {
+                long resultsLogSize = resultsDirectory.getResultsLogFileLength( true );
+                assertTrue(
+                        format( "Expected %s entries in results log %s\nFound %s",
+                                configuration.operationCount() + 1,
+                                resultsDirectory.getResultsLogFile( true ).getAbsolutePath(),
+                                resultsLogSize
+                        ),
+                        resultsLogSize >= configuration.operationCount() + 1
+                );
+            }
+            long resultsLogSize = resultsDirectory.getResultsLogFileLength( false );
+            assertTrue(
+                    format( "Expected %s entries in results log %s\nFound %s",
+                            configuration.operationCount() + 1,
+                            resultsDirectory.getResultsLogFile( false ).getAbsolutePath(),
+                            resultsLogSize
+                    ),
+                    resultsLogSize >= configuration.operationCount() + 1
+            );
         }
     }
 
@@ -372,7 +416,7 @@ public abstract class WorkloadTest
     {
         GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
 
-        for ( DriverConfiguration configuration : configurations() )
+        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
         {
             try ( Workload workload =
                           new ClassNameWorkloadFactory( configuration.workloadClassName() ).createWorkload() )
@@ -402,15 +446,14 @@ public abstract class WorkloadTest
     @Test
     public void shouldRunWorkload() throws Exception
     {
-        for ( DriverConfiguration configuration : configurations() )
+        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
         {
-            File resultsDir = temporaryFolder.newFolder();
-            configuration =
-                    configuration.applyArg(
-                            ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG,
-                            resultsDir.getAbsolutePath()
-                    );
-            assertFalse( resultsDir.listFiles().length > 0 );
+            ResultsDirectory resultsDirectory = new ResultsDirectory( configuration );
+
+            for ( File file : resultsDirectory.expectedFiles() )
+            {
+                assertFalse( format( "Did not expect file to exist %s", file.getAbsolutePath() ), file.exists() );
+            }
 
             Client client = new Client();
             ControlService controlService = new LocalControlService(
@@ -423,22 +466,30 @@ public abstract class WorkloadTest
             clientMode.init();
             clientMode.startExecutionAndAwaitCompletion();
 
-            int expectedFileCount = (0 == configuration.warmupCount()) ? 3 : 6;
-            assertThat( resultsDir.listFiles().length, is( expectedFileCount ) );
+            for ( File file : resultsDirectory.expectedFiles() )
+            {
+                assertTrue( file.exists() );
+            }
 
-            File resultsLog = new File(
-                    resultsDir,
-                    configuration.name() + ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX
-            );
-            SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(
-                    resultsLog,
-                    SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING
-            );
-            long resultsLogSize = (long) Iterators.size( csvResultsLogReader );
+            if ( configuration.warmupCount() > 0 )
+            {
+                long resultsLogSize = resultsDirectory.getResultsLogFileLength( true );
+                assertTrue(
+                        format( "Expected %s entries in results log %s\nFound %s",
+                                configuration.operationCount() + 1,
+                                resultsDirectory.getResultsLogFile( true ).getAbsolutePath(),
+                                resultsLogSize
+                        ),
+                        resultsLogSize >= configuration.operationCount() + 1
+                );
+            }
+            long resultsLogSize = resultsDirectory.getResultsLogFileLength( false );
             assertTrue(
-                    format( "Expected %s entries in results log, found %s",
+                    format( "Expected %s entries in results log %s\nFound %s",
                             configuration.operationCount() + 1,
-                            resultsLogSize ),
+                            resultsDirectory.getResultsLogFile( false ).getAbsolutePath(),
+                            resultsLogSize
+                    ),
                     resultsLogSize >= configuration.operationCount() + 1
             );
         }
@@ -447,7 +498,7 @@ public abstract class WorkloadTest
     @Test
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass() throws Exception
     {
-        for ( DriverConfiguration configuration : configurations() )
+        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
         {
             // **************************************************
             // where validation parameters should be written (ensure file does not yet exist)
@@ -465,6 +516,13 @@ public abstract class WorkloadTest
                     ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
                     validationParams.toCommandlineString()
             );
+
+            ResultsDirectory resultsDirectory = new ResultsDirectory( configuration );
+
+            for ( File file : resultsDirectory.expectedFiles() )
+            {
+                assertFalse( format( "Did not expect file to exist %s", file.getAbsolutePath() ), file.exists() );
+            }
 
             // **************************************************
             // create validation parameters file
@@ -525,7 +583,7 @@ public abstract class WorkloadTest
     @Test
     public void shouldPassWorkloadValidation() throws Exception
     {
-        for ( DriverConfiguration configuration : configurations() )
+        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
         {
             WorkloadValidator workloadValidator = new WorkloadValidator();
             WorkloadValidationResult workloadValidationResult = workloadValidator.validate(

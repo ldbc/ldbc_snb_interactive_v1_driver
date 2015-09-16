@@ -21,7 +21,8 @@ public class MetricsManager
     private long latestFinishTimeAsMilli;
     private final OperationTypeMetricsManager[] operationTypeMetricsManagers;
 
-    public static void export( WorkloadResultsSnapshot workloadResults,
+    public static void export(
+            WorkloadResultsSnapshot workloadResults,
             WorkloadMetricsFormatter metricsFormatter,
             OutputStream outputStream,
             Charset charSet )
