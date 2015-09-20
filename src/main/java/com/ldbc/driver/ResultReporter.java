@@ -1,26 +1,27 @@
 package com.ldbc.driver;
 
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+
 import static java.lang.String.format;
 
 public interface ResultReporter
 {
-    <OTHER_RESULT_TYPE> void report( int resultCode, OTHER_RESULT_TYPE result, Operation<OTHER_RESULT_TYPE> operation )
-            throws DbException;
+    <OTHER_RESULT_TYPE> void report(
+            int resultCode,
+            OTHER_RESULT_TYPE result,
+            Operation<OTHER_RESULT_TYPE> operation ) throws DbException;
 
     Object result();
 
     int resultCode();
 
-    void setRunDurationAsNano( long runDurationAsNano );
-
     long runDurationAsNano();
-
-    void setActualStartTimeAsMilli( long actualStartTimeAsMilli );
 
     long actualStartTimeAsMilli();
 
     class SimpleResultReporter implements ResultReporter
     {
+        private ConcurrentErrorReporter errorReporter = null;
         private Object result = null;
         private int resultCode = -1;
         private long actualStartTimeAsMilli = -1;
@@ -33,26 +34,29 @@ public interface ResultReporter
         {
             this.resultCode = resultCode;
             this.result = result;
-            if ( null == result || null == operation )
+            if ( null == operation )
             {
-                throw new DbException(
-                        format(
-                                "Operation and Result may be null\n"
-                                + "Operation: %s\n"
-                                + "Result: %s",
-                                operation,
-                                result
-                        )
+                String errMsg = format(
+                        "Operation is null\n"
+                        + "Operation: %s\n"
+                        + "Result: %s",
+                        operation,
+                        result
                 );
+                if ( errorReporter != null )
+                {
+                    errorReporter.reportError( this, errMsg );
+                }
+                throw new DbException( errMsg );
             }
         }
 
+        @Override
         public int resultCode()
         {
             return resultCode;
         }
 
-        @Override
         public void setRunDurationAsNano( long runDurationAsNano )
         {
             this.runDurationAsNano = runDurationAsNano;
@@ -64,7 +68,6 @@ public interface ResultReporter
             return runDurationAsNano;
         }
 
-        @Override
         public void setActualStartTimeAsMilli( long actualStartTimeAsMilli )
         {
             this.actualStartTimeAsMilli = actualStartTimeAsMilli;
@@ -76,9 +79,27 @@ public interface ResultReporter
             return actualStartTimeAsMilli;
         }
 
+        @Override
         public Object result()
         {
             return result;
+        }
+
+        public void setErrorReporter( ConcurrentErrorReporter errorReporter )
+        {
+            this.errorReporter = errorReporter;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "SimpleResultReporter{\n" +
+                   "\t-->errorReporter=" + errorReporter + "\n" +
+                   "\t-->result=" + result + "\n" +
+                   "\t-->resultCode=" + resultCode + "\n" +
+                   "\t-->actualStartTimeAsMilli=" + actualStartTimeAsMilli + "\n" +
+                   "\t-->runDurationAsNano=" + runDurationAsNano + "\n" +
+                   '}';
         }
     }
 }

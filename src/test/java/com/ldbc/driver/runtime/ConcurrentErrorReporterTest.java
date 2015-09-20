@@ -42,6 +42,7 @@ public class ConcurrentErrorReporterTest
         assertThat( errorMessages.next().error(), is( "Error 2" ) );
         assertThat( errorMessages.next().error(), is( "Error 3" ) );
         assertThat( concurrentErrorReporter.errorEncountered(), is( true ) );
+        System.out.println( concurrentErrorReporter.toString() );
     }
 
     @Test
@@ -83,6 +84,7 @@ public class ConcurrentErrorReporterTest
         {
             assertThat( errorMessages.contains( format( "MyID=%s", i ) ), is( true ) );
         }
+        System.out.println( concurrentErrorReporter.toString() );
     }
 
     class ErrorReportingTask implements Callable<Integer>
@@ -98,9 +100,16 @@ public class ConcurrentErrorReporterTest
 
         public Integer call() throws Exception
         {
-            concurrentErrorReporter.reportError( this, format( "MyID=%s", myId ) );
+            try
+            {
+                String message = ((Integer) (null)).toString();
+                System.out.printf( message );
+            }
+            catch ( Throwable e )
+            {
+                concurrentErrorReporter.reportError( this, format( "MyID=%s", myId ) );
+            }
             return 0;
         }
     }
-
 }

@@ -21,12 +21,12 @@ public class ConcurrentErrorReporter
         return sw.toString();
     }
 
-    // TODO include machine/process name
     public static String whoAmI( Object caller )
     {
         Thread myThread = Thread.currentThread();
-        return format( "%s (Thread: ID=%s, Name=%s, Priority=%s)",
+        return format( "%s [%s] (Thread: ID=%s, Name=%s, Priority=%s)",
                 caller.getClass().getSimpleName(),
+                Thread.currentThread().getStackTrace()[3].getLineNumber(),
                 myThread.getId(),
                 myThread.getName(),
                 myThread.getPriority() );
@@ -52,23 +52,23 @@ public class ConcurrentErrorReporter
 
     synchronized public void reportError( Object caller, String errMsg )
     {
-        errorMessages.add( new ErrorReport( whoAmI( caller ), errMsg ) );
+        syncGetErrorMessages().add( new ErrorReport( whoAmI( caller ), errMsg ) );
     }
 
     public boolean errorEncountered()
     {
-        return !errorMessages.isEmpty();
+        return !syncGetErrorMessages().isEmpty();
     }
 
     public List<ErrorReport> errorMessages()
     {
-        return errorMessages;
+        return syncGetErrorMessages();
     }
 
     @Override
     public String toString()
     {
-        if ( errorMessages.isEmpty() )
+        if ( syncGetErrorMessages().isEmpty() )
         {
             return "No Reported Errors";
         }
@@ -76,6 +76,11 @@ public class ConcurrentErrorReporter
         {
             return formatErrors( errorMessages() );
         }
+    }
+
+    private synchronized List<ErrorReport> syncGetErrorMessages()
+    {
+        return errorMessages;
     }
 
     public static class ErrorReport

@@ -212,12 +212,13 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
             catch ( Throwable e )
             {
                 errorReporter.reportError( this,
-                        format( "Error retrieving handler\n" +
-                                "%s",
-                                ConcurrentErrorReporter.stackTraceToString( e ) ) );
+                        format( "Error retrieving handler\n%s", ConcurrentErrorReporter.stackTraceToString( e ) ) );
             }
-            ((OperationHandlerRunnableContext) operationHandlerRunnableContext).cleanup();
-            uncompletedHandlers.decrementAndGet();
+            finally
+            {
+                ((OperationHandlerRunnableContext) operationHandlerRunnableContext).cleanup();
+                uncompletedHandlers.decrementAndGet();
+            }
         }
     }
 }

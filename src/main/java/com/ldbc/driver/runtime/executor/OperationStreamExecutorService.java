@@ -20,7 +20,8 @@ public class OperationStreamExecutorService
     private final AtomicBoolean shutdown = new AtomicBoolean( false );
     private final AtomicBoolean forceThreadToTerminate = new AtomicBoolean( false );
 
-    public OperationStreamExecutorService( ConcurrentErrorReporter errorReporter,
+    public OperationStreamExecutorService(
+            ConcurrentErrorReporter errorReporter,
             WorkloadStreamDefinition streamDefinition,
             OperationExecutor operationExecutor,
             LocalCompletionTimeWriter localCompletionTimeWriter )

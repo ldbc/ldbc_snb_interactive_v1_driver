@@ -34,7 +34,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
 
     private boolean initialized = false;
 
-    private final ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
+    private final ResultReporter.SimpleResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
 
     public final void setSlot( Slot slot )
     {
@@ -141,6 +141,10 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
             resultReporter.setActualStartTimeAsMilli( timeSource.nowAsMilli() );
             long startOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
             operationHandler.executeOperation( operation, dbConnectionState, resultReporter );
+            if ( null == resultReporter().result() )
+            {
+                errorReporter.reportError( this, format( "Operation result is null\nOperation: %s", operation ) );
+            }
             long endOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
             resultReporter.setRunDurationAsNano( endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano );
             localCompletionTimeWriter.submitLocalCompletedTime( operation.timeStamp() );
@@ -154,11 +158,10 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
         }
         catch ( Throwable e )
         {
-            String errMsg = format(
-                    "Error encountered\n%s\n%s",
-                    operation.toString(),
-                    ConcurrentErrorReporter.stackTraceToString( e ) );
-            errorReporter.reportError( this, errMsg );
+            errorReporter.reportError( this,
+                    format( "Error encountered\n%s\n%s",
+                            operation.toString(),
+                            ConcurrentErrorReporter.stackTraceToString( e ) ) );
         }
     }
 
@@ -169,13 +172,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
         return "OperationHandlerRunner\n" +
                "    -> resultReporter=" + resultReporter + "\n" +
                "    -> slot=" + slot + "\n" +
-               "    -> timeSource=" + timeSource + "\n" +
-               "    -> spinner=" + spinner + "\n" +
                "    -> operation=" + operation + "\n" +
-               "    -> dbConnectionState=" + dbConnectionState + "\n" +
-               "    -> localCompletionTimeWriter=" + localCompletionTimeWriter + "\n" +
-               "    -> errorReporter=" + errorReporter + "\n" +
-               "    -> metricsServiceWriter=" + metricsServiceWriter + "\n" +
                "    -> beforeExecuteCheck=" + beforeExecuteCheck + "\n" +
                "    -> operationHandler=" + operationHandler + "\n" +
                "    -> initialized=" + initialized;

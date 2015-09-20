@@ -43,7 +43,7 @@ class OperationStreamExecutorServiceThread extends Thread
     {
         try
         {
-            while ( initiatedTimeSubmittingOperationRetriever.hasNextOperation() && false == forcedTerminate.get() )
+            while ( initiatedTimeSubmittingOperationRetriever.hasNextOperation() && !forcedTerminate.get() )
             {
                 Operation operation;
                 try
@@ -52,9 +52,9 @@ class OperationStreamExecutorServiceThread extends Thread
                 }
                 catch ( Throwable e )
                 {
-                    String errMsg = format( "Error while retrieving next operation\n%s",
-                            ConcurrentErrorReporter.stackTraceToString( e ) );
-                    errorReporter.reportError( this, errMsg );
+                    errorReporter.reportError( this,
+                            format( "Error retrieving next operation\n%s",
+                                    ConcurrentErrorReporter.stackTraceToString( e ) ) );
                     break;
                 }
 
@@ -65,10 +65,10 @@ class OperationStreamExecutorServiceThread extends Thread
                 }
                 catch ( OperationExecutorException e )
                 {
-                    String errMsg = format( "Error encountered while submitting operation for execution\n%s\n%s",
-                            operation,
-                            ConcurrentErrorReporter.stackTraceToString( e ) );
-                    errorReporter.reportError( this, errMsg );
+                    errorReporter.reportError( this,
+                            format( "Error submitting operation for execution\n%s\n%s",
+                                    operation,
+                                    ConcurrentErrorReporter.stackTraceToString( e ) ) );
                     break;
                 }
             }
@@ -85,12 +85,8 @@ class OperationStreamExecutorServiceThread extends Thread
 
     private void awaitAllRunningHandlers()
     {
-        while ( true )
+        while ( 0 > operationExecutor.uncompletedOperationHandlerCount() && !forcedTerminate.get() )
         {
-            if ( 0 == operationExecutor.uncompletedOperationHandlerCount() )
-            { break; }
-            if ( forcedTerminate.get() )
-            { break; }
             Spinner.powerNap( POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI );
         }
     }
