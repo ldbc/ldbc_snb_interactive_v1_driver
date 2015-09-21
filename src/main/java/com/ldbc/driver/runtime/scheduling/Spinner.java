@@ -82,7 +82,8 @@ public class Spinner
         private final TimeSource timeSource;
         private final long sleepDurationAsMilli;
 
-        private WaitForChecksAndScheduledStartTimeFun( TimeSource timeSource,
+        private WaitForChecksAndScheduledStartTimeFun(
+                TimeSource timeSource,
                 long sleepDurationAsMilli )
         {
             this.timeSource = timeSource;

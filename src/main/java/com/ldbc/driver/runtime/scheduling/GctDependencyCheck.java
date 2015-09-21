@@ -58,7 +58,7 @@ public class GctDependencyCheck implements SpinnerCheck
                             TEMPORAL_UTIL.milliTimeToDateTimeString(
                                     globalCompletionTimeReader.globalCompletionTimeAsMilli()
                             ),
-                            operation.toString(),
+                            operation,
                             operation.timeStamp(),
                             operation.dependencyTimeStamp() ) );
             return false;

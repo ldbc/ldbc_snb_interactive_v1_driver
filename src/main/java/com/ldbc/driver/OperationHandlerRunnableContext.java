@@ -57,7 +57,10 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
             this.timeSource = timeSource;
             this.spinner = spinner;
             this.errorReporter = errorReporter;
-            this.resultReporter = new ResultReporter.SimpleResultReporter( this.errorReporter );
+            if ( null == resultReporter )
+            {
+                this.resultReporter = new ResultReporter.SimpleResultReporter( errorReporter );
+            }
             try
             {
                 this.metricsServiceWriter = metricsService.getWriter();
@@ -166,7 +169,6 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
                     operation,
                     ConcurrentErrorReporter.stackTraceToString( e ) );
             errorReporter.reportError( this, errMsg );
-//            throw new RuntimeException( errMsg, e );
         }
     }
 

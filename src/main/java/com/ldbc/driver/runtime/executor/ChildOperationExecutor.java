@@ -38,22 +38,16 @@ public class ChildOperationExecutor
                 {
                     OperationHandlerRunnableContext childOperationHandlerRunnableContext =
                             operationHandlerRunnableContextRetriever.getInitializedHandlerFor( operation );
-                    try
-                    {
-                        childOperationHandlerRunnableContext.run();
-                        state = childOperationGenerator.updateState( state, operation.type() );
-                        operation = childOperationGenerator.nextOperation(
-                                state,
-                                childOperationHandlerRunnableContext.operation(),
-                                childOperationHandlerRunnableContext.resultReporter().result(),
-                                childOperationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
-                                childOperationHandlerRunnableContext.resultReporter().runDurationAsNano()
-                        );
-                    }
-                    finally
-                    {
-                        childOperationHandlerRunnableContext.cleanup();
-                    }
+                    childOperationHandlerRunnableContext.run();
+                    state = childOperationGenerator.updateState( state, operation.type() );
+                    operation = childOperationGenerator.nextOperation(
+                            state,
+                            childOperationHandlerRunnableContext.operation(),
+                            childOperationHandlerRunnableContext.resultReporter().result(),
+                            childOperationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
+                            childOperationHandlerRunnableContext.resultReporter().runDurationAsNano()
+                    );
+                    childOperationHandlerRunnableContext.cleanup();
                 }
             }
         }

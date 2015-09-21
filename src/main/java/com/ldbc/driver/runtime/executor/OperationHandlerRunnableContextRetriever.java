@@ -69,6 +69,7 @@ class OperationHandlerRunnableContextRetriever
                     format( "Error while retrieving handler for operation\nOperation: %s", operation ), e );
         }
         LocalCompletionTimeWriter localCompletionTimeWriterForHandler;
+        // TODO this should really be a Set<Integer> --> even PrimitiveIntSet
         if ( dependencyOperationTypes.contains( operation.getClass() ) )
         {
             localCompletionTimeWriterForHandler = localCompletionTimeWriter;
@@ -96,6 +97,8 @@ class OperationHandlerRunnableContextRetriever
         if ( dependentOperationTypes.contains( operation.getClass() ) )
         {
             operationHandlerRunnableContext.setBeforeExecuteCheck(
+                    // TODO this could be created just once if operation was passed in from spinner
+                    // TODO global completion time reader & error reporter only need to be set once
                     new GctDependencyCheck( globalCompletionTimeReader, operation, errorReporter )
             );
         }

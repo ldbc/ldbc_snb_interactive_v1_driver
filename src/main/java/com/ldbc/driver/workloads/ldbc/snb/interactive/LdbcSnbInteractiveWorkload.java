@@ -489,6 +489,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
          * *******
          * *******/
 
+        // TODO put person/forum update stream pairs into same streams, to half required thread count
          /*
          * Create person write operation streams
          */

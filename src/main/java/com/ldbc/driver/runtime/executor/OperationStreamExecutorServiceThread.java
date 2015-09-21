@@ -46,6 +46,7 @@ class OperationStreamExecutorServiceThread extends Thread
             while ( initiatedTimeSubmittingOperationRetriever.hasNextOperation() && !forcedTerminate.get() )
             {
                 Operation operation;
+                // TODO remove exception handling? if an exception is thrown we want to terminate anyway
                 try
                 {
                     operation = initiatedTimeSubmittingOperationRetriever.nextOperation();
@@ -58,6 +59,7 @@ class OperationStreamExecutorServiceThread extends Thread
                     break;
                 }
 
+                // TODO remove exception handling? if an exception is thrown we want to terminate anyway
                 try
                 {
                     // --- BLOCKING CALL (when bounded queue is full) ---
@@ -73,6 +75,7 @@ class OperationStreamExecutorServiceThread extends Thread
                 }
             }
 
+            // TODO do this in catch statement too? for clean shutdown
             awaitAllRunningHandlers();
             this.hasFinished.set( true );
         }
@@ -85,19 +88,6 @@ class OperationStreamExecutorServiceThread extends Thread
 
     private void awaitAllRunningHandlers()
     {
-        /*
-        private void awaitAllRunningHandlers()
-     {
--        while ( true )
-+        while ( 0 > operationExecutor.uncompletedOperationHandlerCount() && !forcedTerminate.get() )
-         {
--            if ( 0 == operationExecutor.uncompletedOperationHandlerCount() )
--            { break; }
--            if ( forcedTerminate.get() )
--            { break; }
-             Spinner.powerNap( POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI );
-         }
-         */
         while ( 0 > operationExecutor.uncompletedOperationHandlerCount() && !forcedTerminate.get() )
         {
             Spinner.powerNap( POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI );
