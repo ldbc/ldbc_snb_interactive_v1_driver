@@ -26,7 +26,8 @@ public class DbValidator
         System.out.println( "----" );
         DecimalFormat numberFormat = new DecimalFormat( "###,###,###,###,###" );
         DbValidationResult dbValidationResult = new DbValidationResult( db );
-        ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
+        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+        ResultReporter resultReporter = new ResultReporter.SimpleResultReporter( errorReporter );
 
         int validationParamsProcessedSoFar = 0;
         int validationParamsCrashedSoFar = 0;

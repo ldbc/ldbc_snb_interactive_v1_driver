@@ -508,6 +508,24 @@ public class WorkloadRunner
                 // but for now it does not matter as the process will terminate anyway
                 // (though when running test suite it can result in many running threads, making the tests much slower)
                 executorForAsynchronous.shutdown( shutdownWait );
+            }
+            catch ( OperationExecutorException e )
+            {
+                errorReporter.reportError(
+                        this,
+                        format( "Encountered error while waiting for asynchronous executor to shutdown\n" +
+                                "Handlers still running: %s\n" +
+                                "%s",
+                                executorForAsynchronous.uncompletedOperationHandlerCount(),
+                                ConcurrentErrorReporter.stackTraceToString( e ) )
+                );
+            }
+
+            try
+            {
+                // if forced shutdown (error) some handlers likely still running,
+                // but for now it does not matter as the process will terminate anyway
+                // (though when running test suite it can result in many running threads, making the tests much slower)
                 for ( OperationExecutor executorForBlocking : executorsForBlocking )
                 {
                     executorForBlocking.shutdown( shutdownWait );
@@ -515,9 +533,17 @@ public class WorkloadRunner
             }
             catch ( OperationExecutorException e )
             {
+                long uncompletedOperationHandlerCount = 0;
+                for ( OperationExecutor executorForBlocking : executorsForBlocking )
+                {
+                    uncompletedOperationHandlerCount += executorForBlocking.uncompletedOperationHandlerCount();
+                }
                 errorReporter.reportError(
                         this,
-                        format( "Encountered error while shutting down\n%s",
+                        format( "Encountered error while waiting for a synchronous executor to shutdown\n" +
+                                "Handlers still running: %s\n" +
+                                "%s",
+                                uncompletedOperationHandlerCount,
                                 ConcurrentErrorReporter.stackTraceToString( e ) )
                 );
             }

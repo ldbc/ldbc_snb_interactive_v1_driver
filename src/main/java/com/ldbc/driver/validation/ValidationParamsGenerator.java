@@ -12,6 +12,7 @@ import com.ldbc.driver.Workload.DbValidationParametersFilter;
 import com.ldbc.driver.Workload.DbValidationParametersFilterResult;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,7 +25,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
     private final Db db;
     private final DbValidationParametersFilter dbValidationParametersFilter;
     private final Iterator<Operation> operations;
-    private final ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
+    private final ResultReporter resultReporter;
     private int entriesWrittenSoFar;
     private boolean needMoreValidationParameters;
     private final List<Operation> injectedOperations;
@@ -36,6 +37,8 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
         this.db = db;
         this.dbValidationParametersFilter = dbValidationParametersFilter;
         this.operations = operations;
+        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+        this.resultReporter = new ResultReporter.SimpleResultReporter( errorReporter );
         this.entriesWrittenSoFar = 0;
         this.needMoreValidationParameters = true;
         this.injectedOperations = new ArrayList<>();

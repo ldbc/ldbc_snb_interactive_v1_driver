@@ -85,6 +85,19 @@ class OperationStreamExecutorServiceThread extends Thread
 
     private void awaitAllRunningHandlers()
     {
+        /*
+        private void awaitAllRunningHandlers()
+     {
+-        while ( true )
++        while ( 0 > operationExecutor.uncompletedOperationHandlerCount() && !forcedTerminate.get() )
+         {
+-            if ( 0 == operationExecutor.uncompletedOperationHandlerCount() )
+-            { break; }
+-            if ( forcedTerminate.get() )
+-            { break; }
+             Spinner.powerNap( POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI );
+         }
+         */
         while ( 0 > operationExecutor.uncompletedOperationHandlerCount() && !forcedTerminate.get() )
         {
             Spinner.powerNap( POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI );

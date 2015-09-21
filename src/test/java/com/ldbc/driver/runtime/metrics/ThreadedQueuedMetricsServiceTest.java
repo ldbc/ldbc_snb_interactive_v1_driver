@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.ResultReporter;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.Log4jLoggingServiceFactory;
 import com.ldbc.driver.control.LoggingServiceFactory;
@@ -155,7 +154,6 @@ public class ThreadedQueuedMetricsServiceTest
     public void shouldReturnCorrectMeasurements( MetricsService.MetricsServiceWriter metricsServiceWriter )
             throws WorkloadException, MetricsCollectionException
     {
-        ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
         assertThat( metricsServiceWriter.results().startTimeAsMilli(), equalTo( -1l ) );
         assertThat( metricsServiceWriter.results().latestFinishTimeAsMilli(), is( -1l ) );
 

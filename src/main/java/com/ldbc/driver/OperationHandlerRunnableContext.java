@@ -34,7 +34,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
 
     private boolean initialized = false;
 
-    private final ResultReporter.SimpleResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
+    private ResultReporter.SimpleResultReporter resultReporter = null;
 
     public final void setSlot( Slot slot )
     {
@@ -57,6 +57,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
             this.timeSource = timeSource;
             this.spinner = spinner;
             this.errorReporter = errorReporter;
+            this.resultReporter = new ResultReporter.SimpleResultReporter( this.errorReporter );
             try
             {
                 this.metricsServiceWriter = metricsService.getWriter();
@@ -141,20 +142,23 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
             resultReporter.setActualStartTimeAsMilli( timeSource.nowAsMilli() );
             long startOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
             operationHandler.executeOperation( operation, dbConnectionState, resultReporter );
+            long endOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
+            resultReporter.setRunDurationAsNano( endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano );
             if ( null == resultReporter().result() )
             {
                 errorReporter.reportError( this, format( "Operation result is null\nOperation: %s", operation ) );
             }
-            long endOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
-            resultReporter.setRunDurationAsNano( endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano );
-            localCompletionTimeWriter.submitLocalCompletedTime( operation.timeStamp() );
-            metricsServiceWriter.submitOperationResult(
-                    operation.type(),
-                    operation.scheduledStartTimeAsMilli(),
-                    resultReporter.actualStartTimeAsMilli(),
-                    resultReporter.runDurationAsNano(),
-                    resultReporter.resultCode()
-            );
+            else
+            {
+                localCompletionTimeWriter.submitLocalCompletedTime( operation.timeStamp() );
+                metricsServiceWriter.submitOperationResult(
+                        operation.type(),
+                        operation.scheduledStartTimeAsMilli(),
+                        resultReporter.actualStartTimeAsMilli(),
+                        resultReporter.runDurationAsNano(),
+                        resultReporter.resultCode()
+                );
+            }
         }
         catch ( Throwable e )
         {

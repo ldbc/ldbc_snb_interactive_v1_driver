@@ -21,11 +21,16 @@ public interface ResultReporter
 
     class SimpleResultReporter implements ResultReporter
     {
-        private ConcurrentErrorReporter errorReporter = null;
+        private final ConcurrentErrorReporter errorReporter;
         private Object result = null;
         private int resultCode = -1;
         private long actualStartTimeAsMilli = -1;
         private long runDurationAsNano = -1;
+
+        public SimpleResultReporter( ConcurrentErrorReporter errorReporter )
+        {
+            this.errorReporter = errorReporter;
+        }
 
         public <OTHER_RESULT_TYPE> void report(
                 int resultCode,
@@ -43,10 +48,7 @@ public interface ResultReporter
                         operation,
                         result
                 );
-                if ( errorReporter != null )
-                {
-                    errorReporter.reportError( this, errMsg );
-                }
+                errorReporter.reportError( this, errMsg );
                 throw new DbException( errMsg );
             }
         }
@@ -83,11 +85,6 @@ public interface ResultReporter
         public Object result()
         {
             return result;
-        }
-
-        public void setErrorReporter( ConcurrentErrorReporter errorReporter )
-        {
-            this.errorReporter = errorReporter;
         }
 
         @Override
