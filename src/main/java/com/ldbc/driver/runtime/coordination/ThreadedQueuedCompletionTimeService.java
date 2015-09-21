@@ -71,18 +71,18 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
             try
             {
                 writerId = future.get( futureTimeoutDurationAsMilli, TimeUnit.MILLISECONDS );
-                LocalCompletionTimeWriter writer =
-                        new ThreadedQueuedLocalCompletionTimeWriter( writerId, sharedIsShuttingDownReference,
-                                sharedWriteEventCountReference, queueEventSubmitter );
+                LocalCompletionTimeWriter writer = new ThreadedQueuedLocalCompletionTimeWriter(
+                        writerId,
+                        sharedIsShuttingDownReference,
+                        sharedWriteEventCountReference,
+                        queueEventSubmitter );
                 writers.add( writer );
                 return writer;
             }
             catch ( TimeoutException e )
             {
                 // do nothing
-                if ( errorReporter.errorEncountered() )
-                { throw new CompletionTimeException( errorReporter.toString() ); }
-                throw new CompletionTimeException( "Future took too long to return" );
+                throw new CompletionTimeException( "Timeout while waiting for creation of completion time writer" );
             }
         }
         catch ( Exception e )
@@ -135,7 +135,9 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
     synchronized public void shutdown() throws CompletionTimeException
     {
         if ( sharedIsShuttingDownReference.get() )
-        { return; }
+        {
+            return;
+        }
         sharedIsShuttingDownReference.set( true );
 
         long pollingIntervalAsMilli = 100;
@@ -152,11 +154,13 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         while ( timeSource.nowAsMilli() < shutdownTimeoutTimeAsMilli )
         {
             if ( threadedQueuedConcurrentCompletionTimeServiceThread.shutdownComplete() )
-            { return; }
+            {
+                return;
+            }
             if ( errorReporter.errorEncountered() )
             {
-                throw new CompletionTimeException(
-                        format( "Error encountered while shutting down\n%s", errorReporter.toString() ) );
+                errorReporter.reportError( this, "Error encountered while shutting down" );
+                throw new CompletionTimeException( "Error encountered while shutting down" );
             }
             Spinner.powerNap( pollingIntervalAsMilli );
         }

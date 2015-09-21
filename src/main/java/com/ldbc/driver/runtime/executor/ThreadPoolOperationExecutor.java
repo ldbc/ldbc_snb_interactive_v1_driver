@@ -128,11 +128,14 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
                 }
             }
         }
-        catch ( Exception e )
+        catch ( Throwable e )
         {
             throw new OperationExecutorException( "Error encountered while trying to shutdown", e );
         }
-        shutdown.set( true );
+        finally
+        {
+            shutdown.set( true );
+        }
     }
 
     @Override
@@ -198,14 +201,19 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
 
         // Note, this occurs in same worker thread as beforeExecute() and run()
         @Override
-        protected void afterExecute( Runnable operationHandlerRunnableContext, Throwable throwable )
+        protected void afterExecute( Runnable runnable, Throwable throwable )
         {
-            super.afterExecute( operationHandlerRunnableContext, throwable );
+            super.afterExecute( runnable, throwable );
+            OperationHandlerRunnableContext operationHandlerRunnableContext =
+                    (OperationHandlerRunnableContext) runnable;
             try
             {
                 childOperationExecutor.execute(
                         childOperationGenerator,
-                        (OperationHandlerRunnableContext) operationHandlerRunnableContext,
+                        operationHandlerRunnableContext.operation(),
+                        operationHandlerRunnableContext.resultReporter().result(),
+                        operationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
+                        operationHandlerRunnableContext.resultReporter().runDurationAsNano(),
                         operationHandlerRunnableContextRetriever
                 );
             }
@@ -216,8 +224,8 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
             }
             finally
             {
-                ((OperationHandlerRunnableContext) operationHandlerRunnableContext).cleanup();
                 uncompletedHandlers.decrementAndGet();
+                operationHandlerRunnableContext.cleanup();
             }
         }
     }

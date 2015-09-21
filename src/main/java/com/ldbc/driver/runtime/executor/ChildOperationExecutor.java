@@ -11,7 +11,10 @@ public class ChildOperationExecutor
 {
     public void execute(
             ChildOperationGenerator childOperationGenerator,
-            OperationHandlerRunnableContext operationHandlerRunnableContext,
+            Operation operation,
+            Object result,
+            long actualStartTimeAsMilli,
+            long runDurationAsNano,
             OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever )
             throws WorkloadException, DbException, OperationExecutorException, CompletionTimeException
     {
@@ -21,31 +24,36 @@ public class ChildOperationExecutor
         }
         else
         {
-            Operation operation;
             if ( null != childOperationGenerator )
             {
                 double state = childOperationGenerator.initialState();
                 operation = childOperationGenerator.nextOperation(
                         state,
-                        operationHandlerRunnableContext.operation(),
-                        operationHandlerRunnableContext.resultReporter().result(),
-                        operationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
-                        operationHandlerRunnableContext.resultReporter().runDurationAsNano()
+                        operation,
+                        result,
+                        actualStartTimeAsMilli,
+                        runDurationAsNano
                 );
                 while ( null != operation )
                 {
                     OperationHandlerRunnableContext childOperationHandlerRunnableContext =
                             operationHandlerRunnableContextRetriever.getInitializedHandlerFor( operation );
-                    childOperationHandlerRunnableContext.run();
-                    state = childOperationGenerator.updateState( state, operation.type() );
-                    operation = childOperationGenerator.nextOperation(
-                            state,
-                            childOperationHandlerRunnableContext.operation(),
-                            childOperationHandlerRunnableContext.resultReporter().result(),
-                            childOperationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
-                            childOperationHandlerRunnableContext.resultReporter().runDurationAsNano()
-                    );
-                    childOperationHandlerRunnableContext.cleanup();
+                    try
+                    {
+                        childOperationHandlerRunnableContext.run();
+                        state = childOperationGenerator.updateState( state, operation.type() );
+                        operation = childOperationGenerator.nextOperation(
+                                state,
+                                childOperationHandlerRunnableContext.operation(),
+                                childOperationHandlerRunnableContext.resultReporter().result(),
+                                childOperationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
+                                childOperationHandlerRunnableContext.resultReporter().runDurationAsNano()
+                        );
+                    }
+                    finally
+                    {
+                        childOperationHandlerRunnableContext.cleanup();
+                    }
                 }
             }
         }

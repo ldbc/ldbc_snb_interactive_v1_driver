@@ -3,9 +3,11 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive.db;
 import com.ldbc.driver.Db;
 import com.ldbc.driver.DbConnectionState;
 import com.ldbc.driver.DbException;
+import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.ResultReporter;
 import com.ldbc.driver.control.LoggingService;
+import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcNoResult;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery1;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery10;
@@ -83,21 +85,33 @@ public class DummyLdbcSnbInteractiveDb extends Db
 
     public static final String SLEEP_DURATION_NANO_ARG = "ldbc.snb.interactive.db.sleep_duration_nano";
     public static final String SLEEP_TYPE_ARG = "ldbc.snb.interactive.db.sleep_type";
+    public static final String CRASH_ON_ARG = "ldbc.snb.interactive.db.crash_on";
 
     private static long sleepDurationAsNano;
     private SleepType sleepType;
+    private Class crashOnClass;
 
     private interface SleepFun
     {
-        void sleep( long sleepNs );
+        void sleep( Operation operation, long sleepNs );
     }
 
     private static SleepFun sleepFun;
 
     @Override
-    protected void onInit( Map<String,String> properties, LoggingService loggingService ) throws DbException
+    protected void onInit( Map<String,String> params, LoggingService loggingService ) throws DbException
     {
-        String sleepDurationAsNanoAsString = properties.get( SLEEP_DURATION_NANO_ARG );
+        String sleepDurationAsNanoAsString = params.get( SLEEP_DURATION_NANO_ARG );
+        try
+        {
+            crashOnClass =
+                    (params.containsKey( CRASH_ON_ARG )) ? ClassLoaderHelper.loadClass( params.get( CRASH_ON_ARG ) )
+                                                         : null;
+        }
+        catch ( Exception e )
+        {
+            throw new DbException( format( "Error loading operation class: %s", params.get( CRASH_ON_ARG ) ), e );
+        }
         if ( null == sleepDurationAsNanoAsString )
         {
             sleepDurationAsNano = 0l;
@@ -114,7 +128,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
                         sleepDurationAsNanoAsString, SLEEP_DURATION_NANO_ARG ), e );
             }
         }
-        String sleepTypeString = properties.get( SLEEP_TYPE_ARG );
+        String sleepTypeString = params.get( SLEEP_TYPE_ARG );
         if ( null == sleepTypeString )
         {
             sleepType = SleepType.SPIN;
@@ -123,7 +137,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         {
             try
             {
-                sleepType = SleepType.valueOf( properties.get( SLEEP_TYPE_ARG ) );
+                sleepType = SleepType.valueOf( params.get( SLEEP_TYPE_ARG ) );
             }
             catch ( IllegalArgumentException e )
             {
@@ -131,12 +145,26 @@ public class DummyLdbcSnbInteractiveDb extends Db
             }
         }
 
-        if ( 0 == sleepDurationAsNano )
+        if ( null != crashOnClass )
         {
             sleepFun = new SleepFun()
             {
                 @Override
-                public void sleep( long sleepNs )
+                public void sleep( Operation operation, long sleepNs )
+                {
+                    if ( crashOnClass.equals( operation.getClass() ) )
+                    {
+                        throw new RuntimeException( "Crash on purpose" );
+                    }
+                }
+            };
+        }
+        else if ( 0 == sleepDurationAsNano )
+        {
+            sleepFun = new SleepFun()
+            {
+                @Override
+                public void sleep( Operation operation, long sleepNs )
                 {
                     // do nothing
                 }
@@ -150,7 +178,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
                 sleepFun = new SleepFun()
                 {
                     @Override
-                    public void sleep( long sleepNs )
+                    public void sleep( Operation operation, long sleepNs )
                     {
                         try
                         {
@@ -167,7 +195,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
                 sleepFun = new SleepFun()
                 {
                     @Override
-                    public void sleep( long sleepNs )
+                    public void sleep( Operation operation, long sleepNs )
                     {
                         long endTimeAsNano = System.nanoTime() + sleepNs;
                         while ( System.nanoTime() < endTimeAsNano )
@@ -180,8 +208,8 @@ public class DummyLdbcSnbInteractiveDb extends Db
             }
         }
 
-        properties.put( SLEEP_DURATION_NANO_ARG, Long.toString( sleepDurationAsNano ) );
-        properties.put( SLEEP_TYPE_ARG, sleepType.name() );
+        params.put( SLEEP_DURATION_NANO_ARG, Long.toString( sleepDurationAsNano ) );
+        params.put( SLEEP_TYPE_ARG, sleepType.name() );
 
         // Long Reads
         registerOperationHandler( LdbcQuery1.class, LdbcQuery1Handler.class );
@@ -228,9 +256,9 @@ public class DummyLdbcSnbInteractiveDb extends Db
         return null;
     }
 
-    private static void sleep( long sleepNs )
+    private static void sleep( Operation operation, long sleepNs )
     {
-        sleepFun.sleep( sleepNs );
+        sleepFun.sleep( operation, sleepNs );
     }
 
     /*
@@ -246,7 +274,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery1 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_1_RESULTS, operation );
         }
     }
@@ -260,7 +288,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery2 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_2_RESULTS, operation );
         }
     }
@@ -274,7 +302,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery3 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_3_RESULTS, operation );
         }
     }
@@ -288,7 +316,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery4 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_4_RESULTS, operation );
         }
     }
@@ -302,7 +330,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery5 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_5_RESULTS, operation );
         }
     }
@@ -316,7 +344,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery6 operation, DummyDbConnectionState dummyDbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_6_RESULTS, operation );
         }
     }
@@ -330,7 +358,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery7 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_7_RESULTS, operation );
         }
     }
@@ -344,7 +372,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery8 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_8_RESULTS, operation );
         }
     }
@@ -358,7 +386,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery9 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_9_RESULTS, operation );
         }
     }
@@ -372,7 +400,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery10 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_10_RESULTS, operation );
         }
     }
@@ -386,7 +414,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery11 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_11_RESULTS, operation );
         }
     }
@@ -400,7 +428,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery12 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_12_RESULTS, operation );
         }
     }
@@ -414,7 +442,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery13 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_13_RESULTS, operation );
         }
     }
@@ -428,7 +456,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcQuery14 operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_14_RESULTS, operation );
         }
     }
@@ -447,7 +475,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcShortQuery1PersonProfile operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_SHORT_QUERY_1_RESULTS, operation );
         }
     }
@@ -462,7 +490,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcShortQuery2PersonPosts operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_SHORT_QUERY_2_RESULTS, operation );
         }
     }
@@ -477,7 +505,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcShortQuery3PersonFriends operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_SHORT_QUERY_3_RESULTS, operation );
         }
     }
@@ -492,7 +520,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcShortQuery4MessageContent operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_SHORT_QUERY_4_RESULTS, operation );
         }
     }
@@ -507,7 +535,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcShortQuery5MessageCreator operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_SHORT_QUERY_5_RESULTS, operation );
         }
     }
@@ -522,7 +550,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcShortQuery6MessageForum operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_SHORT_QUERY_6_RESULTS, operation );
         }
     }
@@ -537,7 +565,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcShortQuery7MessageReplies operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LDBC_SHORT_QUERY_7_RESULTS, operation );
         }
     }
@@ -553,7 +581,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcUpdate1AddPerson operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
         }
     }
@@ -565,7 +593,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcUpdate2AddPostLike operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
         }
     }
@@ -577,7 +605,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcUpdate3AddCommentLike operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
         }
     }
@@ -589,7 +617,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcUpdate4AddForum operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
         }
     }
@@ -601,7 +629,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcUpdate5AddForumMembership operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
         }
     }
@@ -612,7 +640,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcUpdate6AddPost operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
         }
     }
@@ -624,7 +652,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcUpdate7AddComment operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
         }
     }
@@ -636,7 +664,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         public void executeOperation( LdbcUpdate8AddFriendship operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
-            sleep( sleepDurationAsNano );
+            sleep( operation, sleepDurationAsNano );
             resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
         }
     }

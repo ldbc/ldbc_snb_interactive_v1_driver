@@ -33,6 +33,7 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Tuple3;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery4;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -59,6 +60,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class WorkloadRunnerTest
 {
@@ -73,6 +75,196 @@ public class WorkloadRunnerTest
 
     TimeSource timeSource = new SystemTimeSource();
     CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
+
+    @Test
+    public void shouldRunReadOnlyLdbcWorkloadWithNothingDbAndCrashInSaneManner()
+            throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
+            CompletionTimeException, DriverConfigurationException, ExecutionException
+    {
+        int threadCount = 4;
+        long operationCount = 100000;
+
+        ControlService controlService = null;
+        Db db = null;
+        Workload workload = null;
+        MetricsService metricsService = null;
+        CompletionTimeService completionTimeService = null;
+        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+        try
+        {
+            Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultReadOnlyConfigSF1();
+            paramsMap.put(
+                    LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+            );
+            paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
+            // Driver-specific parameters
+            String name = null;
+            String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
+            String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
+            int statusDisplayInterval = 1;
+            TimeUnit timeUnit = TimeUnit.NANOSECONDS;
+            String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
+            double timeCompressionRatio = 0.0000001;
+            Set<String> peerIds = new HashSet<>();
+            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+            String dbValidationFilePath = null;
+            boolean calculateWorkloadStatistics = false;
+            long spinnerSleepDuration = 0l;
+            boolean printHelp = false;
+            boolean ignoreScheduledStartTimes = false;
+            long warmupCount = 100;
+
+            ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
+                    paramsMap,
+                    name,
+                    dbClassName,
+                    workloadClassName,
+                    operationCount,
+                    threadCount,
+                    statusDisplayInterval,
+                    timeUnit,
+                    resultDirPath,
+                    timeCompressionRatio,
+                    peerIds,
+                    validationParams,
+                    dbValidationFilePath,
+                    calculateWorkloadStatistics,
+                    spinnerSleepDuration,
+                    printHelp,
+                    ignoreScheduledStartTimes,
+                    warmupCount
+            );
+
+            configuration = (ConsoleAndFileDriverConfiguration) configuration
+                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
+                            "/snb/interactive/updateStream.properties" ) ) );
+
+            controlService = new LocalControlService(
+                    timeSource.nowAsMilli(),
+                    configuration,
+                    new Log4jLoggingServiceFactory( false ),
+                    timeSource
+            );
+            LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
+
+            GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
+            boolean returnStreamsWithDbConnector = true;
+            Tuple3<WorkloadStreams,Workload,Long> workloadStreamsAndWorkload =
+                    WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                            configuration,
+                            gf,
+                            returnStreamsWithDbConnector,
+                            configuration.warmupCount(),
+                            configuration.operationCount(),
+                            LOGGING_SERVICE_FACTORY
+                    );
+
+            workload = workloadStreamsAndWorkload._2();
+
+            WorkloadStreams workloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
+                    workloadStreamsAndWorkload._1(),
+                    controlService.workloadStartTimeAsMilli(),
+                    configuration.timeCompressionRatio(),
+                    gf
+            );
+
+            File resultsLog = temporaryFolder.newFile();
+            SimpleCsvFileWriter csvResultsLogWriter =
+                    new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR );
+            metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
+                    timeSource,
+                    errorReporter,
+                    configuration.timeUnit(),
+                    ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                    csvResultsLogWriter,
+                    workload.operationTypeToClassMapping(),
+                    LOGGING_SERVICE_FACTORY
+            );
+
+            completionTimeService =
+                    completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
+                            controlService.configuration().peerIds() );
+
+            db = new DummyLdbcSnbInteractiveDb();
+            db.init(
+                    configuration
+                            .applyArg( DummyLdbcSnbInteractiveDb.CRASH_ON_ARG, LdbcQuery4.class.getName() )
+                            .asMap(),
+                    loggingService,
+                    workload.operationTypeToClassMapping()
+            );
+
+            int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
+            WorkloadRunner runner = new WorkloadRunner(
+                    timeSource,
+                    db,
+                    workloadStreams,
+                    metricsService,
+                    errorReporter,
+                    completionTimeService,
+                    controlService.loggingServiceFactory(),
+                    controlService.configuration().threadCount(),
+                    controlService.configuration().statusDisplayIntervalAsSeconds(),
+                    controlService.configuration().spinnerSleepDurationAsMilli(),
+                    controlService.configuration().ignoreScheduledStartTimes(),
+                    boundedQueueSize );
+
+            runner.getFuture().get();
+            csvResultsLogWriter.close();
+        }
+        finally
+        {
+            try
+            {
+                controlService.shutdown();
+            }
+            catch ( Throwable e )
+            {
+                System.out.println( format( "Unclean %s shutdown -- but it's OK",
+                        controlService.getClass().getSimpleName() ) );
+            }
+            try
+            {
+                db.close();
+            }
+            catch ( Throwable e )
+            {
+                System.out.println( format( "Unclean %s shutdown -- but it's OK",
+                        db.getClass().getSimpleName() ) );
+            }
+            try
+            {
+                workload.close();
+            }
+            catch ( Throwable e )
+            {
+                System.out.println( format( "Unclean %s shutdown -- but it's OK",
+                        workload.getClass().getSimpleName() ) );
+            }
+            try
+            {
+                metricsService.shutdown();
+            }
+            catch ( Throwable e )
+            {
+                System.out.println( format( "Unclean %s shutdown -- but it's OK",
+                        metricsService.getClass().getSimpleName() ) );
+            }
+            try
+            {
+                completionTimeService.shutdown();
+            }
+            catch ( Throwable e )
+            {
+                System.out.println( format( "Unclean %s shutdown -- but it's OK",
+                        completionTimeService.getClass().getSimpleName() ) );
+            }
+            System.out.println( errorReporter.toString() );
+            assertTrue( errorReporter.errorEncountered() );
+        }
+    }
 
     @Test
     public void shouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
@@ -194,7 +386,7 @@ public class WorkloadRunnerTest
                     LOGGING_SERVICE_FACTORY
             );
 
-            CompletionTimeService concurrentCompletionTimeService =
+            completionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
                             controlService.configuration().peerIds() );
 
@@ -212,7 +404,7 @@ public class WorkloadRunnerTest
                     workloadStreams,
                     metricsService,
                     errorReporter,
-                    concurrentCompletionTimeService,
+                    completionTimeService,
                     controlService.loggingServiceFactory(),
                     controlService.configuration().threadCount(),
                     controlService.configuration().statusDisplayIntervalAsSeconds(),
@@ -422,7 +614,7 @@ public class WorkloadRunnerTest
                     workload.operationTypeToClassMapping()
             );
 
-            CompletionTimeService concurrentCompletionTimeService =
+            completionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
                             controlService.configuration().peerIds() );
 
@@ -433,7 +625,7 @@ public class WorkloadRunnerTest
                     workloadStreams,
                     metricsService,
                     errorReporter,
-                    concurrentCompletionTimeService,
+                    completionTimeService,
                     controlService.loggingServiceFactory(),
                     controlService.configuration().threadCount(),
                     controlService.configuration().statusDisplayIntervalAsSeconds(),

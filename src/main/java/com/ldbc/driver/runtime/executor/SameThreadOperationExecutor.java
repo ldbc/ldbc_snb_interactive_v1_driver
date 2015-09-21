@@ -59,10 +59,12 @@ public class SameThreadOperationExecutor implements OperationExecutor
             operationHandlerRunnableContext.run();
             childOperationExecutor.execute(
                     childOperationGenerator,
-                    operationHandlerRunnableContext,
+                    operationHandlerRunnableContext.operation(),
+                    operationHandlerRunnableContext.resultReporter().result(),
+                    operationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
+                    operationHandlerRunnableContext.resultReporter().runDurationAsNano(),
                     operationHandlerRunnableContextRetriever
             );
-            operationHandlerRunnableContext.cleanup();
         }
         catch ( Throwable e )
         {
@@ -78,6 +80,7 @@ public class SameThreadOperationExecutor implements OperationExecutor
         finally
         {
             uncompletedHandlers.decrementAndGet();
+            operationHandlerRunnableContext.cleanup();
         }
     }
 

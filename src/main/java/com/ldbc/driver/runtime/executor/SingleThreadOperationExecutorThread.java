@@ -41,26 +41,28 @@ public class SingleThreadOperationExecutorThread extends Thread
     public void run()
     {
         Operation operation = null;
+        OperationHandlerRunnableContext operationHandlerRunnableContext = null;
         try
         {
             operation = operationQueueEventFetcher.fetchNextEvent();
             while ( operation != SingleThreadOperationExecutor.TERMINATE_OPERATION &&
                     false == forcedShutdownRequested.get() )
             {
-                OperationHandlerRunnableContext operationHandlerRunnableContext =
+                operationHandlerRunnableContext =
                         operationHandlerRunnableContextRetriever.getInitializedHandlerFor( operation );
                 operationHandlerRunnableContext.run();
                 childOperationExecutor.execute(
                         childOperationGenerator,
-                        operationHandlerRunnableContext,
+                        operationHandlerRunnableContext.operation(),
+                        operationHandlerRunnableContext.resultReporter().result(),
+                        operationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
+                        operationHandlerRunnableContext.resultReporter().runDurationAsNano(),
                         operationHandlerRunnableContextRetriever
                 );
-                operationHandlerRunnableContext.cleanup();
-                uncompletedHandlers.decrementAndGet();
                 operation = operationQueueEventFetcher.fetchNextEvent();
             }
         }
-        catch ( Exception e )
+        catch ( Throwable e )
         {
             errorReporter.reportError(
                     this,
@@ -68,6 +70,11 @@ public class SingleThreadOperationExecutorThread extends Thread
                             operation,
                             ConcurrentErrorReporter.stackTraceToString( e ) )
             );
+        }
+        finally
+        {
+            uncompletedHandlers.decrementAndGet();
+            operationHandlerRunnableContext.cleanup();
         }
     }
 

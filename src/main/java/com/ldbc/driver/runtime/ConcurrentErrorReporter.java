@@ -74,7 +74,7 @@ public class ConcurrentErrorReporter
         }
         else
         {
-            return formatErrors( errorMessages() );
+            return formatErrors( syncGetErrorMessages() );
         }
     }
 

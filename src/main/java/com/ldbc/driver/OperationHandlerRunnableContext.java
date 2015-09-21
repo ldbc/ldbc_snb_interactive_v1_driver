@@ -162,10 +162,11 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
         }
         catch ( Throwable e )
         {
-            errorReporter.reportError( this,
-                    format( "Error encountered\n%s\n%s",
-                            operation.toString(),
-                            ConcurrentErrorReporter.stackTraceToString( e ) ) );
+            String errMsg = format( "Error encountered\n%s\n%s",
+                    operation,
+                    ConcurrentErrorReporter.stackTraceToString( e ) );
+            errorReporter.reportError( this, errMsg );
+//            throw new RuntimeException( errMsg, e );
         }
     }
 

@@ -7,8 +7,6 @@ import com.ldbc.driver.temporal.TimeSource;
 import java.util.List;
 import java.util.Set;
 
-import static java.lang.String.format;
-
 public class CompletionTimeServiceAssistant
 {
     public void writeInitiatedAndCompletedTimesToAllWriters( CompletionTimeService completionTimeService,
@@ -39,8 +37,7 @@ public class CompletionTimeServiceAssistant
             { return true; }
             if ( errorReporter.errorEncountered() )
             {
-                throw new CompletionTimeException( format( "Encountered error while waiting for GCT\n%s",
-                        errorReporter.toString() ) );
+                throw new CompletionTimeException( "Encountered error while waiting for GCT" );
             }
             Spinner.powerNap( sleepDurationAsMilli );
         }
