@@ -95,7 +95,7 @@ public class Spinner
         {
             // earliest time at which operation may start
             // wait for checks to have all passed before allowing operation to start
-            while ( SpinnerCheck.SpinnerCheckResult.STILL_CHECKING == check.doCheck() )
+            while ( SpinnerCheck.SpinnerCheckResult.STILL_CHECKING == check.doCheck( operation ) )
             {
                 powerNap( sleepDurationAsMilli );
             }
@@ -106,7 +106,7 @@ public class Spinner
                 powerNap( sleepDurationAsMilli );
             }
 
-            return SpinnerCheck.SpinnerCheckResult.PASSED == check.doCheck();
+            return SpinnerCheck.SpinnerCheckResult.PASSED == check.doCheck( operation );
         }
     }
 
@@ -123,19 +123,19 @@ public class Spinner
         public Boolean apply( Operation operation, SpinnerCheck check )
         {
             // wait for checks to have all passed before allowing operation to start
-            while ( SpinnerCheck.SpinnerCheckResult.STILL_CHECKING == check.doCheck() )
+            while ( SpinnerCheck.SpinnerCheckResult.STILL_CHECKING == check.doCheck( operation ) )
             {
                 powerNap( sleepDurationAsMilli );
             }
 
-            return SpinnerCheck.SpinnerCheckResult.PASSED == check.doCheck();
+            return SpinnerCheck.SpinnerCheckResult.PASSED == check.doCheck( operation );
         }
     }
 
     private static class TrueCheck implements SpinnerCheck
     {
         @Override
-        public SpinnerCheckResult doCheck()
+        public SpinnerCheckResult doCheck( Operation operation )
         {
             return SpinnerCheckResult.PASSED;
         }

@@ -8,8 +8,6 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static java.lang.String.format;
-
 class OperationStreamExecutorServiceThread extends Thread
 {
     private static final long POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI = 100;
@@ -45,52 +43,22 @@ class OperationStreamExecutorServiceThread extends Thread
         {
             while ( initiatedTimeSubmittingOperationRetriever.hasNextOperation() && !forcedTerminate.get() )
             {
-                Operation operation;
-                // TODO remove exception handling? if an exception is thrown we want to terminate anyway
-                try
-                {
-                    operation = initiatedTimeSubmittingOperationRetriever.nextOperation();
-                }
-                catch ( Throwable e )
-                {
-                    errorReporter.reportError( this,
-                            format( "Error retrieving next operation\n%s",
-                                    ConcurrentErrorReporter.stackTraceToString( e ) ) );
-                    break;
-                }
-
-                // TODO remove exception handling? if an exception is thrown we want to terminate anyway
-                try
-                {
-                    // --- BLOCKING CALL (when bounded queue is full) ---
-                    operationExecutor.execute( operation );
-                }
-                catch ( OperationExecutorException e )
-                {
-                    errorReporter.reportError( this,
-                            format( "Error submitting operation for execution\n%s\n%s",
-                                    operation,
-                                    ConcurrentErrorReporter.stackTraceToString( e ) ) );
-                    break;
-                }
+                Operation operation = initiatedTimeSubmittingOperationRetriever.nextOperation();
+                // --- BLOCKING CALL (when bounded queue is full) ---
+                operationExecutor.execute( operation );
             }
-
-            // TODO do this in catch statement too? for clean shutdown
-            awaitAllRunningHandlers();
-            this.hasFinished.set( true );
         }
         catch ( Throwable e )
         {
             errorReporter.reportError( this, ConcurrentErrorReporter.stackTraceToString( e ) );
-            this.hasFinished.set( true );
         }
-    }
-
-    private void awaitAllRunningHandlers()
-    {
-        while ( 0 < operationExecutor.uncompletedOperationHandlerCount() && !forcedTerminate.get() )
+        finally
         {
-            Spinner.powerNap( POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI );
+            while ( 0 < operationExecutor.uncompletedOperationHandlerCount() && !forcedTerminate.get() )
+            {
+                Spinner.powerNap( POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI );
+            }
+            this.hasFinished.set( true );
         }
     }
 }

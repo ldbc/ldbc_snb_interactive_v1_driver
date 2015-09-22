@@ -33,6 +33,7 @@ class OperationHandlerRunnableContextRetriever
     private final MetricsService metricsService;
     private final Set<Class<? extends Operation>> dependencyOperationTypes;
     private final Set<Class<? extends Operation>> dependentOperationTypes;
+    private final GctDependencyCheck gctDependencyCheck;
 
     OperationHandlerRunnableContextRetriever(
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
@@ -53,6 +54,7 @@ class OperationHandlerRunnableContextRetriever
         this.metricsService = metricsService;
         this.dependentOperationTypes = streamDefinition.dependentOperationTypes();
         this.dependencyOperationTypes = streamDefinition.dependencyOperationTypes();
+        this.gctDependencyCheck = new GctDependencyCheck( globalCompletionTimeReader, errorReporter );
     }
 
     public OperationHandlerRunnableContext getInitializedHandlerFor( Operation operation )
@@ -96,11 +98,7 @@ class OperationHandlerRunnableContextRetriever
         }
         if ( dependentOperationTypes.contains( operation.getClass() ) )
         {
-            operationHandlerRunnableContext.setBeforeExecuteCheck(
-                    // TODO this could be created just once if operation was passed in from spinner
-                    // TODO global completion time reader & error reporter only need to be set once
-                    new GctDependencyCheck( globalCompletionTimeReader, operation, errorReporter )
-            );
+            operationHandlerRunnableContext.setBeforeExecuteCheck( gctDependencyCheck );
         }
         return operationHandlerRunnableContext;
     }

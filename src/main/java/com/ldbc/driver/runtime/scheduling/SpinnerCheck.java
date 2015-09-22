@@ -2,8 +2,10 @@ package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.Operation;
 
-public interface SpinnerCheck {
-    public static enum SpinnerCheckResult{
+public interface SpinnerCheck
+{
+    enum SpinnerCheckResult
+    {
         PASSED,
         STILL_CHECKING,
         FAILED
@@ -14,7 +16,7 @@ public interface SpinnerCheck {
      *
      * @return
      */
-    SpinnerCheckResult doCheck();
+    SpinnerCheckResult doCheck( Operation operation );
 
 
     /**
@@ -24,5 +26,5 @@ public interface SpinnerCheck {
      * @param operation
      * @return operation may still be executed
      */
-    boolean handleFailedCheck(Operation operation);
+    boolean handleFailedCheck( Operation operation );
 }

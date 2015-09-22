@@ -12,21 +12,18 @@ public class GctDependencyCheck implements SpinnerCheck
 {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     private final GlobalCompletionTimeReader globalCompletionTimeReader;
-    private final Operation operation;
     private final ConcurrentErrorReporter errorReporter;
 
     public GctDependencyCheck(
             GlobalCompletionTimeReader globalCompletionTimeReader,
-            Operation operation,
             ConcurrentErrorReporter errorReporter )
     {
         this.globalCompletionTimeReader = globalCompletionTimeReader;
-        this.operation = operation;
         this.errorReporter = errorReporter;
     }
 
     @Override
-    public SpinnerCheckResult doCheck()
+    public SpinnerCheckResult doCheck( Operation operation )
     {
         try
         {

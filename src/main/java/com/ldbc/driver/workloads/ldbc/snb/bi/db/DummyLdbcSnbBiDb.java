@@ -423,8 +423,6 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    // TODO
-
     private static final List<LdbcSnbBiQuery15Result> LDBC_QUERY_15_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read15Results();
 
