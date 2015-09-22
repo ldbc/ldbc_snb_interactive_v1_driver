@@ -88,7 +88,7 @@ class OperationStreamExecutorServiceThread extends Thread
 
     private void awaitAllRunningHandlers()
     {
-        while ( 0 > operationExecutor.uncompletedOperationHandlerCount() && !forcedTerminate.get() )
+        while ( 0 < operationExecutor.uncompletedOperationHandlerCount() && !forcedTerminate.get() )
         {
             Spinner.powerNap( POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI );
         }
