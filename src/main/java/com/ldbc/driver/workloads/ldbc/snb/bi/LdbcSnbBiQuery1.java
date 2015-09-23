@@ -115,7 +115,7 @@ public class LdbcSnbBiQuery1 extends Operation<List<LdbcSnbBiQuery1Result>>
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.year() );
             resultFields.add( row.isReply() );
-            resultFields.add( row.size() );
+            resultFields.add( row.category() );
             resultFields.add( row.count() );
             resultFields.add( row.averageLength() );
             resultFields.add( row.total() );
