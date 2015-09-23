@@ -4,7 +4,7 @@ public class LdbcSnbBiQuery1Result
 {
     private final int year;
     private final boolean isReply;
-    private final int size;
+    private final int category;
     private final int count;
     private final int averageLength;
     private final int total;
@@ -13,7 +13,7 @@ public class LdbcSnbBiQuery1Result
     public LdbcSnbBiQuery1Result(
             int year,
             boolean isReply,
-            int size,
+            int category,
             int count,
             int averageLength,
             int total,
@@ -21,7 +21,7 @@ public class LdbcSnbBiQuery1Result
     {
         this.year = year;
         this.isReply = isReply;
-        this.size = size;
+        this.category = category;
         this.count = count;
         this.averageLength = averageLength;
         this.total = total;
@@ -38,9 +38,9 @@ public class LdbcSnbBiQuery1Result
         return isReply;
     }
 
-    public int size()
+    public int category()
     {
-        return size;
+        return category;
     }
 
     public int count()
@@ -69,7 +69,7 @@ public class LdbcSnbBiQuery1Result
         return "LdbcSnbBiQuery1Result{" +
                "year=" + year +
                ", isReply=" + isReply +
-               ", size=" + size +
+               ", category=" + category +
                ", count=" + count +
                ", averageLength=" + averageLength +
                ", total=" + total +
@@ -91,7 +91,7 @@ public class LdbcSnbBiQuery1Result
         { return false; }
         if ( isReply != that.isReply )
         { return false; }
-        if ( size != that.size )
+        if ( category != that.category )
         { return false; }
         if ( count != that.count )
         { return false; }
@@ -110,7 +110,7 @@ public class LdbcSnbBiQuery1Result
         long temp;
         result = year;
         result = 31 * result + (isReply ? 1 : 0);
-        result = 31 * result + size;
+        result = 31 * result + category;
         result = 31 * result + count;
         result = 31 * result + averageLength;
         result = 31 * result + total;
