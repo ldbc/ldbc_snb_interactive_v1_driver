@@ -26,7 +26,7 @@ public class Query10EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery10(
+        return new LdbcSnbBiQuery10TagPerson(
                 (String) parameters[0],
                 (int) parameters[1]
         );
@@ -57,7 +57,7 @@ public class Query10EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{tag, LdbcSnbBiQuery10.DEFAULT_LIMIT};
+                return new Object[]{tag, LdbcSnbBiQuery10TagPerson.DEFAULT_LIMIT};
             }
         };
     }

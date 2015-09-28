@@ -26,9 +26,8 @@ public class Query1EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery1(
-                (long) parameters[0],
-                (int) parameters[1]
+        return new LdbcSnbBiQuery1PostingSummary(
+                (long) parameters[0]
         );
     }
 
@@ -57,7 +56,7 @@ public class Query1EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{date, LdbcSnbBiQuery1.DEFAULT_LIMIT};
+                return new Object[]{date};
             }
         };
     }

@@ -1,29 +1,29 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi.db;
 
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery10Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery11Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery12Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery13Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery14Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery15Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery16Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery17Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery18Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery19Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery1Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery20Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery21Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery22Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery23Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery4Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery5Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery6Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery7Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery8Result;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery9Result;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery10TagPersonResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery11UnrelatedRepliesResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery12TrendingPostsResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery13PopularMonthlyTagsResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery14TopThreadInitiatorsResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery15SocialNormalsResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery16ExpertsInSocialCircleResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery17FriendshipTrianglesResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery18PersonPostCountsResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery19StrangerInteractionResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery1PostingSummaryResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery20HighLevelTopicsResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery21ZombiesResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery22InternationalDialogResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery23HolidayDestinationsResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopicResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTagsResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3TagEvolutionResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery4PopularCountryTopicsResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery5TopCountryPostersResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery6ActivePostersResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery7AuthoritativeUsersResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery8RelatedTopicsResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery9RelatedForumsResult;
 
 public class DummyLdbcSnbBiOperationResultInstances
 {
@@ -32,123 +32,123 @@ public class DummyLdbcSnbBiOperationResultInstances
     LONG READS
      */
 
-    public static LdbcSnbBiQuery1Result read1Result()
+    public static LdbcSnbBiQuery1PostingSummaryResult read1Result()
     {
-        return new LdbcSnbBiQuery1Result( 1, false, 2, 3, 4, 5, 6.0 );
+        return new LdbcSnbBiQuery1PostingSummaryResult( 1, false, 2, 3, 4, 5, 6.0 );
     }
 
-    public static LdbcSnbBiQuery2Result read2Result()
+    public static LdbcSnbBiQuery2TopTagsResult read2Result()
     {
-        return new LdbcSnbBiQuery2Result( "\u16a0", 1, "\u3055", "\u4e35", 2 );
+        return new LdbcSnbBiQuery2TopTagsResult( "\u16a0", 1, "\u3055", 2, "\u4e35", 3 );
     }
 
-    public static LdbcSnbBiQuery3Result read3Result()
+    public static LdbcSnbBiQuery3TagEvolutionResult read3Result()
     {
-        return new LdbcSnbBiQuery3Result( "1", 2, 3, 4 );
+        return new LdbcSnbBiQuery3TagEvolutionResult( "1", 2, 3, 4 );
     }
 
-    public static LdbcSnbBiQuery4Result read4Result()
+    public static LdbcSnbBiQuery4PopularCountryTopicsResult read4Result()
     {
-        return new LdbcSnbBiQuery4Result( 1, "\u16a0", Long.MAX_VALUE, Long.MIN_VALUE, 2 );
+        return new LdbcSnbBiQuery4PopularCountryTopicsResult( 1, "\u16a0", Long.MAX_VALUE, Long.MIN_VALUE, 2 );
     }
 
-    public static LdbcSnbBiQuery5Result read5Result()
+    public static LdbcSnbBiQuery5TopCountryPostersResult read5Result()
     {
-        return new LdbcSnbBiQuery5Result( 1, "\u0634", "\u16a0", 2, 3 );
+        return new LdbcSnbBiQuery5TopCountryPostersResult( 1, "\u0634", "\u16a0", 2, 3 );
     }
 
-    public static LdbcSnbBiQuery6Result read6Result()
+    public static LdbcSnbBiQuery6ActivePostersResult read6Result()
     {
-        return new LdbcSnbBiQuery6Result( 1, 2, 3, 4, 5 );
+        return new LdbcSnbBiQuery6ActivePostersResult( 1, 2, 3, 4, 5 );
     }
 
-    public static LdbcSnbBiQuery7Result read7Result()
+    public static LdbcSnbBiQuery7AuthoritativeUsersResult read7Result()
     {
-        return new LdbcSnbBiQuery7Result( 1, 2 );
+        return new LdbcSnbBiQuery7AuthoritativeUsersResult( 1, 2 );
     }
 
-    public static LdbcSnbBiQuery8Result read8Result()
+    public static LdbcSnbBiQuery8RelatedTopicsResult read8Result()
     {
-        return new LdbcSnbBiQuery8Result( "\u4e35", 2 );
+        return new LdbcSnbBiQuery8RelatedTopicsResult( "\u4e35", 2 );
     }
 
-    public static LdbcSnbBiQuery9Result read9Result()
+    public static LdbcSnbBiQuery9RelatedForumsResult read9Result()
     {
-        return new LdbcSnbBiQuery9Result( "\u3055", 1, 2 );
+        return new LdbcSnbBiQuery9RelatedForumsResult( "\u3055", 1, 2 );
     }
 
-    public static LdbcSnbBiQuery10Result read10Result()
+    public static LdbcSnbBiQuery10TagPersonResult read10Result()
     {
-        return new LdbcSnbBiQuery10Result( 1, 2 );
+        return new LdbcSnbBiQuery10TagPersonResult( 1, 2 );
     }
 
-    public static LdbcSnbBiQuery11Result read11Result()
+    public static LdbcSnbBiQuery11UnrelatedRepliesResult read11Result()
     {
-        return new LdbcSnbBiQuery11Result( 1, "\u16a0", 2, 3 );
+        return new LdbcSnbBiQuery11UnrelatedRepliesResult( 1, "\u16a0", 2, 3 );
     }
 
-    public static LdbcSnbBiQuery12Result read12Result()
+    public static LdbcSnbBiQuery12TrendingPostsResult read12Result()
     {
-        return new LdbcSnbBiQuery12Result( 1, "\u16a0", "\u3055", 2, 3 );
+        return new LdbcSnbBiQuery12TrendingPostsResult( 1, "\u16a0", "\u3055", 2, 3 );
     }
 
-    public static LdbcSnbBiQuery13Result read13Result()
+    public static LdbcSnbBiQuery13PopularMonthlyTagsResult read13Result()
     {
-        return new LdbcSnbBiQuery13Result( 1, 2, "3", 4 );
+        return new LdbcSnbBiQuery13PopularMonthlyTagsResult( 1, 2, "3", 4 );
     }
 
-    public static LdbcSnbBiQuery14Result read14Result()
+    public static LdbcSnbBiQuery14TopThreadInitiatorsResult read14Result()
     {
-        return new LdbcSnbBiQuery14Result( 1, "2", "3", 4, 5 );
+        return new LdbcSnbBiQuery14TopThreadInitiatorsResult( 1, "2", "3", 4, 5 );
     }
 
-    public static LdbcSnbBiQuery15Result read15Result()
+    public static LdbcSnbBiQuery15SocialNormalsResult read15Result()
     {
-        return new LdbcSnbBiQuery15Result( 1, 2 );
+        return new LdbcSnbBiQuery15SocialNormalsResult( 1, 2 );
     }
 
-    public static LdbcSnbBiQuery16Result read16Result()
+    public static LdbcSnbBiQuery16ExpertsInSocialCircleResult read16Result()
     {
-        return new LdbcSnbBiQuery16Result( 1, "2", 3 );
+        return new LdbcSnbBiQuery16ExpertsInSocialCircleResult( 1, "2", 3 );
     }
 
-    public static LdbcSnbBiQuery17Result read17Result()
+    public static LdbcSnbBiQuery17FriendshipTrianglesResult read17Result()
     {
-        return new LdbcSnbBiQuery17Result( 1 );
+        return new LdbcSnbBiQuery17FriendshipTrianglesResult( 1 );
     }
 
-    public static LdbcSnbBiQuery18Result read18Result()
+    public static LdbcSnbBiQuery18PersonPostCountsResult read18Result()
     {
-        return new LdbcSnbBiQuery18Result( 1, 2 );
+        return new LdbcSnbBiQuery18PersonPostCountsResult( 1, 2 );
     }
 
-    public static LdbcSnbBiQuery19Result read19Result()
+    public static LdbcSnbBiQuery19StrangerInteractionResult read19Result()
     {
-        return new LdbcSnbBiQuery19Result( 1, 2, 3 );
+        return new LdbcSnbBiQuery19StrangerInteractionResult( 1, 2, 3 );
     }
 
-    public static LdbcSnbBiQuery20Result read20Result()
+    public static LdbcSnbBiQuery20HighLevelTopicsResult read20Result()
     {
-        return new LdbcSnbBiQuery20Result( "\u16a0", 1 );
+        return new LdbcSnbBiQuery20HighLevelTopicsResult( "\u16a0", 1 );
     }
 
-    public static LdbcSnbBiQuery21Result read21Result()
+    public static LdbcSnbBiQuery21ZombiesResult read21Result()
     {
-        return new LdbcSnbBiQuery21Result( 1, 2, 3, 4 );
+        return new LdbcSnbBiQuery21ZombiesResult( 1, 2, 3, 4 );
     }
 
-    public static LdbcSnbBiQuery22Result read22Result()
+    public static LdbcSnbBiQuery22InternationalDialogResult read22Result()
     {
-        return new LdbcSnbBiQuery22Result();
+        return new LdbcSnbBiQuery22InternationalDialogResult();
     }
 
-    public static LdbcSnbBiQuery23Result read23Result()
+    public static LdbcSnbBiQuery23HolidayDestinationsResult read23Result()
     {
-        return new LdbcSnbBiQuery23Result( "\u3055", 2, 3 );
+        return new LdbcSnbBiQuery23HolidayDestinationsResult( "\u3055", 2, 3 );
     }
 
-    public static LdbcSnbBiQuery24Result read24Result()
+    public static LdbcSnbBiQuery24MessagesByTopicResult read24Result()
     {
-        return new LdbcSnbBiQuery24Result( 1, 2, "3", 4 );
+        return new LdbcSnbBiQuery24MessagesByTopicResult( 1, 2, "3", 4 );
     }
 }

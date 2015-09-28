@@ -26,7 +26,7 @@ public class Query20EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery20(
+        return new LdbcSnbBiQuery20HighLevelTopics(
                 (int) parameters[0]
         );
     }
@@ -50,7 +50,7 @@ public class Query20EventStreamReader extends BaseEventStreamReader
                 else
                 {
                     finished = true;
-                    return new Object[]{LdbcSnbBiQuery20.DEFAULT_LIMIT};
+                    return new Object[]{LdbcSnbBiQuery20HighLevelTopics.DEFAULT_LIMIT};
                 }
             }
         };

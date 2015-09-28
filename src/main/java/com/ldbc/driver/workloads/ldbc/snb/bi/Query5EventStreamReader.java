@@ -26,7 +26,7 @@ public class Query5EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery5(
+        return new LdbcSnbBiQuery5TopCountryPosters(
                 (String) parameters[0],
                 (int) parameters[1]
         );
@@ -57,7 +57,7 @@ public class Query5EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{country, LdbcSnbBiQuery5.DEFAULT_LIMIT};
+                return new Object[]{country, LdbcSnbBiQuery5TopCountryPosters.DEFAULT_LIMIT};
             }
         };
     }

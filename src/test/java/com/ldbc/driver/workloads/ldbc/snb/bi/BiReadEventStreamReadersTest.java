@@ -34,17 +34,17 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery1 operation;
+        LdbcSnbBiQuery1PostingSummary operation;
 
-        operation = (LdbcSnbBiQuery1) reader.next();
+        operation = (LdbcSnbBiQuery1PostingSummary) reader.next();
         assertThat( operation.date(), is( 1441351591755l ) );
 
-        operation = (LdbcSnbBiQuery1) reader.next();
+        operation = (LdbcSnbBiQuery1PostingSummary) reader.next();
         assertThat( operation.date(), is( 1441351591756l ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery1) reader.next();
+        operation = (LdbcSnbBiQuery1PostingSummary) reader.next();
         assertThat( operation.date(), is( 1441351591755l ) );
 
         assertTrue( reader.hasNext() );
@@ -65,23 +65,29 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery2 operation;
+        LdbcSnbBiQuery2TopTags operation;
 
-        operation = (LdbcSnbBiQuery2) reader.next();
+        operation = (LdbcSnbBiQuery2TopTags) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
         assertThat( operation.dateB(), is( 1441351591755l ) );
+        assertThat( operation.countryA(), is( "countryA" ) );
+        assertThat( operation.countryB(), is( "countryB" ) );
 
-        operation = (LdbcSnbBiQuery2) reader.next();
+        operation = (LdbcSnbBiQuery2TopTags) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
         assertThat( operation.dateB(), is( 1441351591755l ) );
+        assertThat( operation.countryA(), is( "countryA" ) );
+        assertThat( operation.countryB(), is( "countryC" ) );
 
-        operation = (LdbcSnbBiQuery2) reader.next();
+        operation = (LdbcSnbBiQuery2TopTags) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
         assertThat( operation.dateB(), is( 1441351591756l ) );
+        assertThat( operation.countryA(), is( "countryB" ) );
+        assertThat( operation.countryB(), is( "countryD" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery2) reader.next();
+        operation = (LdbcSnbBiQuery2TopTags) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
         assertThat( operation.dateB(), is( 1441351591755l ) );
 
@@ -103,23 +109,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery3 operation;
+        LdbcSnbBiQuery3TagEvolution operation;
 
-        operation = (LdbcSnbBiQuery3) reader.next();
+        operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
         assertThat( operation.dateB(), is( 1441351591755l ) );
 
-        operation = (LdbcSnbBiQuery3) reader.next();
+        operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
         assertThat( operation.dateB(), is( 1441351591755l ) );
 
-        operation = (LdbcSnbBiQuery3) reader.next();
+        operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
         assertThat( operation.dateB(), is( 1441351591756l ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery3) reader.next();
+        operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
         assertThat( operation.dateB(), is( 1441351591755l ) );
 
@@ -141,27 +147,27 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery4 operation;
+        LdbcSnbBiQuery4PopularCountryTopics operation;
 
-        operation = (LdbcSnbBiQuery4) reader.next();
+        operation = (LdbcSnbBiQuery4PopularCountryTopics) reader.next();
         assertThat( operation.tagClass(), is( "Writer" ) );
         assertThat( operation.country(), is( "Cameroon" ) );
 
-        operation = (LdbcSnbBiQuery4) reader.next();
+        operation = (LdbcSnbBiQuery4PopularCountryTopics) reader.next();
         assertThat( operation.tagClass(), is( "Writer" ) );
         assertThat( operation.country(), is( "Colombia" ) );
 
-        operation = (LdbcSnbBiQuery4) reader.next();
+        operation = (LdbcSnbBiQuery4PopularCountryTopics) reader.next();
         assertThat( operation.tagClass(), is( "Writer" ) );
         assertThat( operation.country(), is( "Niger" ) );
 
-        operation = (LdbcSnbBiQuery4) reader.next();
+        operation = (LdbcSnbBiQuery4PopularCountryTopics) reader.next();
         assertThat( operation.tagClass(), is( "Writer" ) );
         assertThat( operation.country(), is( "Sweden" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery4) reader.next();
+        operation = (LdbcSnbBiQuery4PopularCountryTopics) reader.next();
         assertThat( operation.tagClass(), is( "Writer" ) );
         assertThat( operation.country(), is( "Cameroon" ) );
 
@@ -183,23 +189,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery5 operation;
+        LdbcSnbBiQuery5TopCountryPosters operation;
 
-        operation = (LdbcSnbBiQuery5) reader.next();
+        operation = (LdbcSnbBiQuery5TopCountryPosters) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
-        operation = (LdbcSnbBiQuery5) reader.next();
+        operation = (LdbcSnbBiQuery5TopCountryPosters) reader.next();
         assertThat( operation.country(), is( "Peru" ) );
 
-        operation = (LdbcSnbBiQuery5) reader.next();
+        operation = (LdbcSnbBiQuery5TopCountryPosters) reader.next();
         assertThat( operation.country(), is( "Tunisia" ) );
 
-        operation = (LdbcSnbBiQuery5) reader.next();
+        operation = (LdbcSnbBiQuery5TopCountryPosters) reader.next();
         assertThat( operation.country(), is( "Venezuela" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery5) reader.next();
+        operation = (LdbcSnbBiQuery5TopCountryPosters) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
         assertTrue( reader.hasNext() );
@@ -220,23 +226,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery6 operation;
+        LdbcSnbBiQuery6ActivePosters operation;
 
-        operation = (LdbcSnbBiQuery6) reader.next();
+        operation = (LdbcSnbBiQuery6ActivePosters) reader.next();
         assertThat( operation.tag(), is( "Justin_Timberlake" ) );
 
-        operation = (LdbcSnbBiQuery6) reader.next();
+        operation = (LdbcSnbBiQuery6ActivePosters) reader.next();
         assertThat( operation.tag(), is( "Josip_Broz_Tito" ) );
 
-        operation = (LdbcSnbBiQuery6) reader.next();
+        operation = (LdbcSnbBiQuery6ActivePosters) reader.next();
         assertThat( operation.tag(), is( "Barry_Manilow" ) );
 
-        operation = (LdbcSnbBiQuery6) reader.next();
+        operation = (LdbcSnbBiQuery6ActivePosters) reader.next();
         assertThat( operation.tag(), is( "Charles_Darwin" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery6) reader.next();
+        operation = (LdbcSnbBiQuery6ActivePosters) reader.next();
         assertThat( operation.tag(), is( "Justin_Timberlake" ) );
 
         assertTrue( reader.hasNext() );
@@ -257,23 +263,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery7 operation;
+        LdbcSnbBiQuery7AuthoritativeUsers operation;
 
-        operation = (LdbcSnbBiQuery7) reader.next();
+        operation = (LdbcSnbBiQuery7AuthoritativeUsers) reader.next();
         assertThat( operation.tag(), is( "Franz_Schubert" ) );
 
-        operation = (LdbcSnbBiQuery7) reader.next();
+        operation = (LdbcSnbBiQuery7AuthoritativeUsers) reader.next();
         assertThat( operation.tag(), is( "Bill_Clinton" ) );
 
-        operation = (LdbcSnbBiQuery7) reader.next();
+        operation = (LdbcSnbBiQuery7AuthoritativeUsers) reader.next();
         assertThat( operation.tag(), is( "Dante_Alighieri" ) );
 
-        operation = (LdbcSnbBiQuery7) reader.next();
+        operation = (LdbcSnbBiQuery7AuthoritativeUsers) reader.next();
         assertThat( operation.tag(), is( "Khalid_Sheikh_Mohammed" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery7) reader.next();
+        operation = (LdbcSnbBiQuery7AuthoritativeUsers) reader.next();
         assertThat( operation.tag(), is( "Franz_Schubert" ) );
 
         assertTrue( reader.hasNext() );
@@ -294,23 +300,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery8 operation;
+        LdbcSnbBiQuery8RelatedTopics operation;
 
-        operation = (LdbcSnbBiQuery8) reader.next();
+        operation = (LdbcSnbBiQuery8RelatedTopics) reader.next();
         assertThat( operation.tag(), is( "Alanis_Morissette" ) );
 
-        operation = (LdbcSnbBiQuery8) reader.next();
+        operation = (LdbcSnbBiQuery8RelatedTopics) reader.next();
         assertThat( operation.tag(), is( "\u00c9amon_de_Valera" ) );
 
-        operation = (LdbcSnbBiQuery8) reader.next();
+        operation = (LdbcSnbBiQuery8RelatedTopics) reader.next();
         assertThat( operation.tag(), is( "Juhi_Chawla" ) );
 
-        operation = (LdbcSnbBiQuery8) reader.next();
+        operation = (LdbcSnbBiQuery8RelatedTopics) reader.next();
         assertThat( operation.tag(), is( "Manuel_Noriega" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery8) reader.next();
+        operation = (LdbcSnbBiQuery8RelatedTopics) reader.next();
         assertThat( operation.tag(), is( "Alanis_Morissette" ) );
 
         assertTrue( reader.hasNext() );
@@ -331,27 +337,27 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery9 operation;
+        LdbcSnbBiQuery9RelatedForums operation;
 
-        operation = (LdbcSnbBiQuery9) reader.next();
+        operation = (LdbcSnbBiQuery9RelatedForums) reader.next();
         assertThat( operation.tagClassA(), is( "Person" ) );
         assertThat( operation.tagClassB(), is( "OfficeHolder" ) );
 
-        operation = (LdbcSnbBiQuery9) reader.next();
+        operation = (LdbcSnbBiQuery9RelatedForums) reader.next();
         assertThat( operation.tagClassA(), is( "Person" ) );
         assertThat( operation.tagClassB(), is( "Writer" ) );
 
-        operation = (LdbcSnbBiQuery9) reader.next();
+        operation = (LdbcSnbBiQuery9RelatedForums) reader.next();
         assertThat( operation.tagClassA(), is( "Person" ) );
         assertThat( operation.tagClassB(), is( "Single" ) );
 
-        operation = (LdbcSnbBiQuery9) reader.next();
+        operation = (LdbcSnbBiQuery9RelatedForums) reader.next();
         assertThat( operation.tagClassA(), is( "Person" ) );
         assertThat( operation.tagClassB(), is( "Country" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery9) reader.next();
+        operation = (LdbcSnbBiQuery9RelatedForums) reader.next();
         assertThat( operation.tagClassA(), is( "Person" ) );
         assertThat( operation.tagClassB(), is( "OfficeHolder" ) );
 
@@ -373,23 +379,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery10 operation;
+        LdbcSnbBiQuery10TagPerson operation;
 
-        operation = (LdbcSnbBiQuery10) reader.next();
+        operation = (LdbcSnbBiQuery10TagPerson) reader.next();
         assertThat( operation.tag(), is( "Franz_Schubert" ) );
 
-        operation = (LdbcSnbBiQuery10) reader.next();
+        operation = (LdbcSnbBiQuery10TagPerson) reader.next();
         assertThat( operation.tag(), is( "Bill_Clinton" ) );
 
-        operation = (LdbcSnbBiQuery10) reader.next();
+        operation = (LdbcSnbBiQuery10TagPerson) reader.next();
         assertThat( operation.tag(), is( "Dante_Alighieri" ) );
 
-        operation = (LdbcSnbBiQuery10) reader.next();
+        operation = (LdbcSnbBiQuery10TagPerson) reader.next();
         assertThat( operation.tag(), is( "Khalid_Sheikh_Mohammed" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery10) reader.next();
+        operation = (LdbcSnbBiQuery10TagPerson) reader.next();
         assertThat( operation.tag(), is( "Franz_Schubert" ) );
 
         assertTrue( reader.hasNext() );
@@ -410,27 +416,27 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery11 operation;
+        LdbcSnbBiQuery11UnrelatedReplies operation;
 
-        operation = (LdbcSnbBiQuery11) reader.next();
+        operation = (LdbcSnbBiQuery11UnrelatedReplies) reader.next();
         assertThat( operation.keyWord(), is( "Writer" ) );
         assertThat( operation.country(), is( "Cameroon" ) );
 
-        operation = (LdbcSnbBiQuery11) reader.next();
+        operation = (LdbcSnbBiQuery11UnrelatedReplies) reader.next();
         assertThat( operation.keyWord(), is( "Writer" ) );
         assertThat( operation.country(), is( "Colombia" ) );
 
-        operation = (LdbcSnbBiQuery11) reader.next();
+        operation = (LdbcSnbBiQuery11UnrelatedReplies) reader.next();
         assertThat( operation.keyWord(), is( "Writer" ) );
         assertThat( operation.country(), is( "Niger" ) );
 
-        operation = (LdbcSnbBiQuery11) reader.next();
+        operation = (LdbcSnbBiQuery11UnrelatedReplies) reader.next();
         assertThat( operation.keyWord(), is( "Writer" ) );
         assertThat( operation.country(), is( "Sweden" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery11) reader.next();
+        operation = (LdbcSnbBiQuery11UnrelatedReplies) reader.next();
         assertThat( operation.keyWord(), is( "Writer" ) );
         assertThat( operation.country(), is( "Cameroon" ) );
 
@@ -452,17 +458,17 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery12 operation;
+        LdbcSnbBiQuery12TrendingPosts operation;
 
-        operation = (LdbcSnbBiQuery12) reader.next();
+        operation = (LdbcSnbBiQuery12TrendingPosts) reader.next();
         assertThat( operation.date(), is( 1441351591755l ) );
 
-        operation = (LdbcSnbBiQuery12) reader.next();
+        operation = (LdbcSnbBiQuery12TrendingPosts) reader.next();
         assertThat( operation.date(), is( 1441351591756l ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery12) reader.next();
+        operation = (LdbcSnbBiQuery12TrendingPosts) reader.next();
         assertThat( operation.date(), is( 1441351591755l ) );
 
         assertTrue( reader.hasNext() );
@@ -483,23 +489,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery13 operation;
+        LdbcSnbBiQuery13PopularMonthlyTags operation;
 
-        operation = (LdbcSnbBiQuery13) reader.next();
+        operation = (LdbcSnbBiQuery13PopularMonthlyTags) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
-        operation = (LdbcSnbBiQuery13) reader.next();
+        operation = (LdbcSnbBiQuery13PopularMonthlyTags) reader.next();
         assertThat( operation.country(), is( "Peru" ) );
 
-        operation = (LdbcSnbBiQuery13) reader.next();
+        operation = (LdbcSnbBiQuery13PopularMonthlyTags) reader.next();
         assertThat( operation.country(), is( "Tunisia" ) );
 
-        operation = (LdbcSnbBiQuery13) reader.next();
+        operation = (LdbcSnbBiQuery13PopularMonthlyTags) reader.next();
         assertThat( operation.country(), is( "Venezuela" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery13) reader.next();
+        operation = (LdbcSnbBiQuery13PopularMonthlyTags) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
         assertTrue( reader.hasNext() );
@@ -520,17 +526,17 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery14 operation;
+        LdbcSnbBiQuery14TopThreadInitiators operation;
 
-        operation = (LdbcSnbBiQuery14) reader.next();
+        operation = (LdbcSnbBiQuery14TopThreadInitiators) reader.next();
         assertThat( operation.date(), is( 1441351591755l ) );
 
-        operation = (LdbcSnbBiQuery14) reader.next();
+        operation = (LdbcSnbBiQuery14TopThreadInitiators) reader.next();
         assertThat( operation.date(), is( 1441351591756l ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery14) reader.next();
+        operation = (LdbcSnbBiQuery14TopThreadInitiators) reader.next();
         assertThat( operation.date(), is( 1441351591755l ) );
 
         assertTrue( reader.hasNext() );
@@ -551,23 +557,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery15 operation;
+        LdbcSnbBiQuery15SocialNormals operation;
 
-        operation = (LdbcSnbBiQuery15) reader.next();
+        operation = (LdbcSnbBiQuery15SocialNormals) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
-        operation = (LdbcSnbBiQuery15) reader.next();
+        operation = (LdbcSnbBiQuery15SocialNormals) reader.next();
         assertThat( operation.country(), is( "Peru" ) );
 
-        operation = (LdbcSnbBiQuery15) reader.next();
+        operation = (LdbcSnbBiQuery15SocialNormals) reader.next();
         assertThat( operation.country(), is( "Tunisia" ) );
 
-        operation = (LdbcSnbBiQuery15) reader.next();
+        operation = (LdbcSnbBiQuery15SocialNormals) reader.next();
         assertThat( operation.country(), is( "Venezuela" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery15) reader.next();
+        operation = (LdbcSnbBiQuery15SocialNormals) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
         assertTrue( reader.hasNext() );
@@ -588,27 +594,27 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery16 operation;
+        LdbcSnbBiQuery16ExpertsInSocialCircle operation;
 
-        operation = (LdbcSnbBiQuery16) reader.next();
+        operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
         assertThat( operation.tagClass(), is( "Writer" ) );
         assertThat( operation.country(), is( "Cameroon" ) );
 
-        operation = (LdbcSnbBiQuery16) reader.next();
+        operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
         assertThat( operation.tagClass(), is( "Writer" ) );
         assertThat( operation.country(), is( "Colombia" ) );
 
-        operation = (LdbcSnbBiQuery16) reader.next();
+        operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
         assertThat( operation.tagClass(), is( "Writer" ) );
         assertThat( operation.country(), is( "Niger" ) );
 
-        operation = (LdbcSnbBiQuery16) reader.next();
+        operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
         assertThat( operation.tagClass(), is( "Writer" ) );
         assertThat( operation.country(), is( "Sweden" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery16) reader.next();
+        operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
         assertThat( operation.tagClass(), is( "Writer" ) );
         assertThat( operation.country(), is( "Cameroon" ) );
 
@@ -630,23 +636,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery17 operation;
+        LdbcSnbBiQuery17FriendshipTriangles operation;
 
-        operation = (LdbcSnbBiQuery17) reader.next();
+        operation = (LdbcSnbBiQuery17FriendshipTriangles) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
-        operation = (LdbcSnbBiQuery17) reader.next();
+        operation = (LdbcSnbBiQuery17FriendshipTriangles) reader.next();
         assertThat( operation.country(), is( "Peru" ) );
 
-        operation = (LdbcSnbBiQuery17) reader.next();
+        operation = (LdbcSnbBiQuery17FriendshipTriangles) reader.next();
         assertThat( operation.country(), is( "Tunisia" ) );
 
-        operation = (LdbcSnbBiQuery17) reader.next();
+        operation = (LdbcSnbBiQuery17FriendshipTriangles) reader.next();
         assertThat( operation.country(), is( "Venezuela" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery17) reader.next();
+        operation = (LdbcSnbBiQuery17FriendshipTriangles) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
         assertTrue( reader.hasNext() );
@@ -667,17 +673,17 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery18 operation;
+        LdbcSnbBiQuery18PersonPostCounts operation;
 
-        operation = (LdbcSnbBiQuery18) reader.next();
+        operation = (LdbcSnbBiQuery18PersonPostCounts) reader.next();
         assertThat( operation.date(), is( 1441351591755l ) );
 
-        operation = (LdbcSnbBiQuery18) reader.next();
+        operation = (LdbcSnbBiQuery18PersonPostCounts) reader.next();
         assertThat( operation.date(), is( 1441351591756l ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery18) reader.next();
+        operation = (LdbcSnbBiQuery18PersonPostCounts) reader.next();
         assertThat( operation.date(), is( 1441351591755l ) );
 
         assertTrue( reader.hasNext() );
@@ -698,27 +704,27 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery19 operation;
+        LdbcSnbBiQuery19StrangerInteraction operation;
 
-        operation = (LdbcSnbBiQuery19) reader.next();
+        operation = (LdbcSnbBiQuery19StrangerInteraction) reader.next();
         assertThat( operation.tagClassA(), is( "Writer" ) );
         assertThat( operation.tagClassB(), is( "Single" ) );
 
-        operation = (LdbcSnbBiQuery19) reader.next();
+        operation = (LdbcSnbBiQuery19StrangerInteraction) reader.next();
         assertThat( operation.tagClassA(), is( "Writer" ) );
         assertThat( operation.tagClassB(), is( "Country" ) );
 
-        operation = (LdbcSnbBiQuery19) reader.next();
+        operation = (LdbcSnbBiQuery19StrangerInteraction) reader.next();
         assertThat( operation.tagClassA(), is( "Writer" ) );
         assertThat( operation.tagClassB(), is( "Album" ) );
 
-        operation = (LdbcSnbBiQuery19) reader.next();
+        operation = (LdbcSnbBiQuery19StrangerInteraction) reader.next();
         assertThat( operation.tagClassA(), is( "Writer" ) );
         assertThat( operation.tagClassB(), is( "BritishRoyalty" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery19) reader.next();
+        operation = (LdbcSnbBiQuery19StrangerInteraction) reader.next();
         assertThat( operation.tagClassA(), is( "Writer" ) );
         assertThat( operation.tagClassB(), is( "Single" ) );
 
@@ -740,14 +746,14 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20.class ) );
-        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20.class ) );
-        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20.class ) );
-        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20.class ) );
+        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20HighLevelTopics.class ) );
+        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20HighLevelTopics.class ) );
+        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20HighLevelTopics.class ) );
+        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20HighLevelTopics.class ) );
 
         // loops back around to first
 
-        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20.class ) );
+        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20HighLevelTopics.class ) );
         assertTrue( reader.hasNext() );
     }
 
@@ -766,23 +772,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery21 operation;
+        LdbcSnbBiQuery21Zombies operation;
 
-        operation = (LdbcSnbBiQuery21) reader.next();
+        operation = (LdbcSnbBiQuery21Zombies) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
-        operation = (LdbcSnbBiQuery21) reader.next();
+        operation = (LdbcSnbBiQuery21Zombies) reader.next();
         assertThat( operation.country(), is( "Peru" ) );
 
-        operation = (LdbcSnbBiQuery21) reader.next();
+        operation = (LdbcSnbBiQuery21Zombies) reader.next();
         assertThat( operation.country(), is( "Tunisia" ) );
 
-        operation = (LdbcSnbBiQuery21) reader.next();
+        operation = (LdbcSnbBiQuery21Zombies) reader.next();
         assertThat( operation.country(), is( "Venezuela" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery21) reader.next();
+        operation = (LdbcSnbBiQuery21Zombies) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
         assertTrue( reader.hasNext() );
@@ -803,27 +809,27 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery22 operation;
+        LdbcSnbBiQuery22InternationalDialog operation;
 
-        operation = (LdbcSnbBiQuery22) reader.next();
+        operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
         assertThat( operation.countryA(), is( "Germany" ) );
         assertThat( operation.countryB(), is( "Pakistan" ) );
 
-        operation = (LdbcSnbBiQuery22) reader.next();
+        operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
         assertThat( operation.countryA(), is( "Germany" ) );
         assertThat( operation.countryB(), is( "Russia" ) );
 
-        operation = (LdbcSnbBiQuery22) reader.next();
+        operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
         assertThat( operation.countryA(), is( "Germany" ) );
         assertThat( operation.countryB(), is( "Vietnam" ) );
 
-        operation = (LdbcSnbBiQuery22) reader.next();
+        operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
         assertThat( operation.countryA(), is( "Germany" ) );
         assertThat( operation.countryB(), is( "Philippines" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery22) reader.next();
+        operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
         assertThat( operation.countryA(), is( "Germany" ) );
         assertThat( operation.countryB(), is( "Pakistan" ) );
 
@@ -845,23 +851,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery23 operation;
+        LdbcSnbBiQuery23HolidayDestinations operation;
 
-        operation = (LdbcSnbBiQuery23) reader.next();
+        operation = (LdbcSnbBiQuery23HolidayDestinations) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
-        operation = (LdbcSnbBiQuery23) reader.next();
+        operation = (LdbcSnbBiQuery23HolidayDestinations) reader.next();
         assertThat( operation.country(), is( "Peru" ) );
 
-        operation = (LdbcSnbBiQuery23) reader.next();
+        operation = (LdbcSnbBiQuery23HolidayDestinations) reader.next();
         assertThat( operation.country(), is( "Tunisia" ) );
 
-        operation = (LdbcSnbBiQuery23) reader.next();
+        operation = (LdbcSnbBiQuery23HolidayDestinations) reader.next();
         assertThat( operation.country(), is( "Venezuela" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery23) reader.next();
+        operation = (LdbcSnbBiQuery23HolidayDestinations) reader.next();
         assertThat( operation.country(), is( "Kenya" ) );
 
         assertTrue( reader.hasNext() );
@@ -882,23 +888,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery24 operation;
+        LdbcSnbBiQuery24MessagesByTopic operation;
 
-        operation = (LdbcSnbBiQuery24) reader.next();
+        operation = (LdbcSnbBiQuery24MessagesByTopic) reader.next();
         assertThat( operation.tagClass(), is( "Person" ) );
 
-        operation = (LdbcSnbBiQuery24) reader.next();
+        operation = (LdbcSnbBiQuery24MessagesByTopic) reader.next();
         assertThat( operation.tagClass(), is( "OfficeHolder" ) );
 
-        operation = (LdbcSnbBiQuery24) reader.next();
+        operation = (LdbcSnbBiQuery24MessagesByTopic) reader.next();
         assertThat( operation.tagClass(), is( "Writer" ) );
 
-        operation = (LdbcSnbBiQuery24) reader.next();
+        operation = (LdbcSnbBiQuery24MessagesByTopic) reader.next();
         assertThat( operation.tagClass(), is( "Single" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery24) reader.next();
+        operation = (LdbcSnbBiQuery24MessagesByTopic) reader.next();
         assertThat( operation.tagClass(), is( "Person" ) );
 
         assertTrue( reader.hasNext() );

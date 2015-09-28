@@ -28,7 +28,7 @@ public class BiOperationResultEqualityTest
         double percent2 = 12;
 
 
-        LdbcSnbBiQuery1Result result1a = new LdbcSnbBiQuery1Result(
+        LdbcSnbBiQuery1PostingSummaryResult result1a = new LdbcSnbBiQuery1PostingSummaryResult(
                 year1,
                 isReply1,
                 size1,
@@ -37,7 +37,7 @@ public class BiOperationResultEqualityTest
                 total1,
                 percent1
         );
-        LdbcSnbBiQuery1Result result1b = new LdbcSnbBiQuery1Result(
+        LdbcSnbBiQuery1PostingSummaryResult result1b = new LdbcSnbBiQuery1PostingSummaryResult(
                 year1,
                 isReply1,
                 size1,
@@ -46,7 +46,7 @@ public class BiOperationResultEqualityTest
                 total1,
                 percent1
         );
-        LdbcSnbBiQuery1Result result2a = new LdbcSnbBiQuery1Result(
+        LdbcSnbBiQuery1PostingSummaryResult result2a = new LdbcSnbBiQuery1PostingSummaryResult(
                 year2,
                 isReply2,
                 size2,
@@ -55,7 +55,7 @@ public class BiOperationResultEqualityTest
                 total2,
                 percent2
         );
-        LdbcSnbBiQuery1Result result3a = new LdbcSnbBiQuery1Result(
+        LdbcSnbBiQuery1PostingSummaryResult result3a = new LdbcSnbBiQuery1PostingSummaryResult(
                 year2,
                 isReply2,
                 size2,
@@ -77,40 +77,46 @@ public class BiOperationResultEqualityTest
         String country1 = "\u3055";
         int month1 = 1;
         String gender1 = "gender1";
+        int ageGroup1 = 2;
         String tag1 = "\u4e35";
-        int count1 = 2;
+        int count1 = 3;
 
         String country2 = "\u16a0";
-        int month2 = 3;
+        int month2 = 4;
         String gender2 = "gender2";
+        int ageGroup2 = 5;
         String tag2 = "tag";
-        int count2 = 4;
+        int count2 = 6;
 
-        LdbcSnbBiQuery2Result result1a = new LdbcSnbBiQuery2Result(
+        LdbcSnbBiQuery2TopTagsResult result1a = new LdbcSnbBiQuery2TopTagsResult(
                 country1,
                 month1,
                 gender1,
+                ageGroup1,
                 tag1,
                 count1
         );
-        LdbcSnbBiQuery2Result result1b = new LdbcSnbBiQuery2Result(
+        LdbcSnbBiQuery2TopTagsResult result1b = new LdbcSnbBiQuery2TopTagsResult(
                 country1,
                 month1,
                 gender1,
+                ageGroup1,
                 tag1,
                 count1
         );
-        LdbcSnbBiQuery2Result result2a = new LdbcSnbBiQuery2Result(
+        LdbcSnbBiQuery2TopTagsResult result2a = new LdbcSnbBiQuery2TopTagsResult(
                 country2,
                 month2,
                 gender2,
+                ageGroup2,
                 tag2,
                 count2
         );
-        LdbcSnbBiQuery2Result result3a = new LdbcSnbBiQuery2Result(
+        LdbcSnbBiQuery2TopTagsResult result3a = new LdbcSnbBiQuery2TopTagsResult(
                 country2,
                 month2,
                 gender2,
+                ageGroup2,
                 tag2,
                 count1
         );
@@ -134,25 +140,25 @@ public class BiOperationResultEqualityTest
         int countB2 = 5;
         int difference2 = 6;
 
-        LdbcSnbBiQuery3Result result1a = new LdbcSnbBiQuery3Result(
+        LdbcSnbBiQuery3TagEvolutionResult result1a = new LdbcSnbBiQuery3TagEvolutionResult(
                 tag1,
                 countA1,
                 countB1,
                 difference1
         );
-        LdbcSnbBiQuery3Result result1b = new LdbcSnbBiQuery3Result(
+        LdbcSnbBiQuery3TagEvolutionResult result1b = new LdbcSnbBiQuery3TagEvolutionResult(
                 tag1,
                 countA1,
                 countB1,
                 difference1
         );
-        LdbcSnbBiQuery3Result result2a = new LdbcSnbBiQuery3Result(
+        LdbcSnbBiQuery3TagEvolutionResult result2a = new LdbcSnbBiQuery3TagEvolutionResult(
                 tag2,
                 countA2,
                 countB2,
                 difference2
         );
-        LdbcSnbBiQuery3Result result3a = new LdbcSnbBiQuery3Result(
+        LdbcSnbBiQuery3TagEvolutionResult result3a = new LdbcSnbBiQuery3TagEvolutionResult(
                 tag2,
                 countA2,
                 countB2,
@@ -180,28 +186,28 @@ public class BiOperationResultEqualityTest
         long moderator2 = 5;
         int count2 = 6;
 
-        LdbcSnbBiQuery4Result result1a = new LdbcSnbBiQuery4Result(
+        LdbcSnbBiQuery4PopularCountryTopicsResult result1a = new LdbcSnbBiQuery4PopularCountryTopicsResult(
                 forumId1,
                 title1,
                 creationDate1,
                 moderator1,
                 count1
         );
-        LdbcSnbBiQuery4Result result1b = new LdbcSnbBiQuery4Result(
+        LdbcSnbBiQuery4PopularCountryTopicsResult result1b = new LdbcSnbBiQuery4PopularCountryTopicsResult(
                 forumId1,
                 title1,
                 creationDate1,
                 moderator1,
                 count1
         );
-        LdbcSnbBiQuery4Result result2a = new LdbcSnbBiQuery4Result(
+        LdbcSnbBiQuery4PopularCountryTopicsResult result2a = new LdbcSnbBiQuery4PopularCountryTopicsResult(
                 forumId2,
                 title2,
                 creationDate2,
                 moderator2,
                 count2
         );
-        LdbcSnbBiQuery4Result result3a = new LdbcSnbBiQuery4Result(
+        LdbcSnbBiQuery4PopularCountryTopicsResult result3a = new LdbcSnbBiQuery4PopularCountryTopicsResult(
                 forumId2,
                 title2,
                 creationDate2,
@@ -230,28 +236,28 @@ public class BiOperationResultEqualityTest
         long createDate2 = 6;
         int count2 = Integer.MIN_VALUE;
 
-        LdbcSnbBiQuery5Result result1a = new LdbcSnbBiQuery5Result(
+        LdbcSnbBiQuery5TopCountryPostersResult result1a = new LdbcSnbBiQuery5TopCountryPostersResult(
                 personId1,
                 firstName1,
                 lastName1,
                 createDate1,
                 count1
         );
-        LdbcSnbBiQuery5Result result1b = new LdbcSnbBiQuery5Result(
+        LdbcSnbBiQuery5TopCountryPostersResult result1b = new LdbcSnbBiQuery5TopCountryPostersResult(
                 personId1,
                 firstName1,
                 lastName1,
                 createDate1,
                 count1
         );
-        LdbcSnbBiQuery5Result result2a = new LdbcSnbBiQuery5Result(
+        LdbcSnbBiQuery5TopCountryPostersResult result2a = new LdbcSnbBiQuery5TopCountryPostersResult(
                 personId2,
                 firstName2,
                 lastName2,
                 createDate2,
                 count2
         );
-        LdbcSnbBiQuery5Result result3a = new LdbcSnbBiQuery5Result(
+        LdbcSnbBiQuery5TopCountryPostersResult result3a = new LdbcSnbBiQuery5TopCountryPostersResult(
                 personId2,
                 firstName2,
                 lastName2,
@@ -280,28 +286,28 @@ public class BiOperationResultEqualityTest
         int likeCount2 = 9;
         int score2 = 10;
 
-        LdbcSnbBiQuery6Result result1a = new LdbcSnbBiQuery6Result(
+        LdbcSnbBiQuery6ActivePostersResult result1a = new LdbcSnbBiQuery6ActivePostersResult(
                 personId1,
                 postCount1,
                 replyCount1,
                 likeCount1,
                 score1
         );
-        LdbcSnbBiQuery6Result result1b = new LdbcSnbBiQuery6Result(
+        LdbcSnbBiQuery6ActivePostersResult result1b = new LdbcSnbBiQuery6ActivePostersResult(
                 personId1,
                 postCount1,
                 replyCount1,
                 likeCount1,
                 score1
         );
-        LdbcSnbBiQuery6Result result2a = new LdbcSnbBiQuery6Result(
+        LdbcSnbBiQuery6ActivePostersResult result2a = new LdbcSnbBiQuery6ActivePostersResult(
                 personId2,
                 postCount2,
                 replyCount2,
                 likeCount2,
                 score2
         );
-        LdbcSnbBiQuery6Result result3a = new LdbcSnbBiQuery6Result(
+        LdbcSnbBiQuery6ActivePostersResult result3a = new LdbcSnbBiQuery6ActivePostersResult(
                 personId2,
                 postCount2,
                 replyCount2,
@@ -324,19 +330,19 @@ public class BiOperationResultEqualityTest
         long personId2 = 3;
         int score2 = 4;
 
-        LdbcSnbBiQuery7Result result1a = new LdbcSnbBiQuery7Result(
+        LdbcSnbBiQuery7AuthoritativeUsersResult result1a = new LdbcSnbBiQuery7AuthoritativeUsersResult(
                 personId1,
                 score1
         );
-        LdbcSnbBiQuery7Result result1b = new LdbcSnbBiQuery7Result(
+        LdbcSnbBiQuery7AuthoritativeUsersResult result1b = new LdbcSnbBiQuery7AuthoritativeUsersResult(
                 personId1,
                 score1
         );
-        LdbcSnbBiQuery7Result result2a = new LdbcSnbBiQuery7Result(
+        LdbcSnbBiQuery7AuthoritativeUsersResult result2a = new LdbcSnbBiQuery7AuthoritativeUsersResult(
                 personId2,
                 score2
         );
-        LdbcSnbBiQuery7Result result3a = new LdbcSnbBiQuery7Result(
+        LdbcSnbBiQuery7AuthoritativeUsersResult result3a = new LdbcSnbBiQuery7AuthoritativeUsersResult(
                 personId2,
                 score1
         );
@@ -356,19 +362,19 @@ public class BiOperationResultEqualityTest
         String tag2 = "\u4e35";
         int count2 = 2;
 
-        LdbcSnbBiQuery8Result result1a = new LdbcSnbBiQuery8Result(
+        LdbcSnbBiQuery8RelatedTopicsResult result1a = new LdbcSnbBiQuery8RelatedTopicsResult(
                 tag1,
                 count1
         );
-        LdbcSnbBiQuery8Result result1b = new LdbcSnbBiQuery8Result(
+        LdbcSnbBiQuery8RelatedTopicsResult result1b = new LdbcSnbBiQuery8RelatedTopicsResult(
                 tag1,
                 count1
         );
-        LdbcSnbBiQuery8Result result2a = new LdbcSnbBiQuery8Result(
+        LdbcSnbBiQuery8RelatedTopicsResult result2a = new LdbcSnbBiQuery8RelatedTopicsResult(
                 tag2,
                 count2
         );
-        LdbcSnbBiQuery8Result result3a = new LdbcSnbBiQuery8Result(
+        LdbcSnbBiQuery8RelatedTopicsResult result3a = new LdbcSnbBiQuery8RelatedTopicsResult(
                 tag2,
                 count1
         );
@@ -390,22 +396,22 @@ public class BiOperationResultEqualityTest
         int sumA2 = 3;
         int sumB2 = 4;
 
-        LdbcSnbBiQuery9Result result1a = new LdbcSnbBiQuery9Result(
+        LdbcSnbBiQuery9RelatedForumsResult result1a = new LdbcSnbBiQuery9RelatedForumsResult(
                 forumTitle1,
                 sumA1,
                 sumB1
         );
-        LdbcSnbBiQuery9Result result1b = new LdbcSnbBiQuery9Result(
+        LdbcSnbBiQuery9RelatedForumsResult result1b = new LdbcSnbBiQuery9RelatedForumsResult(
                 forumTitle1,
                 sumA1,
                 sumB1
         );
-        LdbcSnbBiQuery9Result result2a = new LdbcSnbBiQuery9Result(
+        LdbcSnbBiQuery9RelatedForumsResult result2a = new LdbcSnbBiQuery9RelatedForumsResult(
                 forumTitle2,
                 sumA2,
                 sumB2
         );
-        LdbcSnbBiQuery9Result result3a = new LdbcSnbBiQuery9Result(
+        LdbcSnbBiQuery9RelatedForumsResult result3a = new LdbcSnbBiQuery9RelatedForumsResult(
                 forumTitle2,
                 sumA2,
                 sumB1
@@ -426,19 +432,19 @@ public class BiOperationResultEqualityTest
         long personId2 = 3;
         int score2 = 4;
 
-        LdbcSnbBiQuery10Result result1a = new LdbcSnbBiQuery10Result(
+        LdbcSnbBiQuery10TagPersonResult result1a = new LdbcSnbBiQuery10TagPersonResult(
                 personId1,
                 score1
         );
-        LdbcSnbBiQuery10Result result1b = new LdbcSnbBiQuery10Result(
+        LdbcSnbBiQuery10TagPersonResult result1b = new LdbcSnbBiQuery10TagPersonResult(
                 personId1,
                 score1
         );
-        LdbcSnbBiQuery10Result result2a = new LdbcSnbBiQuery10Result(
+        LdbcSnbBiQuery10TagPersonResult result2a = new LdbcSnbBiQuery10TagPersonResult(
                 personId2,
                 score2
         );
-        LdbcSnbBiQuery10Result result3a = new LdbcSnbBiQuery10Result(
+        LdbcSnbBiQuery10TagPersonResult result3a = new LdbcSnbBiQuery10TagPersonResult(
                 personId2,
                 score1
         );
@@ -462,25 +468,25 @@ public class BiOperationResultEqualityTest
         int likeCount2 = 5;
         int replyCount2 = 6;
 
-        LdbcSnbBiQuery11Result result1a = new LdbcSnbBiQuery11Result(
+        LdbcSnbBiQuery11UnrelatedRepliesResult result1a = new LdbcSnbBiQuery11UnrelatedRepliesResult(
                 personId1,
                 tag1,
                 likeCount1,
                 replyCount1
         );
-        LdbcSnbBiQuery11Result result1b = new LdbcSnbBiQuery11Result(
+        LdbcSnbBiQuery11UnrelatedRepliesResult result1b = new LdbcSnbBiQuery11UnrelatedRepliesResult(
                 personId1,
                 tag1,
                 likeCount1,
                 replyCount1
         );
-        LdbcSnbBiQuery11Result result2a = new LdbcSnbBiQuery11Result(
+        LdbcSnbBiQuery11UnrelatedRepliesResult result2a = new LdbcSnbBiQuery11UnrelatedRepliesResult(
                 personId2,
                 tag2,
                 likeCount2,
                 replyCount2
         );
-        LdbcSnbBiQuery11Result result3a = new LdbcSnbBiQuery11Result(
+        LdbcSnbBiQuery11UnrelatedRepliesResult result3a = new LdbcSnbBiQuery11UnrelatedRepliesResult(
                 personId2,
                 tag2,
                 likeCount2,
@@ -508,28 +514,28 @@ public class BiOperationResultEqualityTest
         long createDate2 = 5;
         int count2 = 6;
 
-        LdbcSnbBiQuery12Result result1a = new LdbcSnbBiQuery12Result(
+        LdbcSnbBiQuery12TrendingPostsResult result1a = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId1,
                 firstName1,
                 lastName1,
                 createDate1,
                 count1
         );
-        LdbcSnbBiQuery12Result result1b = new LdbcSnbBiQuery12Result(
+        LdbcSnbBiQuery12TrendingPostsResult result1b = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId1,
                 firstName1,
                 lastName1,
                 createDate1,
                 count1
         );
-        LdbcSnbBiQuery12Result result2a = new LdbcSnbBiQuery12Result(
+        LdbcSnbBiQuery12TrendingPostsResult result2a = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId2,
                 firstName2,
                 lastName2,
                 createDate2,
                 count2
         );
-        LdbcSnbBiQuery12Result result3a = new LdbcSnbBiQuery12Result(
+        LdbcSnbBiQuery12TrendingPostsResult result3a = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId2,
                 firstName1,
                 lastName2,
@@ -556,25 +562,25 @@ public class BiOperationResultEqualityTest
         String tag2 = "7";
         int count2 = 8;
 
-        LdbcSnbBiQuery13Result result1a = new LdbcSnbBiQuery13Result(
+        LdbcSnbBiQuery13PopularMonthlyTagsResult result1a = new LdbcSnbBiQuery13PopularMonthlyTagsResult(
                 year1,
                 month1,
                 tag1,
                 count1
         );
-        LdbcSnbBiQuery13Result result1b = new LdbcSnbBiQuery13Result(
+        LdbcSnbBiQuery13PopularMonthlyTagsResult result1b = new LdbcSnbBiQuery13PopularMonthlyTagsResult(
                 year1,
                 month1,
                 tag1,
                 count1
         );
-        LdbcSnbBiQuery13Result result2a = new LdbcSnbBiQuery13Result(
+        LdbcSnbBiQuery13PopularMonthlyTagsResult result2a = new LdbcSnbBiQuery13PopularMonthlyTagsResult(
                 year2,
                 month2,
                 tag2,
                 count2
         );
-        LdbcSnbBiQuery13Result result3a = new LdbcSnbBiQuery13Result(
+        LdbcSnbBiQuery13PopularMonthlyTagsResult result3a = new LdbcSnbBiQuery13PopularMonthlyTagsResult(
                 year2,
                 month2,
                 tag1,
@@ -602,28 +608,28 @@ public class BiOperationResultEqualityTest
         int count2 = 9;
         int threadCount2 = 10;
 
-        LdbcSnbBiQuery14Result result1a = new LdbcSnbBiQuery14Result(
+        LdbcSnbBiQuery14TopThreadInitiatorsResult result1a = new LdbcSnbBiQuery14TopThreadInitiatorsResult(
                 personId1,
                 firstName1,
                 lastName1,
                 count1,
                 threadCount1
         );
-        LdbcSnbBiQuery14Result result1b = new LdbcSnbBiQuery14Result(
+        LdbcSnbBiQuery14TopThreadInitiatorsResult result1b = new LdbcSnbBiQuery14TopThreadInitiatorsResult(
                 personId1,
                 firstName1,
                 lastName1,
                 count1,
                 threadCount1
         );
-        LdbcSnbBiQuery14Result result2a = new LdbcSnbBiQuery14Result(
+        LdbcSnbBiQuery14TopThreadInitiatorsResult result2a = new LdbcSnbBiQuery14TopThreadInitiatorsResult(
                 personId2,
                 firstName2,
                 lastName2,
                 count2,
                 threadCount2
         );
-        LdbcSnbBiQuery14Result result3a = new LdbcSnbBiQuery14Result(
+        LdbcSnbBiQuery14TopThreadInitiatorsResult result3a = new LdbcSnbBiQuery14TopThreadInitiatorsResult(
                 personId2,
                 firstName2,
                 lastName2,
@@ -646,19 +652,19 @@ public class BiOperationResultEqualityTest
         long personId2 = 3;
         int count2 = 4;
 
-        LdbcSnbBiQuery15Result result1a = new LdbcSnbBiQuery15Result(
+        LdbcSnbBiQuery15SocialNormalsResult result1a = new LdbcSnbBiQuery15SocialNormalsResult(
                 personId1,
                 count1
         );
-        LdbcSnbBiQuery15Result result1b = new LdbcSnbBiQuery15Result(
+        LdbcSnbBiQuery15SocialNormalsResult result1b = new LdbcSnbBiQuery15SocialNormalsResult(
                 personId1,
                 count1
         );
-        LdbcSnbBiQuery15Result result2a = new LdbcSnbBiQuery15Result(
+        LdbcSnbBiQuery15SocialNormalsResult result2a = new LdbcSnbBiQuery15SocialNormalsResult(
                 personId2,
                 count2
         );
-        LdbcSnbBiQuery15Result result3a = new LdbcSnbBiQuery15Result(
+        LdbcSnbBiQuery15SocialNormalsResult result3a = new LdbcSnbBiQuery15SocialNormalsResult(
                 personId2,
                 count1
         );
@@ -680,22 +686,22 @@ public class BiOperationResultEqualityTest
         String tag2 = "5";
         int count2 = 6;
 
-        LdbcSnbBiQuery16Result result1a = new LdbcSnbBiQuery16Result(
+        LdbcSnbBiQuery16ExpertsInSocialCircleResult result1a = new LdbcSnbBiQuery16ExpertsInSocialCircleResult(
                 personId1,
                 tag1,
                 count1
         );
-        LdbcSnbBiQuery16Result result1b = new LdbcSnbBiQuery16Result(
+        LdbcSnbBiQuery16ExpertsInSocialCircleResult result1b = new LdbcSnbBiQuery16ExpertsInSocialCircleResult(
                 personId1,
                 tag1,
                 count1
         );
-        LdbcSnbBiQuery16Result result2a = new LdbcSnbBiQuery16Result(
+        LdbcSnbBiQuery16ExpertsInSocialCircleResult result2a = new LdbcSnbBiQuery16ExpertsInSocialCircleResult(
                 personId2,
                 tag2,
                 count2
         );
-        LdbcSnbBiQuery16Result result3a = new LdbcSnbBiQuery16Result(
+        LdbcSnbBiQuery16ExpertsInSocialCircleResult result3a = new LdbcSnbBiQuery16ExpertsInSocialCircleResult(
                 personId2,
                 tag2,
                 count1
@@ -714,13 +720,13 @@ public class BiOperationResultEqualityTest
 
         int count2 = 2;
 
-        LdbcSnbBiQuery17Result result1a = new LdbcSnbBiQuery17Result(
+        LdbcSnbBiQuery17FriendshipTrianglesResult result1a = new LdbcSnbBiQuery17FriendshipTrianglesResult(
                 count1
         );
-        LdbcSnbBiQuery17Result result1b = new LdbcSnbBiQuery17Result(
+        LdbcSnbBiQuery17FriendshipTrianglesResult result1b = new LdbcSnbBiQuery17FriendshipTrianglesResult(
                 count1
         );
-        LdbcSnbBiQuery17Result result2a = new LdbcSnbBiQuery17Result(
+        LdbcSnbBiQuery17FriendshipTrianglesResult result2a = new LdbcSnbBiQuery17FriendshipTrianglesResult(
                 count2
         );
 
@@ -737,19 +743,19 @@ public class BiOperationResultEqualityTest
         int postCount2 = 3;
         int count2 = 4;
 
-        LdbcSnbBiQuery18Result result1a = new LdbcSnbBiQuery18Result(
+        LdbcSnbBiQuery18PersonPostCountsResult result1a = new LdbcSnbBiQuery18PersonPostCountsResult(
                 postCount1,
                 count1
         );
-        LdbcSnbBiQuery18Result result1b = new LdbcSnbBiQuery18Result(
+        LdbcSnbBiQuery18PersonPostCountsResult result1b = new LdbcSnbBiQuery18PersonPostCountsResult(
                 postCount1,
                 count1
         );
-        LdbcSnbBiQuery18Result result2a = new LdbcSnbBiQuery18Result(
+        LdbcSnbBiQuery18PersonPostCountsResult result2a = new LdbcSnbBiQuery18PersonPostCountsResult(
                 postCount2,
                 count2
         );
-        LdbcSnbBiQuery18Result result3a = new LdbcSnbBiQuery18Result(
+        LdbcSnbBiQuery18PersonPostCountsResult result3a = new LdbcSnbBiQuery18PersonPostCountsResult(
                 postCount2,
                 count1
         );
@@ -771,22 +777,22 @@ public class BiOperationResultEqualityTest
         int strangerCount2 = 5;
         int count2 = 6;
 
-        LdbcSnbBiQuery19Result result1a = new LdbcSnbBiQuery19Result(
+        LdbcSnbBiQuery19StrangerInteractionResult result1a = new LdbcSnbBiQuery19StrangerInteractionResult(
                 personId1,
                 strangerCount1,
                 count1
         );
-        LdbcSnbBiQuery19Result result1b = new LdbcSnbBiQuery19Result(
+        LdbcSnbBiQuery19StrangerInteractionResult result1b = new LdbcSnbBiQuery19StrangerInteractionResult(
                 personId1,
                 strangerCount1,
                 count1
         );
-        LdbcSnbBiQuery19Result result2a = new LdbcSnbBiQuery19Result(
+        LdbcSnbBiQuery19StrangerInteractionResult result2a = new LdbcSnbBiQuery19StrangerInteractionResult(
                 personId2,
                 strangerCount2,
                 count2
         );
-        LdbcSnbBiQuery19Result result3a = new LdbcSnbBiQuery19Result(
+        LdbcSnbBiQuery19StrangerInteractionResult result3a = new LdbcSnbBiQuery19StrangerInteractionResult(
                 personId2,
                 strangerCount2,
                 count1
@@ -807,19 +813,19 @@ public class BiOperationResultEqualityTest
         String tagClass2 = "tagClass2";
         int count2 = 2;
 
-        LdbcSnbBiQuery20Result result1a = new LdbcSnbBiQuery20Result(
+        LdbcSnbBiQuery20HighLevelTopicsResult result1a = new LdbcSnbBiQuery20HighLevelTopicsResult(
                 tagClass1,
                 count1
         );
-        LdbcSnbBiQuery20Result result1b = new LdbcSnbBiQuery20Result(
+        LdbcSnbBiQuery20HighLevelTopicsResult result1b = new LdbcSnbBiQuery20HighLevelTopicsResult(
                 tagClass1,
                 count1
         );
-        LdbcSnbBiQuery20Result result2a = new LdbcSnbBiQuery20Result(
+        LdbcSnbBiQuery20HighLevelTopicsResult result2a = new LdbcSnbBiQuery20HighLevelTopicsResult(
                 tagClass2,
                 count2
         );
-        LdbcSnbBiQuery20Result result3a = new LdbcSnbBiQuery20Result(
+        LdbcSnbBiQuery20HighLevelTopicsResult result3a = new LdbcSnbBiQuery20HighLevelTopicsResult(
                 tagClass2,
                 count1
         );
@@ -843,25 +849,25 @@ public class BiOperationResultEqualityTest
         int realCount2 = 7;
         int score2 = 8;
 
-        LdbcSnbBiQuery21Result result1a = new LdbcSnbBiQuery21Result(
+        LdbcSnbBiQuery21ZombiesResult result1a = new LdbcSnbBiQuery21ZombiesResult(
                 personId1,
                 zombieCount1,
                 realCount1,
                 score1
         );
-        LdbcSnbBiQuery21Result result1b = new LdbcSnbBiQuery21Result(
+        LdbcSnbBiQuery21ZombiesResult result1b = new LdbcSnbBiQuery21ZombiesResult(
                 personId1,
                 zombieCount1,
                 realCount1,
                 score1
         );
-        LdbcSnbBiQuery21Result result2a = new LdbcSnbBiQuery21Result(
+        LdbcSnbBiQuery21ZombiesResult result2a = new LdbcSnbBiQuery21ZombiesResult(
                 personId2,
                 zombieCount2,
                 realCount2,
                 score2
         );
-        LdbcSnbBiQuery21Result result3a = new LdbcSnbBiQuery21Result(
+        LdbcSnbBiQuery21ZombiesResult result3a = new LdbcSnbBiQuery21ZombiesResult(
                 personId2,
                 zombieCount2,
                 realCount2,
@@ -877,9 +883,9 @@ public class BiOperationResultEqualityTest
     @Test
     public void ldbcQuery22ResultShouldDoEqualsCorrectly()
     {
-        LdbcSnbBiQuery22Result result1a = new LdbcSnbBiQuery22Result(
+        LdbcSnbBiQuery22InternationalDialogResult result1a = new LdbcSnbBiQuery22InternationalDialogResult(
         );
-        LdbcSnbBiQuery22Result result1b = new LdbcSnbBiQuery22Result(
+        LdbcSnbBiQuery22InternationalDialogResult result1b = new LdbcSnbBiQuery22InternationalDialogResult(
         );
 
         assertThat( result1a, equalTo( result1b ) );
@@ -896,22 +902,22 @@ public class BiOperationResultEqualityTest
         int month2 = 5;
         int count2 = 6;
 
-        LdbcSnbBiQuery23Result result1a = new LdbcSnbBiQuery23Result(
+        LdbcSnbBiQuery23HolidayDestinationsResult result1a = new LdbcSnbBiQuery23HolidayDestinationsResult(
                 place1,
                 month1,
                 count1
         );
-        LdbcSnbBiQuery23Result result1b = new LdbcSnbBiQuery23Result(
+        LdbcSnbBiQuery23HolidayDestinationsResult result1b = new LdbcSnbBiQuery23HolidayDestinationsResult(
                 place1,
                 month1,
                 count1
         );
-        LdbcSnbBiQuery23Result result2a = new LdbcSnbBiQuery23Result(
+        LdbcSnbBiQuery23HolidayDestinationsResult result2a = new LdbcSnbBiQuery23HolidayDestinationsResult(
                 place2,
                 month2,
                 count2
         );
-        LdbcSnbBiQuery23Result result3a = new LdbcSnbBiQuery23Result(
+        LdbcSnbBiQuery23HolidayDestinationsResult result3a = new LdbcSnbBiQuery23HolidayDestinationsResult(
                 place2,
                 month2,
                 count1
@@ -936,25 +942,25 @@ public class BiOperationResultEqualityTest
         String continent2 = "7";
         int postCount2 = 8;
 
-        LdbcSnbBiQuery24Result result1a = new LdbcSnbBiQuery24Result(
+        LdbcSnbBiQuery24MessagesByTopicResult result1a = new LdbcSnbBiQuery24MessagesByTopicResult(
                 year1,
                 month1,
                 continent1,
                 postCount1
         );
-        LdbcSnbBiQuery24Result result1b = new LdbcSnbBiQuery24Result(
+        LdbcSnbBiQuery24MessagesByTopicResult result1b = new LdbcSnbBiQuery24MessagesByTopicResult(
                 year1,
                 month1,
                 continent1,
                 postCount1
         );
-        LdbcSnbBiQuery24Result result2a = new LdbcSnbBiQuery24Result(
+        LdbcSnbBiQuery24MessagesByTopicResult result2a = new LdbcSnbBiQuery24MessagesByTopicResult(
                 year2,
                 month2,
                 continent2,
                 postCount2
         );
-        LdbcSnbBiQuery24Result result3a = new LdbcSnbBiQuery24Result(
+        LdbcSnbBiQuery24MessagesByTopicResult result3a = new LdbcSnbBiQuery24MessagesByTopicResult(
                 year2,
                 month2,
                 continent2,

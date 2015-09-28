@@ -27,10 +27,12 @@ public class Query2EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery2(
+        return new LdbcSnbBiQuery2TopTags(
                 (long) parameters[0],
                 (long) parameters[1],
-                (int) parameters[2]
+                (String) parameters[2],
+                (String) parameters[3],
+                (int) parameters[4]
         );
     }
 
@@ -40,8 +42,8 @@ public class Query2EventStreamReader extends BaseEventStreamReader
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
             /*
-            Date0|Date1
-            1236219|1335225600
+            Date0|Date1|CountryA|CountryB
+            1236219|1335225600|countryA|countryB
              */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
@@ -69,7 +71,27 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving date" );
                 }
 
-                return new Object[]{date0, date1, LdbcSnbBiQuery2.DEFAULT_LIMIT};
+                String countryA;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    countryA = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving country A" );
+                }
+
+                String countryB;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    countryB = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving country B" );
+                }
+
+                return new Object[]{date0, date1, countryA, countryB, LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT};
             }
         };
     }
@@ -77,6 +99,6 @@ public class Query2EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 4;
     }
 }

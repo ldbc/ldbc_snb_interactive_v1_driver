@@ -27,7 +27,7 @@ public class Query22EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery22(
+        return new LdbcSnbBiQuery22InternationalDialog(
                 (String) parameters[0],
                 (String) parameters[1],
                 (int) parameters[2]
@@ -69,7 +69,7 @@ public class Query22EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving country name" );
                 }
 
-                return new Object[]{country0, country1, LdbcSnbBiQuery22.DEFAULT_LIMIT};
+                return new Object[]{country0, country1, LdbcSnbBiQuery22InternationalDialog.DEFAULT_LIMIT};
             }
         };
     }

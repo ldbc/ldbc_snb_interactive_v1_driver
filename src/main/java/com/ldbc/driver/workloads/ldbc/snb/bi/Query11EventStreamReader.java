@@ -11,7 +11,6 @@ import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -28,7 +27,7 @@ public class Query11EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery11(
+        return new LdbcSnbBiQuery11UnrelatedReplies(
                 (String) parameters[0],
                 (String) parameters[1],
                 (int) parameters[2]
@@ -70,7 +69,7 @@ public class Query11EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving country name" );
                 }
 
-                return new Object[]{keyWord, country, LdbcSnbBiQuery11.DEFAULT_LIMIT};
+                return new Object[]{keyWord, country, LdbcSnbBiQuery11UnrelatedReplies.DEFAULT_LIMIT};
             }
         };
     }

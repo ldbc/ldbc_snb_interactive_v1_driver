@@ -27,7 +27,7 @@ public class Query3EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery3(
+        return new LdbcSnbBiQuery3TagEvolution(
                 (long) parameters[0],
                 (long) parameters[1],
                 (int) parameters[2]
@@ -69,7 +69,7 @@ public class Query3EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving date" );
                 }
 
-                return new Object[]{date0, date1, LdbcSnbBiQuery3.DEFAULT_LIMIT};
+                return new Object[]{date0, date1, LdbcSnbBiQuery3TagEvolution.DEFAULT_LIMIT};
             }
         };
     }

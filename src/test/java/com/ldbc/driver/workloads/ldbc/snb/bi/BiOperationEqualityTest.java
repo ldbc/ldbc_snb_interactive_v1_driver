@@ -13,22 +13,17 @@ public class BiOperationEqualityTest
     {
         // Given
         long date1 = 1;
-        int limit1 = 1;
 
         long date2 = 2;
-        int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery1 query1a = new LdbcSnbBiQuery1( date1, limit1 );
-        LdbcSnbBiQuery1 query1b = new LdbcSnbBiQuery1( date1, limit1 );
-        LdbcSnbBiQuery1 query2a = new LdbcSnbBiQuery1( date2, limit2 );
-        LdbcSnbBiQuery1 query3a = new LdbcSnbBiQuery1( date1, limit2 );
+        LdbcSnbBiQuery1PostingSummary query1a = new LdbcSnbBiQuery1PostingSummary( date1);
+        LdbcSnbBiQuery1PostingSummary query1b = new LdbcSnbBiQuery1PostingSummary( date1);
+        LdbcSnbBiQuery1PostingSummary query2a = new LdbcSnbBiQuery1PostingSummary( date2);
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
         assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
     }
 
     @Test
@@ -37,17 +32,21 @@ public class BiOperationEqualityTest
         // Given
         long dateA1 = 1;
         long dateB1 = 1;
+        String countryA1 = "a";
+        String countryB1 = "a";
         int limit1 = 1;
 
         long dateA2 = 2;
         long dateB2 = 2;
+        String countryA2 = "b";
+        String countryB2 = "b";
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery2 query1a = new LdbcSnbBiQuery2( dateA1, dateB1, limit1 );
-        LdbcSnbBiQuery2 query1b = new LdbcSnbBiQuery2( dateA1, dateB1, limit1 );
-        LdbcSnbBiQuery2 query2a = new LdbcSnbBiQuery2( dateA2, dateB2, limit2 );
-        LdbcSnbBiQuery2 query3a = new LdbcSnbBiQuery2( dateA1, dateB2, limit2 );
+        LdbcSnbBiQuery2TopTags query1a = new LdbcSnbBiQuery2TopTags( dateA1, dateB1, countryA1, countryB1, limit1 );
+        LdbcSnbBiQuery2TopTags query1b = new LdbcSnbBiQuery2TopTags( dateA1, dateB1, countryB1, countryB1, limit1 );
+        LdbcSnbBiQuery2TopTags query2a = new LdbcSnbBiQuery2TopTags( dateA2, dateB2, countryA2, countryB2, limit2 );
+        LdbcSnbBiQuery2TopTags query3a = new LdbcSnbBiQuery2TopTags( dateA1, dateB2, countryA2, countryB2, limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -69,10 +68,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery3 query1a = new LdbcSnbBiQuery3( dateA1, dateB1, limit1 );
-        LdbcSnbBiQuery3 query1b = new LdbcSnbBiQuery3( dateA1, dateB1, limit1 );
-        LdbcSnbBiQuery3 query2a = new LdbcSnbBiQuery3( dateA2, dateB2, limit2 );
-        LdbcSnbBiQuery3 query3a = new LdbcSnbBiQuery3( dateA1, dateB2, limit2 );
+        LdbcSnbBiQuery3TagEvolution query1a = new LdbcSnbBiQuery3TagEvolution( dateA1, dateB1, limit1 );
+        LdbcSnbBiQuery3TagEvolution query1b = new LdbcSnbBiQuery3TagEvolution( dateA1, dateB1, limit1 );
+        LdbcSnbBiQuery3TagEvolution query2a = new LdbcSnbBiQuery3TagEvolution( dateA2, dateB2, limit2 );
+        LdbcSnbBiQuery3TagEvolution query3a = new LdbcSnbBiQuery3TagEvolution( dateA1, dateB2, limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -94,10 +93,14 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery4 query1a = new LdbcSnbBiQuery4( tagClass1, country1, limit1 );
-        LdbcSnbBiQuery4 query1b = new LdbcSnbBiQuery4( tagClass1, country1, limit1 );
-        LdbcSnbBiQuery4 query2a = new LdbcSnbBiQuery4( tagClass2, country2, limit2 );
-        LdbcSnbBiQuery4 query3a = new LdbcSnbBiQuery4( tagClass2, country2, limit1 );
+        LdbcSnbBiQuery4PopularCountryTopics
+                query1a = new LdbcSnbBiQuery4PopularCountryTopics( tagClass1, country1, limit1 );
+        LdbcSnbBiQuery4PopularCountryTopics
+                query1b = new LdbcSnbBiQuery4PopularCountryTopics( tagClass1, country1, limit1 );
+        LdbcSnbBiQuery4PopularCountryTopics
+                query2a = new LdbcSnbBiQuery4PopularCountryTopics( tagClass2, country2, limit2 );
+        LdbcSnbBiQuery4PopularCountryTopics
+                query3a = new LdbcSnbBiQuery4PopularCountryTopics( tagClass2, country2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -117,10 +120,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery5 query1a = new LdbcSnbBiQuery5( country1, limit1 );
-        LdbcSnbBiQuery5 query1b = new LdbcSnbBiQuery5( country1, limit1 );
-        LdbcSnbBiQuery5 query2a = new LdbcSnbBiQuery5( country2, limit2 );
-        LdbcSnbBiQuery5 query3a = new LdbcSnbBiQuery5( country2, limit1 );
+        LdbcSnbBiQuery5TopCountryPosters query1a = new LdbcSnbBiQuery5TopCountryPosters( country1, limit1 );
+        LdbcSnbBiQuery5TopCountryPosters query1b = new LdbcSnbBiQuery5TopCountryPosters( country1, limit1 );
+        LdbcSnbBiQuery5TopCountryPosters query2a = new LdbcSnbBiQuery5TopCountryPosters( country2, limit2 );
+        LdbcSnbBiQuery5TopCountryPosters query3a = new LdbcSnbBiQuery5TopCountryPosters( country2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -140,10 +143,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery6 query1a = new LdbcSnbBiQuery6( tag1, limit1 );
-        LdbcSnbBiQuery6 query1b = new LdbcSnbBiQuery6( tag1, limit1 );
-        LdbcSnbBiQuery6 query2a = new LdbcSnbBiQuery6( tag2, limit2 );
-        LdbcSnbBiQuery6 query3a = new LdbcSnbBiQuery6( tag2, limit1 );
+        LdbcSnbBiQuery6ActivePosters query1a = new LdbcSnbBiQuery6ActivePosters( tag1, limit1 );
+        LdbcSnbBiQuery6ActivePosters query1b = new LdbcSnbBiQuery6ActivePosters( tag1, limit1 );
+        LdbcSnbBiQuery6ActivePosters query2a = new LdbcSnbBiQuery6ActivePosters( tag2, limit2 );
+        LdbcSnbBiQuery6ActivePosters query3a = new LdbcSnbBiQuery6ActivePosters( tag2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -163,10 +166,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery7 query1a = new LdbcSnbBiQuery7( tag1, limit1 );
-        LdbcSnbBiQuery7 query1b = new LdbcSnbBiQuery7( tag1, limit1 );
-        LdbcSnbBiQuery7 query2a = new LdbcSnbBiQuery7( tag2, limit2 );
-        LdbcSnbBiQuery7 query3a = new LdbcSnbBiQuery7( tag2, limit1 );
+        LdbcSnbBiQuery7AuthoritativeUsers query1a = new LdbcSnbBiQuery7AuthoritativeUsers( tag1, limit1 );
+        LdbcSnbBiQuery7AuthoritativeUsers query1b = new LdbcSnbBiQuery7AuthoritativeUsers( tag1, limit1 );
+        LdbcSnbBiQuery7AuthoritativeUsers query2a = new LdbcSnbBiQuery7AuthoritativeUsers( tag2, limit2 );
+        LdbcSnbBiQuery7AuthoritativeUsers query3a = new LdbcSnbBiQuery7AuthoritativeUsers( tag2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -186,10 +189,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery8 query1a = new LdbcSnbBiQuery8( tag1, limit1 );
-        LdbcSnbBiQuery8 query1b = new LdbcSnbBiQuery8( tag1, limit1 );
-        LdbcSnbBiQuery8 query2a = new LdbcSnbBiQuery8( tag2, limit2 );
-        LdbcSnbBiQuery8 query3a = new LdbcSnbBiQuery8( tag2, limit1 );
+        LdbcSnbBiQuery8RelatedTopics query1a = new LdbcSnbBiQuery8RelatedTopics( tag1, limit1 );
+        LdbcSnbBiQuery8RelatedTopics query1b = new LdbcSnbBiQuery8RelatedTopics( tag1, limit1 );
+        LdbcSnbBiQuery8RelatedTopics query2a = new LdbcSnbBiQuery8RelatedTopics( tag2, limit2 );
+        LdbcSnbBiQuery8RelatedTopics query3a = new LdbcSnbBiQuery8RelatedTopics( tag2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -211,10 +214,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery9 query1a = new LdbcSnbBiQuery9( tagClassA1, tagClassB1, limit1 );
-        LdbcSnbBiQuery9 query1b = new LdbcSnbBiQuery9( tagClassA1, tagClassB1, limit1 );
-        LdbcSnbBiQuery9 query2a = new LdbcSnbBiQuery9( tagClassA2, tagClassB2, limit2 );
-        LdbcSnbBiQuery9 query3a = new LdbcSnbBiQuery9( tagClassA2, tagClassB2, limit1 );
+        LdbcSnbBiQuery9RelatedForums query1a = new LdbcSnbBiQuery9RelatedForums( tagClassA1, tagClassB1, limit1 );
+        LdbcSnbBiQuery9RelatedForums query1b = new LdbcSnbBiQuery9RelatedForums( tagClassA1, tagClassB1, limit1 );
+        LdbcSnbBiQuery9RelatedForums query2a = new LdbcSnbBiQuery9RelatedForums( tagClassA2, tagClassB2, limit2 );
+        LdbcSnbBiQuery9RelatedForums query3a = new LdbcSnbBiQuery9RelatedForums( tagClassA2, tagClassB2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -234,10 +237,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery10 query1a = new LdbcSnbBiQuery10( tag1, limit1 );
-        LdbcSnbBiQuery10 query1b = new LdbcSnbBiQuery10( tag1, limit1 );
-        LdbcSnbBiQuery10 query2a = new LdbcSnbBiQuery10( tag2, limit2 );
-        LdbcSnbBiQuery10 query3a = new LdbcSnbBiQuery10( tag2, limit1 );
+        LdbcSnbBiQuery10TagPerson query1a = new LdbcSnbBiQuery10TagPerson( tag1, limit1 );
+        LdbcSnbBiQuery10TagPerson query1b = new LdbcSnbBiQuery10TagPerson( tag1, limit1 );
+        LdbcSnbBiQuery10TagPerson query2a = new LdbcSnbBiQuery10TagPerson( tag2, limit2 );
+        LdbcSnbBiQuery10TagPerson query3a = new LdbcSnbBiQuery10TagPerson( tag2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -259,10 +262,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery11 query1a = new LdbcSnbBiQuery11( keyWord1, country1, limit1 );
-        LdbcSnbBiQuery11 query1b = new LdbcSnbBiQuery11( keyWord1, country1, limit1 );
-        LdbcSnbBiQuery11 query2a = new LdbcSnbBiQuery11( keyWord2, country2, limit2 );
-        LdbcSnbBiQuery11 query3a = new LdbcSnbBiQuery11( keyWord2, country1, limit1 );
+        LdbcSnbBiQuery11UnrelatedReplies query1a = new LdbcSnbBiQuery11UnrelatedReplies( keyWord1, country1, limit1 );
+        LdbcSnbBiQuery11UnrelatedReplies query1b = new LdbcSnbBiQuery11UnrelatedReplies( keyWord1, country1, limit1 );
+        LdbcSnbBiQuery11UnrelatedReplies query2a = new LdbcSnbBiQuery11UnrelatedReplies( keyWord2, country2, limit2 );
+        LdbcSnbBiQuery11UnrelatedReplies query3a = new LdbcSnbBiQuery11UnrelatedReplies( keyWord2, country1, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -282,10 +285,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery12 query1a = new LdbcSnbBiQuery12( date1, limit1 );
-        LdbcSnbBiQuery12 query1b = new LdbcSnbBiQuery12( date1, limit1 );
-        LdbcSnbBiQuery12 query2a = new LdbcSnbBiQuery12( date2, limit2 );
-        LdbcSnbBiQuery12 query3a = new LdbcSnbBiQuery12( date1, limit2 );
+        LdbcSnbBiQuery12TrendingPosts query1a = new LdbcSnbBiQuery12TrendingPosts( date1, limit1 );
+        LdbcSnbBiQuery12TrendingPosts query1b = new LdbcSnbBiQuery12TrendingPosts( date1, limit1 );
+        LdbcSnbBiQuery12TrendingPosts query2a = new LdbcSnbBiQuery12TrendingPosts( date2, limit2 );
+        LdbcSnbBiQuery12TrendingPosts query3a = new LdbcSnbBiQuery12TrendingPosts( date1, limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -305,10 +308,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery13 query1a = new LdbcSnbBiQuery13( country1, limit1 );
-        LdbcSnbBiQuery13 query1b = new LdbcSnbBiQuery13( country1, limit1 );
-        LdbcSnbBiQuery13 query2a = new LdbcSnbBiQuery13( country2, limit2 );
-        LdbcSnbBiQuery13 query3a = new LdbcSnbBiQuery13( country2, limit1 );
+        LdbcSnbBiQuery13PopularMonthlyTags query1a = new LdbcSnbBiQuery13PopularMonthlyTags( country1, limit1 );
+        LdbcSnbBiQuery13PopularMonthlyTags query1b = new LdbcSnbBiQuery13PopularMonthlyTags( country1, limit1 );
+        LdbcSnbBiQuery13PopularMonthlyTags query2a = new LdbcSnbBiQuery13PopularMonthlyTags( country2, limit2 );
+        LdbcSnbBiQuery13PopularMonthlyTags query3a = new LdbcSnbBiQuery13PopularMonthlyTags( country2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -328,10 +331,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery14 query1a = new LdbcSnbBiQuery14( date1, limit1 );
-        LdbcSnbBiQuery14 query1b = new LdbcSnbBiQuery14( date1, limit1 );
-        LdbcSnbBiQuery14 query2a = new LdbcSnbBiQuery14( date2, limit2 );
-        LdbcSnbBiQuery14 query3a = new LdbcSnbBiQuery14( date1, limit2 );
+        LdbcSnbBiQuery14TopThreadInitiators query1a = new LdbcSnbBiQuery14TopThreadInitiators( date1, limit1 );
+        LdbcSnbBiQuery14TopThreadInitiators query1b = new LdbcSnbBiQuery14TopThreadInitiators( date1, limit1 );
+        LdbcSnbBiQuery14TopThreadInitiators query2a = new LdbcSnbBiQuery14TopThreadInitiators( date2, limit2 );
+        LdbcSnbBiQuery14TopThreadInitiators query3a = new LdbcSnbBiQuery14TopThreadInitiators( date1, limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -351,10 +354,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery15 query1a = new LdbcSnbBiQuery15( country1, limit1 );
-        LdbcSnbBiQuery15 query1b = new LdbcSnbBiQuery15( country1, limit1 );
-        LdbcSnbBiQuery15 query2a = new LdbcSnbBiQuery15( country2, limit2 );
-        LdbcSnbBiQuery15 query3a = new LdbcSnbBiQuery15( country2, limit1 );
+        LdbcSnbBiQuery15SocialNormals query1a = new LdbcSnbBiQuery15SocialNormals( country1, limit1 );
+        LdbcSnbBiQuery15SocialNormals query1b = new LdbcSnbBiQuery15SocialNormals( country1, limit1 );
+        LdbcSnbBiQuery15SocialNormals query2a = new LdbcSnbBiQuery15SocialNormals( country2, limit2 );
+        LdbcSnbBiQuery15SocialNormals query3a = new LdbcSnbBiQuery15SocialNormals( country2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -376,10 +379,14 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery16 query1a = new LdbcSnbBiQuery16( tagClass1, country1, limit1 );
-        LdbcSnbBiQuery16 query1b = new LdbcSnbBiQuery16( tagClass1, country1, limit1 );
-        LdbcSnbBiQuery16 query2a = new LdbcSnbBiQuery16( tagClass2, country2, limit2 );
-        LdbcSnbBiQuery16 query3a = new LdbcSnbBiQuery16( tagClass2, country1, limit1 );
+        LdbcSnbBiQuery16ExpertsInSocialCircle
+                query1a = new LdbcSnbBiQuery16ExpertsInSocialCircle( tagClass1, country1, limit1 );
+        LdbcSnbBiQuery16ExpertsInSocialCircle
+                query1b = new LdbcSnbBiQuery16ExpertsInSocialCircle( tagClass1, country1, limit1 );
+        LdbcSnbBiQuery16ExpertsInSocialCircle
+                query2a = new LdbcSnbBiQuery16ExpertsInSocialCircle( tagClass2, country2, limit2 );
+        LdbcSnbBiQuery16ExpertsInSocialCircle
+                query3a = new LdbcSnbBiQuery16ExpertsInSocialCircle( tagClass2, country1, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -399,10 +406,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery17 query1a = new LdbcSnbBiQuery17( country1, limit1 );
-        LdbcSnbBiQuery17 query1b = new LdbcSnbBiQuery17( country1, limit1 );
-        LdbcSnbBiQuery17 query2a = new LdbcSnbBiQuery17( country2, limit2 );
-        LdbcSnbBiQuery17 query3a = new LdbcSnbBiQuery17( country2, limit1 );
+        LdbcSnbBiQuery17FriendshipTriangles query1a = new LdbcSnbBiQuery17FriendshipTriangles( country1, limit1 );
+        LdbcSnbBiQuery17FriendshipTriangles query1b = new LdbcSnbBiQuery17FriendshipTriangles( country1, limit1 );
+        LdbcSnbBiQuery17FriendshipTriangles query2a = new LdbcSnbBiQuery17FriendshipTriangles( country2, limit2 );
+        LdbcSnbBiQuery17FriendshipTriangles query3a = new LdbcSnbBiQuery17FriendshipTriangles( country2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -422,10 +429,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery18 query1a = new LdbcSnbBiQuery18( date1, limit1 );
-        LdbcSnbBiQuery18 query1b = new LdbcSnbBiQuery18( date1, limit1 );
-        LdbcSnbBiQuery18 query2a = new LdbcSnbBiQuery18( date2, limit2 );
-        LdbcSnbBiQuery18 query3a = new LdbcSnbBiQuery18( date1, limit2 );
+        LdbcSnbBiQuery18PersonPostCounts query1a = new LdbcSnbBiQuery18PersonPostCounts( date1, limit1 );
+        LdbcSnbBiQuery18PersonPostCounts query1b = new LdbcSnbBiQuery18PersonPostCounts( date1, limit1 );
+        LdbcSnbBiQuery18PersonPostCounts query2a = new LdbcSnbBiQuery18PersonPostCounts( date2, limit2 );
+        LdbcSnbBiQuery18PersonPostCounts query3a = new LdbcSnbBiQuery18PersonPostCounts( date1, limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -447,10 +454,14 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery16 query1a = new LdbcSnbBiQuery16( tagClassA1, tagClassB1, limit1 );
-        LdbcSnbBiQuery16 query1b = new LdbcSnbBiQuery16( tagClassA1, tagClassB1, limit1 );
-        LdbcSnbBiQuery16 query2a = new LdbcSnbBiQuery16( tagClassA2, tagClassB2, limit2 );
-        LdbcSnbBiQuery16 query3a = new LdbcSnbBiQuery16( tagClassA2, tagClassB1, limit1 );
+        LdbcSnbBiQuery16ExpertsInSocialCircle
+                query1a = new LdbcSnbBiQuery16ExpertsInSocialCircle( tagClassA1, tagClassB1, limit1 );
+        LdbcSnbBiQuery16ExpertsInSocialCircle
+                query1b = new LdbcSnbBiQuery16ExpertsInSocialCircle( tagClassA1, tagClassB1, limit1 );
+        LdbcSnbBiQuery16ExpertsInSocialCircle
+                query2a = new LdbcSnbBiQuery16ExpertsInSocialCircle( tagClassA2, tagClassB2, limit2 );
+        LdbcSnbBiQuery16ExpertsInSocialCircle
+                query3a = new LdbcSnbBiQuery16ExpertsInSocialCircle( tagClassA2, tagClassB1, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -468,9 +479,9 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery20 query1a = new LdbcSnbBiQuery20( limit1 );
-        LdbcSnbBiQuery20 query1b = new LdbcSnbBiQuery20( limit1 );
-        LdbcSnbBiQuery20 query2a = new LdbcSnbBiQuery20( limit2 );
+        LdbcSnbBiQuery20HighLevelTopics query1a = new LdbcSnbBiQuery20HighLevelTopics( limit1 );
+        LdbcSnbBiQuery20HighLevelTopics query1b = new LdbcSnbBiQuery20HighLevelTopics( limit1 );
+        LdbcSnbBiQuery20HighLevelTopics query2a = new LdbcSnbBiQuery20HighLevelTopics( limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -488,10 +499,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery21 query1a = new LdbcSnbBiQuery21( country1, limit1 );
-        LdbcSnbBiQuery21 query1b = new LdbcSnbBiQuery21( country1, limit1 );
-        LdbcSnbBiQuery21 query2a = new LdbcSnbBiQuery21( country2, limit2 );
-        LdbcSnbBiQuery21 query3a = new LdbcSnbBiQuery21( country2, limit1 );
+        LdbcSnbBiQuery21Zombies query1a = new LdbcSnbBiQuery21Zombies( country1, limit1 );
+        LdbcSnbBiQuery21Zombies query1b = new LdbcSnbBiQuery21Zombies( country1, limit1 );
+        LdbcSnbBiQuery21Zombies query2a = new LdbcSnbBiQuery21Zombies( country2, limit2 );
+        LdbcSnbBiQuery21Zombies query3a = new LdbcSnbBiQuery21Zombies( country2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -513,10 +524,14 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery22 query1a = new LdbcSnbBiQuery22( countryA1, countryB1, limit1 );
-        LdbcSnbBiQuery22 query1b = new LdbcSnbBiQuery22( countryA1, countryB1, limit1 );
-        LdbcSnbBiQuery22 query2a = new LdbcSnbBiQuery22( countryA2, countryB2, limit2 );
-        LdbcSnbBiQuery22 query3a = new LdbcSnbBiQuery22( countryA2, countryB1, limit1 );
+        LdbcSnbBiQuery22InternationalDialog
+                query1a = new LdbcSnbBiQuery22InternationalDialog( countryA1, countryB1, limit1 );
+        LdbcSnbBiQuery22InternationalDialog
+                query1b = new LdbcSnbBiQuery22InternationalDialog( countryA1, countryB1, limit1 );
+        LdbcSnbBiQuery22InternationalDialog
+                query2a = new LdbcSnbBiQuery22InternationalDialog( countryA2, countryB2, limit2 );
+        LdbcSnbBiQuery22InternationalDialog
+                query3a = new LdbcSnbBiQuery22InternationalDialog( countryA2, countryB1, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -536,10 +551,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery23 query1a = new LdbcSnbBiQuery23( country1, limit1 );
-        LdbcSnbBiQuery23 query1b = new LdbcSnbBiQuery23( country1, limit1 );
-        LdbcSnbBiQuery23 query2a = new LdbcSnbBiQuery23( country2, limit2 );
-        LdbcSnbBiQuery23 query3a = new LdbcSnbBiQuery23( country2, limit1 );
+        LdbcSnbBiQuery23HolidayDestinations query1a = new LdbcSnbBiQuery23HolidayDestinations( country1, limit1 );
+        LdbcSnbBiQuery23HolidayDestinations query1b = new LdbcSnbBiQuery23HolidayDestinations( country1, limit1 );
+        LdbcSnbBiQuery23HolidayDestinations query2a = new LdbcSnbBiQuery23HolidayDestinations( country2, limit2 );
+        LdbcSnbBiQuery23HolidayDestinations query3a = new LdbcSnbBiQuery23HolidayDestinations( country2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -559,10 +574,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery24 query1a = new LdbcSnbBiQuery24( tagClass1, limit1 );
-        LdbcSnbBiQuery24 query1b = new LdbcSnbBiQuery24( tagClass1, limit1 );
-        LdbcSnbBiQuery24 query2a = new LdbcSnbBiQuery24( tagClass2, limit2 );
-        LdbcSnbBiQuery24 query3a = new LdbcSnbBiQuery24( tagClass2, limit1 );
+        LdbcSnbBiQuery24MessagesByTopic query1a = new LdbcSnbBiQuery24MessagesByTopic( tagClass1, limit1 );
+        LdbcSnbBiQuery24MessagesByTopic query1b = new LdbcSnbBiQuery24MessagesByTopic( tagClass1, limit1 );
+        LdbcSnbBiQuery24MessagesByTopic query2a = new LdbcSnbBiQuery24MessagesByTopic( tagClass2, limit2 );
+        LdbcSnbBiQuery24MessagesByTopic query3a = new LdbcSnbBiQuery24MessagesByTopic( tagClass2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

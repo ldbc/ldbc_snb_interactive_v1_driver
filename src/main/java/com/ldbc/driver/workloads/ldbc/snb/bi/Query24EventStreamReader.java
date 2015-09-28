@@ -10,7 +10,6 @@ import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -27,7 +26,7 @@ public class Query24EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery24(
+        return new LdbcSnbBiQuery24MessagesByTopic(
                 (String) parameters[0],
                 (int) parameters[1]
         );
@@ -58,7 +57,7 @@ public class Query24EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{tagClass, LdbcSnbBiQuery24.DEFAULT_LIMIT};
+                return new Object[]{tagClass, LdbcSnbBiQuery24MessagesByTopic.DEFAULT_LIMIT};
             }
         };
     }

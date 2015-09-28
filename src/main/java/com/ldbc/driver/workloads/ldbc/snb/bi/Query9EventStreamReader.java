@@ -27,7 +27,7 @@ public class Query9EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery9(
+        return new LdbcSnbBiQuery9RelatedForums(
                 (String) parameters[0],
                 (String) parameters[1],
                 (int) parameters[2]
@@ -69,7 +69,7 @@ public class Query9EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving country name" );
                 }
 
-                return new Object[]{tagClassA, tagClassB, LdbcSnbBiQuery9.DEFAULT_LIMIT};
+                return new Object[]{tagClassA, tagClassB, LdbcSnbBiQuery9RelatedForums.DEFAULT_LIMIT};
             }
         };
     }
