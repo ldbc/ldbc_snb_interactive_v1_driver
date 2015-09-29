@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTagsResult>>
 {
     public static final int TYPE = 2;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final long dateA;
     private final long dateB;
     private final String countryA;
