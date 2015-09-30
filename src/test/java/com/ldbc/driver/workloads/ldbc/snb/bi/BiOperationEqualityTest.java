@@ -17,9 +17,9 @@ public class BiOperationEqualityTest
         long date2 = 2;
 
         // When
-        LdbcSnbBiQuery1PostingSummary query1a = new LdbcSnbBiQuery1PostingSummary( date1);
-        LdbcSnbBiQuery1PostingSummary query1b = new LdbcSnbBiQuery1PostingSummary( date1);
-        LdbcSnbBiQuery1PostingSummary query2a = new LdbcSnbBiQuery1PostingSummary( date2);
+        LdbcSnbBiQuery1PostingSummary query1a = new LdbcSnbBiQuery1PostingSummary( date1 );
+        LdbcSnbBiQuery1PostingSummary query1b = new LdbcSnbBiQuery1PostingSummary( date1 );
+        LdbcSnbBiQuery1PostingSummary query2a = new LdbcSnbBiQuery1PostingSummary( date2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -34,19 +34,45 @@ public class BiOperationEqualityTest
         long dateB1 = 1;
         String countryA1 = "a";
         String countryB1 = "a";
+        int minMessageCount1 = 1;
         int limit1 = 1;
 
         long dateA2 = 2;
         long dateB2 = 2;
         String countryA2 = "b";
         String countryB2 = "b";
+        int minMessageCount2 = 2;
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery2TopTags query1a = new LdbcSnbBiQuery2TopTags( dateA1, dateB1, countryA1, countryB1, limit1 );
-        LdbcSnbBiQuery2TopTags query1b = new LdbcSnbBiQuery2TopTags( dateA1, dateB1, countryB1, countryB1, limit1 );
-        LdbcSnbBiQuery2TopTags query2a = new LdbcSnbBiQuery2TopTags( dateA2, dateB2, countryA2, countryB2, limit2 );
-        LdbcSnbBiQuery2TopTags query3a = new LdbcSnbBiQuery2TopTags( dateA1, dateB2, countryA2, countryB2, limit2 );
+        LdbcSnbBiQuery2TopTags query1a = new LdbcSnbBiQuery2TopTags(
+                dateA1,
+                dateB1,
+                countryA1,
+                countryB1,
+                minMessageCount1,
+                limit1 );
+        LdbcSnbBiQuery2TopTags query1b = new LdbcSnbBiQuery2TopTags(
+                dateA1,
+                dateB1,
+                countryB1,
+                countryB1,
+                minMessageCount1,
+                limit1 );
+        LdbcSnbBiQuery2TopTags query2a = new LdbcSnbBiQuery2TopTags(
+                dateA2,
+                dateB2,
+                countryA2,
+                countryB2,
+                minMessageCount2,
+                limit2 );
+        LdbcSnbBiQuery2TopTags query3a = new LdbcSnbBiQuery2TopTags(
+                dateA1,
+                dateB2,
+                countryA2,
+                countryB2,
+                minMessageCount2,
+                limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

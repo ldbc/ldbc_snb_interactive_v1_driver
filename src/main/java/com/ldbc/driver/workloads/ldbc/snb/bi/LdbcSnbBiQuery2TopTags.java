@@ -9,19 +9,28 @@ import java.util.List;
 public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTagsResult>>
 {
     public static final int TYPE = 2;
+    public static final int DEFAULT_MIN_MESSAGE_COUNT = 100;
     public static final int DEFAULT_LIMIT = 100;
     private final long dateA;
     private final long dateB;
     private final String countryA;
     private final String countryB;
+    private final int minMessageCount;
     private final int limit;
 
-    public LdbcSnbBiQuery2TopTags( long dateA, long dateB, String countryA, String countryB, int limit )
+    public LdbcSnbBiQuery2TopTags(
+            long dateA,
+            long dateB,
+            String countryA,
+            String countryB,
+            int minMessageCount,
+            int limit )
     {
         this.dateA = dateA;
         this.dateB = dateB;
         this.countryA = countryA;
         this.countryB = countryB;
+        this.minMessageCount = minMessageCount;
         this.limit = limit;
     }
 
@@ -45,6 +54,11 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         return countryB;
     }
 
+    public int minMessageCount()
+    {
+        return minMessageCount;
+    }
+
     public int limit()
     {
         return limit;
@@ -58,6 +72,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
                ", dateB=" + dateB +
                ", countryA='" + countryA + '\'' +
                ", countryB='" + countryB + '\'' +
+               ", minMessageCount=" + minMessageCount +
                ", limit=" + limit +
                '}';
     }
@@ -76,6 +91,8 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         { return false; }
         if ( dateB != that.dateB )
         { return false; }
+        if ( minMessageCount != that.minMessageCount )
+        { return false; }
         if ( limit != that.limit )
         { return false; }
         if ( countryA != null ? !countryA.equals( that.countryA ) : that.countryA != null )
@@ -91,6 +108,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         result = 31 * result + (int) (dateB ^ (dateB >>> 32));
         result = 31 * result + (countryA != null ? countryA.hashCode() : 0);
         result = 31 * result + (countryB != null ? countryB.hashCode() : 0);
+        result = 31 * result + minMessageCount;
         result = 31 * result + limit;
         return result;
     }

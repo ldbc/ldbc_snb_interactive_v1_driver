@@ -32,7 +32,8 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                 (long) parameters[1],
                 (String) parameters[2],
                 (String) parameters[3],
-                (int) parameters[4]
+                (int) parameters[4],
+                (int) parameters[5]
         );
     }
 
@@ -91,7 +92,14 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving country B" );
                 }
 
-                return new Object[]{date0, date1, countryA, countryB, LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT};
+                return new Object[]{
+                        date0,
+                        date1,
+                        countryA,
+                        countryB,
+                        LdbcSnbBiQuery2TopTags.DEFAULT_MIN_MESSAGE_COUNT,
+                        LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT
+                };
             }
         };
     }

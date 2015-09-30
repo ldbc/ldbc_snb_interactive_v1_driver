@@ -39,7 +39,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery2TopTags read2()
     {
-        return new LdbcSnbBiQuery2TopTags( 1, 2, "3", "4", 5 );
+        return new LdbcSnbBiQuery2TopTags( 1, 2, "3", "4", 5, 6 );
     }
 
     public static LdbcSnbBiQuery3TagEvolution read3()
