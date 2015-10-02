@@ -33,7 +33,8 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                 (String) parameters[2],
                 (String) parameters[3],
                 (int) parameters[4],
-                (int) parameters[5]
+                (long) parameters[5],
+                (int) parameters[6]
         );
     }
 
@@ -98,7 +99,8 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                         countryA,
                         countryB,
                         LdbcSnbBiQuery2TopTags.DEFAULT_MIN_MESSAGE_COUNT,
-                        LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT
+                        LdbcSnbBiQuery2TopTags.END_OF_SIMULATION_TIME,
+                        LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT,
                 };
             }
         };

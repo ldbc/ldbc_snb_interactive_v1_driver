@@ -72,24 +72,30 @@ public class BiReadEventStreamReadersTest
         assertThat( operation.dateB(), is( 1441351591755l ) );
         assertThat( operation.countryA(), is( "countryA" ) );
         assertThat( operation.countryB(), is( "countryB" ) );
+        assertThat( operation.endOfSimulationTime(), is( LdbcSnbBiQuery2TopTags.END_OF_SIMULATION_TIME ) );
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
         assertThat( operation.dateB(), is( 1441351591755l ) );
         assertThat( operation.countryA(), is( "countryA" ) );
         assertThat( operation.countryB(), is( "countryC" ) );
+        assertThat( operation.endOfSimulationTime(), is( LdbcSnbBiQuery2TopTags.END_OF_SIMULATION_TIME ) );
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
         assertThat( operation.dateB(), is( 1441351591756l ) );
         assertThat( operation.countryA(), is( "countryB" ) );
         assertThat( operation.countryB(), is( "countryD" ) );
+        assertThat( operation.endOfSimulationTime(), is( LdbcSnbBiQuery2TopTags.END_OF_SIMULATION_TIME ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
         assertThat( operation.dateB(), is( 1441351591755l ) );
+        assertThat( operation.countryA(), is( "countryA" ) );
+        assertThat( operation.countryB(), is( "countryB" ) );
+        assertThat( operation.endOfSimulationTime(), is( LdbcSnbBiQuery2TopTags.END_OF_SIMULATION_TIME ) );
 
         assertTrue( reader.hasNext() );
     }

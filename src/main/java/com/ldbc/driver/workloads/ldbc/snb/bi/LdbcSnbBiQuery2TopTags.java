@@ -4,7 +4,9 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTagsResult>>
 {
@@ -16,7 +18,25 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
     private final String countryA;
     private final String countryB;
     private final int minMessageCount;
+    private final long endOfSimulationTime;
     private final int limit;
+
+    // TODO temp until data generator creates this in parameter file
+    public static final long END_OF_SIMULATION_TIME;
+
+    static
+    {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
+        calendar.set( Calendar.YEAR, 2013 );
+        calendar.set( Calendar.MONTH, Calendar.JANUARY );
+        calendar.set( Calendar.DAY_OF_MONTH, 1 );
+        calendar.set( Calendar.HOUR, 0 );
+        calendar.set( Calendar.MINUTE, 0 );
+        calendar.set( Calendar.SECOND, 0 );
+        calendar.set( Calendar.MILLISECOND, 0 );
+        END_OF_SIMULATION_TIME = calendar.getTimeInMillis();
+    }
 
     public LdbcSnbBiQuery2TopTags(
             long dateA,
@@ -24,6 +44,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
             String countryA,
             String countryB,
             int minMessageCount,
+            long endOfSimulationTime,
             int limit )
     {
         this.dateA = dateA;
@@ -31,6 +52,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         this.countryA = countryA;
         this.countryB = countryB;
         this.minMessageCount = minMessageCount;
+        this.endOfSimulationTime = endOfSimulationTime;
         this.limit = limit;
     }
 
@@ -59,6 +81,11 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         return minMessageCount;
     }
 
+    public long endOfSimulationTime()
+    {
+        return endOfSimulationTime;
+    }
+
     public int limit()
     {
         return limit;
@@ -73,6 +100,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
                ", countryA='" + countryA + '\'' +
                ", countryB='" + countryB + '\'' +
                ", minMessageCount=" + minMessageCount +
+               ", endOfSimulationTime=" + endOfSimulationTime +
                ", limit=" + limit +
                '}';
     }
@@ -93,6 +121,8 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         { return false; }
         if ( minMessageCount != that.minMessageCount )
         { return false; }
+        if ( endOfSimulationTime != that.endOfSimulationTime )
+        { return false; }
         if ( limit != that.limit )
         { return false; }
         if ( countryA != null ? !countryA.equals( that.countryA ) : that.countryA != null )
@@ -109,6 +139,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         result = 31 * result + (countryA != null ? countryA.hashCode() : 0);
         result = 31 * result + (countryB != null ? countryB.hashCode() : 0);
         result = 31 * result + minMessageCount;
+        result = 31 * result + (int) (endOfSimulationTime ^ (endOfSimulationTime >>> 32));
         result = 31 * result + limit;
         return result;
     }

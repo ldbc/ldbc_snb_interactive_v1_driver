@@ -35,6 +35,7 @@ public class BiOperationEqualityTest
         String countryA1 = "a";
         String countryB1 = "a";
         int minMessageCount1 = 1;
+        long endOfSimulationTime1 = 1l;
         int limit1 = 1;
 
         long dateA2 = 2;
@@ -42,6 +43,7 @@ public class BiOperationEqualityTest
         String countryA2 = "b";
         String countryB2 = "b";
         int minMessageCount2 = 2;
+        long endOfSimulationTime2 = 2l;
         int limit2 = 2;
 
         // When
@@ -51,6 +53,7 @@ public class BiOperationEqualityTest
                 countryA1,
                 countryB1,
                 minMessageCount1,
+                endOfSimulationTime1,
                 limit1 );
         LdbcSnbBiQuery2TopTags query1b = new LdbcSnbBiQuery2TopTags(
                 dateA1,
@@ -58,6 +61,7 @@ public class BiOperationEqualityTest
                 countryB1,
                 countryB1,
                 minMessageCount1,
+                endOfSimulationTime1,
                 limit1 );
         LdbcSnbBiQuery2TopTags query2a = new LdbcSnbBiQuery2TopTags(
                 dateA2,
@@ -65,6 +69,7 @@ public class BiOperationEqualityTest
                 countryA2,
                 countryB2,
                 minMessageCount2,
+                endOfSimulationTime2,
                 limit2 );
         LdbcSnbBiQuery2TopTags query3a = new LdbcSnbBiQuery2TopTags(
                 dateA1,
@@ -72,6 +77,7 @@ public class BiOperationEqualityTest
                 countryA2,
                 countryB2,
                 minMessageCount2,
+                endOfSimulationTime2,
                 limit2 );
 
         // Then

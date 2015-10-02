@@ -851,6 +851,7 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.countryA() );
                 operationAsList.add( ldbcQuery.countryB() );
                 operationAsList.add( ldbcQuery.minMessageCount() );
+                operationAsList.add( ldbcQuery.endOfSimulationTime() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1103,8 +1104,17 @@ public class LdbcSnbBiWorkload extends Workload
             String countryA = (String) operationAsList.get( 3 );
             String countryB = (String) operationAsList.get( 4 );
             int minMessageCount = ((Number) operationAsList.get( 5 )).intValue();
-            int limit = ((Number) operationAsList.get( 6 )).intValue();
-            return new LdbcSnbBiQuery2TopTags( dateA, dateB, countryA, countryB, minMessageCount, limit );
+            long endOfSimulationTime = ((Number) operationAsList.get( 6 )).longValue();
+            int limit = ((Number) operationAsList.get( 7 )).intValue();
+            return new LdbcSnbBiQuery2TopTags(
+                    dateA,
+                    dateB,
+                    countryA,
+                    countryB,
+                    minMessageCount,
+                    endOfSimulationTime,
+                    limit
+            );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery3TagEvolution.class.getName() ) )
         {
