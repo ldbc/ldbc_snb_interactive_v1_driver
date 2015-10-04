@@ -91,19 +91,17 @@ public class BiOperationEqualityTest
     public void ldbcQuery3ShouldDoEqualsCorrectly()
     {
         // Given
-        long dateA1 = 1;
-        long dateB1 = 1;
-        int limit1 = 1;
+        int year1 = 1;
+        int month1 = 1;
 
-        long dateA2 = 2;
-        long dateB2 = 2;
-        int limit2 = 2;
+        int year2 = 2;
+        int month2 = 2;
 
         // When
-        LdbcSnbBiQuery3TagEvolution query1a = new LdbcSnbBiQuery3TagEvolution( dateA1, dateB1, limit1 );
-        LdbcSnbBiQuery3TagEvolution query1b = new LdbcSnbBiQuery3TagEvolution( dateA1, dateB1, limit1 );
-        LdbcSnbBiQuery3TagEvolution query2a = new LdbcSnbBiQuery3TagEvolution( dateA2, dateB2, limit2 );
-        LdbcSnbBiQuery3TagEvolution query3a = new LdbcSnbBiQuery3TagEvolution( dateA1, dateB2, limit2 );
+        LdbcSnbBiQuery3TagEvolution query1a = new LdbcSnbBiQuery3TagEvolution( year1, month1 );
+        LdbcSnbBiQuery3TagEvolution query1b = new LdbcSnbBiQuery3TagEvolution( year1, month1 );
+        LdbcSnbBiQuery3TagEvolution query2a = new LdbcSnbBiQuery3TagEvolution( year2, month2 );
+        LdbcSnbBiQuery3TagEvolution query3a = new LdbcSnbBiQuery3TagEvolution( year1, month2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

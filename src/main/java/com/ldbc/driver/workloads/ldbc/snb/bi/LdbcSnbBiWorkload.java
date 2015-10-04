@@ -860,9 +860,8 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery3TagEvolution ldbcQuery = (LdbcSnbBiQuery3TagEvolution) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.dateA() );
-                operationAsList.add( ldbcQuery.dateB() );
-                operationAsList.add( ldbcQuery.limit() );
+                operationAsList.add( ldbcQuery.year() );
+                operationAsList.add( ldbcQuery.month() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
             case LdbcSnbBiQuery4PopularCountryTopics.TYPE:
@@ -1118,10 +1117,9 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery3TagEvolution.class.getName() ) )
         {
-            long dateA = ((Number) operationAsList.get( 1 )).longValue();
-            long dateB = ((Number) operationAsList.get( 2 )).longValue();
-            int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery3TagEvolution( dateA, dateB, limit );
+            int year = ((Number) operationAsList.get( 1 )).intValue();
+            int month = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery3TagEvolution( year, month );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery4PopularCountryTopics.class.getName() ) )
         {

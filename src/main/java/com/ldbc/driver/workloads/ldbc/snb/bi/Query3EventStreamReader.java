@@ -28,9 +28,8 @@ public class Query3EventStreamReader extends BaseEventStreamReader
     Operation operationFromParameters( Object[] parameters )
     {
         return new LdbcSnbBiQuery3TagEvolution(
-                (long) parameters[0],
-                (long) parameters[1],
-                (int) parameters[2]
+                (int) parameters[0],
+                (int) parameters[1]
         );
     }
 
@@ -40,7 +39,7 @@ public class Query3EventStreamReader extends BaseEventStreamReader
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
             /*
-            Date0|Date1
+            Year|Month
             7696581543848|1293840000
              */
             @Override
@@ -48,10 +47,10 @@ public class Query3EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long date0;
+                int year;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date0 = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    year = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
@@ -59,17 +58,17 @@ public class Query3EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                long date1;
+                int month;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date1 = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    month = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
                     throw new GeneratorException( "Error retrieving date" );
                 }
 
-                return new Object[]{date0, date1, LdbcSnbBiQuery3TagEvolution.DEFAULT_LIMIT};
+                return new Object[]{year, month};
             }
         };
     }

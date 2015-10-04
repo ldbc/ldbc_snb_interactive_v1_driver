@@ -118,22 +118,22 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery3TagEvolution operation;
 
         operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
-        assertThat( operation.dateA(), is( 1441351591755l ) );
-        assertThat( operation.dateB(), is( 1441351591755l ) );
+        assertThat( operation.year(), is( 2013 ) );
+        assertThat( operation.month(), is( 1 ) );
 
         operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
-        assertThat( operation.dateA(), is( 1441351591755l ) );
-        assertThat( operation.dateB(), is( 1441351591755l ) );
+        assertThat( operation.year(), is( 1982 ) );
+        assertThat( operation.month(), is( 4 ) );
 
         operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
-        assertThat( operation.dateA(), is( 1441351591755l ) );
-        assertThat( operation.dateB(), is( 1441351591756l ) );
+        assertThat( operation.year(), is( 2008 ) );
+        assertThat( operation.month(), is( 12 ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
-        assertThat( operation.dateA(), is( 1441351591755l ) );
-        assertThat( operation.dateB(), is( 1441351591755l ) );
+        assertThat( operation.year(), is( 2013 ) );
+        assertThat( operation.month(), is( 1 ) );
 
         assertTrue( reader.hasNext() );
     }

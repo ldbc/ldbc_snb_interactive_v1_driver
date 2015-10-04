@@ -31,10 +31,10 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_3_CSV_ROWS() throws ParseException
     {
-        return "Param0|Param1\n"
-               + "1441351591755|1441351591755\n"
-               + "1441351591755|1441351591755\n"
-               + "1441351591755|1441351591756";
+        return "Year|Month\n"
+               + "2013|1\n"
+               + "1982|4\n"
+               + "2008|12";
     }
 
     public static final String QUERY_4_CSV_ROWS() throws ParseException

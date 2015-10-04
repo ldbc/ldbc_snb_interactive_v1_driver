@@ -9,41 +9,31 @@ import java.util.List;
 public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3TagEvolutionResult>>
 {
     public static final int TYPE = 3;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
-    private final long dateA;
-    private final long dateB;
-    private final int limit;
+    private final int year;
+    private final int month;
 
-    public LdbcSnbBiQuery3TagEvolution( long dateA, long dateB, int limit )
+    public LdbcSnbBiQuery3TagEvolution( int year, int month )
     {
-        this.dateA = dateA;
-        this.dateB = dateB;
-        this.limit = limit;
+        this.year = year;
+        this.month = month;
     }
 
-    public long dateA()
+    public int year()
     {
-        return dateA;
+        return year;
     }
 
-    public long dateB()
+    public int month()
     {
-        return dateB;
-    }
-
-    public int limit()
-    {
-        return limit;
+        return month;
     }
 
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery3{" +
-               "dateA=" + dateA +
-               ", dateB=" + dateB +
-               ", limit=" + limit +
+        return "LdbcSnbBiQuery3TagEvolution{" +
+               "year=" + year +
+               ", month=" + month +
                '}';
     }
 
@@ -51,43 +41,29 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
     public boolean equals( Object o )
     {
         if ( this == o )
-        {
-            return true;
-        }
+        { return true; }
         if ( o == null || getClass() != o.getClass() )
-        {
-            return false;
-        }
+        { return false; }
 
         LdbcSnbBiQuery3TagEvolution that = (LdbcSnbBiQuery3TagEvolution) o;
 
-        if ( dateA != that.dateA )
-        {
-            return false;
-        }
-        if ( dateB != that.dateB )
-        {
-            return false;
-        }
-        if ( limit != that.limit )
-        {
-            return false;
-        }
+        if ( year != that.year )
+        { return false; }
+        return month == that.month;
 
-        return true;
     }
 
     @Override
     public int hashCode()
     {
-        int result = (int) (dateA ^ (dateA >>> 32));
-        result = 31 * result + (int) (dateB ^ (dateB >>> 32));
-        result = 31 * result + limit;
+        int result = year;
+        result = 31 * result + month;
         return result;
     }
 
     @Override
-    public List<LdbcSnbBiQuery3TagEvolutionResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery3TagEvolutionResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery3TagEvolutionResult> result = new ArrayList<>();
