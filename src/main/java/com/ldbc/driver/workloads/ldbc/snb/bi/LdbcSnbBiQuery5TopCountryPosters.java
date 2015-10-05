@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery5TopCountryPosters extends Operation<List<LdbcSnbBiQuery5TopCountryPostersResult>>
 {
     public static final int TYPE = 5;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final String country;
     private final int limit;
 
@@ -64,7 +63,8 @@ public class LdbcSnbBiQuery5TopCountryPosters extends Operation<List<LdbcSnbBiQu
     }
 
     @Override
-    public List<LdbcSnbBiQuery5TopCountryPostersResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery5TopCountryPostersResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery5TopCountryPostersResult> result = new ArrayList<>();
@@ -92,7 +92,8 @@ public class LdbcSnbBiQuery5TopCountryPosters extends Operation<List<LdbcSnbBiQu
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery5TopCountryPostersResult> result = (List<LdbcSnbBiQuery5TopCountryPostersResult>) resultsObject;
+        List<LdbcSnbBiQuery5TopCountryPostersResult> result =
+                (List<LdbcSnbBiQuery5TopCountryPostersResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {
