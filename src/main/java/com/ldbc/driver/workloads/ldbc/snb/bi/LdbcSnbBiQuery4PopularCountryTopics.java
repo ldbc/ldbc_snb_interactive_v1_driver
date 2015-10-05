@@ -9,7 +9,6 @@ import java.util.List;
 public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbBiQuery4PopularCountryTopicsResult>>
 {
     public static final int TYPE = 4;
-    // TODO
     public static final int DEFAULT_LIMIT = 20;
     private final String tagClass;
     private final String country;
@@ -75,7 +74,8 @@ public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbB
     }
 
     @Override
-    public List<LdbcSnbBiQuery4PopularCountryTopicsResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery4PopularCountryTopicsResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery4PopularCountryTopicsResult> result = new ArrayList<>();
@@ -103,16 +103,17 @@ public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbB
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery4PopularCountryTopicsResult> result = (List<LdbcSnbBiQuery4PopularCountryTopicsResult>) resultsObject;
+        List<LdbcSnbBiQuery4PopularCountryTopicsResult> result =
+                (List<LdbcSnbBiQuery4PopularCountryTopicsResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {
             LdbcSnbBiQuery4PopularCountryTopicsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.forumId() );
-            resultFields.add( row.title() );
-            resultFields.add( row.creationDate() );
-            resultFields.add( row.moderator() );
+            resultFields.add( row.forumTitle() );
+            resultFields.add( row.forumCreationDate() );
+            resultFields.add( row.moderatorId() );
             resultFields.add( row.count() );
             resultsFields.add( resultFields );
         }

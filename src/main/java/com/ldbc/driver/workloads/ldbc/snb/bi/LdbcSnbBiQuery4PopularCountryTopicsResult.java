@@ -3,22 +3,22 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 public class LdbcSnbBiQuery4PopularCountryTopicsResult
 {
     private final long forumId;
-    private final String title;
-    private final long creationDate;
-    private final long moderator;
+    private final String forumTitle;
+    private final long forumCreationDate;
+    private final long moderatorId;
     private final int count;
 
     public LdbcSnbBiQuery4PopularCountryTopicsResult(
             long forumId,
-            String title,
-            long creationDate,
-            long moderator,
+            String forumTitle,
+            long forumCreationDate,
+            long moderatorId,
             int count )
     {
         this.forumId = forumId;
-        this.title = title;
-        this.creationDate = creationDate;
-        this.moderator = moderator;
+        this.forumTitle = forumTitle;
+        this.forumCreationDate = forumCreationDate;
+        this.moderatorId = moderatorId;
         this.count = count;
     }
 
@@ -27,19 +27,19 @@ public class LdbcSnbBiQuery4PopularCountryTopicsResult
         return forumId;
     }
 
-    public String title()
+    public String forumTitle()
     {
-        return title;
+        return forumTitle;
     }
 
-    public long creationDate()
+    public long forumCreationDate()
     {
-        return creationDate;
+        return forumCreationDate;
     }
 
-    public long moderator()
+    public long moderatorId()
     {
-        return moderator;
+        return moderatorId;
     }
 
     public int count()
@@ -50,11 +50,11 @@ public class LdbcSnbBiQuery4PopularCountryTopicsResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery4Result{" +
+        return "LdbcSnbBiQuery4PopularCountryTopicsResult{" +
                "forumId=" + forumId +
-               ", title='" + title + '\'' +
-               ", creationDate=" + creationDate +
-               ", moderator=" + moderator +
+               ", forumTitle='" + forumTitle + '\'' +
+               ", forumCreationDate=" + forumCreationDate +
+               ", moderatorId=" + moderatorId +
                ", count=" + count +
                '}';
     }
@@ -71,13 +71,13 @@ public class LdbcSnbBiQuery4PopularCountryTopicsResult
 
         if ( forumId != that.forumId )
         { return false; }
-        if ( creationDate != that.creationDate )
+        if ( forumCreationDate != that.forumCreationDate )
         { return false; }
-        if ( moderator != that.moderator )
+        if ( moderatorId != that.moderatorId )
         { return false; }
         if ( count != that.count )
         { return false; }
-        return !(title != null ? !title.equals( that.title ) : that.title != null);
+        return !(forumTitle != null ? !forumTitle.equals( that.forumTitle ) : that.forumTitle != null);
 
     }
 
@@ -85,9 +85,9 @@ public class LdbcSnbBiQuery4PopularCountryTopicsResult
     public int hashCode()
     {
         int result = (int) (forumId ^ (forumId >>> 32));
-        result = 31 * result + (title != null ? title.hashCode() : 0);
-        result = 31 * result + (int) (creationDate ^ (creationDate >>> 32));
-        result = 31 * result + (int) (moderator ^ (moderator >>> 32));
+        result = 31 * result + (forumTitle != null ? forumTitle.hashCode() : 0);
+        result = 31 * result + (int) (forumCreationDate ^ (forumCreationDate >>> 32));
+        result = 31 * result + (int) (moderatorId ^ (moderatorId >>> 32));
         result = 31 * result + count;
         return result;
     }
