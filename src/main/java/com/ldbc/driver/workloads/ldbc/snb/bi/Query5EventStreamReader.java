@@ -28,7 +28,8 @@ public class Query5EventStreamReader extends BaseEventStreamReader
     {
         return new LdbcSnbBiQuery5TopCountryPosters(
                 (String) parameters[0],
-                (int) parameters[1]
+                (int) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -57,7 +58,11 @@ public class Query5EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{country, LdbcSnbBiQuery5TopCountryPosters.DEFAULT_LIMIT};
+                return new Object[]{
+                        country,
+                        LdbcSnbBiQuery5TopCountryPosters.DEFAULT_POPULAR_FORUM_LIMIT,
+                        LdbcSnbBiQuery5TopCountryPosters.DEFAULT_LIMIT
+                };
             }
         };
     }

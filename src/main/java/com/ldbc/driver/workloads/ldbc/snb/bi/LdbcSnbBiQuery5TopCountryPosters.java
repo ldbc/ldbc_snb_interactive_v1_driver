@@ -10,18 +10,26 @@ public class LdbcSnbBiQuery5TopCountryPosters extends Operation<List<LdbcSnbBiQu
 {
     public static final int TYPE = 5;
     public static final int DEFAULT_LIMIT = 100;
+    public static final int DEFAULT_POPULAR_FORUM_LIMIT = 100;
     private final String country;
+    private final int popularForumLimit;
     private final int limit;
 
-    public LdbcSnbBiQuery5TopCountryPosters( String country, int limit )
+    public LdbcSnbBiQuery5TopCountryPosters( String country, int popularForumLimit, int limit )
     {
         this.country = country;
+        this.popularForumLimit = popularForumLimit;
         this.limit = limit;
     }
 
     public String country()
     {
         return country;
+    }
+
+    public int popularForumLimit()
+    {
+        return popularForumLimit;
     }
 
     public int limit()
@@ -32,8 +40,9 @@ public class LdbcSnbBiQuery5TopCountryPosters extends Operation<List<LdbcSnbBiQu
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery5{" +
+        return "LdbcSnbBiQuery5TopCountryPosters{" +
                "country='" + country + '\'' +
+               ", popularForumLimit=" + popularForumLimit +
                ", limit=" + limit +
                '}';
     }
@@ -48,6 +57,8 @@ public class LdbcSnbBiQuery5TopCountryPosters extends Operation<List<LdbcSnbBiQu
 
         LdbcSnbBiQuery5TopCountryPosters that = (LdbcSnbBiQuery5TopCountryPosters) o;
 
+        if ( popularForumLimit != that.popularForumLimit )
+        { return false; }
         if ( limit != that.limit )
         { return false; }
         return !(country != null ? !country.equals( that.country ) : that.country != null);
@@ -58,6 +69,7 @@ public class LdbcSnbBiQuery5TopCountryPosters extends Operation<List<LdbcSnbBiQu
     public int hashCode()
     {
         int result = country != null ? country.hashCode() : 0;
+        result = 31 * result + popularForumLimit;
         result = 31 * result + limit;
         return result;
     }
