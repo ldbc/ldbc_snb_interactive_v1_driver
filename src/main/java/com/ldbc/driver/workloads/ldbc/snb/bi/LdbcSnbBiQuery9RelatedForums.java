@@ -13,12 +13,14 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
     public static final int DEFAULT_LIMIT = 20;
     private final String tagClassA;
     private final String tagClassB;
+    private final int threshold;
     private final int limit;
 
-    public LdbcSnbBiQuery9RelatedForums( String tagClassA, String tagClassB, int limit )
+    public LdbcSnbBiQuery9RelatedForums( String tagClassA, String tagClassB, int threshold, int limit )
     {
         this.tagClassA = tagClassA;
         this.tagClassB = tagClassB;
+        this.threshold = threshold;
         this.limit = limit;
     }
 
@@ -32,9 +34,25 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
         return tagClassB;
     }
 
+    public int threshold()
+    {
+        return threshold;
+    }
+
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "LdbcSnbBiQuery9RelatedForums{" +
+               "tagClassA='" + tagClassA + '\'' +
+               ", tagClassB='" + tagClassB + '\'' +
+               ", threshold=" + threshold +
+               ", limit=" + limit +
+               '}';
     }
 
     @Override
@@ -47,12 +65,13 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
 
         LdbcSnbBiQuery9RelatedForums that = (LdbcSnbBiQuery9RelatedForums) o;
 
+        if ( threshold != that.threshold )
+        { return false; }
         if ( limit != that.limit )
         { return false; }
         if ( tagClassA != null ? !tagClassA.equals( that.tagClassA ) : that.tagClassA != null )
         { return false; }
         return !(tagClassB != null ? !tagClassB.equals( that.tagClassB ) : that.tagClassB != null);
-
     }
 
     @Override
@@ -60,22 +79,14 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
     {
         int result = tagClassA != null ? tagClassA.hashCode() : 0;
         result = 31 * result + (tagClassB != null ? tagClassB.hashCode() : 0);
+        result = 31 * result + threshold;
         result = 31 * result + limit;
         return result;
     }
 
     @Override
-    public String toString()
-    {
-        return "LdbcSnbBiQuery9{" +
-               "tagClassA='" + tagClassA + '\'' +
-               ", tagClassB='" + tagClassB + '\'' +
-               ", limit=" + limit +
-               '}';
-    }
-
-    @Override
-    public List<LdbcSnbBiQuery9RelatedForumsResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery9RelatedForumsResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery9RelatedForumsResult> result = new ArrayList<>();

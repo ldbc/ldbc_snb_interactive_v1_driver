@@ -2,10 +2,10 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery1PostingSummaryResult
 {
-    public static final int CATEGORY_SHORT = 1;
-    public static final int CATEGORY_ONE_LINER = 2;
-    public static final int CATEGORY_TWEET = 3;
-    public static final int CATEGORY_LONG = 4;
+    public static final int CATEGORY_SHORT = 0;
+    public static final int CATEGORY_ONE_LINER = 1;
+    public static final int CATEGORY_TWEET = 2;
+    public static final int CATEGORY_LONG = 3;
 
     private final int year;
     private final boolean isComment;

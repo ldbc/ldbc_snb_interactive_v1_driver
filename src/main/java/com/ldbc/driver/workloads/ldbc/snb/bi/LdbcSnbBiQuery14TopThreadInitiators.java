@@ -11,18 +11,25 @@ public class LdbcSnbBiQuery14TopThreadInitiators extends Operation<List<LdbcSnbB
     public static final int TYPE = 14;
     // TODO
     public static final int DEFAULT_LIMIT = 20;
-    private final long date;
+    private final long beginDate;
+    private final long endDate;
     private final int limit;
 
-    public LdbcSnbBiQuery14TopThreadInitiators( long date, int limit )
+    public LdbcSnbBiQuery14TopThreadInitiators( long beginDate, long endDate, int limit )
     {
-        this.date = date;
+        this.beginDate = beginDate;
+        this.endDate = endDate;
         this.limit = limit;
     }
 
-    public long date()
+    public long beginDate()
     {
-        return date;
+        return beginDate;
+    }
+
+    public long endDate()
+    {
+        return endDate;
     }
 
     public int limit()
@@ -33,8 +40,9 @@ public class LdbcSnbBiQuery14TopThreadInitiators extends Operation<List<LdbcSnbB
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery14{" +
-               "date=" + date +
+        return "LdbcSnbBiQuery14TopThreadInitiators{" +
+               "beginDate=" + beginDate +
+               ", endDate=" + endDate +
                ", limit=" + limit +
                '}';
     }
@@ -49,7 +57,9 @@ public class LdbcSnbBiQuery14TopThreadInitiators extends Operation<List<LdbcSnbB
 
         LdbcSnbBiQuery14TopThreadInitiators that = (LdbcSnbBiQuery14TopThreadInitiators) o;
 
-        if ( date != that.date )
+        if ( beginDate != that.beginDate )
+        { return false; }
+        if ( endDate != that.endDate )
         { return false; }
         return limit == that.limit;
 
@@ -58,13 +68,15 @@ public class LdbcSnbBiQuery14TopThreadInitiators extends Operation<List<LdbcSnbB
     @Override
     public int hashCode()
     {
-        int result = (int) (date ^ (date >>> 32));
+        int result = (int) (beginDate ^ (beginDate >>> 32));
+        result = 31 * result + (int) (endDate ^ (endDate >>> 32));
         result = 31 * result + limit;
         return result;
     }
 
     @Override
-    public List<LdbcSnbBiQuery14TopThreadInitiatorsResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery14TopThreadInitiatorsResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery14TopThreadInitiatorsResult> result = new ArrayList<>();
@@ -92,7 +104,8 @@ public class LdbcSnbBiQuery14TopThreadInitiators extends Operation<List<LdbcSnbB
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery14TopThreadInitiatorsResult> result = (List<LdbcSnbBiQuery14TopThreadInitiatorsResult>) resultsObject;
+        List<LdbcSnbBiQuery14TopThreadInitiatorsResult> result =
+                (List<LdbcSnbBiQuery14TopThreadInitiatorsResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {

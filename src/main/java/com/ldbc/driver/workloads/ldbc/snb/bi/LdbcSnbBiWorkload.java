@@ -848,8 +848,7 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.dateA() );
                 operationAsList.add( ldbcQuery.dateB() );
-                operationAsList.add( ldbcQuery.countryA() );
-                operationAsList.add( ldbcQuery.countryB() );
+                operationAsList.add( ldbcQuery.countries() );
                 operationAsList.add( ldbcQuery.minMessageCount() );
                 operationAsList.add( ldbcQuery.endOfSimulationTime() );
                 operationAsList.add( ldbcQuery.limit() );
@@ -860,8 +859,10 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery3TagEvolution ldbcQuery = (LdbcSnbBiQuery3TagEvolution) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.year() );
-                operationAsList.add( ldbcQuery.month() );
+                operationAsList.add( ldbcQuery.range1Start() );
+                operationAsList.add( ldbcQuery.range1End() );
+                operationAsList.add( ldbcQuery.range2Start() );
+                operationAsList.add( ldbcQuery.range2End() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
             case LdbcSnbBiQuery4PopularCountryTopics.TYPE:
@@ -918,6 +919,7 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.tagClassA() );
                 operationAsList.add( ldbcQuery.tagClassB() );
+                operationAsList.add( ldbcQuery.threshold() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -946,6 +948,7 @@ public class LdbcSnbBiWorkload extends Workload
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.date() );
+                operationAsList.add( ldbcQuery.likeCount() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -963,7 +966,8 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery14TopThreadInitiators ldbcQuery = (LdbcSnbBiQuery14TopThreadInitiators) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.date() );
+                operationAsList.add( ldbcQuery.beginDate() );
+                operationAsList.add( ldbcQuery.endDate() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -981,6 +985,7 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery16ExpertsInSocialCircle ldbcQuery = (LdbcSnbBiQuery16ExpertsInSocialCircle) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.person() );
                 operationAsList.add( ldbcQuery.tagClass() );
                 operationAsList.add( ldbcQuery.country() );
                 operationAsList.add( ldbcQuery.limit() );
@@ -1009,6 +1014,7 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery19StrangerInteraction ldbcQuery = (LdbcSnbBiQuery19StrangerInteraction) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.date() );
                 operationAsList.add( ldbcQuery.tagClassA() );
                 operationAsList.add( ldbcQuery.tagClassB() );
                 operationAsList.add( ldbcQuery.limit() );
@@ -1028,6 +1034,7 @@ public class LdbcSnbBiWorkload extends Workload
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.endDate() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1101,16 +1108,14 @@ public class LdbcSnbBiWorkload extends Workload
         {
             long dateA = ((Number) operationAsList.get( 1 )).longValue();
             long dateB = ((Number) operationAsList.get( 2 )).longValue();
-            String countryA = (String) operationAsList.get( 3 );
-            String countryB = (String) operationAsList.get( 4 );
-            int minMessageCount = ((Number) operationAsList.get( 5 )).intValue();
-            long endOfSimulationTime = ((Number) operationAsList.get( 6 )).longValue();
-            int limit = ((Number) operationAsList.get( 7 )).intValue();
+            List<String> countries = (List<String>) operationAsList.get( 3 );
+            int minMessageCount = ((Number) operationAsList.get( 4 )).intValue();
+            long endOfSimulationTime = ((Number) operationAsList.get( 5 )).longValue();
+            int limit = ((Number) operationAsList.get( 6 )).intValue();
             return new LdbcSnbBiQuery2TopTags(
                     dateA,
                     dateB,
-                    countryA,
-                    countryB,
+                    countries,
                     minMessageCount,
                     endOfSimulationTime,
                     limit
@@ -1118,9 +1123,11 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery3TagEvolution.class.getName() ) )
         {
-            int year = ((Number) operationAsList.get( 1 )).intValue();
-            int month = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery3TagEvolution( year, month );
+            long range1Start = ((Number) operationAsList.get( 1 )).longValue();
+            long range1End = ((Number) operationAsList.get( 2 )).longValue();
+            long range2Start = ((Number) operationAsList.get( 3 )).longValue();
+            long range2End = ((Number) operationAsList.get( 4 )).longValue();
+            return new LdbcSnbBiQuery3TagEvolution( range1Start, range1End, range2Start, range2End );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery4PopularCountryTopics.class.getName() ) )
         {
@@ -1158,8 +1165,9 @@ public class LdbcSnbBiWorkload extends Workload
         {
             String tagClassA = (String) operationAsList.get( 1 );
             String tagClassB = (String) operationAsList.get( 2 );
-            int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery9RelatedForums( tagClassA, tagClassB, limit );
+            int threshold = ((Number) operationAsList.get( 3 )).intValue();
+            int limit = ((Number) operationAsList.get( 4 )).intValue();
+            return new LdbcSnbBiQuery9RelatedForums( tagClassA, tagClassB, threshold, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery10TagPerson.class.getName() ) )
         {
@@ -1177,8 +1185,9 @@ public class LdbcSnbBiWorkload extends Workload
         else if ( operationClassName.equals( LdbcSnbBiQuery12TrendingPosts.class.getName() ) )
         {
             long date = ((Number) operationAsList.get( 1 )).longValue();
-            int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery12TrendingPosts( date, limit );
+            int likeCount = ((Number) operationAsList.get( 2 )).intValue();
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery12TrendingPosts( date, likeCount, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery13PopularMonthlyTags.class.getName() ) )
         {
@@ -1188,9 +1197,10 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery14TopThreadInitiators.class.getName() ) )
         {
-            long date = ((Number) operationAsList.get( 1 )).longValue();
-            int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery14TopThreadInitiators( date, limit );
+            long beginDate = ((Number) operationAsList.get( 1 )).longValue();
+            long endDate = ((Number) operationAsList.get( 2 )).longValue();
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery14TopThreadInitiators( beginDate, endDate, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery15SocialNormals.class.getName() ) )
         {
@@ -1200,10 +1210,11 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery16ExpertsInSocialCircle.class.getName() ) )
         {
-            String tagClass = (String) operationAsList.get( 1 );
-            String country = (String) operationAsList.get( 2 );
-            int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery16ExpertsInSocialCircle( tagClass, country, limit );
+            long person = ((Number) operationAsList.get( 1 )).longValue();
+            String tagClass = (String) operationAsList.get( 2 );
+            String country = (String) operationAsList.get( 3 );
+            int limit = ((Number) operationAsList.get( 4 )).intValue();
+            return new LdbcSnbBiQuery16ExpertsInSocialCircle( person, tagClass, country, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery17FriendshipTriangles.class.getName() ) )
         {
@@ -1219,10 +1230,11 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery19StrangerInteraction.class.getName() ) )
         {
-            String tagClassA = (String) operationAsList.get( 1 );
-            String tagClassB = (String) operationAsList.get( 2 );
-            int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery19StrangerInteraction( tagClassA, tagClassB, limit );
+            long date = ((Number) operationAsList.get( 1 )).longValue();
+            String tagClassA = (String) operationAsList.get( 2 );
+            String tagClassB = (String) operationAsList.get( 3 );
+            int limit = ((Number) operationAsList.get( 4 )).intValue();
+            return new LdbcSnbBiQuery19StrangerInteraction( date, tagClassA, tagClassB, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery20HighLevelTopics.class.getName() ) )
         {
@@ -1232,8 +1244,9 @@ public class LdbcSnbBiWorkload extends Workload
         else if ( operationClassName.equals( LdbcSnbBiQuery21Zombies.class.getName() ) )
         {
             String country = (String) operationAsList.get( 1 );
-            int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery21Zombies( country, limit );
+            long endDate = ((Number) operationAsList.get( 2 )).longValue();
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery21Zombies( country, endDate, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery22InternationalDialog.class.getName() ) )
         {

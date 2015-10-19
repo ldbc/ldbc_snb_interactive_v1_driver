@@ -8,6 +8,7 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
@@ -28,7 +29,8 @@ public class Query14EventStreamReader extends BaseEventStreamReader
     {
         return new LdbcSnbBiQuery14TopThreadInitiators(
                 (long) parameters[0],
-                (int) parameters[1]
+                (long) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -46,10 +48,10 @@ public class Query14EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long date;
+                long beginDate;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    beginDate = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -57,7 +59,17 @@ public class Query14EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{date, LdbcSnbBiQuery14TopThreadInitiators.DEFAULT_LIMIT};
+                long endDate;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    endDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving end date" );
+                }
+
+                return new Object[]{beginDate, endDate, LdbcSnbBiQuery14TopThreadInitiators.DEFAULT_LIMIT};
             }
         };
     }
@@ -65,6 +77,6 @@ public class Query14EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 2;
     }
 }

@@ -1,6 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -13,6 +14,7 @@ import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class Query2EventStreamReader extends BaseEventStreamReader
 {
@@ -30,11 +32,10 @@ public class Query2EventStreamReader extends BaseEventStreamReader
         return new LdbcSnbBiQuery2TopTags(
                 (long) parameters[0],
                 (long) parameters[1],
-                (String) parameters[2],
-                (String) parameters[3],
-                (int) parameters[4],
-                (long) parameters[5],
-                (int) parameters[6]
+                (List<String>) parameters[2],
+                (int) parameters[3],
+                (long) parameters[4],
+                (int) parameters[5]
         );
     }
 
@@ -73,33 +74,32 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving date" );
                 }
 
-                String countryA;
+                List<String> countries;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    countryA = charSeeker.extract( mark, extractors.string() ).value();
+                    countries = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country A" );
+                    throw new GeneratorException( "Error retrieving languages" );
                 }
 
-                String countryB;
+                long endOfSimulationTime;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    countryB = charSeeker.extract( mark, extractors.string() ).value();
+                    endOfSimulationTime = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country B" );
+                    throw new GeneratorException( "Error retrieving end of simulation time" );
                 }
 
                 return new Object[]{
                         date0,
                         date1,
-                        countryA,
-                        countryB,
+                        countries,
                         LdbcSnbBiQuery2TopTags.DEFAULT_MIN_MESSAGE_COUNT,
-                        LdbcSnbBiQuery2TopTags.END_OF_SIMULATION_TIME,
+                        endOfSimulationTime,
                         LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT,
                 };
             }

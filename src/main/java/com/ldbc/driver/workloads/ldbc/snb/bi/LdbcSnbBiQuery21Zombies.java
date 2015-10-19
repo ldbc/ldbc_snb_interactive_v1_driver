@@ -12,17 +12,24 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
     // TODO
     public static final int DEFAULT_LIMIT = 20;
     private final String country;
+    private final long endDate;
     private final int limit;
 
-    public LdbcSnbBiQuery21Zombies( String country, int limit )
+    public LdbcSnbBiQuery21Zombies( String country, long endDate, int limit )
     {
         this.country = country;
+        this.endDate = endDate;
         this.limit = limit;
     }
 
     public String country()
     {
         return country;
+    }
+
+    public long endDate()
+    {
+        return endDate;
     }
 
     public int limit()
@@ -33,8 +40,9 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery21{" +
+        return "LdbcSnbBiQuery21Zombies{" +
                "country='" + country + '\'' +
+               ", endDate=" + endDate +
                ", limit=" + limit +
                '}';
     }
@@ -49,6 +57,8 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
 
         LdbcSnbBiQuery21Zombies that = (LdbcSnbBiQuery21Zombies) o;
 
+        if ( endDate != that.endDate )
+        { return false; }
         if ( limit != that.limit )
         { return false; }
         return !(country != null ? !country.equals( that.country ) : that.country != null);
@@ -59,6 +69,7 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
     public int hashCode()
     {
         int result = country != null ? country.hashCode() : 0;
+        result = 31 * result + (int) (endDate ^ (endDate >>> 32));
         result = 31 * result + limit;
         return result;
     }

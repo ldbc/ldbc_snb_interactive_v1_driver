@@ -11,15 +11,22 @@ public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbB
     public static final int TYPE = 19;
     // TODO
     public static final int DEFAULT_LIMIT = 20;
+    private final long date;
     private final String tagClassA;
     private final String tagClassB;
     private final int limit;
 
-    public LdbcSnbBiQuery19StrangerInteraction( String tagClassA, String tagClassB, int limit )
+    public LdbcSnbBiQuery19StrangerInteraction( long date, String tagClassA, String tagClassB, int limit )
     {
+        this.date = date;
         this.tagClassA = tagClassA;
         this.tagClassB = tagClassB;
         this.limit = limit;
+    }
+
+    public long date()
+    {
+        return date;
     }
 
     public String tagClassA()
@@ -40,8 +47,9 @@ public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbB
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery19{" +
-               "tagClassA='" + tagClassA + '\'' +
+        return "LdbcSnbBiQuery19StrangerInteraction{" +
+               "date=" + date +
+               ", tagClassA='" + tagClassA + '\'' +
                ", tagClassB='" + tagClassB + '\'' +
                ", limit=" + limit +
                '}';
@@ -57,6 +65,8 @@ public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbB
 
         LdbcSnbBiQuery19StrangerInteraction that = (LdbcSnbBiQuery19StrangerInteraction) o;
 
+        if ( date != that.date )
+        { return false; }
         if ( limit != that.limit )
         { return false; }
         if ( tagClassA != null ? !tagClassA.equals( that.tagClassA ) : that.tagClassA != null )
@@ -68,14 +78,16 @@ public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbB
     @Override
     public int hashCode()
     {
-        int result = tagClassA != null ? tagClassA.hashCode() : 0;
+        int result = (int) (date ^ (date >>> 32));
+        result = 31 * result + (tagClassA != null ? tagClassA.hashCode() : 0);
         result = 31 * result + (tagClassB != null ? tagClassB.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }
 
     @Override
-    public List<LdbcSnbBiQuery19StrangerInteractionResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery19StrangerInteractionResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery19StrangerInteractionResult> result = new ArrayList<>();
@@ -99,7 +111,8 @@ public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbB
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery19StrangerInteractionResult> result = (List<LdbcSnbBiQuery19StrangerInteractionResult>) resultsObject;
+        List<LdbcSnbBiQuery19StrangerInteractionResult> result =
+                (List<LdbcSnbBiQuery19StrangerInteractionResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {

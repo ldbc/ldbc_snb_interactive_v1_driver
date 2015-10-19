@@ -1,4 +1,1 @@
-Year|Month
-2013|1
-1982|4
-2008|12
+range1Start|range1End|range2Start|range2End

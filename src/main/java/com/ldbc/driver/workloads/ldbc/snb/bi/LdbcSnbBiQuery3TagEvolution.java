@@ -9,31 +9,47 @@ import java.util.List;
 public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3TagEvolutionResult>>
 {
     public static final int TYPE = 3;
-    private final int year;
-    private final int month;
+    private final long range1Start;
+    private final long range1End;
+    private final long range2Start;
+    private final long range2End;
 
-    public LdbcSnbBiQuery3TagEvolution( int year, int month )
+    public LdbcSnbBiQuery3TagEvolution( long range1Start, long range1End, long range2Start, long range2End )
     {
-        this.year = year;
-        this.month = month;
+        this.range1Start = range1Start;
+        this.range1End = range1End;
+        this.range2Start = range2Start;
+        this.range2End = range2End;
     }
 
-    public int year()
+    public long range1Start()
     {
-        return year;
+        return range1Start;
     }
 
-    public int month()
+    public long range1End()
     {
-        return month;
+        return range1End;
+    }
+
+    public long range2Start()
+    {
+        return range2Start;
+    }
+
+    public long range2End()
+    {
+        return range2End;
     }
 
     @Override
     public String toString()
     {
         return "LdbcSnbBiQuery3TagEvolution{" +
-               "year=" + year +
-               ", month=" + month +
+               "range1Start=" + range1Start +
+               ", range1End=" + range1End +
+               ", range2Start=" + range2Start +
+               ", range2End=" + range2End +
                '}';
     }
 
@@ -47,17 +63,23 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
 
         LdbcSnbBiQuery3TagEvolution that = (LdbcSnbBiQuery3TagEvolution) o;
 
-        if ( year != that.year )
+        if ( range1Start != that.range1Start )
         { return false; }
-        return month == that.month;
+        if ( range1End != that.range1End )
+        { return false; }
+        if ( range2Start != that.range2Start )
+        { return false; }
+        return range2End == that.range2End;
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = year;
-        result = 31 * result + month;
+        int result = (int) (range1Start ^ (range1Start >>> 32));
+        result = 31 * result + (int) (range1End ^ (range1End >>> 32));
+        result = 31 * result + (int) (range2Start ^ (range2Start >>> 32));
+        result = 31 * result + (int) (range2End ^ (range2End >>> 32));
         return result;
     }
 

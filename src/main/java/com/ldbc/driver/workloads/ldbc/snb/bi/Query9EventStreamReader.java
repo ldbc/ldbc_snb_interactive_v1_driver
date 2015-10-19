@@ -30,7 +30,8 @@ public class Query9EventStreamReader extends BaseEventStreamReader
         return new LdbcSnbBiQuery9RelatedForums(
                 (String) parameters[0],
                 (String) parameters[1],
-                (int) parameters[2]
+                (int) parameters[2],
+                (int) parameters[3]
         );
     }
 
@@ -69,7 +70,17 @@ public class Query9EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving country name" );
                 }
 
-                return new Object[]{tagClassA, tagClassB, LdbcSnbBiQuery9RelatedForums.DEFAULT_LIMIT};
+                int threshold;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    threshold = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving threshold" );
+                }
+
+                return new Object[]{tagClassA, tagClassB, threshold, LdbcSnbBiQuery9RelatedForums.DEFAULT_LIMIT};
             }
         };
     }
@@ -77,6 +88,6 @@ public class Query9EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 3;
     }
 }

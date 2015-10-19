@@ -4,9 +4,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
 public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTagsResult>>
 {
@@ -15,42 +13,22 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
     public static final int DEFAULT_LIMIT = 100;
     private final long dateA;
     private final long dateB;
-    private final String countryA;
-    private final String countryB;
+    private final List<String> countries;
     private final int minMessageCount;
     private final long endOfSimulationTime;
     private final int limit;
 
-    // TODO temp until data generator creates this in parameter file
-    public static final long END_OF_SIMULATION_TIME;
-
-    static
-    {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
-        calendar.set( Calendar.YEAR, 2013 );
-        calendar.set( Calendar.MONTH, Calendar.JANUARY );
-        calendar.set( Calendar.DAY_OF_MONTH, 1 );
-        calendar.set( Calendar.HOUR, 0 );
-        calendar.set( Calendar.MINUTE, 0 );
-        calendar.set( Calendar.SECOND, 0 );
-        calendar.set( Calendar.MILLISECOND, 0 );
-        END_OF_SIMULATION_TIME = calendar.getTimeInMillis();
-    }
-
     public LdbcSnbBiQuery2TopTags(
             long dateA,
             long dateB,
-            String countryA,
-            String countryB,
+            List<String> countries,
             int minMessageCount,
             long endOfSimulationTime,
             int limit )
     {
         this.dateA = dateA;
         this.dateB = dateB;
-        this.countryA = countryA;
-        this.countryB = countryB;
+        this.countries = countries;
         this.minMessageCount = minMessageCount;
         this.endOfSimulationTime = endOfSimulationTime;
         this.limit = limit;
@@ -66,14 +44,9 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         return dateB;
     }
 
-    public String countryA()
+    public List<String> countries()
     {
-        return countryA;
-    }
-
-    public String countryB()
-    {
-        return countryB;
+        return countries;
     }
 
     public int minMessageCount()
@@ -97,8 +70,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         return "LdbcSnbBiQuery2TopTags{" +
                "dateA=" + dateA +
                ", dateB=" + dateB +
-               ", countryA='" + countryA + '\'' +
-               ", countryB='" + countryB + '\'' +
+               ", countries=" + countries +
                ", minMessageCount=" + minMessageCount +
                ", endOfSimulationTime=" + endOfSimulationTime +
                ", limit=" + limit +
@@ -125,10 +97,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         { return false; }
         if ( limit != that.limit )
         { return false; }
-        if ( countryA != null ? !countryA.equals( that.countryA ) : that.countryA != null )
-        { return false; }
-        return !(countryB != null ? !countryB.equals( that.countryB ) : that.countryB != null);
-
+        return !(countries != null ? !countries.equals( that.countries ) : that.countries != null);
     }
 
     @Override
@@ -136,8 +105,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
     {
         int result = (int) (dateA ^ (dateA >>> 32));
         result = 31 * result + (int) (dateB ^ (dateB >>> 32));
-        result = 31 * result + (countryA != null ? countryA.hashCode() : 0);
-        result = 31 * result + (countryB != null ? countryB.hashCode() : 0);
+        result = 31 * result + (countries != null ? countries.hashCode() : 0);
         result = 31 * result + minMessageCount;
         result = 31 * result + (int) (endOfSimulationTime ^ (endOfSimulationTime >>> 32));
         result = 31 * result + limit;

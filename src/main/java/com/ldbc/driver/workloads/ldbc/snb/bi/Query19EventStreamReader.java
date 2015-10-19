@@ -28,9 +28,10 @@ public class Query19EventStreamReader extends BaseEventStreamReader
     Operation operationFromParameters( Object[] parameters )
     {
         return new LdbcSnbBiQuery19StrangerInteraction(
-                (String) parameters[0],
+                (long) parameters[0],
                 (String) parameters[1],
-                (int) parameters[2]
+                (String) parameters[2],
+                (int) parameters[3]
         );
     }
 
@@ -48,6 +49,17 @@ public class Query19EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
+                long date;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    // if first column of next row contains nothing it means the file is finished
+                    return null;
+                }
+
                 String tagClass0;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
@@ -55,8 +67,7 @@ public class Query19EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
-                    // if first column of next row contains nothing it means the file is finished
-                    return null;
+                    throw new GeneratorException( "Error retrieving tag class 0" );
                 }
 
                 String tagClass1;
@@ -66,10 +77,10 @@ public class Query19EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country name" );
+                    throw new GeneratorException( "Error retrieving tag class 1" );
                 }
 
-                return new Object[]{tagClass0, tagClass1, LdbcSnbBiQuery19StrangerInteraction.DEFAULT_LIMIT};
+                return new Object[]{date, tagClass0, tagClass1, LdbcSnbBiQuery19StrangerInteraction.DEFAULT_LIMIT};
             }
         };
     }
@@ -77,6 +88,6 @@ public class Query19EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 3;
     }
 }

@@ -11,15 +11,22 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
     public static final int TYPE = 16;
     // TODO
     public static final int DEFAULT_LIMIT = 20;
+    private final long person;
     private final String tagClass;
     private final String country;
     private final int limit;
 
-    public LdbcSnbBiQuery16ExpertsInSocialCircle( String tagClass, String country, int limit )
+    public LdbcSnbBiQuery16ExpertsInSocialCircle( long person, String tagClass, String country, int limit )
     {
+        this.person = person;
         this.tagClass = tagClass;
         this.country = country;
         this.limit = limit;
+    }
+
+    public long person()
+    {
+        return person;
     }
 
     public String tagClass()
@@ -40,8 +47,9 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery16{" +
-               "tagClass='" + tagClass + '\'' +
+        return "LdbcSnbBiQuery16ExpertsInSocialCircle{" +
+               "person=" + person +
+               ", tagClass='" + tagClass + '\'' +
                ", country='" + country + '\'' +
                ", limit=" + limit +
                '}';
@@ -57,6 +65,8 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
 
         LdbcSnbBiQuery16ExpertsInSocialCircle that = (LdbcSnbBiQuery16ExpertsInSocialCircle) o;
 
+        if ( person != that.person )
+        { return false; }
         if ( limit != that.limit )
         { return false; }
         if ( tagClass != null ? !tagClass.equals( that.tagClass ) : that.tagClass != null )
@@ -68,14 +78,16 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
     @Override
     public int hashCode()
     {
-        int result = tagClass != null ? tagClass.hashCode() : 0;
+        int result = (int) (person ^ (person >>> 32));
+        result = 31 * result + (tagClass != null ? tagClass.hashCode() : 0);
         result = 31 * result + (country != null ? country.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }
 
     @Override
-    public List<LdbcSnbBiQuery16ExpertsInSocialCircleResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery16ExpertsInSocialCircleResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery16ExpertsInSocialCircleResult> result = new ArrayList<>();
@@ -99,7 +111,8 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery16ExpertsInSocialCircleResult> result = (List<LdbcSnbBiQuery16ExpertsInSocialCircleResult>) resultsObject;
+        List<LdbcSnbBiQuery16ExpertsInSocialCircleResult> result =
+                (List<LdbcSnbBiQuery16ExpertsInSocialCircleResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {

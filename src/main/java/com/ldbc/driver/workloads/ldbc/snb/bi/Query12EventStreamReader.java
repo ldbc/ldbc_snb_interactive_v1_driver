@@ -8,6 +8,7 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
@@ -28,7 +29,8 @@ public class Query12EventStreamReader extends BaseEventStreamReader
     {
         return new LdbcSnbBiQuery12TrendingPosts(
                 (long) parameters[0],
-                (int) parameters[1]
+                (int) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -57,7 +59,17 @@ public class Query12EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{date, LdbcSnbBiQuery12TrendingPosts.DEFAULT_LIMIT};
+                int likeCount;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    likeCount = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving like count" );
+                }
+
+                return new Object[]{date, likeCount, LdbcSnbBiQuery12TrendingPosts.DEFAULT_LIMIT};
             }
         };
     }
@@ -65,6 +77,6 @@ public class Query12EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 2;
     }
 }

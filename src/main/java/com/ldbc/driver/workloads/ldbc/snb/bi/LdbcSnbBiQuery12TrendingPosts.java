@@ -12,17 +12,24 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
     // TODO
     public static final int DEFAULT_LIMIT = 20;
     private final long date;
+    private final int likeCount;
     private final int limit;
 
-    public LdbcSnbBiQuery12TrendingPosts( long date, int limit )
+    public LdbcSnbBiQuery12TrendingPosts( long date, int likeCount, int limit )
     {
         this.date = date;
+        this.likeCount = likeCount;
         this.limit = limit;
     }
 
     public long date()
     {
         return date;
+    }
+
+    public int likeCount()
+    {
+        return likeCount;
     }
 
     public int limit()
@@ -33,8 +40,9 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery12{" +
+        return "LdbcSnbBiQuery12TrendingPosts{" +
                "date=" + date +
+               ", likeCount=" + likeCount +
                ", limit=" + limit +
                '}';
     }
@@ -51,6 +59,8 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
 
         if ( date != that.date )
         { return false; }
+        if ( likeCount != that.likeCount )
+        { return false; }
         return limit == that.limit;
 
     }
@@ -59,12 +69,14 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
     public int hashCode()
     {
         int result = (int) (date ^ (date >>> 32));
+        result = 31 * result + likeCount;
         result = 31 * result + limit;
         return result;
     }
 
     @Override
-    public List<LdbcSnbBiQuery12TrendingPostsResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery12TrendingPostsResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery12TrendingPostsResult> result = new ArrayList<>();

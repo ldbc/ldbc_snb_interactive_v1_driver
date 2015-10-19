@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi.db;
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery10TagPerson;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery11UnrelatedReplies;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery12TrendingPosts;
@@ -39,12 +40,12 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery2TopTags read2()
     {
-        return new LdbcSnbBiQuery2TopTags( 1, 2, "3", "4", 5, 6, 7 );
+        return new LdbcSnbBiQuery2TopTags( 1, 2, Lists.newArrayList( "3", "4" ), 5, 6, 7 );
     }
 
     public static LdbcSnbBiQuery3TagEvolution read3()
     {
-        return new LdbcSnbBiQuery3TagEvolution( 1, 2 );
+        return new LdbcSnbBiQuery3TagEvolution( 1, 2, 3, 4 );
     }
 
     public static LdbcSnbBiQuery4PopularCountryTopics read4()
@@ -74,7 +75,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery9RelatedForums read9()
     {
-        return new LdbcSnbBiQuery9RelatedForums( "1", "\u0634", 1 );
+        return new LdbcSnbBiQuery9RelatedForums( "1", "\u0634", 1, 2 );
     }
 
     public static LdbcSnbBiQuery10TagPerson read10()
@@ -89,7 +90,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery12TrendingPosts read12()
     {
-        return new LdbcSnbBiQuery12TrendingPosts( 1, 2 );
+        return new LdbcSnbBiQuery12TrendingPosts( 1, 2, 3 );
     }
 
     public static LdbcSnbBiQuery13PopularMonthlyTags read13()
@@ -99,7 +100,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery14TopThreadInitiators read14()
     {
-        return new LdbcSnbBiQuery14TopThreadInitiators( 1, 2 );
+        return new LdbcSnbBiQuery14TopThreadInitiators( 1, 2, 3 );
     }
 
     public static LdbcSnbBiQuery15SocialNormals read15()
@@ -109,7 +110,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery16ExpertsInSocialCircle read16()
     {
-        return new LdbcSnbBiQuery16ExpertsInSocialCircle( "1", "2", 3 );
+        return new LdbcSnbBiQuery16ExpertsInSocialCircle( 0, "1", "2", 3 );
     }
 
     public static LdbcSnbBiQuery17FriendshipTriangles read17()
@@ -124,7 +125,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery19StrangerInteraction read19()
     {
-        return new LdbcSnbBiQuery19StrangerInteraction( "\u4e35", "\u16a0", 1 );
+        return new LdbcSnbBiQuery19StrangerInteraction( 1, "\u4e35", "\u16a0", 1 );
     }
 
     public static LdbcSnbBiQuery20HighLevelTopics read20()
@@ -134,7 +135,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery21Zombies read21()
     {
-        return new LdbcSnbBiQuery21Zombies( "1", 2 );
+        return new LdbcSnbBiQuery21Zombies( "1", 2, 3 );
     }
 
     public static LdbcSnbBiQuery22InternationalDialog read22()

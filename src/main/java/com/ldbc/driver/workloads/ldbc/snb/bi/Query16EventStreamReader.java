@@ -28,9 +28,10 @@ public class Query16EventStreamReader extends BaseEventStreamReader
     Operation operationFromParameters( Object[] parameters )
     {
         return new LdbcSnbBiQuery16ExpertsInSocialCircle(
-                (String) parameters[0],
+                (long) parameters[0],
                 (String) parameters[1],
-                (int) parameters[2]
+                (String) parameters[2],
+                (int) parameters[3]
         );
     }
 
@@ -48,6 +49,17 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
+                long person;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    person = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    // if first column of next row contains nothing it means the file is finished
+                    return null;
+                }
+
                 String tagClass;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
@@ -55,8 +67,7 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
-                    // if first column of next row contains nothing it means the file is finished
-                    return null;
+                    throw new GeneratorException( "Error retrieving tag class" );
                 }
 
                 String country;
@@ -69,7 +80,7 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving country name" );
                 }
 
-                return new Object[]{tagClass, country, LdbcSnbBiQuery16ExpertsInSocialCircle.DEFAULT_LIMIT};
+                return new Object[]{person, tagClass, country, LdbcSnbBiQuery16ExpertsInSocialCircle.DEFAULT_LIMIT};
             }
         };
     }
@@ -77,6 +88,6 @@ public class Query16EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 3;
     }
 }
