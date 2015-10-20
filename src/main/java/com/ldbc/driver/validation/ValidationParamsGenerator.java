@@ -37,8 +37,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
         this.db = db;
         this.dbValidationParametersFilter = dbValidationParametersFilter;
         this.operations = operations;
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        this.resultReporter = new ResultReporter.SimpleResultReporter( errorReporter );
+        this.resultReporter = new ResultReporter.SimpleResultReporter( new ConcurrentErrorReporter() );
         this.entriesWrittenSoFar = 0;
         this.needMoreValidationParameters = true;
         this.injectedOperations = new ArrayList<>();

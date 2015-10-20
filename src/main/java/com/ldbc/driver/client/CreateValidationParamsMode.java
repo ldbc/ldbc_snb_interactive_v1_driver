@@ -20,6 +20,7 @@ import com.ldbc.driver.validation.ValidationParamsToCsvRows;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 
 import static java.lang.String.format;
@@ -113,50 +114,52 @@ public class CreateValidationParamsMode implements ClientMode<Object>
         {
             File validationFileToGenerate =
                     new File( controlService.configuration().validationParamsCreationOptions().filePath() );
-            int validationSetSize =
-                    controlService.configuration().validationParamsCreationOptions().validationSetSize();
+            int validationSetSize = controlService
+                    .configuration()
+                    .validationParamsCreationOptions()
+                    .validationSetSize();
             // TODO get from config parameter
             boolean performSerializationMarshallingChecks = true;
 
             loggingService.info(
                     format( "Generating database validation file: %s", validationFileToGenerate.getAbsolutePath() ) );
 
-            Iterator<ValidationParam> validationParamsGenerator =
-                    new ValidationParamsGenerator( db, w.dbValidationParametersFilter( validationSetSize ),
-                            timeMappedOperations );
+            Iterator<ValidationParam> validationParamsGenerator = new ValidationParamsGenerator(
+                    db,
+                    w.dbValidationParametersFilter( validationSetSize ),
+                    timeMappedOperations );
 
-            Iterator<String[]> csvRows =
-                    new ValidationParamsToCsvRows( validationParamsGenerator, w,
-                            performSerializationMarshallingChecks );
+            Iterator<String[]> csvRows = new ValidationParamsToCsvRows(
+                    validationParamsGenerator,
+                    w,
+                    performSerializationMarshallingChecks );
 
-            SimpleCsvFileWriter simpleCsvFileWriter;
-            try
+            int rowsWrittenSoFar = 0;
+            try ( SimpleCsvFileWriter simpleCsvFileWriter = new SimpleCsvFileWriter(
+                    validationFileToGenerate,
+                    SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR ) )
             {
-                simpleCsvFileWriter = new SimpleCsvFileWriter( validationFileToGenerate,
-                        SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR );
+                DecimalFormat decimalFormat = new DecimalFormat( "###,###,##0" );
+                while ( csvRows.hasNext() )
+                {
+                    String[] csvRow = csvRows.next();
+                    simpleCsvFileWriter.writeRow( csvRow );
+                    rowsWrittenSoFar++;
+                    if ( rowsWrittenSoFar % 10 == 0 )
+                    {
+                        loggingService.info(
+                                format(
+                                        "%s / %s Validation Parameters Created\r",
+                                        decimalFormat.format( rowsWrittenSoFar ),
+                                        decimalFormat.format( validationSetSize )
+                                )
+                        );
+                    }
+                }
             }
             catch ( IOException e )
             {
-                throw new ClientException( "Error encountered trying to open CSV file writer", e );
-            }
-
-            try
-            {
-                simpleCsvFileWriter.writeRows( csvRows );
-            }
-            catch ( IOException e )
-            {
-                throw new ClientException( "Error encountered trying to write validation parameters to CSV file writer",
-                        e );
-            }
-
-            try
-            {
-                simpleCsvFileWriter.close();
-            }
-            catch ( IOException e )
-            {
-                throw new ClientException( "Error encountered trying to close CSV file writer", e );
+                throw new ClientException( "Error trying to write validation parameters to CSV file writer", e );
             }
 
             int validationParametersGenerated =
