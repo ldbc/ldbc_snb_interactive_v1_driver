@@ -237,21 +237,6 @@ public class GeneratorFactory
         return new MinMaxGenerator<T>( generator, initialMin, initialMax );
     }
 
-    /**
-     * Wraps any generator, writes its contents into a bounded queue with a background thread, and reads from that
-     * queue
-     * on next
-     *
-     * @param generator
-     * @param threadAheadDistance
-     * @param <T>
-     * @return
-     */
-    public <T> ThreadAheadGenerator<T> threadAhead( Iterator<T> generator, int threadAheadDistance )
-    {
-        return new ThreadAheadGenerator<>( generator, threadAheadDistance );
-    }
-
     /*
      * ----------------------------------------------------------------------------------------------------
      * ---------------------------------------- GENERATORS ------------------------------------------------
