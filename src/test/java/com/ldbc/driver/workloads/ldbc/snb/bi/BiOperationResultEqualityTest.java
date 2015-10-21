@@ -17,7 +17,7 @@ public class BiOperationResultEqualityTest
         int count1 = 3;
         int averageLength1 = 4;
         int total1 = 5;
-        double percent1 = 6;
+        float percent1 = 6;
 
         int year2 = 7;
         boolean isReply2 = true;
@@ -25,7 +25,7 @@ public class BiOperationResultEqualityTest
         int count2 = 9;
         int averageLength2 = 10;
         int total2 = 11;
-        double percent2 = 12;
+        float percent2 = 12;
 
 
         LdbcSnbBiQuery1PostingSummaryResult result1a = new LdbcSnbBiQuery1PostingSummaryResult(

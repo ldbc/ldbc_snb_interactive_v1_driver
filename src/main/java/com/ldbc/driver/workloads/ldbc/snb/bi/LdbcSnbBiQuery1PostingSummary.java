@@ -64,7 +64,7 @@ public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery
             long messageCount = ((Number) resultAsList.get( 3 )).longValue();
             long messageLengthMean = ((Number) resultAsList.get( 4 )).longValue();
             long messageLengthSum = ((Number) resultAsList.get( 5 )).longValue();
-            double percentOfTotalMessageCount = ((Number) resultAsList.get( 6 )).doubleValue();
+            float percentOfTotalMessageCount = ((Number) resultAsList.get( 6 )).floatValue();
 
             results.add(
                     new LdbcSnbBiQuery1PostingSummaryResult(

@@ -13,7 +13,7 @@ public class LdbcSnbBiQuery1PostingSummaryResult
     private final long messageCount;
     private final long messageLengthMean;
     private final long messageLengthSum;
-    private final double percentOfTotalMessageCount;
+    private final float percentOfTotalMessageCount;
 
     public LdbcSnbBiQuery1PostingSummaryResult(
             int year,
@@ -22,7 +22,7 @@ public class LdbcSnbBiQuery1PostingSummaryResult
             long messageCount,
             long messageLengthMean,
             long messageLengthSum,
-            double percentOfTotalMessageCount )
+            float percentOfTotalMessageCount )
     {
         this.year = year;
         this.isComment = isComment;
@@ -63,7 +63,7 @@ public class LdbcSnbBiQuery1PostingSummaryResult
         return messageLengthSum;
     }
 
-    public double percentOfTotalMessageCount()
+    public float percentOfTotalMessageCount()
     {
         return percentOfTotalMessageCount;
     }
@@ -90,37 +90,41 @@ public class LdbcSnbBiQuery1PostingSummaryResult
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcSnbBiQuery1PostingSummaryResult result = (LdbcSnbBiQuery1PostingSummaryResult) o;
+        LdbcSnbBiQuery1PostingSummaryResult that = (LdbcSnbBiQuery1PostingSummaryResult) o;
 
-        if ( year != result.year )
+        if ( year != that.year )
         { return false; }
-        if ( isComment != result.isComment )
+        if ( isComment != that.isComment )
         { return false; }
-        if ( messageLengthCategory != result.messageLengthCategory )
+        if ( messageLengthCategory != that.messageLengthCategory )
         { return false; }
-        if ( messageCount != result.messageCount )
+        if ( messageCount != that.messageCount )
         { return false; }
-        if ( messageLengthMean != result.messageLengthMean )
+        if ( messageLengthMean != that.messageLengthMean )
         { return false; }
-        if ( messageLengthSum != result.messageLengthSum )
+        if ( messageLengthSum != that.messageLengthSum )
         { return false; }
-        return Double.compare( result.percentOfTotalMessageCount, percentOfTotalMessageCount ) == 0;
-
+        return floatEpsilonCompare( that.percentOfTotalMessageCount, percentOfTotalMessageCount, EPSILON );
     }
 
     @Override
     public int hashCode()
     {
-        int result;
-        long temp;
-        result = year;
+        int result = year;
         result = 31 * result + (isComment ? 1 : 0);
         result = 31 * result + messageLengthCategory;
         result = 31 * result + (int) (messageCount ^ (messageCount >>> 32));
         result = 31 * result + (int) (messageLengthMean ^ (messageLengthMean >>> 32));
         result = 31 * result + (int) (messageLengthSum ^ (messageLengthSum >>> 32));
-        temp = Double.doubleToLongBits( percentOfTotalMessageCount );
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result +
+                 (percentOfTotalMessageCount != +0.0f ? Float.floatToIntBits( percentOfTotalMessageCount ) : 0);
         return result;
+    }
+
+    private static final float EPSILON = 0.00001f;
+
+    private boolean floatEpsilonCompare( float a, float b, float epsilon )
+    {
+        return Math.abs( a - b ) <= epsilon;
     }
 }

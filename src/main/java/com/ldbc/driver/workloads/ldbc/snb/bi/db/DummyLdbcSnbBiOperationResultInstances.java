@@ -34,7 +34,7 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery1PostingSummaryResult read1Result()
     {
-        return new LdbcSnbBiQuery1PostingSummaryResult( 1, false, 2, 3, 4, 5, 6.0 );
+        return new LdbcSnbBiQuery1PostingSummaryResult( 1, false, 2, 3, 4, 5, 6.0f );
     }
 
     public static LdbcSnbBiQuery2TopTagsResult read2Result()
