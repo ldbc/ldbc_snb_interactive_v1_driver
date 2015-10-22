@@ -9,17 +9,20 @@ import java.util.List;
 public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3TagEvolutionResult>>
 {
     public static final int TYPE = 3;
+    public static final int DEFAULT_LIMIT = 20;
     private final long range1Start;
     private final long range1End;
     private final long range2Start;
     private final long range2End;
+    private final int limit;
 
-    public LdbcSnbBiQuery3TagEvolution( long range1Start, long range1End, long range2Start, long range2End )
+    public LdbcSnbBiQuery3TagEvolution( long range1Start, long range1End, long range2Start, long range2End, int limit )
     {
         this.range1Start = range1Start;
         this.range1End = range1End;
         this.range2Start = range2Start;
         this.range2End = range2End;
+        this.limit = limit;
     }
 
     public long range1Start()
@@ -40,6 +43,11 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
     public long range2End()
     {
         return range2End;
+    }
+
+    public int limit()
+    {
+        return limit;
     }
 
     @Override

@@ -863,6 +863,7 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.range1End() );
                 operationAsList.add( ldbcQuery.range2Start() );
                 operationAsList.add( ldbcQuery.range2End() );
+                operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
             case LdbcSnbBiQuery4PopularCountryTopics.TYPE:
@@ -1127,7 +1128,8 @@ public class LdbcSnbBiWorkload extends Workload
             long range1End = ((Number) operationAsList.get( 2 )).longValue();
             long range2Start = ((Number) operationAsList.get( 3 )).longValue();
             long range2End = ((Number) operationAsList.get( 4 )).longValue();
-            return new LdbcSnbBiQuery3TagEvolution( range1Start, range1End, range2Start, range2End );
+            int limit = ((Number) operationAsList.get( 5 )).intValue();
+            return new LdbcSnbBiQuery3TagEvolution( range1Start, range1End, range2Start, range2End, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery4PopularCountryTopics.class.getName() ) )
         {

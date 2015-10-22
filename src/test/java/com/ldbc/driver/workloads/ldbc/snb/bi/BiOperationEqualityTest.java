@@ -92,33 +92,39 @@ public class BiOperationEqualityTest
         long range1End1 = 1;
         long range2Start1 = 1;
         long range2End1 = 1;
+        int limit1 = 1;
 
         long range1Start2 = 2;
         long range1End2 = 2;
         long range2Start2 = 2;
         long range2End2 = 2;
+        int limit2 = 2;
 
         // When
         LdbcSnbBiQuery3TagEvolution query1a = new LdbcSnbBiQuery3TagEvolution(
                 range1Start1,
                 range1End1,
                 range2Start1,
-                range2End1 );
+                range2End1,
+                limit1 );
         LdbcSnbBiQuery3TagEvolution query1b = new LdbcSnbBiQuery3TagEvolution(
                 range1Start1,
                 range1End1,
                 range2Start1,
-                range2End1 );
+                range2End1,
+                limit1 );
         LdbcSnbBiQuery3TagEvolution query2a = new LdbcSnbBiQuery3TagEvolution(
                 range1Start2,
                 range1End2,
                 range2Start2,
-                range2End2 );
+                range2End2,
+                limit2 );
         LdbcSnbBiQuery3TagEvolution query3a = new LdbcSnbBiQuery3TagEvolution(
                 range1Start1,
                 range1End1,
                 range2Start1,
-                range2End2 );
+                range2End2,
+                limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

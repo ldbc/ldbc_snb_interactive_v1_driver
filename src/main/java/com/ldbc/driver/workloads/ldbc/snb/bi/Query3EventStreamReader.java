@@ -31,7 +31,8 @@ public class Query3EventStreamReader extends BaseEventStreamReader
                 (long) parameters[0],
                 (long) parameters[1],
                 (long) parameters[2],
-                (long) parameters[3]
+                (long) parameters[3],
+                (int) parameters[4]
         );
     }
 
@@ -90,7 +91,13 @@ public class Query3EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving date" );
                 }
 
-                return new Object[]{range1Start, range1End, range2Start, range2End};
+                return new Object[]{
+                        range1Start,
+                        range1End,
+                        range2Start,
+                        range2End,
+                        LdbcSnbBiQuery3TagEvolution.DEFAULT_LIMIT
+                };
             }
         };
     }
