@@ -1,2 +1,2 @@
 country|blacklist
-test|test
+temp|temp

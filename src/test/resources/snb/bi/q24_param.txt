@@ -1,8 +1,8 @@
 tagClass
 Person
 OfficeHolder
-Single
 Writer
+Single
 Country
 Album
 BritishRoyalty
@@ -13,5 +13,7 @@ President
 Monarch
 Scientist
 Song
-MilitaryPerson
 Artist
+MilitaryPerson
+ChristianBishop
+Thing

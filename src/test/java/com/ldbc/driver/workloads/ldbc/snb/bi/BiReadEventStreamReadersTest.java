@@ -76,6 +76,7 @@ public class BiReadEventStreamReadersTest
         assertThat( operation.countries(),
                 CoreMatchers.<List<String>>equalTo( Lists.newArrayList( "countryA", "countryB" ) ) );
         assertThat( operation.endOfSimulationTime(), is( 1l ) );
+        assertThat( operation.messageThreshold(), is( 10 ) );
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
@@ -83,6 +84,7 @@ public class BiReadEventStreamReadersTest
         assertThat( operation.countries(),
                 CoreMatchers.<List<String>>equalTo( Lists.newArrayList( "countryA", "countryC" ) ) );
         assertThat( operation.endOfSimulationTime(), is( 2l ) );
+        assertThat( operation.messageThreshold(), is( 20 ) );
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
         assertThat( operation.dateA(), is( 1441351591755l ) );
@@ -90,6 +92,7 @@ public class BiReadEventStreamReadersTest
         assertThat( operation.countries(),
                 CoreMatchers.<List<String>>equalTo( Lists.newArrayList( "countryB", "countryD", "countryE" ) ) );
         assertThat( operation.endOfSimulationTime(), is( Long.MAX_VALUE ) );
+        assertThat( operation.messageThreshold(), is( 30 ) );
 
         // loops back around to first
 
@@ -99,6 +102,7 @@ public class BiReadEventStreamReadersTest
         assertThat( operation.countries(),
                 CoreMatchers.<List<String>>equalTo( Lists.newArrayList( "countryA", "countryB" ) ) );
         assertThat( operation.endOfSimulationTime(), is( 1l ) );
+        assertThat( operation.messageThreshold(), is( 10 ) );
 
         assertTrue( reader.hasNext() );
     }

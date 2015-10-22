@@ -1,12 +1,5 @@
 date|tagClass1|tagClass2
-599612400000|Single|Writer
-599612400000|Single|Country
-599612400000|Single|Album
-599612400000|Single|BritishRoyalty
-599612400000|Single|TennisPlayer
-599612400000|Single|Saint
-599612400000|Single|Philosopher
-599612400000|Single|President
+599612400000|Writer|Single
 599612400000|Writer|Country
 599612400000|Writer|Album
 599612400000|Writer|BritishRoyalty
@@ -14,6 +7,13 @@ date|tagClass1|tagClass2
 599612400000|Writer|Saint
 599612400000|Writer|Philosopher
 599612400000|Writer|President
+599612400000|Single|Country
+599612400000|Single|Album
+599612400000|Single|BritishRoyalty
+599612400000|Single|TennisPlayer
+599612400000|Single|Saint
+599612400000|Single|Philosopher
+599612400000|Single|President
 599612400000|Country|Album
 599612400000|Country|BritishRoyalty
 599612400000|Country|TennisPlayer

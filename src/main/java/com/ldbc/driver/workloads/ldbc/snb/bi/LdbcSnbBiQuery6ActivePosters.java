@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery6ActivePosters extends Operation<List<LdbcSnbBiQuery6ActivePostersResult>>
 {
     public static final int TYPE = 6;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final String tag;
     private final int limit;
 
@@ -64,7 +63,8 @@ public class LdbcSnbBiQuery6ActivePosters extends Operation<List<LdbcSnbBiQuery6
     }
 
     @Override
-    public List<LdbcSnbBiQuery6ActivePostersResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery6ActivePostersResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery6ActivePostersResult> result = new ArrayList<>();

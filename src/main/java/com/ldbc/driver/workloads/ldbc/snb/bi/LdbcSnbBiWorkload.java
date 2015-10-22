@@ -849,7 +849,7 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.dateA() );
                 operationAsList.add( ldbcQuery.dateB() );
                 operationAsList.add( ldbcQuery.countries() );
-                operationAsList.add( ldbcQuery.minMessageCount() );
+                operationAsList.add( ldbcQuery.messageThreshold() );
                 operationAsList.add( ldbcQuery.endOfSimulationTime() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );

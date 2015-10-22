@@ -94,11 +94,21 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving end of simulation time" );
                 }
 
+                int messageThreshold;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    messageThreshold = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving min message count" );
+                }
+
                 return new Object[]{
                         date0,
                         date1,
                         countries,
-                        LdbcSnbBiQuery2TopTags.DEFAULT_MIN_MESSAGE_COUNT,
+                        messageThreshold,
                         endOfSimulationTime,
                         LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT,
                 };
@@ -109,6 +119,6 @@ public class Query2EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 4;
+        return 5;
     }
 }

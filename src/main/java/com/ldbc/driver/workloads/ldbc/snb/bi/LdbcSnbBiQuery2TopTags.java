@@ -9,12 +9,11 @@ import java.util.List;
 public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTagsResult>>
 {
     public static final int TYPE = 2;
-    public static final int DEFAULT_MIN_MESSAGE_COUNT = 100;
     public static final int DEFAULT_LIMIT = 100;
     private final long dateA;
     private final long dateB;
     private final List<String> countries;
-    private final int minMessageCount;
+    private final int messageThreshold;
     private final long endOfSimulationTime;
     private final int limit;
 
@@ -22,14 +21,14 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
             long dateA,
             long dateB,
             List<String> countries,
-            int minMessageCount,
+            int messageThreshold,
             long endOfSimulationTime,
             int limit )
     {
         this.dateA = dateA;
         this.dateB = dateB;
         this.countries = countries;
-        this.minMessageCount = minMessageCount;
+        this.messageThreshold = messageThreshold;
         this.endOfSimulationTime = endOfSimulationTime;
         this.limit = limit;
     }
@@ -49,9 +48,9 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         return countries;
     }
 
-    public int minMessageCount()
+    public int messageThreshold()
     {
-        return minMessageCount;
+        return messageThreshold;
     }
 
     public long endOfSimulationTime()
@@ -64,18 +63,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         return limit;
     }
 
-    @Override
-    public String toString()
-    {
-        return "LdbcSnbBiQuery2TopTags{" +
-               "dateA=" + dateA +
-               ", dateB=" + dateB +
-               ", countries=" + countries +
-               ", minMessageCount=" + minMessageCount +
-               ", endOfSimulationTime=" + endOfSimulationTime +
-               ", limit=" + limit +
-               '}';
-    }
+
 
     @Override
     public boolean equals( Object o )
@@ -91,7 +79,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         { return false; }
         if ( dateB != that.dateB )
         { return false; }
-        if ( minMessageCount != that.minMessageCount )
+        if ( messageThreshold != that.messageThreshold )
         { return false; }
         if ( endOfSimulationTime != that.endOfSimulationTime )
         { return false; }
@@ -106,7 +94,7 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         int result = (int) (dateA ^ (dateA >>> 32));
         result = 31 * result + (int) (dateB ^ (dateB >>> 32));
         result = 31 * result + (countries != null ? countries.hashCode() : 0);
-        result = 31 * result + minMessageCount;
+        result = 31 * result + messageThreshold;
         result = 31 * result + (int) (endOfSimulationTime ^ (endOfSimulationTime >>> 32));
         result = 31 * result + limit;
         return result;
