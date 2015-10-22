@@ -9,7 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3TagEvolutionResult>>
 {
     public static final int TYPE = 3;
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final long range1Start;
     private final long range1End;
     private final long range2Start;
