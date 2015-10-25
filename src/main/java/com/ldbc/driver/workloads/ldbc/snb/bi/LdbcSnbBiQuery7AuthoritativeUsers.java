@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery7AuthoritativeUsers extends Operation<List<LdbcSnbBiQuery7AuthoritativeUsersResult>>
 {
     public static final int TYPE = 7;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final String tag;
     private final int limit;
 
@@ -64,7 +63,8 @@ public class LdbcSnbBiQuery7AuthoritativeUsers extends Operation<List<LdbcSnbBiQ
     }
 
     @Override
-    public List<LdbcSnbBiQuery7AuthoritativeUsersResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery7AuthoritativeUsersResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery7AuthoritativeUsersResult> result = new ArrayList<>();
@@ -86,7 +86,8 @@ public class LdbcSnbBiQuery7AuthoritativeUsers extends Operation<List<LdbcSnbBiQ
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery7AuthoritativeUsersResult> result = (List<LdbcSnbBiQuery7AuthoritativeUsersResult>) resultsObject;
+        List<LdbcSnbBiQuery7AuthoritativeUsersResult> result =
+                (List<LdbcSnbBiQuery7AuthoritativeUsersResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {
