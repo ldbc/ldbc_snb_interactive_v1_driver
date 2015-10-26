@@ -388,31 +388,31 @@ public class BiOperationResultEqualityTest
     @Test
     public void ldbcQuery9ResultShouldDoEqualsCorrectly()
     {
-        String forumTitle1 = "\u3055";
+        long forumId1 = 1;
         int sumA1 = 1;
         int sumB1 = 2;
 
-        String forumTitle2 = "\u4e35";
+        long forumId2 = 3;
         int sumA2 = 3;
         int sumB2 = 4;
 
         LdbcSnbBiQuery9RelatedForumsResult result1a = new LdbcSnbBiQuery9RelatedForumsResult(
-                forumTitle1,
+                forumId1,
                 sumA1,
                 sumB1
         );
         LdbcSnbBiQuery9RelatedForumsResult result1b = new LdbcSnbBiQuery9RelatedForumsResult(
-                forumTitle1,
+                forumId1,
                 sumA1,
                 sumB1
         );
         LdbcSnbBiQuery9RelatedForumsResult result2a = new LdbcSnbBiQuery9RelatedForumsResult(
-                forumTitle2,
+                forumId2,
                 sumA2,
                 sumB2
         );
         LdbcSnbBiQuery9RelatedForumsResult result3a = new LdbcSnbBiQuery9RelatedForumsResult(
-                forumTitle2,
+                forumId2,
                 sumA2,
                 sumB1
         );
@@ -428,25 +428,31 @@ public class BiOperationResultEqualityTest
     {
         long personId1 = 1;
         int score1 = 2;
+        int friendsScore1 = 2;
 
         long personId2 = 3;
         int score2 = 4;
+        int friendsScore2 = 4;
 
         LdbcSnbBiQuery10TagPersonResult result1a = new LdbcSnbBiQuery10TagPersonResult(
                 personId1,
-                score1
+                score1,
+                friendsScore1
         );
         LdbcSnbBiQuery10TagPersonResult result1b = new LdbcSnbBiQuery10TagPersonResult(
                 personId1,
-                score1
+                score1,
+                friendsScore1
         );
         LdbcSnbBiQuery10TagPersonResult result2a = new LdbcSnbBiQuery10TagPersonResult(
                 personId2,
-                score2
+                score2,
+                friendsScore2
         );
         LdbcSnbBiQuery10TagPersonResult result3a = new LdbcSnbBiQuery10TagPersonResult(
                 personId2,
-                score1
+                score1,
+                friendsScore1
         );
 
         assertThat( result1a, equalTo( result1b ) );

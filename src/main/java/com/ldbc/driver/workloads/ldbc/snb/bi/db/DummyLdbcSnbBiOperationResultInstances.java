@@ -74,12 +74,12 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery9RelatedForumsResult read9Result()
     {
-        return new LdbcSnbBiQuery9RelatedForumsResult( "\u3055", 1, 2 );
+        return new LdbcSnbBiQuery9RelatedForumsResult( Long.MAX_VALUE, 1, 2 );
     }
 
     public static LdbcSnbBiQuery10TagPersonResult read10Result()
     {
-        return new LdbcSnbBiQuery10TagPersonResult( 1, 2 );
+        return new LdbcSnbBiQuery10TagPersonResult( 1, 2, 3 );
     }
 
     public static LdbcSnbBiQuery11UnrelatedRepliesResult read11Result()

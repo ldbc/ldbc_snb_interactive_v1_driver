@@ -4,11 +4,13 @@ public class LdbcSnbBiQuery10TagPersonResult
 {
     private final long personId;
     private final int score;
+    private final int friendsScore;
 
-    public LdbcSnbBiQuery10TagPersonResult( long personId, int score )
+    public LdbcSnbBiQuery10TagPersonResult( long personId, int score, int friendsScore )
     {
         this.personId = personId;
         this.score = score;
+        this.friendsScore = friendsScore;
     }
 
     public long personId()
@@ -21,12 +23,18 @@ public class LdbcSnbBiQuery10TagPersonResult
         return score;
     }
 
+    public int friendsScore()
+    {
+        return friendsScore;
+    }
+
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery10Result{" +
+        return "LdbcSnbBiQuery10TagPersonResult{" +
                "personId=" + personId +
                ", score=" + score +
+               ", friendsScore=" + friendsScore +
                '}';
     }
 
@@ -42,7 +50,9 @@ public class LdbcSnbBiQuery10TagPersonResult
 
         if ( personId != that.personId )
         { return false; }
-        return score == that.score;
+        if ( score != that.score )
+        { return false; }
+        return friendsScore == that.friendsScore;
 
     }
 
@@ -51,6 +61,7 @@ public class LdbcSnbBiQuery10TagPersonResult
     {
         int result = (int) (personId ^ (personId >>> 32));
         result = 31 * result + score;
+        result = 31 * result + friendsScore;
         return result;
     }
 }

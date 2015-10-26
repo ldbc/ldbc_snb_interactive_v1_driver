@@ -2,20 +2,20 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery9RelatedForumsResult
 {
-    private final String forumTitle;
+    private final long forumId;
     private final int sumA;
     private final int sumB;
 
-    public LdbcSnbBiQuery9RelatedForumsResult( String forumTitle, int sumA, int sumB )
+    public LdbcSnbBiQuery9RelatedForumsResult( long forumId, int sumA, int sumB )
     {
-        this.forumTitle = forumTitle;
+        this.forumId = forumId;
         this.sumA = sumA;
         this.sumB = sumB;
     }
 
-    public String forumTitle()
+    public long forumId()
     {
-        return forumTitle;
+        return forumId;
     }
 
     public int sumA()
@@ -31,8 +31,8 @@ public class LdbcSnbBiQuery9RelatedForumsResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery9Result{" +
-               "forumTitle='" + forumTitle + '\'' +
+        return "LdbcSnbBiQuery9RelatedForumsResult{" +
+               "forumId=" + forumId +
                ", sumA=" + sumA +
                ", sumB=" + sumB +
                '}';
@@ -48,18 +48,18 @@ public class LdbcSnbBiQuery9RelatedForumsResult
 
         LdbcSnbBiQuery9RelatedForumsResult that = (LdbcSnbBiQuery9RelatedForumsResult) o;
 
+        if ( forumId != that.forumId )
+        { return false; }
         if ( sumA != that.sumA )
         { return false; }
-        if ( sumB != that.sumB )
-        { return false; }
-        return !(forumTitle != null ? !forumTitle.equals( that.forumTitle ) : that.forumTitle != null);
+        return sumB == that.sumB;
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = forumTitle != null ? forumTitle.hashCode() : 0;
+        int result = (int) (forumId ^ (forumId >>> 32));
         result = 31 * result + sumA;
         result = 31 * result + sumB;
         return result;

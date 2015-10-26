@@ -64,7 +64,8 @@ public class LdbcSnbBiQuery10TagPerson extends Operation<List<LdbcSnbBiQuery10Ta
     }
 
     @Override
-    public List<LdbcSnbBiQuery10TagPersonResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery10TagPersonResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery10TagPersonResult> result = new ArrayList<>();
@@ -73,10 +74,12 @@ public class LdbcSnbBiQuery10TagPerson extends Operation<List<LdbcSnbBiQuery10Ta
             List<Object> row = resultsAsList.get( i );
             long personId = ((Number) row.get( 0 )).longValue();
             int score = ((Number) row.get( 1 )).intValue();
+            int friendsScore = ((Number) row.get( 2 )).intValue();
             result.add(
                     new LdbcSnbBiQuery10TagPersonResult(
                             personId,
-                            score
+                            score,
+                            friendsScore
                     )
             );
         }
@@ -94,6 +97,7 @@ public class LdbcSnbBiQuery10TagPerson extends Operation<List<LdbcSnbBiQuery10Ta
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.personId() );
             resultFields.add( row.score() );
+            resultFields.add( row.friendsScore() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );
