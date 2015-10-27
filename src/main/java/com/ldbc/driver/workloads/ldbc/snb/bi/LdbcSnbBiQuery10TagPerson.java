@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery10TagPerson extends Operation<List<LdbcSnbBiQuery10TagPersonResult>>
 {
     public static final int TYPE = 10;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final String tag;
     private final int limit;
 
