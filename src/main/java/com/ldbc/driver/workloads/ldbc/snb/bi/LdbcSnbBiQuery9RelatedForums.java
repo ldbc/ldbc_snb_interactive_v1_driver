@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9RelatedForumsResult>>
 {
     public static final int TYPE = 9;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final String tagClassA;
     private final String tagClassB;
     private final int threshold;
