@@ -9,22 +9,21 @@ import java.util.List;
 public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQuery11UnrelatedRepliesResult>>
 {
     public static final int TYPE = 11;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
-    private final String keyWord;
+    public static final int DEFAULT_LIMIT = 100;
     private final String country;
+    private final List<String> blackList;
     private final int limit;
 
-    public LdbcSnbBiQuery11UnrelatedReplies( String keyWord, String country, int limit )
+    public LdbcSnbBiQuery11UnrelatedReplies( String country, List<String> blackList, int limit )
     {
-        this.keyWord = keyWord;
         this.country = country;
+        this.blackList = blackList;
         this.limit = limit;
     }
 
-    public String keyWord()
+    public List<String> blackList()
     {
-        return keyWord;
+        return blackList;
     }
 
     public String country()
@@ -40,9 +39,9 @@ public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQu
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery11{" +
-               "keyWord='" + keyWord + '\'' +
-               ", country='" + country + '\'' +
+        return "LdbcSnbBiQuery11UnrelatedReplies{" +
+               "country='" + country + '\'' +
+               ", blackList=" + blackList +
                ", limit=" + limit +
                '}';
     }
@@ -59,23 +58,24 @@ public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQu
 
         if ( limit != that.limit )
         { return false; }
-        if ( keyWord != null ? !keyWord.equals( that.keyWord ) : that.keyWord != null )
+        if ( country != null ? !country.equals( that.country ) : that.country != null )
         { return false; }
-        return !(country != null ? !country.equals( that.country ) : that.country != null);
+        return !(blackList != null ? !blackList.equals( that.blackList ) : that.blackList != null);
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = keyWord != null ? keyWord.hashCode() : 0;
-        result = 31 * result + (country != null ? country.hashCode() : 0);
+        int result = country != null ? country.hashCode() : 0;
+        result = 31 * result + (blackList != null ? blackList.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }
 
     @Override
-    public List<LdbcSnbBiQuery11UnrelatedRepliesResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery11UnrelatedRepliesResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery11UnrelatedRepliesResult> result = new ArrayList<>();
@@ -101,7 +101,8 @@ public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQu
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery11UnrelatedRepliesResult> result = (List<LdbcSnbBiQuery11UnrelatedRepliesResult>) resultsObject;
+        List<LdbcSnbBiQuery11UnrelatedRepliesResult> result =
+                (List<LdbcSnbBiQuery11UnrelatedRepliesResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {

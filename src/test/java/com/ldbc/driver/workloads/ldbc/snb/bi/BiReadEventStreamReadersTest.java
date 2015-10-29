@@ -445,26 +445,26 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery11UnrelatedReplies operation;
 
         operation = (LdbcSnbBiQuery11UnrelatedReplies) reader.next();
-        assertThat( operation.keyWord(), is( "Writer" ) );
         assertThat( operation.country(), is( "Cameroon" ) );
+        assertThat( operation.blackList(), CoreMatchers.<List<String>>is( Lists.newArrayList( "Writer", "Reader" ) ) );
 
         operation = (LdbcSnbBiQuery11UnrelatedReplies) reader.next();
-        assertThat( operation.keyWord(), is( "Writer" ) );
         assertThat( operation.country(), is( "Colombia" ) );
+        assertThat( operation.blackList(), CoreMatchers.<List<String>>is( Lists.newArrayList( "Writer", "Cake" ) ) );
 
         operation = (LdbcSnbBiQuery11UnrelatedReplies) reader.next();
-        assertThat( operation.keyWord(), is( "Writer" ) );
         assertThat( operation.country(), is( "Niger" ) );
+        assertThat( operation.blackList(), CoreMatchers.<List<String>>is( Lists.newArrayList( "Pie" ) ) );
 
         operation = (LdbcSnbBiQuery11UnrelatedReplies) reader.next();
-        assertThat( operation.keyWord(), is( "Writer" ) );
         assertThat( operation.country(), is( "Sweden" ) );
+        assertThat( operation.blackList(), CoreMatchers.<List<String>>is( Lists.newArrayList( "Writer" ) ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery11UnrelatedReplies) reader.next();
-        assertThat( operation.keyWord(), is( "Writer" ) );
         assertThat( operation.country(), is( "Cameroon" ) );
+        assertThat( operation.blackList(), CoreMatchers.<List<String>>is( Lists.newArrayList( "Writer", "Reader" ) ) );
 
         assertTrue( reader.hasNext() );
     }

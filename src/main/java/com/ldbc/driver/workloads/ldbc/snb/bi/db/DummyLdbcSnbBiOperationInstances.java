@@ -85,7 +85,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery11UnrelatedReplies read11()
     {
-        return new LdbcSnbBiQuery11UnrelatedReplies( "1", "2", 3 );
+        return new LdbcSnbBiQuery11UnrelatedReplies( "1", Lists.newArrayList( "2" ), 3 );
     }
 
     public static LdbcSnbBiQuery12TrendingPosts read12()

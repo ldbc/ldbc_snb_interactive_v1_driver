@@ -938,8 +938,8 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery11UnrelatedReplies ldbcQuery = (LdbcSnbBiQuery11UnrelatedReplies) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.keyWord() );
                 operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.blackList() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1179,10 +1179,10 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery11UnrelatedReplies.class.getName() ) )
         {
-            String keyWord = (String) operationAsList.get( 1 );
-            String country = (String) operationAsList.get( 2 );
+            String country = (String) operationAsList.get( 1 );
+            List<String> blackList = (List<String>) operationAsList.get( 2 );
             int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery11UnrelatedReplies( keyWord, country, limit );
+            return new LdbcSnbBiQuery11UnrelatedReplies( country, blackList, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery12TrendingPosts.class.getName() ) )
         {

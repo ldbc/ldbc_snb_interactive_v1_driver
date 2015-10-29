@@ -102,11 +102,11 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_11_CSV_ROWS()
     {
-        return "tag|tag\n"
-               + "Writer|Cameroon\n"
-               + "Writer|Colombia\n"
-               + "Writer|Niger\n"
-               + "Writer|Sweden\n";
+        return "country|blacklist\n"
+               + "Cameroon|Writer;Reader\n"
+               + "Colombia|Writer;Cake\n"
+               + "Niger|Pie\n"
+               + "Sweden|Writer\n";
     }
 
     public static final String QUERY_12_CSV_ROWS()

@@ -342,19 +342,19 @@ public class BiOperationEqualityTest
     public void ldbcQuery11ShouldDoEqualsCorrectly()
     {
         // Given
-        String keyWord1 = "\u3055";
         String country1 = "\u16a0";
+        List<String> blackList1 = Lists.newArrayList( "\u3055" );
         int limit1 = 1;
 
-        String keyWord2 = "\u4e35";
         String country2 = "tag";
+        List<String> blackList2 = Lists.newArrayList( "\u4e35" );
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery11UnrelatedReplies query1a = new LdbcSnbBiQuery11UnrelatedReplies( keyWord1, country1, limit1 );
-        LdbcSnbBiQuery11UnrelatedReplies query1b = new LdbcSnbBiQuery11UnrelatedReplies( keyWord1, country1, limit1 );
-        LdbcSnbBiQuery11UnrelatedReplies query2a = new LdbcSnbBiQuery11UnrelatedReplies( keyWord2, country2, limit2 );
-        LdbcSnbBiQuery11UnrelatedReplies query3a = new LdbcSnbBiQuery11UnrelatedReplies( keyWord2, country1, limit1 );
+        LdbcSnbBiQuery11UnrelatedReplies query1a = new LdbcSnbBiQuery11UnrelatedReplies( country1, blackList1, limit1 );
+        LdbcSnbBiQuery11UnrelatedReplies query1b = new LdbcSnbBiQuery11UnrelatedReplies( country1, blackList1, limit1 );
+        LdbcSnbBiQuery11UnrelatedReplies query2a = new LdbcSnbBiQuery11UnrelatedReplies( country2, blackList2, limit2 );
+        LdbcSnbBiQuery11UnrelatedReplies query3a = new LdbcSnbBiQuery11UnrelatedReplies( country1, blackList2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

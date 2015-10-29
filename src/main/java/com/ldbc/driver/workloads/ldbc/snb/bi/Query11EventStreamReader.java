@@ -1,6 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -13,6 +14,7 @@ import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class Query11EventStreamReader extends BaseEventStreamReader
 {
@@ -29,7 +31,7 @@ public class Query11EventStreamReader extends BaseEventStreamReader
     {
         return new LdbcSnbBiQuery11UnrelatedReplies(
                 (String) parameters[0],
-                (String) parameters[1],
+                (List<String>) parameters[1],
                 (int) parameters[2]
         );
     }
@@ -48,17 +50,6 @@ public class Query11EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String keyWord;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    keyWord = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    // if first column of next row contains nothing it means the file is finished
-                    return null;
-                }
-
                 String country;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
@@ -66,10 +57,21 @@ public class Query11EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country name" );
+                    // if first column of next row contains nothing it means the file is finished
+                    return null;
                 }
 
-                return new Object[]{keyWord, country, LdbcSnbBiQuery11UnrelatedReplies.DEFAULT_LIMIT};
+                List<String> blackList;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    blackList = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving black list" );
+                }
+
+                return new Object[]{country, blackList, LdbcSnbBiQuery11UnrelatedReplies.DEFAULT_LIMIT};
             }
         };
     }
