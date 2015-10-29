@@ -2,25 +2,29 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery12TrendingPostsResult
 {
-    private final long postId;
+    private final long messageId;
     private final String firstName;
     private final String lastName;
     private final long creationDate;
-    private final int count;
+    private final int likeCount;
 
-    public LdbcSnbBiQuery12TrendingPostsResult( long postId, String firstName, String lastName, long creationDate,
-            int count )
+    public LdbcSnbBiQuery12TrendingPostsResult(
+            long messageId,
+            String firstName,
+            String lastName,
+            long creationDate,
+            int likeCount )
     {
-        this.postId = postId;
+        this.messageId = messageId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.creationDate = creationDate;
-        this.count = count;
+        this.likeCount = likeCount;
     }
 
-    public long postId()
+    public long messageId()
     {
-        return postId;
+        return messageId;
     }
 
     public String firstName()
@@ -38,20 +42,20 @@ public class LdbcSnbBiQuery12TrendingPostsResult
         return creationDate;
     }
 
-    public int count()
+    public int likeCount()
     {
-        return count;
+        return likeCount;
     }
 
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery12Result{" +
-               "postId=" + postId +
+        return "LdbcSnbBiQuery12TrendingPostsResult{" +
+               "messageId=" + messageId +
                ", firstName='" + firstName + '\'' +
                ", lastName='" + lastName + '\'' +
                ", creationDate=" + creationDate +
-               ", count=" + count +
+               ", likeCount=" + likeCount +
                '}';
     }
 
@@ -65,11 +69,11 @@ public class LdbcSnbBiQuery12TrendingPostsResult
 
         LdbcSnbBiQuery12TrendingPostsResult that = (LdbcSnbBiQuery12TrendingPostsResult) o;
 
-        if ( postId != that.postId )
+        if ( messageId != that.messageId )
         { return false; }
         if ( creationDate != that.creationDate )
         { return false; }
-        if ( count != that.count )
+        if ( likeCount != that.likeCount )
         { return false; }
         if ( firstName != null ? !firstName.equals( that.firstName ) : that.firstName != null )
         { return false; }
@@ -80,11 +84,11 @@ public class LdbcSnbBiQuery12TrendingPostsResult
     @Override
     public int hashCode()
     {
-        int result = (int) (postId ^ (postId >>> 32));
+        int result = (int) (messageId ^ (messageId >>> 32));
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
         result = 31 * result + (int) (creationDate ^ (creationDate >>> 32));
-        result = 31 * result + count;
+        result = 31 * result + likeCount;
         return result;
     }
 }

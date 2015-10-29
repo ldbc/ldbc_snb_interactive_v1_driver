@@ -110,11 +110,11 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
         {
             LdbcSnbBiQuery12TrendingPostsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add( row.postId() );
+            resultFields.add( row.messageId() );
             resultFields.add( row.firstName() );
             resultFields.add( row.lastName() );
             resultFields.add( row.creationDate() );
-            resultFields.add( row.count() );
+            resultFields.add( row.likeCount() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );
