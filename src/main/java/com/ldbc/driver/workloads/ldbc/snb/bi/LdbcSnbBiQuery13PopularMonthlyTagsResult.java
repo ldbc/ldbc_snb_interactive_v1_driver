@@ -1,18 +1,18 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import java.util.List;
+
 public class LdbcSnbBiQuery13PopularMonthlyTagsResult
 {
     private final int year;
     private final int month;
-    private final String tag;
-    private final int count;
+    private final List<TagPopularity> tagPopularities;
 
-    public LdbcSnbBiQuery13PopularMonthlyTagsResult( int year, int month, String tag, int count )
+    public LdbcSnbBiQuery13PopularMonthlyTagsResult( int year, int month, List<TagPopularity> tagPopularities )
     {
         this.year = year;
         this.month = month;
-        this.tag = tag;
-        this.count = count;
+        this.tagPopularities = tagPopularities;
     }
 
     public int year()
@@ -25,24 +25,18 @@ public class LdbcSnbBiQuery13PopularMonthlyTagsResult
         return month;
     }
 
-    public String tag()
+    public List<TagPopularity> tagPopularities()
     {
-        return tag;
-    }
-
-    public int count()
-    {
-        return count;
+        return tagPopularities;
     }
 
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery13Result{" +
+        return "LdbcSnbBiQuery13PopularMonthlyTagsResult{" +
                "year=" + year +
                ", month=" + month +
-               ", tag='" + tag + '\'' +
-               ", count=" + count +
+               ", tagPopularities=" + tagPopularities +
                '}';
     }
 
@@ -60,9 +54,8 @@ public class LdbcSnbBiQuery13PopularMonthlyTagsResult
         { return false; }
         if ( month != that.month )
         { return false; }
-        if ( count != that.count )
-        { return false; }
-        return !(tag != null ? !tag.equals( that.tag ) : that.tag != null);
+        return !(tagPopularities != null ? !tagPopularities.equals( that.tagPopularities )
+                                         : that.tagPopularities != null);
 
     }
 
@@ -71,8 +64,62 @@ public class LdbcSnbBiQuery13PopularMonthlyTagsResult
     {
         int result = year;
         result = 31 * result + month;
-        result = 31 * result + (tag != null ? tag.hashCode() : 0);
-        result = 31 * result + count;
+        result = 31 * result + (tagPopularities != null ? tagPopularities.hashCode() : 0);
         return result;
+    }
+
+    public static class TagPopularity
+    {
+        private final String tag;
+        private final int popularity;
+
+        public TagPopularity( String tag, int popularity )
+        {
+            this.tag = tag;
+            this.popularity = popularity;
+        }
+
+        public String tag()
+        {
+            return tag;
+        }
+
+        public int popularity()
+        {
+            return popularity;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "TagPopularity{" +
+                   "tag='" + tag + '\'' +
+                   ", popularity=" + popularity +
+                   '}';
+        }
+
+        @Override
+        public boolean equals( Object o )
+        {
+            if ( this == o )
+            { return true; }
+            if ( o == null || getClass() != o.getClass() )
+            { return false; }
+
+            TagPopularity that = (TagPopularity) o;
+
+            if ( popularity != that.popularity )
+            { return false; }
+            return !(tag != null ? !tag.equals( that.tag ) : that.tag != null);
+
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = tag != null ? tag.hashCode() : 0;
+            result = 31 * result + popularity;
+            return result;
+        }
     }
 }

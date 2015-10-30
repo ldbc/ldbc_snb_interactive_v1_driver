@@ -1,6 +1,9 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
@@ -560,37 +563,37 @@ public class BiOperationResultEqualityTest
     {
         int year1 = 1;
         int month1 = 2;
-        String tag1 = "3";
-        int count1 = 4;
+        List<LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity> tagPopularities1 = Lists.newArrayList(
+                new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity( "a", 1 ),
+                new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity( "b", 2 )
+        );
 
         int year2 = 5;
         int month2 = 6;
-        String tag2 = "7";
-        int count2 = 8;
+        List<LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity> tagPopularities2 = Lists.newArrayList(
+                new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity( "c", 3 ),
+                new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity( "d", 4 )
+        );
 
         LdbcSnbBiQuery13PopularMonthlyTagsResult result1a = new LdbcSnbBiQuery13PopularMonthlyTagsResult(
                 year1,
                 month1,
-                tag1,
-                count1
+                tagPopularities1
         );
         LdbcSnbBiQuery13PopularMonthlyTagsResult result1b = new LdbcSnbBiQuery13PopularMonthlyTagsResult(
                 year1,
                 month1,
-                tag1,
-                count1
+                tagPopularities1
         );
         LdbcSnbBiQuery13PopularMonthlyTagsResult result2a = new LdbcSnbBiQuery13PopularMonthlyTagsResult(
                 year2,
                 month2,
-                tag2,
-                count2
+                tagPopularities2
         );
         LdbcSnbBiQuery13PopularMonthlyTagsResult result3a = new LdbcSnbBiQuery13PopularMonthlyTagsResult(
                 year2,
                 month2,
-                tag1,
-                count2
+                tagPopularities1
         );
 
         assertThat( result1a, equalTo( result1b ) );

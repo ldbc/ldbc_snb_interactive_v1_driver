@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
@@ -9,8 +10,7 @@ import java.util.List;
 public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBiQuery13PopularMonthlyTagsResult>>
 {
     public static final int TYPE = 13;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final String country;
     private final int limit;
 
@@ -64,7 +64,8 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
     }
 
     @Override
-    public List<LdbcSnbBiQuery13PopularMonthlyTagsResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery13PopularMonthlyTagsResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery13PopularMonthlyTagsResult> result = new ArrayList<>();
@@ -73,14 +74,21 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
             List<Object> row = resultsAsList.get( i );
             int year = ((Number) row.get( 0 )).intValue();
             int month = ((Number) row.get( 1 )).intValue();
-            String tag = (String) row.get( 2 );
-            int count = ((Number) row.get( 3 )).intValue();
+            List<LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity> tagPopularities = new ArrayList<>();
+            for ( List tagPopularity : (List<List>) row.get( 2 ) )
+            {
+                tagPopularities.add(
+                        new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity(
+                                (String) tagPopularity.get( 0 ),
+                                (Integer) tagPopularity.get( 1 )
+                        )
+                );
+            }
             result.add(
                     new LdbcSnbBiQuery13PopularMonthlyTagsResult(
                             year,
                             month,
-                            tag,
-                            count
+                            tagPopularities
                     )
             );
         }
@@ -90,7 +98,8 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery13PopularMonthlyTagsResult> result = (List<LdbcSnbBiQuery13PopularMonthlyTagsResult>) resultsObject;
+        List<LdbcSnbBiQuery13PopularMonthlyTagsResult> result =
+                (List<LdbcSnbBiQuery13PopularMonthlyTagsResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {
@@ -98,8 +107,12 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.year() );
             resultFields.add( row.month() );
-            resultFields.add( row.tag() );
-            resultFields.add( row.count() );
+            List<List> tagPopularitiesAsLists = new ArrayList<>();
+            for ( LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity tagPopularity : row.tagPopularities() )
+            {
+                tagPopularitiesAsLists.add( Lists.newArrayList( tagPopularity.tag(), tagPopularity.popularity() ) );
+            }
+            resultFields.add( tagPopularitiesAsLists );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi.db;
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery10TagPersonResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery11UnrelatedRepliesResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery12TrendingPostsResult;
@@ -94,7 +95,15 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery13PopularMonthlyTagsResult read13Result()
     {
-        return new LdbcSnbBiQuery13PopularMonthlyTagsResult( 1, 2, "3", 4 );
+        return new LdbcSnbBiQuery13PopularMonthlyTagsResult(
+                1,
+                2,
+                Lists.newArrayList(
+                        new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity( "tag1", 1 ),
+                        new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity( "tag2", 2 ),
+                        new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity( "tag3", 3 )
+                )
+        );
     }
 
     public static LdbcSnbBiQuery14TopThreadInitiatorsResult read14Result()
