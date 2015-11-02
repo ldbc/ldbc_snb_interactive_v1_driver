@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery23HolidayDestinations extends Operation<List<LdbcSnbBiQuery23HolidayDestinationsResult>>
 {
     public static final int TYPE = 23;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final String country;
     private final int limit;
 
@@ -89,7 +88,8 @@ public class LdbcSnbBiQuery23HolidayDestinations extends Operation<List<LdbcSnbB
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery23HolidayDestinationsResult> result = (List<LdbcSnbBiQuery23HolidayDestinationsResult>) resultsObject;
+        List<LdbcSnbBiQuery23HolidayDestinationsResult> result =
+                (List<LdbcSnbBiQuery23HolidayDestinationsResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {

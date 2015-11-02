@@ -2,17 +2,38 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery24MessagesByTopicResult
 {
+    public static final int DEFAULT_LIMIT = 100;
+    private final int messageCount;
+    private final int likeCount;
     private final int year;
     private final int month;
     private final String continent;
-    private final int postCount;
+    private final int limit;
 
-    public LdbcSnbBiQuery24MessagesByTopicResult( int year, int month, String continent, int postCount )
+    public LdbcSnbBiQuery24MessagesByTopicResult(
+            int messageCount,
+            int likeCount,
+            int year,
+            int month,
+            String continent,
+            int limit )
     {
+        this.messageCount = messageCount;
+        this.likeCount = likeCount;
         this.year = year;
         this.month = month;
         this.continent = continent;
-        this.postCount = postCount;
+        this.limit = limit;
+    }
+
+    public int messageCount()
+    {
+        return messageCount;
+    }
+
+    public int likeCount()
+    {
+        return likeCount;
     }
 
     public int year()
@@ -30,19 +51,21 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
         return continent;
     }
 
-    public int postCount()
+    public int limit()
     {
-        return postCount;
+        return limit;
     }
 
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery24Result{" +
-               "year=" + year +
+        return "LdbcSnbBiQuery24MessagesByTopicResult{" +
+               "messageCount=" + messageCount +
+               ", likeCount=" + likeCount +
+               ", year=" + year +
                ", month=" + month +
                ", continent='" + continent + '\'' +
-               ", postCount=" + postCount +
+               ", limit=" + limit +
                '}';
     }
 
@@ -56,11 +79,15 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
 
         LdbcSnbBiQuery24MessagesByTopicResult that = (LdbcSnbBiQuery24MessagesByTopicResult) o;
 
+        if ( messageCount != that.messageCount )
+        { return false; }
+        if ( likeCount != that.likeCount )
+        { return false; }
         if ( year != that.year )
         { return false; }
         if ( month != that.month )
         { return false; }
-        if ( postCount != that.postCount )
+        if ( limit != that.limit )
         { return false; }
         return !(continent != null ? !continent.equals( that.continent ) : that.continent != null);
 
@@ -69,10 +96,12 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
     @Override
     public int hashCode()
     {
-        int result = year;
+        int result = messageCount;
+        result = 31 * result + likeCount;
+        result = 31 * result + year;
         result = 31 * result + month;
         result = 31 * result + (continent != null ? continent.hashCode() : 0);
-        result = 31 * result + postCount;
+        result = 31 * result + limit;
         return result;
     }
 }

@@ -158,6 +158,6 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery24MessagesByTopicResult read24Result()
     {
-        return new LdbcSnbBiQuery24MessagesByTopicResult( 1, 2, "3", 4 );
+        return new LdbcSnbBiQuery24MessagesByTopicResult( 1, 2, 3, 4, "5",  7 );
     }
 }

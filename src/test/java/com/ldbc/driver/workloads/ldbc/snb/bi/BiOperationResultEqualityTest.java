@@ -941,39 +941,51 @@ public class BiOperationResultEqualityTest
     @Test
     public void ldbcQuery24ResultShouldDoEqualsCorrectly()
     {
-        int year1 = 1;
-        int month1 = 2;
-        String continent1 = "3";
-        int postCount1 = 4;
+        int messageCount1 = 1;
+        int likeCount1 = 2;
+        int year1 = 3;
+        int month1 = 4;
+        String continent1 = "5";
+        int limit1 = 6;
 
-        int year2 = 5;
-        int month2 = 6;
-        String continent2 = "7";
-        int postCount2 = 8;
+        int messageCount2 = 7;
+        int likeCount2 = 8;
+        int year2 = 9;
+        int month2 = 10;
+        String continent2 = "11";
+        int limit2 = 12;
 
         LdbcSnbBiQuery24MessagesByTopicResult result1a = new LdbcSnbBiQuery24MessagesByTopicResult(
+                messageCount1,
+                likeCount1,
                 year1,
                 month1,
                 continent1,
-                postCount1
+                limit1
         );
         LdbcSnbBiQuery24MessagesByTopicResult result1b = new LdbcSnbBiQuery24MessagesByTopicResult(
+                messageCount1,
+                likeCount1,
                 year1,
                 month1,
                 continent1,
-                postCount1
+                limit1
         );
         LdbcSnbBiQuery24MessagesByTopicResult result2a = new LdbcSnbBiQuery24MessagesByTopicResult(
+                messageCount2,
+                likeCount2,
                 year2,
                 month2,
                 continent2,
-                postCount2
+                limit2
         );
         LdbcSnbBiQuery24MessagesByTopicResult result3a = new LdbcSnbBiQuery24MessagesByTopicResult(
-                year2,
-                month2,
-                continent2,
-                postCount1
+                messageCount1,
+                likeCount1,
+                year1,
+                month1,
+                continent1,
+                limit2
         );
 
         assertThat( result1a, equalTo( result1b ) );

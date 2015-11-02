@@ -72,16 +72,20 @@ public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQue
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> row = resultsAsList.get( i );
-            int year = ((Number) row.get( 0 )).intValue();
-            int month = ((Number) row.get( 1 )).intValue();
-            String continent = (String) row.get( 2 );
-            int postCount = ((Number) row.get( 3 )).intValue();
+            int messageCount = ((Number) row.get( 0 )).intValue();
+            int likeCount = ((Number) row.get( 1 )).intValue();
+            int year = ((Number) row.get( 2 )).intValue();
+            int month = ((Number) row.get( 3 )).intValue();
+            String continent = (String) row.get( 4 );
+            int limit = ((Number) row.get( 5 )).intValue();
             result.add(
                     new LdbcSnbBiQuery24MessagesByTopicResult(
+                            messageCount,
+                            likeCount,
                             year,
                             month,
                             continent,
-                            postCount
+                            limit
                     )
             );
         }
@@ -91,16 +95,19 @@ public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQue
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery24MessagesByTopicResult> result = (List<LdbcSnbBiQuery24MessagesByTopicResult>) resultsObject;
+        List<LdbcSnbBiQuery24MessagesByTopicResult> result =
+                (List<LdbcSnbBiQuery24MessagesByTopicResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {
             LdbcSnbBiQuery24MessagesByTopicResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
+            resultFields.add( row.messageCount() );
+            resultFields.add( row.likeCount() );
             resultFields.add( row.year() );
             resultFields.add( row.month() );
             resultFields.add( row.continent() );
-            resultFields.add( row.postCount() );
+            resultFields.add( row.limit() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );
