@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery12TrendingPostsResult>>
 {
     public static final int TYPE = 12;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final long date;
     private final int likeCount;
     private final int limit;

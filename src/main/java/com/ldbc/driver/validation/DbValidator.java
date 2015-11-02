@@ -46,8 +46,6 @@ public class DbValidator
             }
             catch ( Throwable e )
             {
-                // Not necessary, but perhaps useful for debugging
-                e.printStackTrace();
                 dbValidationResult.reportMissingHandlerForOperation( operation );
                 continue;
             }

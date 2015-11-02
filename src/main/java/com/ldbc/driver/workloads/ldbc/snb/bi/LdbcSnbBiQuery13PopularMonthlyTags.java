@@ -110,7 +110,7 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
             List<List> tagPopularitiesAsLists = new ArrayList<>();
             for ( LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity tagPopularity : row.tagPopularities() )
             {
-                tagPopularitiesAsLists.add( Lists.newArrayList( tagPopularity.tag(), tagPopularity.popularity() ) );
+                tagPopularitiesAsLists.add( Lists.newArrayList( tagPopularity.tagName(), tagPopularity.popularity() ) );
             }
             resultFields.add( tagPopularitiesAsLists );
             resultsFields.add( resultFields );

@@ -79,7 +79,7 @@ public class LdbcSnbBiQuery13PopularMonthlyTagsResult
             this.popularity = popularity;
         }
 
-        public String tag()
+        public String tagName()
         {
             return tag;
         }

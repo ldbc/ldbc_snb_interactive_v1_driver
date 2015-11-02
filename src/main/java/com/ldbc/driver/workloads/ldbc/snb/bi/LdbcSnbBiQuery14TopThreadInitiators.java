@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery14TopThreadInitiators extends Operation<List<LdbcSnbBiQuery14TopThreadInitiatorsResult>>
 {
     public static final int TYPE = 14;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final long beginDate;
     private final long endDate;
     private final int limit;
