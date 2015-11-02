@@ -8,22 +8,19 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
     private final int year;
     private final int month;
     private final String continent;
-    private final int limit;
 
     public LdbcSnbBiQuery24MessagesByTopicResult(
             int messageCount,
             int likeCount,
             int year,
             int month,
-            String continent,
-            int limit )
+            String continent )
     {
         this.messageCount = messageCount;
         this.likeCount = likeCount;
         this.year = year;
         this.month = month;
         this.continent = continent;
-        this.limit = limit;
     }
 
     public int messageCount()
@@ -51,11 +48,6 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
         return continent;
     }
 
-    public int limit()
-    {
-        return limit;
-    }
-
     @Override
     public String toString()
     {
@@ -65,7 +57,6 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
                ", year=" + year +
                ", month=" + month +
                ", continent='" + continent + '\'' +
-               ", limit=" + limit +
                '}';
     }
 
@@ -87,8 +78,6 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
         { return false; }
         if ( month != that.month )
         { return false; }
-        if ( limit != that.limit )
-        { return false; }
         return !(continent != null ? !continent.equals( that.continent ) : that.continent != null);
 
     }
@@ -101,7 +90,6 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
         result = 31 * result + year;
         result = 31 * result + month;
         result = 31 * result + (continent != null ? continent.hashCode() : 0);
-        result = 31 * result + limit;
         return result;
     }
 }

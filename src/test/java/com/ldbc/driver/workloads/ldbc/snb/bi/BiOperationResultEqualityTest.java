@@ -946,46 +946,40 @@ public class BiOperationResultEqualityTest
         int year1 = 3;
         int month1 = 4;
         String continent1 = "5";
-        int limit1 = 6;
 
         int messageCount2 = 7;
         int likeCount2 = 8;
         int year2 = 9;
         int month2 = 10;
         String continent2 = "11";
-        int limit2 = 12;
 
         LdbcSnbBiQuery24MessagesByTopicResult result1a = new LdbcSnbBiQuery24MessagesByTopicResult(
                 messageCount1,
                 likeCount1,
                 year1,
                 month1,
-                continent1,
-                limit1
+                continent1
         );
         LdbcSnbBiQuery24MessagesByTopicResult result1b = new LdbcSnbBiQuery24MessagesByTopicResult(
                 messageCount1,
                 likeCount1,
                 year1,
                 month1,
-                continent1,
-                limit1
+                continent1
         );
         LdbcSnbBiQuery24MessagesByTopicResult result2a = new LdbcSnbBiQuery24MessagesByTopicResult(
                 messageCount2,
                 likeCount2,
                 year2,
                 month2,
-                continent2,
-                limit2
+                continent2
         );
         LdbcSnbBiQuery24MessagesByTopicResult result3a = new LdbcSnbBiQuery24MessagesByTopicResult(
                 messageCount1,
                 likeCount1,
                 year1,
                 month1,
-                continent1,
-                limit2
+                continent2
         );
 
         assertThat( result1a, equalTo( result1b ) );

@@ -77,15 +77,13 @@ public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQue
             int year = ((Number) row.get( 2 )).intValue();
             int month = ((Number) row.get( 3 )).intValue();
             String continent = (String) row.get( 4 );
-            int limit = ((Number) row.get( 5 )).intValue();
             result.add(
                     new LdbcSnbBiQuery24MessagesByTopicResult(
                             messageCount,
                             likeCount,
                             year,
                             month,
-                            continent,
-                            limit
+                            continent
                     )
             );
         }
@@ -107,7 +105,6 @@ public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQue
             resultFields.add( row.year() );
             resultFields.add( row.month() );
             resultFields.add( row.continent() );
-            resultFields.add( row.limit() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );
