@@ -507,22 +507,17 @@ public class BiOperationEqualityTest
     {
         // Given
         String country1 = "\u3055";
-        int limit1 = 1;
 
         String country2 = "\u4e35";
-        int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery17FriendshipTriangles query1a = new LdbcSnbBiQuery17FriendshipTriangles( country1, limit1 );
-        LdbcSnbBiQuery17FriendshipTriangles query1b = new LdbcSnbBiQuery17FriendshipTriangles( country1, limit1 );
-        LdbcSnbBiQuery17FriendshipTriangles query2a = new LdbcSnbBiQuery17FriendshipTriangles( country2, limit2 );
-        LdbcSnbBiQuery17FriendshipTriangles query3a = new LdbcSnbBiQuery17FriendshipTriangles( country2, limit1 );
+        LdbcSnbBiQuery17FriendshipTriangles query1a = new LdbcSnbBiQuery17FriendshipTriangles( country1 );
+        LdbcSnbBiQuery17FriendshipTriangles query1b = new LdbcSnbBiQuery17FriendshipTriangles( country1 );
+        LdbcSnbBiQuery17FriendshipTriangles query2a = new LdbcSnbBiQuery17FriendshipTriangles( country2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
         assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
     }
 
     @Test

@@ -359,13 +359,6 @@ public class DummyLdbcSnbBiOperationResultSets
         );
     }
 
-    public static List<LdbcSnbBiQuery17FriendshipTrianglesResult> read17Results()
-    {
-        return Lists.newArrayList(
-                DummyLdbcSnbBiOperationResultInstances.read17Result()
-        );
-    }
-
     public static List<LdbcSnbBiQuery18PersonPostCountsResult> read18Results()
     {
         return Lists.newArrayList(

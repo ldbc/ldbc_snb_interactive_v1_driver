@@ -27,8 +27,7 @@ public class Query17EventStreamReader extends BaseEventStreamReader
     Operation operationFromParameters( Object[] parameters )
     {
         return new LdbcSnbBiQuery17FriendshipTriangles(
-                (String) parameters[0],
-                (int) parameters[1]
+                (String) parameters[0]
         );
     }
 
@@ -57,7 +56,7 @@ public class Query17EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{country, LdbcSnbBiQuery17FriendshipTriangles.DEFAULT_LIMIT};
+                return new Object[]{country};
             }
         };
     }

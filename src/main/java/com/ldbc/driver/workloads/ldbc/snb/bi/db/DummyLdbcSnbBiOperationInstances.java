@@ -115,7 +115,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery17FriendshipTriangles read17()
     {
-        return new LdbcSnbBiQuery17FriendshipTriangles( "1", 2 );
+        return new LdbcSnbBiQuery17FriendshipTriangles( "1" );
     }
 
     public static LdbcSnbBiQuery18PersonPostCounts read18()

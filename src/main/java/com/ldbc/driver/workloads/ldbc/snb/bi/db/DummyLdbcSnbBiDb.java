@@ -6,7 +6,6 @@ import com.ldbc.driver.DbException;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.ResultReporter;
 import com.ldbc.driver.control.LoggingService;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery1PostingSummary;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery10TagPerson;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery10TagPersonResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery11UnrelatedReplies;
@@ -27,8 +26,8 @@ import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery18PersonPostCounts;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery18PersonPostCountsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery19StrangerInteraction;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery19StrangerInteractionResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery1PostingSummary;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery1PostingSummaryResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTags;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery20HighLevelTopics;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery20HighLevelTopicsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery21Zombies;
@@ -39,6 +38,7 @@ import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery23HolidayDestinations
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery23HolidayDestinationsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopic;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopicResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTags;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTagsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3TagEvolution;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3TagEvolutionResult;
@@ -227,10 +227,12 @@ public class DummyLdbcSnbBiDb extends Db
     LONG READS
      */
 
-    private static final List<LdbcSnbBiQuery1PostingSummaryResult> LDBC_QUERY_1_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read1Results();
+    private static final List<LdbcSnbBiQuery1PostingSummaryResult> LDBC_QUERY_1_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read1Results();
 
-    public static class LdbcQuery1Handler implements OperationHandler<LdbcSnbBiQuery1PostingSummary,DummyDbConnectionState>
+    public static class LdbcQuery1Handler
+            implements OperationHandler<LdbcSnbBiQuery1PostingSummary,DummyDbConnectionState>
     {
         @Override
         public void executeOperation( LdbcSnbBiQuery1PostingSummary operation, DummyDbConnectionState dbConnectionState,
@@ -255,10 +257,12 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery3TagEvolutionResult> LDBC_QUERY_3_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read3Results();
+    private static final List<LdbcSnbBiQuery3TagEvolutionResult> LDBC_QUERY_3_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read3Results();
 
-    public static class LdbcQuery3Handler implements OperationHandler<LdbcSnbBiQuery3TagEvolution,DummyDbConnectionState>
+    public static class LdbcQuery3Handler
+            implements OperationHandler<LdbcSnbBiQuery3TagEvolution,DummyDbConnectionState>
     {
         @Override
         public void executeOperation( LdbcSnbBiQuery3TagEvolution operation, DummyDbConnectionState dbConnectionState,
@@ -269,13 +273,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery4PopularCountryTopicsResult> LDBC_QUERY_4_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read4Results();
+    private static final List<LdbcSnbBiQuery4PopularCountryTopicsResult> LDBC_QUERY_4_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read4Results();
 
-    public static class LdbcQuery4Handler implements OperationHandler<LdbcSnbBiQuery4PopularCountryTopics,DummyDbConnectionState>
+    public static class LdbcQuery4Handler
+            implements OperationHandler<LdbcSnbBiQuery4PopularCountryTopics,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery4PopularCountryTopics operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery4PopularCountryTopics operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -283,13 +290,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery5TopCountryPostersResult> LDBC_QUERY_5_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read5Results();
+    private static final List<LdbcSnbBiQuery5TopCountryPostersResult> LDBC_QUERY_5_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read5Results();
 
-    public static class LdbcQuery5Handler implements OperationHandler<LdbcSnbBiQuery5TopCountryPosters,DummyDbConnectionState>
+    public static class LdbcQuery5Handler
+            implements OperationHandler<LdbcSnbBiQuery5TopCountryPosters,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery5TopCountryPosters operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery5TopCountryPosters operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -297,13 +307,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery6ActivePostersResult> LDBC_QUERY_6_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read6Results();
+    private static final List<LdbcSnbBiQuery6ActivePostersResult> LDBC_QUERY_6_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read6Results();
 
-    public static class LdbcQuery6Handler implements OperationHandler<LdbcSnbBiQuery6ActivePosters,DummyDbConnectionState>
+    public static class LdbcQuery6Handler
+            implements OperationHandler<LdbcSnbBiQuery6ActivePosters,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery6ActivePosters operation, DummyDbConnectionState dummyDbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery6ActivePosters operation,
+                DummyDbConnectionState dummyDbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -311,13 +324,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery7AuthoritativeUsersResult> LDBC_QUERY_7_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read7Results();
+    private static final List<LdbcSnbBiQuery7AuthoritativeUsersResult> LDBC_QUERY_7_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read7Results();
 
-    public static class LdbcQuery7Handler implements OperationHandler<LdbcSnbBiQuery7AuthoritativeUsers,DummyDbConnectionState>
+    public static class LdbcQuery7Handler
+            implements OperationHandler<LdbcSnbBiQuery7AuthoritativeUsers,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery7AuthoritativeUsers operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery7AuthoritativeUsers operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -325,10 +341,12 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery8RelatedTopicsResult> LDBC_QUERY_8_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read8Results();
+    private static final List<LdbcSnbBiQuery8RelatedTopicsResult> LDBC_QUERY_8_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read8Results();
 
-    public static class LdbcQuery8Handler implements OperationHandler<LdbcSnbBiQuery8RelatedTopics,DummyDbConnectionState>
+    public static class LdbcQuery8Handler
+            implements OperationHandler<LdbcSnbBiQuery8RelatedTopics,DummyDbConnectionState>
     {
         @Override
         public void executeOperation( LdbcSnbBiQuery8RelatedTopics operation, DummyDbConnectionState dbConnectionState,
@@ -339,10 +357,12 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery9RelatedForumsResult> LDBC_QUERY_9_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read9Results();
+    private static final List<LdbcSnbBiQuery9RelatedForumsResult> LDBC_QUERY_9_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read9Results();
 
-    public static class LdbcQuery9Handler implements OperationHandler<LdbcSnbBiQuery9RelatedForums,DummyDbConnectionState>
+    public static class LdbcQuery9Handler
+            implements OperationHandler<LdbcSnbBiQuery9RelatedForums,DummyDbConnectionState>
     {
         @Override
         public void executeOperation( LdbcSnbBiQuery9RelatedForums operation, DummyDbConnectionState dbConnectionState,
@@ -367,13 +387,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery11UnrelatedRepliesResult> LDBC_QUERY_11_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read11Results();
+    private static final List<LdbcSnbBiQuery11UnrelatedRepliesResult> LDBC_QUERY_11_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read11Results();
 
-    public static class LdbcQuery11Handler implements OperationHandler<LdbcSnbBiQuery11UnrelatedReplies,DummyDbConnectionState>
+    public static class LdbcQuery11Handler
+            implements OperationHandler<LdbcSnbBiQuery11UnrelatedReplies,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery11UnrelatedReplies operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery11UnrelatedReplies operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -381,10 +404,12 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery12TrendingPostsResult> LDBC_QUERY_12_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read12Results();
+    private static final List<LdbcSnbBiQuery12TrendingPostsResult> LDBC_QUERY_12_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read12Results();
 
-    public static class LdbcQuery12Handler implements OperationHandler<LdbcSnbBiQuery12TrendingPosts,DummyDbConnectionState>
+    public static class LdbcQuery12Handler
+            implements OperationHandler<LdbcSnbBiQuery12TrendingPosts,DummyDbConnectionState>
     {
         @Override
         public void executeOperation( LdbcSnbBiQuery12TrendingPosts operation, DummyDbConnectionState dbConnectionState,
@@ -398,10 +423,12 @@ public class DummyLdbcSnbBiDb extends Db
     private static final List<LdbcSnbBiQuery13PopularMonthlyTagsResult> LDBC_QUERY_13_RESULTS =
             DummyLdbcSnbBiOperationResultSets.read13Results();
 
-    public static class LdbcQuery13Handler implements OperationHandler<LdbcSnbBiQuery13PopularMonthlyTags,DummyDbConnectionState>
+    public static class LdbcQuery13Handler
+            implements OperationHandler<LdbcSnbBiQuery13PopularMonthlyTags,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery13PopularMonthlyTags operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery13PopularMonthlyTags operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -409,13 +436,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery14TopThreadInitiatorsResult> LDBC_QUERY_14_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read14Results();
+    private static final List<LdbcSnbBiQuery14TopThreadInitiatorsResult> LDBC_QUERY_14_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read14Results();
 
-    public static class LdbcQuery14Handler implements OperationHandler<LdbcSnbBiQuery14TopThreadInitiators,DummyDbConnectionState>
+    public static class LdbcQuery14Handler
+            implements OperationHandler<LdbcSnbBiQuery14TopThreadInitiators,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery14TopThreadInitiators operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery14TopThreadInitiators operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -423,10 +453,12 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery15SocialNormalsResult> LDBC_QUERY_15_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read15Results();
+    private static final List<LdbcSnbBiQuery15SocialNormalsResult> LDBC_QUERY_15_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read15Results();
 
-    public static class LdbcQuery15Handler implements OperationHandler<LdbcSnbBiQuery15SocialNormals,DummyDbConnectionState>
+    public static class LdbcQuery15Handler
+            implements OperationHandler<LdbcSnbBiQuery15SocialNormals,DummyDbConnectionState>
     {
         @Override
         public void executeOperation( LdbcSnbBiQuery15SocialNormals operation, DummyDbConnectionState dbConnectionState,
@@ -437,13 +469,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery16ExpertsInSocialCircleResult> LDBC_QUERY_16_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read16Results();
+    private static final List<LdbcSnbBiQuery16ExpertsInSocialCircleResult> LDBC_QUERY_16_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read16Results();
 
-    public static class LdbcQuery16Handler implements OperationHandler<LdbcSnbBiQuery16ExpertsInSocialCircle,DummyDbConnectionState>
+    public static class LdbcQuery16Handler
+            implements OperationHandler<LdbcSnbBiQuery16ExpertsInSocialCircle,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery16ExpertsInSocialCircle operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery16ExpertsInSocialCircle operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -451,13 +486,15 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery17FriendshipTrianglesResult> LDBC_QUERY_17_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read17Results();
+    private static final LdbcSnbBiQuery17FriendshipTrianglesResult LDBC_QUERY_17_RESULTS =
+            DummyLdbcSnbBiOperationResultInstances.read17Result();
 
-    public static class LdbcQuery17Handler implements OperationHandler<LdbcSnbBiQuery17FriendshipTriangles,DummyDbConnectionState>
+    public static class LdbcQuery17Handler
+            implements OperationHandler<LdbcSnbBiQuery17FriendshipTriangles,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery17FriendshipTriangles operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery17FriendshipTriangles operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -465,13 +502,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery18PersonPostCountsResult> LDBC_QUERY_18_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read18Results();
+    private static final List<LdbcSnbBiQuery18PersonPostCountsResult> LDBC_QUERY_18_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read18Results();
 
-    public static class LdbcQuery18Handler implements OperationHandler<LdbcSnbBiQuery18PersonPostCounts,DummyDbConnectionState>
+    public static class LdbcQuery18Handler
+            implements OperationHandler<LdbcSnbBiQuery18PersonPostCounts,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery18PersonPostCounts operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery18PersonPostCounts operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -479,13 +519,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery19StrangerInteractionResult> LDBC_QUERY_19_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read19Results();
+    private static final List<LdbcSnbBiQuery19StrangerInteractionResult> LDBC_QUERY_19_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read19Results();
 
-    public static class LdbcQuery19Handler implements OperationHandler<LdbcSnbBiQuery19StrangerInteraction,DummyDbConnectionState>
+    public static class LdbcQuery19Handler
+            implements OperationHandler<LdbcSnbBiQuery19StrangerInteraction,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery19StrangerInteraction operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery19StrangerInteraction operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -493,13 +536,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery20HighLevelTopicsResult> LDBC_QUERY_20_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read20Results();
+    private static final List<LdbcSnbBiQuery20HighLevelTopicsResult> LDBC_QUERY_20_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read20Results();
 
-    public static class LdbcQuery20Handler implements OperationHandler<LdbcSnbBiQuery20HighLevelTopics,DummyDbConnectionState>
+    public static class LdbcQuery20Handler
+            implements OperationHandler<LdbcSnbBiQuery20HighLevelTopics,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery20HighLevelTopics operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery20HighLevelTopics operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -521,13 +567,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery22InternationalDialogResult> LDBC_QUERY_22_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read22Results();
+    private static final List<LdbcSnbBiQuery22InternationalDialogResult> LDBC_QUERY_22_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read22Results();
 
-    public static class LdbcQuery22Handler implements OperationHandler<LdbcSnbBiQuery22InternationalDialog,DummyDbConnectionState>
+    public static class LdbcQuery22Handler
+            implements OperationHandler<LdbcSnbBiQuery22InternationalDialog,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery22InternationalDialog operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery22InternationalDialog operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -535,13 +584,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery23HolidayDestinationsResult> LDBC_QUERY_23_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read23Results();
+    private static final List<LdbcSnbBiQuery23HolidayDestinationsResult> LDBC_QUERY_23_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read23Results();
 
-    public static class LdbcQuery23Handler implements OperationHandler<LdbcSnbBiQuery23HolidayDestinations,DummyDbConnectionState>
+    public static class LdbcQuery23Handler
+            implements OperationHandler<LdbcSnbBiQuery23HolidayDestinations,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery23HolidayDestinations operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery23HolidayDestinations operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
@@ -549,13 +601,16 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery24MessagesByTopicResult> LDBC_QUERY_24_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read24Results();
+    private static final List<LdbcSnbBiQuery24MessagesByTopicResult> LDBC_QUERY_24_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read24Results();
 
-    public static class LdbcQuery24Handler implements OperationHandler<LdbcSnbBiQuery24MessagesByTopic,DummyDbConnectionState>
+    public static class LdbcQuery24Handler
+            implements OperationHandler<LdbcSnbBiQuery24MessagesByTopic,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcSnbBiQuery24MessagesByTopic operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcSnbBiQuery24MessagesByTopic operation,
+                DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );

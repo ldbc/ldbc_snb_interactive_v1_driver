@@ -6,18 +6,14 @@ import com.ldbc.driver.SerializingMarshallingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LdbcSnbBiQuery17FriendshipTriangles extends Operation<List<LdbcSnbBiQuery17FriendshipTrianglesResult>>
+public class LdbcSnbBiQuery17FriendshipTriangles extends Operation<LdbcSnbBiQuery17FriendshipTrianglesResult>
 {
     public static final int TYPE = 17;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
     private final String country;
-    private final int limit;
 
-    public LdbcSnbBiQuery17FriendshipTriangles( String country, int limit )
+    public LdbcSnbBiQuery17FriendshipTriangles( String country )
     {
         this.country = country;
-        this.limit = limit;
     }
 
     public String country()
@@ -25,17 +21,11 @@ public class LdbcSnbBiQuery17FriendshipTriangles extends Operation<List<LdbcSnbB
         return country;
     }
 
-    public int limit()
-    {
-        return limit;
-    }
-
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery17{" +
+        return "LdbcSnbBiQuery17FriendshipTriangles{" +
                "country='" + country + '\'' +
-               ", limit=" + limit +
                '}';
     }
 
@@ -49,8 +39,6 @@ public class LdbcSnbBiQuery17FriendshipTriangles extends Operation<List<LdbcSnbB
 
         LdbcSnbBiQuery17FriendshipTriangles that = (LdbcSnbBiQuery17FriendshipTriangles) o;
 
-        if ( limit != that.limit )
-        { return false; }
         return !(country != null ? !country.equals( that.country ) : that.country != null);
 
     }
@@ -58,41 +46,27 @@ public class LdbcSnbBiQuery17FriendshipTriangles extends Operation<List<LdbcSnbB
     @Override
     public int hashCode()
     {
-        int result = country != null ? country.hashCode() : 0;
-        result = 31 * result + limit;
-        return result;
+        return country != null ? country.hashCode() : 0;
     }
 
     @Override
-    public List<LdbcSnbBiQuery17FriendshipTrianglesResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public LdbcSnbBiQuery17FriendshipTrianglesResult marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
-        List<LdbcSnbBiQuery17FriendshipTrianglesResult> result = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> row = resultsAsList.get( i );
-            int count = ((Number) row.get( 0 )).intValue();
-            result.add(
-                    new LdbcSnbBiQuery17FriendshipTrianglesResult(
-                            count
-                    )
-            );
-        }
-        return result;
+        List<Object> row = resultsAsList.get( 0 );
+        int count = ((Number) row.get( 0 )).intValue();
+        return new LdbcSnbBiQuery17FriendshipTrianglesResult( count );
     }
 
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery17FriendshipTrianglesResult> result = (List<LdbcSnbBiQuery17FriendshipTrianglesResult>) resultsObject;
+        LdbcSnbBiQuery17FriendshipTrianglesResult result = (LdbcSnbBiQuery17FriendshipTrianglesResult) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < result.size(); i++ )
-        {
-            LdbcSnbBiQuery17FriendshipTrianglesResult row = result.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( row.count() );
-            resultsFields.add( resultFields );
-        }
+        List<Object> resultFields = new ArrayList<>();
+        resultFields.add( result.count() );
+        resultsFields.add( resultFields );
         return SerializationUtil.toJson( resultsFields );
     }
 

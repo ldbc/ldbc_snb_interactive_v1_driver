@@ -19,6 +19,7 @@ import com.ldbc.driver.workloads.OperationMixBuilder;
 import com.ldbc.driver.workloads.WorkloadTest;
 import com.ldbc.driver.workloads.ldbc.snb.bi.db.DummyLdbcSnbBiDb;
 import com.ldbc.driver.workloads.ldbc.snb.bi.db.DummyLdbcSnbBiOperationInstances;
+import com.ldbc.driver.workloads.ldbc.snb.bi.db.DummyLdbcSnbBiOperationResultInstances;
 import com.ldbc.driver.workloads.ldbc.snb.bi.db.DummyLdbcSnbBiOperationResultSets;
 import org.junit.Test;
 
@@ -121,7 +122,7 @@ public class BiWorkloadTest extends WorkloadTest
                 ),
                 Tuple.<Operation,Object>tuple2(
                         DummyLdbcSnbBiOperationInstances.read17(),
-                        DummyLdbcSnbBiOperationResultSets.read17Results()
+                        DummyLdbcSnbBiOperationResultInstances.read17Result()
                 ),
                 Tuple.<Operation,Object>tuple2(
                         DummyLdbcSnbBiOperationInstances.read18(),
@@ -200,30 +201,52 @@ public class BiWorkloadTest extends WorkloadTest
             throws Exception
     {
         Histogram<Class,Double> expectedQueryMixHistogram = new Histogram<>( 0d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery1PostingSummary.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery1PostingSummary.class ), 1d );
         expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery2TopTags.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery3TagEvolution.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery4PopularCountryTopics.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery5TopCountryPosters.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery6ActivePosters.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery7AuthoritativeUsers.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery8RelatedTopics.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery9RelatedForums.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery10TagPerson.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery11UnrelatedReplies.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery12TrendingPosts.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery13PopularMonthlyTags.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery14TopThreadInitiators.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery15SocialNormals.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery16ExpertsInSocialCircle.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery17FriendshipTriangles.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery18PersonPostCounts.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery19StrangerInteraction.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery20HighLevelTopics.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery3TagEvolution.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery4PopularCountryTopics.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery5TopCountryPosters.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery6ActivePosters.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery7AuthoritativeUsers.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery8RelatedTopics.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery9RelatedForums.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery10TagPerson.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery11UnrelatedReplies.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery12TrendingPosts.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery13PopularMonthlyTags.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery14TopThreadInitiators.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery15SocialNormals.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery16ExpertsInSocialCircle.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery17FriendshipTriangles.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery18PersonPostCounts.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery19StrangerInteraction.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery20HighLevelTopics.class ), 1d );
         expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery21Zombies.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery22InternationalDialog.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery23HolidayDestinations.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery24MessagesByTopic.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery22InternationalDialog.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery23HolidayDestinations.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery24MessagesByTopic.class ), 1d );
 
         return Lists.newArrayList(
                 Tuple.tuple2(
