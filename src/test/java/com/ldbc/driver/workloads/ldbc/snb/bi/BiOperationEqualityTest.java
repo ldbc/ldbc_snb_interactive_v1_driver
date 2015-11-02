@@ -583,14 +583,16 @@ public class BiOperationEqualityTest
     public void ldbcQuery20ShouldDoEqualsCorrectly()
     {
         // Given
+        List<String> tagClasses1 = Lists.newArrayList( "1", "2" );
         int limit1 = 1;
 
-        int limit2 = 2;
+        List<String> tagClasses2 = Lists.newArrayList( "1" );
+        int limit2 = 1;
 
         // When
-        LdbcSnbBiQuery20HighLevelTopics query1a = new LdbcSnbBiQuery20HighLevelTopics( limit1 );
-        LdbcSnbBiQuery20HighLevelTopics query1b = new LdbcSnbBiQuery20HighLevelTopics( limit1 );
-        LdbcSnbBiQuery20HighLevelTopics query2a = new LdbcSnbBiQuery20HighLevelTopics( limit2 );
+        LdbcSnbBiQuery20HighLevelTopics query1a = new LdbcSnbBiQuery20HighLevelTopics( tagClasses1, limit1 );
+        LdbcSnbBiQuery20HighLevelTopics query1b = new LdbcSnbBiQuery20HighLevelTopics( tagClasses1, limit1 );
+        LdbcSnbBiQuery20HighLevelTopics query2a = new LdbcSnbBiQuery20HighLevelTopics( tagClasses2, limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

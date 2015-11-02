@@ -177,7 +177,10 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_20_CSV_ROWS()
     {
-        return "";
+        return "tagClasses\n"
+               + "a;b;c\n"
+               + "b;c\n"
+               + "c";
     }
 
     public static final String QUERY_21_CSV_ROWS()

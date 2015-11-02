@@ -130,7 +130,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery20HighLevelTopics read20()
     {
-        return new LdbcSnbBiQuery20HighLevelTopics( 1 );
+        return new LdbcSnbBiQuery20HighLevelTopics( Lists.newArrayList( "a", "b" ), 1 );
     }
 
     public static LdbcSnbBiQuery21Zombies read21()

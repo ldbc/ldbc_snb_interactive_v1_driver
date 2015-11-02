@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -785,14 +784,23 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20HighLevelTopics.class ) );
-        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20HighLevelTopics.class ) );
-        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20HighLevelTopics.class ) );
-        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20HighLevelTopics.class ) );
+        LdbcSnbBiQuery20HighLevelTopics operation;
+
+        operation = (LdbcSnbBiQuery20HighLevelTopics) reader.next();
+        assertThat( operation.tagClasses(), CoreMatchers.<List<String>>is( Lists.newArrayList( "a", "b", "c" ) ) );
+
+        operation = (LdbcSnbBiQuery20HighLevelTopics) reader.next();
+        assertThat( operation.tagClasses(), CoreMatchers.<List<String>>is( Lists.newArrayList( "b", "c" ) ) );
+
+        operation = (LdbcSnbBiQuery20HighLevelTopics) reader.next();
+        assertThat( operation.tagClasses(), CoreMatchers.<List<String>>is( Lists.newArrayList( "c" ) ) );
+
 
         // loops back around to first
 
-        assertThat( reader.next(), instanceOf( LdbcSnbBiQuery20HighLevelTopics.class ) );
+        operation = (LdbcSnbBiQuery20HighLevelTopics) reader.next();
+        assertThat( operation.tagClasses(), CoreMatchers.<List<String>>is( Lists.newArrayList( "a", "b", "c" ) ) );
+
         assertTrue( reader.hasNext() );
     }
 

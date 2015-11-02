@@ -1,6 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -12,6 +13,7 @@ import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class Query20EventStreamReader extends BaseEventStreamReader
 {
@@ -27,7 +29,8 @@ public class Query20EventStreamReader extends BaseEventStreamReader
     Operation operationFromParameters( Object[] parameters )
     {
         return new LdbcSnbBiQuery20HighLevelTopics(
-                (int) parameters[0]
+                (List<String>) parameters[0],
+                (int) parameters[1]
         );
     }
 
@@ -36,22 +39,23 @@ public class Query20EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            private boolean finished = false;
-
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
                     throws IOException
             {
-                if ( finished )
+                List<String> tagClasses;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    return null;
+                    tagClasses = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
                 }
                 else
                 {
-                    finished = true;
-                    return new Object[]{LdbcSnbBiQuery20HighLevelTopics.DEFAULT_LIMIT};
+                    // if first column of next row contains nothing it means the file is finished
+                    return null;
                 }
+
+                return new Object[]{tagClasses, LdbcSnbBiQuery10TagPerson.DEFAULT_LIMIT};
             }
         };
     }
@@ -59,6 +63,6 @@ public class Query20EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 0;
+        return 1;
     }
 }

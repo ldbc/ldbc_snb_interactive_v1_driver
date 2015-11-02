@@ -46,6 +46,7 @@ public class DbValidator
             }
             catch ( Throwable e )
             {
+
                 dbValidationResult.reportMissingHandlerForOperation( operation );
                 continue;
             }

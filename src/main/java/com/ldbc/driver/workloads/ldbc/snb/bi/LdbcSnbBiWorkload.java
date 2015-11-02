@@ -1026,6 +1026,7 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery20HighLevelTopics ldbcQuery = (LdbcSnbBiQuery20HighLevelTopics) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tagClasses() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1240,8 +1241,9 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery20HighLevelTopics.class.getName() ) )
         {
-            int limit = ((Number) operationAsList.get( 1 )).intValue();
-            return new LdbcSnbBiQuery20HighLevelTopics( limit );
+            List<String> tagClasses = (List<String>) operationAsList.get( 1 );
+            int limit = ((Number) operationAsList.get( 2 )).intValue();
+            return new LdbcSnbBiQuery20HighLevelTopics( tagClasses, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery21Zombies.class.getName() ) )
         {

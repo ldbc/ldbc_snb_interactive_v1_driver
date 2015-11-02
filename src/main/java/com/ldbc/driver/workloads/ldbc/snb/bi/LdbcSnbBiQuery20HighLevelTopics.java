@@ -9,13 +9,19 @@ import java.util.List;
 public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQuery20HighLevelTopicsResult>>
 {
     public static final int TYPE = 20;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
+    private List<String> tagClasses;
     private final int limit;
 
-    public LdbcSnbBiQuery20HighLevelTopics( int limit )
+    public LdbcSnbBiQuery20HighLevelTopics( List<String> tagClasses, int limit )
     {
+        this.tagClasses = tagClasses;
         this.limit = limit;
+    }
+
+    public List<String> tagClasses()
+    {
+        return tagClasses;
     }
 
     public int limit()
@@ -26,8 +32,9 @@ public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQue
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery20{" +
-               "limit=" + limit +
+        return "LdbcSnbBiQuery20HighLevelTopics{" +
+               "tagClasses=" + tagClasses +
+               ", limit=" + limit +
                '}';
     }
 
@@ -41,18 +48,23 @@ public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQue
 
         LdbcSnbBiQuery20HighLevelTopics that = (LdbcSnbBiQuery20HighLevelTopics) o;
 
-        return limit == that.limit;
+        if ( limit != that.limit )
+        { return false; }
+        return !(tagClasses != null ? !tagClasses.equals( that.tagClasses ) : that.tagClasses != null);
 
     }
 
     @Override
     public int hashCode()
     {
-        return limit;
+        int result = tagClasses != null ? tagClasses.hashCode() : 0;
+        result = 31 * result + limit;
+        return result;
     }
 
     @Override
-    public List<LdbcSnbBiQuery20HighLevelTopicsResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery20HighLevelTopicsResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery20HighLevelTopicsResult> result = new ArrayList<>();
@@ -74,7 +86,8 @@ public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQue
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery20HighLevelTopicsResult> result = (List<LdbcSnbBiQuery20HighLevelTopicsResult>) resultsObject;
+        List<LdbcSnbBiQuery20HighLevelTopicsResult> result =
+                (List<LdbcSnbBiQuery20HighLevelTopicsResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {
