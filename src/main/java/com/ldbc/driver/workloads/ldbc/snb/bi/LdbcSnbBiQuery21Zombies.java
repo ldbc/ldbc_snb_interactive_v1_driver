@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21ZombiesResult>>
 {
     public static final int TYPE = 21;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final String country;
     private final long endDate;
     private final int limit;

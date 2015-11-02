@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbBiQuery19StrangerInteractionResult>>
 {
     public static final int TYPE = 19;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final long date;
     private final String tagClassA;
     private final String tagClassB;

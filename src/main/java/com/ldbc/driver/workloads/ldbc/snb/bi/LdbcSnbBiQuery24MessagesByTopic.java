@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQuery24MessagesByTopicResult>>
 {
     public static final int TYPE = 24;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final String tagClass;
     private final int limit;
 

@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery15SocialNormals extends Operation<List<LdbcSnbBiQuery15SocialNormalsResult>>
 {
     public static final int TYPE = 15;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final String country;
     private final int limit;
 
@@ -64,7 +63,8 @@ public class LdbcSnbBiQuery15SocialNormals extends Operation<List<LdbcSnbBiQuery
     }
 
     @Override
-    public List<LdbcSnbBiQuery15SocialNormalsResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery15SocialNormalsResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery15SocialNormalsResult> result = new ArrayList<>();

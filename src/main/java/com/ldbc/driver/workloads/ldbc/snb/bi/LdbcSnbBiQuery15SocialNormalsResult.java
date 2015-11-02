@@ -24,7 +24,7 @@ public class LdbcSnbBiQuery15SocialNormalsResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery15Result{" +
+        return "LdbcSnbBiQuery15SocialNormalsResult{" +
                "personId=" + personId +
                ", count=" + count +
                '}';

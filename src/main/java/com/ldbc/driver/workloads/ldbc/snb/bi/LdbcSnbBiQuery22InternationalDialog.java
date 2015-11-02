@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbBiQuery22InternationalDialogResult>>
 {
     public static final int TYPE = 22;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final String countryA;
     private final String countryB;
     private final int limit;
@@ -93,7 +92,8 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery23HolidayDestinationsResult> result = (List<LdbcSnbBiQuery23HolidayDestinationsResult>) resultsObject;
+        List<LdbcSnbBiQuery23HolidayDestinationsResult> result =
+                (List<LdbcSnbBiQuery23HolidayDestinationsResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {

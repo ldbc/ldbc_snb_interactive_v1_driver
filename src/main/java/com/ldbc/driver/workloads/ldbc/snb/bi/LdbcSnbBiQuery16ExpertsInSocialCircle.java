@@ -9,8 +9,7 @@ import java.util.List;
 public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSnbBiQuery16ExpertsInSocialCircleResult>>
 {
     public static final int TYPE = 16;
-    // TODO
-    public static final int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 100;
     private final long person;
     private final String tagClass;
     private final String country;
