@@ -1,6 +1,5 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
-import com.google.common.collect.Lists;
 import com.ldbc.driver.ChildOperationGenerator;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
@@ -86,8 +85,10 @@ public class LdbcSnbBiWorkload extends Workload
     @Override
     public void onInit( Map<String,String> params ) throws WorkloadException
     {
-        List<String> compulsoryKeys = Lists.newArrayList( LdbcSnbBiWorkloadConfiguration.PARAMETERS_DIRECTORY );
+        List<String> compulsoryKeys = new ArrayList<>();
+        compulsoryKeys.add( LdbcSnbBiWorkloadConfiguration.PARAMETERS_DIRECTORY );
         compulsoryKeys.addAll( LdbcSnbBiWorkloadConfiguration.OPERATION_ENABLE_KEYS );
+        compulsoryKeys.addAll( LdbcSnbBiWorkloadConfiguration.OPERATION_FREQUENCY_KEYS );
 
         Set<String> missingParameters = LdbcSnbBiWorkloadConfiguration.missingParameters( params, compulsoryKeys );
         if ( false == missingParameters.isEmpty() )
@@ -99,7 +100,7 @@ public class LdbcSnbBiWorkload extends Workload
             ) );
         }
 
-        File parametersDir = new File( params.get( LdbcSnbBiWorkloadConfiguration.PARAMETERS_DIRECTORY ) );
+        File parametersDir = new File( params.get( LdbcSnbBiWorkloadConfiguration.PARAMETERS_DIRECTORY ).trim() );
         if ( false == parametersDir.exists() )
         {
             throw new WorkloadException( format(
@@ -200,7 +201,7 @@ public class LdbcSnbBiWorkload extends Workload
         enabledOperationTypes = new HashSet<>();
         for ( String operationEnableKey : LdbcSnbBiWorkloadConfiguration.OPERATION_ENABLE_KEYS )
         {
-            String operationEnabledString = params.get( operationEnableKey );
+            String operationEnabledString = params.get( operationEnableKey ).trim();
             Boolean operationEnabled = Boolean.parseBoolean( operationEnabledString );
             Class operationClass = LdbcSnbBiWorkloadConfiguration.operationEnabledKeyToClass( operationEnableKey );
             if ( operationEnabled )
@@ -243,7 +244,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         this.compressionRatio =
-                Double.parseDouble( params.get( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG ) );
+                Double.parseDouble( params.get( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG ).trim() );
     }
 
     @Override
