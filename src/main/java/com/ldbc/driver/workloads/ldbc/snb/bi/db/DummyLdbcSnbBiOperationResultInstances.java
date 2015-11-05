@@ -148,7 +148,7 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery22InternationalDialogResult read22Result()
     {
-        return new LdbcSnbBiQuery22InternationalDialogResult();
+        return new LdbcSnbBiQuery22InternationalDialogResult( 1, 2, 3 );
     }
 
     public static LdbcSnbBiQuery23HolidayDestinationsResult read23Result()

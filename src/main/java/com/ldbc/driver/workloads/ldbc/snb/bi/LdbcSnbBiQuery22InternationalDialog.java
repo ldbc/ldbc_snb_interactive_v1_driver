@@ -81,9 +81,16 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
         List<LdbcSnbBiQuery22InternationalDialogResult> result = new ArrayList<>();
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
-            // TODO update when result is defined
+            List<Object> row = resultsAsList.get( i );
+            long personId1 = ((Number) row.get( 0 )).longValue();
+            long personId2 = ((Number) row.get( 1 )).longValue();
+            int score = ((Number) row.get( 2 )).intValue();
             result.add(
-                    new LdbcSnbBiQuery22InternationalDialogResult()
+                    new LdbcSnbBiQuery22InternationalDialogResult(
+                            personId1,
+                            personId2,
+                            score
+                    )
             );
         }
         return result;
@@ -92,13 +99,16 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery23HolidayDestinationsResult> result =
-                (List<LdbcSnbBiQuery23HolidayDestinationsResult>) resultsObject;
+        List<LdbcSnbBiQuery22InternationalDialogResult> result =
+                (List<LdbcSnbBiQuery22InternationalDialogResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {
-            // TODO update when result is defined
+            LdbcSnbBiQuery22InternationalDialogResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
+            resultFields.add( row.personId1() );
+            resultFields.add( row.personId2() );
+            resultFields.add( row.score() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

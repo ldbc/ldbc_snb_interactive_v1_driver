@@ -892,12 +892,39 @@ public class BiOperationResultEqualityTest
     @Test
     public void ldbcQuery22ResultShouldDoEqualsCorrectly()
     {
+        long personId1A = 1;
+        long personId2A = 2;
+        int scoreA = 3;
+
+        long personId1B = 4;
+        long personId2B = 5;
+        int scoreB = 6;
+
         LdbcSnbBiQuery22InternationalDialogResult result1a = new LdbcSnbBiQuery22InternationalDialogResult(
+                personId1A,
+                personId2A,
+                scoreA
         );
         LdbcSnbBiQuery22InternationalDialogResult result1b = new LdbcSnbBiQuery22InternationalDialogResult(
+                personId1A,
+                personId2A,
+                scoreA
+        );
+        LdbcSnbBiQuery22InternationalDialogResult result2a = new LdbcSnbBiQuery22InternationalDialogResult(
+                personId1B,
+                personId2B,
+                scoreB
+        );
+        LdbcSnbBiQuery22InternationalDialogResult result3a = new LdbcSnbBiQuery22InternationalDialogResult(
+                personId1B,
+                personId2B,
+                scoreA
         );
 
         assertThat( result1a, equalTo( result1b ) );
+        assertThat( result1a, not( equalTo( result2a ) ) );
+        assertThat( result1a, not( equalTo( result3a ) ) );
+        assertThat( result2a, not( equalTo( result3a ) ) );
     }
 
     @Test
