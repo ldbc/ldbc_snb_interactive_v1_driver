@@ -10,7 +10,7 @@ public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQue
 {
     public static final int TYPE = 20;
     public static final int DEFAULT_LIMIT = 100;
-    private List<String> tagClasses;
+    private final List<String> tagClasses;
     private final int limit;
 
     public LdbcSnbBiQuery20HighLevelTopics( List<String> tagClasses, int limit )
