@@ -18,8 +18,7 @@ public class WorkloadResultsSnapshot
     @JsonProperty( value = "all_metrics" )
     private List<OperationMetricsSnapshot> metrics;
 
-    @JsonProperty( value = "format_version" )
-    private int formatVersion = 3;
+    
 
     @JsonProperty( value = "unit" )
     private TimeUnit unit;
@@ -75,12 +74,7 @@ public class WorkloadResultsSnapshot
         return metrics;
     }
 
-    @JsonProperty( value = "all_metrics" )
-    private void setAllMetrics( List<OperationMetricsSnapshot> metrics )
-    {
-        this.metrics = metrics;
-        Collections.sort( metrics, new OperationTypeMetricsManager.OperationMetricsNameComparator() );
-    }
+    
 
     public long startTimeAsMilli()
     {
