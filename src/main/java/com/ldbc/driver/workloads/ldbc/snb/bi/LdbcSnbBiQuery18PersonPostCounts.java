@@ -91,8 +91,8 @@ public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQu
         {
             LdbcSnbBiQuery18PersonPostCountsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add( row.postCount() );
-            resultFields.add( row.count() );
+            resultFields.add( row.messageCount() );
+            resultFields.add( row.personCount() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

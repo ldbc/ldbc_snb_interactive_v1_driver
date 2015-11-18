@@ -2,31 +2,31 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery18PersonPostCountsResult
 {
-    private final int postCount;
-    private final int count;
+    private final int messageCount;
+    private final int personCount;
 
-    public LdbcSnbBiQuery18PersonPostCountsResult( int postCount, int count )
+    public LdbcSnbBiQuery18PersonPostCountsResult( int messageCount, int personCount )
     {
-        this.postCount = postCount;
-        this.count = count;
+        this.messageCount = messageCount;
+        this.personCount = personCount;
     }
 
-    public int postCount()
+    public int messageCount()
     {
-        return postCount;
+        return messageCount;
     }
 
-    public int count()
+    public int personCount()
     {
-        return count;
+        return personCount;
     }
 
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery18Result{" +
-               "postCount=" + postCount +
-               ", count=" + count +
+        return "LdbcSnbBiQuery18PersonPostCountsResult{" +
+               "messageCount=" + messageCount +
+               ", personCount=" + personCount +
                '}';
     }
 
@@ -40,17 +40,17 @@ public class LdbcSnbBiQuery18PersonPostCountsResult
 
         LdbcSnbBiQuery18PersonPostCountsResult that = (LdbcSnbBiQuery18PersonPostCountsResult) o;
 
-        if ( postCount != that.postCount )
+        if ( messageCount != that.messageCount )
         { return false; }
-        return count == that.count;
+        return personCount == that.personCount;
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = postCount;
-        result = 31 * result + count;
+        int result = messageCount;
+        result = 31 * result + personCount;
         return result;
     }
 }
