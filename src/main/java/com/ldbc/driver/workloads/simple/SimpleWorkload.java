@@ -12,11 +12,11 @@ import com.ldbc.driver.generator.MinMaxGenerator;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple2;
 import com.ldbc.driver.util.Tuple3;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery1;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery2;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery3;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery4;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery5;
+
+
+
+
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 

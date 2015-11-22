@@ -10,7 +10,7 @@ public class MetricsEvent
     public static final int SCHEMA_ID = 1;
     public static final int SCHEMA_VERSION = 0;
 
-    private final MetricsEvent parentMessage = this;
+    
     private DirectBuffer buffer;
     private int offset;
     private int limit;
