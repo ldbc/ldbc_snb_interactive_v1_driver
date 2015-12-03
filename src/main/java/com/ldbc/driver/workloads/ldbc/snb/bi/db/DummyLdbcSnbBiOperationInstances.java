@@ -135,7 +135,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery21Zombies read21()
     {
-        return new LdbcSnbBiQuery21Zombies( "1", 2, 3 );
+        return new LdbcSnbBiQuery21Zombies( "1", 2, 3, 4 );
     }
 
     public static LdbcSnbBiQuery22InternationalDialog read22()

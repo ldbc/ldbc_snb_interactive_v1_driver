@@ -600,17 +600,19 @@ public class BiOperationEqualityTest
         // Given
         String country1 = "\u3055";
         long endDate1 = 1;
+        int days1 = 1;
         int limit1 = 1;
 
         String country2 = "\u4e35";
         long endDate2 = 2;
+        int days2 = 2;
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery21Zombies query1a = new LdbcSnbBiQuery21Zombies( country1, endDate1, limit1 );
-        LdbcSnbBiQuery21Zombies query1b = new LdbcSnbBiQuery21Zombies( country1, endDate1, limit1 );
-        LdbcSnbBiQuery21Zombies query2a = new LdbcSnbBiQuery21Zombies( country2, endDate2, limit2 );
-        LdbcSnbBiQuery21Zombies query3a = new LdbcSnbBiQuery21Zombies( country2, endDate2, limit1 );
+        LdbcSnbBiQuery21Zombies query1a = new LdbcSnbBiQuery21Zombies( country1, endDate1, days1, limit1 );
+        LdbcSnbBiQuery21Zombies query1b = new LdbcSnbBiQuery21Zombies( country1, endDate1, days1, limit1 );
+        LdbcSnbBiQuery21Zombies query2a = new LdbcSnbBiQuery21Zombies( country2, endDate2, days2, limit2 );
+        LdbcSnbBiQuery21Zombies query3a = new LdbcSnbBiQuery21Zombies( country2, endDate2, days2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

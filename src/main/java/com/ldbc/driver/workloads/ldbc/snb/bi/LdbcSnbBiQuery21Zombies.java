@@ -10,14 +10,17 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
 {
     public static final int TYPE = 21;
     public static final int DEFAULT_LIMIT = 100;
+    public static final int DEFAULT_DAYS = 30;
     private final String country;
     private final long endDate;
+    private final int days;
     private final int limit;
 
-    public LdbcSnbBiQuery21Zombies( String country, long endDate, int limit )
+    public LdbcSnbBiQuery21Zombies( String country, long endDate, int days, int limit )
     {
         this.country = country;
         this.endDate = endDate;
+        this.days = days;
         this.limit = limit;
     }
 
@@ -31,6 +34,11 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
         return endDate;
     }
 
+    public int days()
+    {
+        return days;
+    }
+
     public int limit()
     {
         return limit;
@@ -42,6 +50,7 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
         return "LdbcSnbBiQuery21Zombies{" +
                "country='" + country + '\'' +
                ", endDate=" + endDate +
+               ", days=" + days +
                ", limit=" + limit +
                '}';
     }
@@ -58,10 +67,11 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
 
         if ( endDate != that.endDate )
         { return false; }
+        if ( days != that.days )
+        { return false; }
         if ( limit != that.limit )
         { return false; }
         return !(country != null ? !country.equals( that.country ) : that.country != null);
-
     }
 
     @Override
@@ -69,6 +79,7 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
     {
         int result = country != null ? country.hashCode() : 0;
         result = 31 * result + (int) (endDate ^ (endDate >>> 32));
+        result = 31 * result + days;
         result = 31 * result + limit;
         return result;
     }

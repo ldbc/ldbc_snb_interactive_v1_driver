@@ -93,7 +93,7 @@ public class ResultsLogValidator
             while ( reader.hasNext() )
             {
                 String[] row = reader.next();
-                String operationType = row[0];
+                // operation type
                 long scheduledStartTimeAsMilli = Long.parseLong( row[1] );
                 long actualStartTimeAsMilli = Long.parseLong( row[2] );
                 // duration

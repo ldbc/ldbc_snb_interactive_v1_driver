@@ -30,7 +30,8 @@ public class Query21EventStreamReader extends BaseEventStreamReader
         return new LdbcSnbBiQuery21Zombies(
                 (String) parameters[0],
                 (long) parameters[1],
-                (int) parameters[2]
+                (int) parameters[2],
+                (int) parameters[3]
         );
     }
 
@@ -69,7 +70,11 @@ public class Query21EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving end date" );
                 }
 
-                return new Object[]{country, endDate, LdbcSnbBiQuery21Zombies.DEFAULT_LIMIT};
+                return new Object[]{
+                        country,
+                        endDate,
+                        LdbcSnbBiQuery21Zombies.DEFAULT_DAYS,
+                        LdbcSnbBiQuery21Zombies.DEFAULT_LIMIT};
             }
         };
     }
