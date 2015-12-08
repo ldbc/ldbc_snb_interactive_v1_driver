@@ -13,7 +13,7 @@ public class LdbcSnbBiQuery23HolidayDestinationsResult
         this.count = count;
     }
 
-    public String place()
+    public String countryName()
     {
         return place;
     }
@@ -23,7 +23,7 @@ public class LdbcSnbBiQuery23HolidayDestinationsResult
         return month;
     }
 
-    public int count()
+    public int messageCount()
     {
         return count;
     }

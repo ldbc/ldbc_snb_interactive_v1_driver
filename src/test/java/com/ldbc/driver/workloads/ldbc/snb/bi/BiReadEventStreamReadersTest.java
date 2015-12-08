@@ -864,26 +864,26 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery22InternationalDialog operation;
 
         operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
-        assertThat( operation.countryA(), is( "Germany" ) );
-        assertThat( operation.countryB(), is( "Pakistan" ) );
+        assertThat( operation.countryX(), is( "Germany" ) );
+        assertThat( operation.countryY(), is( "Pakistan" ) );
 
         operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
-        assertThat( operation.countryA(), is( "Germany" ) );
-        assertThat( operation.countryB(), is( "Russia" ) );
+        assertThat( operation.countryX(), is( "Germany" ) );
+        assertThat( operation.countryY(), is( "Russia" ) );
 
         operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
-        assertThat( operation.countryA(), is( "Germany" ) );
-        assertThat( operation.countryB(), is( "Vietnam" ) );
+        assertThat( operation.countryX(), is( "Germany" ) );
+        assertThat( operation.countryY(), is( "Vietnam" ) );
 
         operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
-        assertThat( operation.countryA(), is( "Germany" ) );
-        assertThat( operation.countryB(), is( "Philippines" ) );
+        assertThat( operation.countryX(), is( "Germany" ) );
+        assertThat( operation.countryY(), is( "Philippines" ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
-        assertThat( operation.countryA(), is( "Germany" ) );
-        assertThat( operation.countryB(), is( "Pakistan" ) );
+        assertThat( operation.countryX(), is( "Germany" ) );
+        assertThat( operation.countryY(), is( "Pakistan" ) );
 
         assertTrue( reader.hasNext() );
     }

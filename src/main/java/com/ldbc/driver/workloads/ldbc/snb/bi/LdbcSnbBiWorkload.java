@@ -1046,8 +1046,8 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery22InternationalDialog ldbcQuery = (LdbcSnbBiQuery22InternationalDialog) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.countryA() );
-                operationAsList.add( ldbcQuery.countryB() );
+                operationAsList.add( ldbcQuery.countryX() );
+                operationAsList.add( ldbcQuery.countryY() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }

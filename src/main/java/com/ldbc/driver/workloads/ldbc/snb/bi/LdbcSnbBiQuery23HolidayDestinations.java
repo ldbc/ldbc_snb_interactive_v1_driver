@@ -95,9 +95,9 @@ public class LdbcSnbBiQuery23HolidayDestinations extends Operation<List<LdbcSnbB
         {
             LdbcSnbBiQuery23HolidayDestinationsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add( row.place() );
+            resultFields.add( row.countryName() );
             resultFields.add( row.month() );
-            resultFields.add( row.count() );
+            resultFields.add( row.messageCount() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );
