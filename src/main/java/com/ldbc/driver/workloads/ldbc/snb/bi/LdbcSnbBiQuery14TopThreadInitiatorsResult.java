@@ -5,16 +5,20 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
     private final long personId;
     private final String firstName;
     private final String lastName;
-    private final int count;
+    private final int messageCount;
     private final int threadCount;
 
-    public LdbcSnbBiQuery14TopThreadInitiatorsResult( long personId, String firstName, String lastName, int count,
+    public LdbcSnbBiQuery14TopThreadInitiatorsResult(
+            long personId,
+            String firstName,
+            String lastName,
+            int messageCount,
             int threadCount )
     {
         this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.count = count;
+        this.messageCount = messageCount;
         this.threadCount = threadCount;
     }
 
@@ -33,9 +37,9 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
         return lastName;
     }
 
-    public int count()
+    public int messageCount()
     {
-        return count;
+        return messageCount;
     }
 
     public int threadCount()
@@ -46,11 +50,11 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery14Result{" +
+        return "LdbcSnbBiQuery14TopThreadInitiatorsResult{" +
                "personId=" + personId +
                ", firstName='" + firstName + '\'' +
                ", lastName='" + lastName + '\'' +
-               ", count=" + count +
+               ", messageCount=" + messageCount +
                ", threadCount=" + threadCount +
                '}';
     }
@@ -67,7 +71,7 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
 
         if ( personId != that.personId )
         { return false; }
-        if ( count != that.count )
+        if ( messageCount != that.messageCount )
         { return false; }
         if ( threadCount != that.threadCount )
         { return false; }
@@ -83,7 +87,7 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
         int result = (int) (personId ^ (personId >>> 32));
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-        result = 31 * result + count;
+        result = 31 * result + messageCount;
         result = 31 * result + threadCount;
         return result;
     }
