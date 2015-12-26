@@ -851,12 +851,12 @@ public class BiOperationResultEqualityTest
         long personId1 = 1;
         int zombieCount1 = 2;
         int realCount1 = 3;
-        int score1 = 4;
+        double score1 = 4.1;
 
         long personId2 = 5;
         int zombieCount2 = 6;
         int realCount2 = 7;
-        int score2 = 8;
+        double score2 = 8.0;
 
         LdbcSnbBiQuery21ZombiesResult result1a = new LdbcSnbBiQuery21ZombiesResult(
                 personId1,

@@ -96,7 +96,7 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
             long personId = ((Number) row.get( 0 )).longValue();
             int zombieCount = ((Number) row.get( 1 )).intValue();
             int realCount = ((Number) row.get( 2 )).intValue();
-            int score = ((Number) row.get( 3 )).intValue();
+            double score = ((Number) row.get( 3 )).doubleValue();
             result.add(
                     new LdbcSnbBiQuery21ZombiesResult(
                             personId,

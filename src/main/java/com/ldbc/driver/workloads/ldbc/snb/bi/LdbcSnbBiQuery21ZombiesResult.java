@@ -5,9 +5,9 @@ public class LdbcSnbBiQuery21ZombiesResult
     private final long personId;
     private final int zombieCount;
     private final int realCount;
-    private final int score;
+    private final double score;
 
-    public LdbcSnbBiQuery21ZombiesResult( long personId, int zombieCount, int realCount, int score )
+    public LdbcSnbBiQuery21ZombiesResult( long personId, int zombieCount, int realCount, double score )
     {
         this.personId = personId;
         this.zombieCount = zombieCount;
@@ -30,7 +30,7 @@ public class LdbcSnbBiQuery21ZombiesResult
         return realCount;
     }
 
-    public int score()
+    public double score()
     {
         return score;
     }
@@ -38,7 +38,7 @@ public class LdbcSnbBiQuery21ZombiesResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery21Result{" +
+        return "LdbcSnbBiQuery21ZombiesResult{" +
                "personId=" + personId +
                ", zombieCount=" + zombieCount +
                ", realCount=" + realCount +
@@ -62,17 +62,20 @@ public class LdbcSnbBiQuery21ZombiesResult
         { return false; }
         if ( realCount != that.realCount )
         { return false; }
-        return score == that.score;
+        return Double.compare( that.score, score ) == 0;
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result;
+        long temp;
+        result = (int) (personId ^ (personId >>> 32));
         result = 31 * result + zombieCount;
         result = 31 * result + realCount;
-        result = 31 * result + score;
+        temp = Double.doubleToLongBits( score );
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
 }

@@ -143,7 +143,7 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery21ZombiesResult read21Result()
     {
-        return new LdbcSnbBiQuery21ZombiesResult( 1, 2, 3, 4 );
+        return new LdbcSnbBiQuery21ZombiesResult( 1, 2, 3, 4.5 );
     }
 
     public static LdbcSnbBiQuery22InternationalDialogResult read22Result()
