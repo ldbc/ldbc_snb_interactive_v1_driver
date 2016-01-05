@@ -28,6 +28,29 @@ public class MapUtilsTest
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
+    public void shouldBeEqualAfterMapToPropertiesThenPropertiesToMap()
+    {
+        // Given
+        Map<Integer,Integer> map123 = new HashMap<>();
+        map123.put( 1, 1 );
+        map123.put( 2, 2 );
+        map123.put( 3, 3 );
+
+        // When
+        Properties properties123 = MapUtils.mapToProperties( map123 );
+        Map<Integer,Integer> afterMap123 = MapUtils.propertiesToMap( properties123 );
+
+        // Then
+        assertThat( map123.size(), equalTo( afterMap123.size() ) );
+        assertThat( afterMap123.containsKey( 1 ), is( true ) );
+        assertThat( afterMap123.containsKey( 2 ), is( true ) );
+        assertThat( afterMap123.containsKey( 3 ), is( true ) );
+        assertThat( afterMap123.get( 1 ), equalTo( map123.get( 1 ) ) );
+        assertThat( afterMap123.get( 2 ), equalTo( map123.get( 2 ) ) );
+        assertThat( afterMap123.get( 3 ), equalTo( map123.get( 3 ) ) );
+    }
+
+    @Test
     public void shouldNotCopyExcludedKeys()
     {
         // Given
@@ -201,14 +224,15 @@ public class MapUtilsTest
         map123.put( 2, 2 );
         map123.put( 3, 3 );
 
-        Function2<Integer,Integer,Integer> sumFun = new Function2<Integer,Integer,Integer>()
-        {
-            @Override
-            public Integer apply( Integer from1, Integer from2 )
-            {
-                return from1 + from2;
-            }
-        };
+        Function2<Integer,Integer,Integer,RuntimeException> sumFun =
+                new Function2<Integer,Integer,Integer,RuntimeException>()
+                {
+                    @Override
+                    public Integer apply( Integer from1, Integer from2 )
+                    {
+                        return from1 + from2;
+                    }
+                };
 
         // When
         Map<Integer,Integer> newMap123 = new HashMap<>();

@@ -306,7 +306,7 @@ public class GeneratorFactory
      * @param <OUT>
      * @return
      */
-    public <IN, OUT> Iterator<OUT> map( Iterator<IN> original, Function1<IN,OUT> fun )
+    public <IN, OUT> Iterator<OUT> map( Iterator<IN> original, Function1<IN,OUT,RuntimeException> fun )
     {
         return new MappingGenerator<>( original, fun );
     }
@@ -325,7 +325,7 @@ public class GeneratorFactory
      * @return
      */
     public <IN_1, IN_2, OUT> Iterator<OUT> merge( Iterator<IN_1> in1, Iterator<IN_2> in2,
-            Function2<IN_1,IN_2,OUT> mergeFun )
+            Function2<IN_1,IN_2,OUT,RuntimeException> mergeFun )
     {
         return new MergingGenerator<>( in1, in2, mergeFun );
     }
@@ -346,7 +346,7 @@ public class GeneratorFactory
             final long initialDependencyTimeAsMilli,
             final boolean canOverwriteDependencyTime )
     {
-        Function1<Operation,Boolean> isDependency = new Function1<Operation,Boolean>()
+        Function1<Operation,Boolean,RuntimeException> isDependency = new Function1<Operation,Boolean,RuntimeException>()
         {
             @Override
             public Boolean apply( Operation operation )
@@ -374,36 +374,37 @@ public class GeneratorFactory
      */
     public Iterator<Operation> assignDependencyTimesEqualToLastEncounteredLowerDependencyTimeStamp(
             Iterator<Operation> operations,
-            final Function1<Operation,Boolean> isDependency,
+            final Function1<Operation,Boolean,RuntimeException> isDependency,
             final long initialDependencyTimeAsMilli,
             final boolean canOverwriteDependencyTime )
     {
-        Function1<Operation,Operation> dependencyTimeAssigningFun = new Function1<Operation,Operation>()
-        {
-            private long secondMostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
-            private long mostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
+        Function1<Operation,Operation,RuntimeException> dependencyTimeAssigningFun =
+                new Function1<Operation,Operation,RuntimeException>()
+                {
+                    private long secondMostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
+                    private long mostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
 
-            @Override
-            public Operation apply( Operation operation )
-            {
-                if ( -1 == operation.dependencyTimeStamp() || canOverwriteDependencyTime )
-                {
-                    if ( operation.timeStamp() > mostRecentDependencyAsMilli )
-                    { operation.setDependencyTimeStamp( mostRecentDependencyAsMilli ); }
-                    else
-                    { operation.setDependencyTimeStamp( secondMostRecentDependencyAsMilli ); }
-                }
-                if ( isDependency.apply( operation ) )
-                {
-                    if ( operation.timeStamp() > mostRecentDependencyAsMilli )
+                    @Override
+                    public Operation apply( Operation operation )
                     {
-                        secondMostRecentDependencyAsMilli = mostRecentDependencyAsMilli;
-                        mostRecentDependencyAsMilli = operation.timeStamp();
+                        if ( -1 == operation.dependencyTimeStamp() || canOverwriteDependencyTime )
+                        {
+                            if ( operation.timeStamp() > mostRecentDependencyAsMilli )
+                            { operation.setDependencyTimeStamp( mostRecentDependencyAsMilli ); }
+                            else
+                            { operation.setDependencyTimeStamp( secondMostRecentDependencyAsMilli ); }
+                        }
+                        if ( isDependency.apply( operation ) )
+                        {
+                            if ( operation.timeStamp() > mostRecentDependencyAsMilli )
+                            {
+                                secondMostRecentDependencyAsMilli = mostRecentDependencyAsMilli;
+                                mostRecentDependencyAsMilli = operation.timeStamp();
+                            }
+                        }
+                        return operation;
                     }
-                }
-                return operation;
-            }
-        };
+                };
         return new MappingGenerator<>( operations, dependencyTimeAssigningFun );
     }
 
@@ -422,26 +423,27 @@ public class GeneratorFactory
      */
     public Iterator<Operation> assignDependencyTimesEqualToLastEncounteredDependencyTimeStamp(
             Iterator<Operation> operations,
-            final Function1<Operation,Boolean> isDependency,
+            final Function1<Operation,Boolean,RuntimeException> isDependency,
             final long initialDependencyTimeAsMilli,
             final boolean canOverwriteDependencyTime )
     {
-        Function1<Operation,Operation> dependencyTimeAssigningFun = new Function1<Operation,Operation>()
-        {
-            private long mostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
-
-            @Override
-            public Operation apply( Operation operation )
-            {
-                if ( -1 == operation.dependencyTimeStamp() || canOverwriteDependencyTime )
-                { operation.setDependencyTimeStamp( mostRecentDependencyAsMilli ); }
-                if ( isDependency.apply( operation ) )
+        Function1<Operation,Operation,RuntimeException> dependencyTimeAssigningFun =
+                new Function1<Operation,Operation,RuntimeException>()
                 {
-                    mostRecentDependencyAsMilli = operation.timeStamp();
-                }
-                return operation;
-            }
-        };
+                    private long mostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
+
+                    @Override
+                    public Operation apply( Operation operation )
+                    {
+                        if ( -1 == operation.dependencyTimeStamp() || canOverwriteDependencyTime )
+                        { operation.setDependencyTimeStamp( mostRecentDependencyAsMilli ); }
+                        if ( isDependency.apply( operation ) )
+                        {
+                            mostRecentDependencyAsMilli = operation.timeStamp();
+                        }
+                        return operation;
+                    }
+                };
         return new MappingGenerator<>( operations, dependencyTimeAssigningFun );
     }
 
@@ -455,16 +457,17 @@ public class GeneratorFactory
      */
     public Iterator<Operation> assignStartTimes( Iterator<Long> startTimesAsMilli, Iterator<Operation> operations )
     {
-        Function2<Long,Operation,Operation> startTimeAssigningFun = new Function2<Long,Operation,Operation>()
-        {
-            @Override
-            public Operation apply( Long timeAsMilli, Operation operation )
-            {
-                operation.setScheduledStartTimeAsMilli( timeAsMilli );
-                operation.setTimeStamp( timeAsMilli );
-                return operation;
-            }
-        };
+        Function2<Long,Operation,Operation,RuntimeException> startTimeAssigningFun =
+                new Function2<Long,Operation,Operation,RuntimeException>()
+                {
+                    @Override
+                    public Operation apply( Long timeAsMilli, Operation operation )
+                    {
+                        operation.setScheduledStartTimeAsMilli( timeAsMilli );
+                        operation.setTimeStamp( timeAsMilli );
+                        return operation;
+                    }
+                };
         return new MergingGenerator<>( startTimesAsMilli, operations, startTimeAssigningFun );
     }
 
@@ -480,15 +483,16 @@ public class GeneratorFactory
     public Iterator<Operation> assignDependencyTimes( Iterator<Long> dependencyTimesAsMilli,
             Iterator<Operation> operations )
     {
-        Function2<Long,Operation,Operation> dependencyTimeAssigningFun = new Function2<Long,Operation,Operation>()
-        {
-            @Override
-            public Operation apply( Long timeAsMilli, Operation operation )
-            {
-                operation.setDependencyTimeStamp( timeAsMilli );
-                return operation;
-            }
-        };
+        Function2<Long,Operation,Operation,RuntimeException> dependencyTimeAssigningFun =
+                new Function2<Long,Operation,Operation,RuntimeException>()
+                {
+                    @Override
+                    public Operation apply( Long timeAsMilli, Operation operation )
+                    {
+                        operation.setDependencyTimeStamp( timeAsMilli );
+                        return operation;
+                    }
+                };
         return new MergingGenerator<>( dependencyTimesAsMilli, operations, dependencyTimeAssigningFun );
     }
 
@@ -656,14 +660,15 @@ public class GeneratorFactory
     public <T> Iterator<T> interleave( Iterator<? extends T> baseGenerator,
             Iterator<? extends T> interleaveWithGenerator, final int amountToInterleave )
     {
-        Function0<Integer> amountToInterleaveFun = new Function0<Integer>()
-        {
-            @Override
-            public Integer apply()
-            {
-                return amountToInterleave;
-            }
-        };
+        Function0<Integer,RuntimeException> amountToInterleaveFun =
+                new Function0<Integer,RuntimeException>()
+                {
+                    @Override
+                    public Integer apply()
+                    {
+                        return amountToInterleave;
+                    }
+                };
         return new InterleaveGenerator<>( baseGenerator, interleaveWithGenerator, amountToInterleaveFun );
     }
 
@@ -678,7 +683,7 @@ public class GeneratorFactory
      * @return
      */
     public <T> Iterator<T> interleave( Iterator<? extends T> base, Iterator<? extends T> interleaveWith,
-            Function0<Integer> amountToInterleaveFun )
+            Function0<Integer,RuntimeException> amountToInterleaveFun )
     {
         return new InterleaveGenerator<>( base, interleaveWith, amountToInterleaveFun );
     }
@@ -723,14 +728,15 @@ public class GeneratorFactory
      */
     public <T> Iterator<String> prefix( Iterator<T> generator, final String prefix )
     {
-        Function1<T,String> prefixingFun = new Function1<T,String>()
-        {
-            @Override
-            public String apply( T item )
-            {
-                return prefix + item.toString();
-            }
-        };
+        Function1<T,String,RuntimeException> prefixingFun =
+                new Function1<T,String,RuntimeException>()
+                {
+                    @Override
+                    public String apply( T item )
+                    {
+                        return prefix + item.toString();
+                    }
+                };
         return new MappingGenerator<>( generator, prefixingFun );
     }
 
@@ -899,8 +905,8 @@ public class GeneratorFactory
         Iterator<List<Tuple2<K,Iterator<V>>>> discreteListGenerator = weightedDiscreteList( probabilityItems,
                 amountToRetrieveGenerator );
 
-        Function1<List<Tuple2<K,Iterator<V>>>,Map<K,V>> pairsToMap =
-                new Function1<List<Tuple2<K,Iterator<V>>>,Map<K,V>>()
+        Function1<List<Tuple2<K,Iterator<V>>>,Map<K,V>,RuntimeException> pairsToMap =
+                new Function1<List<Tuple2<K,Iterator<V>>>,Map<K,V>,RuntimeException>()
                 {
                     @Override
                     public Map<K,V> apply( List<Tuple2<K,Iterator<V>>> pairs )

@@ -1,5 +1,6 @@
 package com.ldbc.driver.util;
 
-public interface Function1<INPUT, RETURN> {
-    RETURN apply(INPUT input);
+public interface Function1<INPUT, RETURN, EXCEPTION extends Exception>
+{
+    RETURN apply( INPUT input ) throws EXCEPTION;
 }

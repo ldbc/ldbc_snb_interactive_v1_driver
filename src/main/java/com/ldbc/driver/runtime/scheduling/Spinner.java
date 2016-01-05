@@ -21,7 +21,7 @@ public class Spinner
     public static final long DEFAULT_SLEEP_DURATION_10_MILLI = 10;
     public static final SpinnerCheck TRUE_CHECK = new TrueCheck();
 
-    private final Function2<Operation,SpinnerCheck,Boolean> spinFun;
+    private final Function2<Operation,SpinnerCheck,Boolean,RuntimeException> spinFun;
 
     public Spinner(
             TimeSource timeSource,
@@ -77,7 +77,8 @@ public class Spinner
         }
     }
 
-    private static class WaitForChecksAndScheduledStartTimeFun implements Function2<Operation,SpinnerCheck,Boolean>
+    private static class WaitForChecksAndScheduledStartTimeFun implements
+            Function2<Operation,SpinnerCheck,Boolean,RuntimeException>
     {
         private final TimeSource timeSource;
         private final long sleepDurationAsMilli;
@@ -110,7 +111,7 @@ public class Spinner
         }
     }
 
-    private static class WaitForChecksFun implements Function2<Operation,SpinnerCheck,Boolean>
+    private static class WaitForChecksFun implements Function2<Operation,SpinnerCheck,Boolean,RuntimeException>
     {
         private final long sleepDurationAsMilli;
 

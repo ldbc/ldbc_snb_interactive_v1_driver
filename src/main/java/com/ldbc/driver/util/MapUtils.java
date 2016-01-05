@@ -120,6 +120,17 @@ public class MapUtils
     }
 
     /**
+     * Converts Map to Properties
+     *
+     * @param map
+     * @return
+     */
+    public static <K, V> Properties mapToProperties( Map<K,V> map )
+    {
+        return mergeMapToProperties( map, new Properties(), true );
+    }
+
+    /**
      * Returns new Properties
      *
      * @param map
@@ -154,9 +165,12 @@ public class MapUtils
      * @param <V>
      * @return
      */
-    public static <K, V> Map<K,V> mergeMaps( Map<K,V> originalMap, Map<K,V> newMap, final boolean overwrite )
+    public static <K, V> Map<K,V> mergeMaps(
+            Map<K,V> originalMap,
+            Map<K,V> newMap,
+            final boolean overwrite )
     {
-        Function2<V,V,V> overwriteFun = new Function2<V,V,V>()
+        Function2<V,V,V,RuntimeException> overwriteFun = new Function2<V,V,V,RuntimeException>()
         {
             @Override
             public V apply( V originalVal, V newVal )
@@ -175,7 +189,10 @@ public class MapUtils
      * @param mergeFun
      * @return
      */
-    public static <K, V> Map<K,V> mergeMaps( Map<K,V> originalMap, Map<K,V> newMap, Function2<V,V,V> mergeFun )
+    public static <K, V> Map<K,V> mergeMaps(
+            Map<K,V> originalMap,
+            Map<K,V> newMap,
+            Function2<V,V,V,RuntimeException> mergeFun )
     {
         Map<K,V> resultMap = new HashMap<>();
         for ( K originalMapKey : originalMap.keySet() )

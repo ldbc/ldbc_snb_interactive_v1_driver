@@ -16,11 +16,11 @@ public class CsvEventStreamReaderTimedTypedCsvReader<BASE_EVENT_TYPE, DECODER_KE
 {
     private final Map<DECODER_KEY_TYPE,EventDecoder<BASE_EVENT_TYPE>> decoders;
     private final Iterator<String[]> csvRowIterator;
-    private final Function1<String[],DECODER_KEY_TYPE> decoderKeyExtractor;
+    private final Function1<String[],DECODER_KEY_TYPE,RuntimeException> decoderKeyExtractor;
 
     public CsvEventStreamReaderTimedTypedCsvReader( Iterator<String[]> csvRowIterator,
             Map<DECODER_KEY_TYPE,EventDecoder<BASE_EVENT_TYPE>> decoders,
-            Function1<String[],DECODER_KEY_TYPE> decoderKeyExtractor )
+            Function1<String[],DECODER_KEY_TYPE,RuntimeException> decoderKeyExtractor )
     {
         this.csvRowIterator = csvRowIterator;
         this.decoders = decoders;
