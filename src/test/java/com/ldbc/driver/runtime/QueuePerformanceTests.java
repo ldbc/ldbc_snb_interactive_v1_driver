@@ -95,6 +95,7 @@ public class QueuePerformanceTests
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 0;
+        long skipCount = 0;
 
         DriverConfiguration config = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -114,7 +115,8 @@ public class QueuePerformanceTests
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                warmupCount
+                warmupCount,
+                skipCount
         );
 
         GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );

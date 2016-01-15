@@ -123,6 +123,7 @@ public class InteractiveWorkloadPerformanceTest
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
             long warmupCount = 0;
+            long skipCount = 0;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -142,7 +143,8 @@ public class InteractiveWorkloadPerformanceTest
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    warmupCount
+                    warmupCount,
+                    skipCount
             );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
@@ -287,6 +289,7 @@ public class InteractiveWorkloadPerformanceTest
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 0;
+            long skipCount = 0;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -306,7 +309,8 @@ public class InteractiveWorkloadPerformanceTest
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    warmupCount
+                    warmupCount,
+                    skipCount
             );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration

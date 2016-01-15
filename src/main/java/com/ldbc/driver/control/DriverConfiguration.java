@@ -42,6 +42,8 @@ public interface DriverConfiguration
 
     long warmupCount();
 
+    long skipCount();
+
     String toPropertiesString() throws DriverConfigurationException;
 
     Map<String,String> asMap();

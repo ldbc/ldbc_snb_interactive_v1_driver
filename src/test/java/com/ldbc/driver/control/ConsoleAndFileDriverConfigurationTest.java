@@ -109,6 +109,7 @@ public class ConsoleAndFileDriverConfigurationTest
         String name = "LDBC-SNB";
         boolean ignoreScheduledStartTimes = true;
         long warmupCount = 5;
+        long skipCount = 6;
         Map<String,String> paramsMap = new HashMap<>();
 
         ConsoleAndFileDriverConfiguration configurationBefore = new ConsoleAndFileDriverConfiguration(
@@ -129,7 +130,8 @@ public class ConsoleAndFileDriverConfigurationTest
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                warmupCount
+                warmupCount,
+                skipCount
         );
 
         DriverConfiguration configurationAfter =
@@ -582,6 +584,7 @@ public class ConsoleAndFileDriverConfigurationTest
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 10;
+        long skipCount = 100;
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -601,7 +604,8 @@ public class ConsoleAndFileDriverConfigurationTest
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                warmupCount
+                warmupCount,
+                skipCount
         );
 
         assertThat( params.asMap(), equalTo( paramsMap ) );

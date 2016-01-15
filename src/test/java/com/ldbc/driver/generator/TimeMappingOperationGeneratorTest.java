@@ -364,6 +364,7 @@ public class TimeMappingOperationGeneratorTest
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 0;
+        long skipCount = 0;
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -383,7 +384,8 @@ public class TimeMappingOperationGeneratorTest
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                warmupCount
+                warmupCount,
+                skipCount
         );
 
         Map<String,String> updateStreamParams = MapUtils.loadPropertiesToMap(

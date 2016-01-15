@@ -81,6 +81,36 @@ public abstract class WorkloadTest
         return configurationsWithTempResultDirs;
     }
 
+    private List<DriverConfiguration> withWarmup( List<DriverConfiguration> configurations )
+            throws IOException, DriverConfigurationException
+    {
+        List<DriverConfiguration> configurationsWithSkip = new ArrayList<>();
+        for ( DriverConfiguration configuration : configurations )
+        {
+            configurationsWithSkip.add(
+                    (0 == configuration.warmupCount())
+                    ? configuration.applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 10 ) )
+                    : configuration
+            );
+        }
+        return configurationsWithSkip;
+    }
+
+    private List<DriverConfiguration> withSkip( List<DriverConfiguration> configurations )
+            throws IOException, DriverConfigurationException
+    {
+        List<DriverConfiguration> configurationsWithSkip = new ArrayList<>();
+        for ( DriverConfiguration configuration : configurations )
+        {
+            configurationsWithSkip.add(
+                    (0 == configuration.skipCount())
+                    ? configuration.applyArg( ConsoleAndFileDriverConfiguration.SKIP_COUNT_ARG, Long.toString( 10 ) )
+                    : configuration
+            );
+        }
+        return configurationsWithSkip;
+    }
+
     public abstract List<Tuple2<DriverConfiguration,Histogram<Class,Double>>> configurationsWithExpectedQueryMix()
             throws Exception;
 
@@ -135,8 +165,8 @@ public abstract class WorkloadTest
             {
                 assertThat(
                         format( "original != marshal(serialize(original))\n" +
-                                "Original: %s\n" +
-                                "Serialized: %s\n" +
+                                "Original: %s\n"                             +
+                                "Serialized: %s\n"                           +
                                 "Marshaled: %s",
                                 operationsAndResults.get( i )._1(),
                                 workload.serializeOperation(
@@ -171,8 +201,8 @@ public abstract class WorkloadTest
         {
             assertThat(
                     format( "original != marshal(serialize(original))\n" +
-                            "Original: %s\n" +
-                            "Serialized: %s\n" +
+                            "Original: %s\n"                             +
+                            "Serialized: %s\n"                           +
                             "Marshaled: %s",
                             operationsAndResults.get( i )._2(),
                             operationsAndResults.get( i )._1().serializeResult(
@@ -224,7 +254,7 @@ public abstract class WorkloadTest
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws Exception
     {
-        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
+        for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )
         {
             WorkloadFactory workloadFactory = new ClassNameWorkloadFactory( configuration.workloadClassName() );
             GeneratorFactory gf1 = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
@@ -355,7 +385,7 @@ public abstract class WorkloadTest
     @Test
     public void shouldLoadFromConfigFile() throws Exception
     {
-        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
+        for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )
         {
             File configurationFile = temporaryFolder.newFile();
             Files.write( configurationFile.toPath(), configuration.toPropertiesString().getBytes() );
@@ -430,7 +460,7 @@ public abstract class WorkloadTest
     {
         GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
 
-        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
+        for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )
         {
             try ( Workload workload =
                           new ClassNameWorkloadFactory( configuration.workloadClassName() ).createWorkload() )
@@ -460,7 +490,7 @@ public abstract class WorkloadTest
     @Test
     public void shouldRunWorkload() throws Exception
     {
-        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
+        for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )
         {
             ResultsDirectory resultsDirectory = new ResultsDirectory( configuration );
 
@@ -523,7 +553,7 @@ public abstract class WorkloadTest
     @Test
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass() throws Exception
     {
-        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
+        for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )
         {
             // **************************************************
             // where validation parameters should be written (ensure file does not yet exist)
@@ -608,7 +638,7 @@ public abstract class WorkloadTest
     @Test
     public void shouldPassWorkloadValidation() throws Exception
     {
-        for ( DriverConfiguration configuration : withTempResultDirs( configurations() ) )
+        for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )
         {
             WorkloadValidator workloadValidator = new WorkloadValidator();
             WorkloadValidationResult workloadValidationResult = workloadValidator.validate(

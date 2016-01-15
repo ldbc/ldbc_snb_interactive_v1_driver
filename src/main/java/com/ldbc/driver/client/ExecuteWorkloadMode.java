@@ -40,12 +40,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
 public class ExecuteWorkloadMode implements ClientMode<Object>
 {
+    private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat( "###,###,###,###,###" );
     private final ControlService controlService;
     private final TimeSource timeSource;
     private final LoggingService loggingService;
@@ -93,11 +95,18 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     @Override
     public Object startExecutionAndAwaitCompletion() throws ClientException
     {
+        if ( controlService.configuration().skipCount() > 0 )
+        {
+            loggingService.info(
+                    format( "\n --- First %s operations will be skipped ---",
+                            NUMBER_FORMAT.format( controlService.configuration().skipCount() ) ) );
+        }
         if ( controlService.configuration().warmupCount() > 0 )
         {
-            loggingService.info( " \n--------------------\n"
-                                 + " --- Warmup Phase ---\n"
-                                 + " --------------------\n" );
+            loggingService.info( "\n" +
+                                 " --------------------\n" +
+                                 " --- Warmup Phase ---\n" +
+                                 " --------------------" );
             doInit( true );
             doExecute( true );
             try
@@ -115,14 +124,16 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         }
         else
         {
-            loggingService.info( " \n---------------------------------\n"
-                                 + " --- No Warmup Phase Requested ---\n"
-                                 + " ---------------------------------\n" );
+            loggingService.info( "\n" +
+                                 " ---------------------------------\n" +
+                                 " --- No Warmup Phase Requested ---\n" +
+                                 " ---------------------------------" );
         }
 
-        loggingService.info( " \n-----------------\n"
-                             + " --- Run Phase ---\n"
-                             + " -----------------" );
+        loggingService.info( "\n" +
+                             " -----------------\n" +
+                             " --- Run Phase ---\n" +
+                             " -----------------" );
         doInit( false );
         doExecute( false );
 
@@ -180,8 +191,8 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         loggingService.info( format( "Scanning workload streams to calculate their limits..." ) );
 
         long offset = (warmup)
-                      ? 0
-                      : controlService.configuration().warmupCount();
+                      ? controlService.configuration().skipCount()
+                      : controlService.configuration().skipCount() + controlService.configuration().warmupCount();
         long limit = (warmup)
                      ? controlService.configuration().warmupCount()
                      : controlService.configuration().operationCount();
