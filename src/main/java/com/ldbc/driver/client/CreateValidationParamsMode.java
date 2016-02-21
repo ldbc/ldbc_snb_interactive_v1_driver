@@ -66,7 +66,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
                     workload.operationTypeToClassMapping()
             );
         }
-        catch ( DbException e )
+        catch ( Exception e )
         {
             throw new ClientException(
                     format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
@@ -94,11 +94,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
             timeMappedOperations =
                     WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators( gf, workloadStreams );
         }
-        catch ( WorkloadException e )
-        {
-            throw new ClientException( "Error while retrieving operation stream for workload", e );
-        }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             throw new ClientException( "Error while retrieving operation stream for workload", e );
         }
@@ -157,7 +153,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
                     }
                 }
             }
-            catch ( IOException e )
+            catch ( Exception e )
             {
                 throw new ClientException( "Error trying to write validation parameters to CSV file writer", e );
             }
@@ -168,7 +164,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
             loggingService.info( format( "Successfully generated %s database validation parameters",
                     validationParametersGenerated ) );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             throw new ClientException( "Error encountered duration validation parameter creation", e );
         }
