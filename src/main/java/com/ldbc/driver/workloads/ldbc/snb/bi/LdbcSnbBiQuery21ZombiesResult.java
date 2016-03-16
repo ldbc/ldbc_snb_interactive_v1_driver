@@ -1,5 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.ldbc.driver.validation.ValidationEquality;
+
 public class LdbcSnbBiQuery21ZombiesResult
 {
     private final long personId;
@@ -62,7 +64,7 @@ public class LdbcSnbBiQuery21ZombiesResult
         { return false; }
         if ( realCount != that.realCount )
         { return false; }
-        return Double.compare( that.score, score ) == 0;
+        return ValidationEquality.doubleEquals( that.score, score );
 
     }
 
