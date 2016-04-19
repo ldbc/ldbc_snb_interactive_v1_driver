@@ -6,10 +6,10 @@ import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.DriverConfigurationFileHelper;
+import com.ldbc.driver.util.FileUtils;
 import com.ldbc.driver.util.MapUtils;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -147,7 +147,7 @@ public class LdbcSnbInteractiveWorkloadConfiguration
             READ_OPERATION_14_FREQUENCY_KEY
     );
 
-    private static final Map<Integer,String> typeToInterleaveKeyMapping()
+    private static Map<Integer,String> typeToInterleaveKeyMapping()
     {
         Map<Integer,String> mapping = new HashMap<>();
         mapping.put( LdbcQuery1.TYPE, READ_OPERATION_1_INTERLEAVE_KEY );
@@ -482,12 +482,12 @@ public class LdbcSnbInteractiveWorkloadConfiguration
 
     static String removeSuffix( String original, String suffix )
     {
-        return (original.indexOf( suffix ) == -1) ? original : original.substring( 0, original.lastIndexOf( suffix ) );
+        return (!original.contains( suffix )) ? original : original.substring( 0, original.lastIndexOf( suffix ) );
     }
 
     static String removePrefix( String original, String prefix )
     {
-        return (original.indexOf( prefix ) == -1) ? original : original
+        return (!original.contains( prefix )) ? original : original
                 .substring( original.lastIndexOf( prefix ) + prefix.length(), original.length() );
     }
 
@@ -517,29 +517,13 @@ public class LdbcSnbInteractiveWorkloadConfiguration
         }
     }
 
-    static List<File> forumUpdateFilesInDirectory( File directory )
+    public static List<File> forumUpdateFilesInDirectory( File directory )
     {
-        return filesWithSuffixInDirectory( directory, "_forum.csv" );
+        return FileUtils.filesWithSuffixInDirectory( directory, "_forum.csv" );
     }
 
-    static List<File> personUpdateFilesInDirectory( File directory )
+    public static List<File> personUpdateFilesInDirectory( File directory )
     {
-        return filesWithSuffixInDirectory( directory, "_person.csv" );
-    }
-
-    private static List<File> filesWithSuffixInDirectory( File directory, final String fileNameSuffix )
-    {
-        return Lists.newArrayList(
-                directory.listFiles(
-                        new FilenameFilter()
-                        {
-                            @Override
-                            public boolean accept( File dir, String name )
-                            {
-                                return name.endsWith( fileNameSuffix );
-                            }
-                        }
-                )
-        );
+        return FileUtils.filesWithSuffixInDirectory( directory, "_person.csv" );
     }
 }

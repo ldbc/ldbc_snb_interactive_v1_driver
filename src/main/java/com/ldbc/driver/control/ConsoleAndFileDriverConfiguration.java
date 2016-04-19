@@ -225,15 +225,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             Map<String,String> paramsMap = parseArgs( args, OPTIONS );
             return fromParamsMap( paramsMap );
         }
-        catch ( ParseException e )
+        catch ( Exception e )
         {
-            throw new DriverConfigurationException( format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
-                    e );
-        }
-        catch ( DriverConfigurationException e )
-        {
-            throw new DriverConfigurationException( format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
-                    e );
+            throw new DriverConfigurationException( format( "%s\n%s", e.getMessage(), commandlineHelpString() ), e );
         }
     }
 
@@ -1059,7 +1053,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 (newParamsMapWithShortKeys.containsKey( CALCULATE_WORKLOAD_STATISTICS_ARG )) ?
                 Boolean.parseBoolean( newParamsMapWithShortKeys.get( CALCULATE_WORKLOAD_STATISTICS_ARG ) ) :
                 calculateWorkloadStatistics;
-        long newSpinnerSleepDurationAsMilli = (newParamsMapWithShortKeys.containsKey( SPINNER_SLEEP_DURATION_ARG ))   ?
+        long newSpinnerSleepDurationAsMilli = (newParamsMapWithShortKeys.containsKey( SPINNER_SLEEP_DURATION_ARG )) ?
                                               Long.parseLong(
                                                       (newParamsMapWithShortKeys.get( SPINNER_SLEEP_DURATION_ARG )) ) :
                                               spinnerSleepDurationAsMilli;

@@ -180,7 +180,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             catch ( IOException e )
             {
                 throw new ClientException(
-                        format( "Error while creating results log file: ", resultsLog.getAbsolutePath() ), e
+                        format( "Error while creating results log file: %s", resultsLog.getAbsolutePath() ), e
                 );
             }
         }
@@ -188,7 +188,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         //  ==================
         //  ===  Workload  ===
         //  ==================
-        loggingService.info( format( "Scanning workload streams to calculate their limits..." ) );
+        loggingService.info( "Scanning workload streams to calculate their limits..." );
 
         long offset = (warmup)
                       ? controlService.configuration().skipCount()
@@ -365,7 +365,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                                 errorReporter
                         );
                 long globalCompletionTimeWaitTimeoutDurationAsMilli = TimeUnit.SECONDS.toMillis( 5 );
-                if ( false == globalCompletionTimeAdvancedToDesiredTime )
+                if ( !globalCompletionTimeAdvancedToDesiredTime )
                 {
                     throw new ClientException(
                             format(
@@ -454,7 +454,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                         controlService.configuration().toPropertiesString().getBytes( StandardCharsets.UTF_8 )
                 );
                 csvResultsLogFileWriter.close();
-                if ( false == controlService.configuration().ignoreScheduledStartTimes() )
+                if ( !controlService.configuration().ignoreScheduledStartTimes() )
                 {
                     loggingService.info( "Validating workload results..." );
                     // TODO make this feature accessible directly

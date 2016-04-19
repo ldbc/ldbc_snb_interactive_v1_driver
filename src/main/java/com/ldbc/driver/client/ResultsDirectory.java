@@ -39,11 +39,11 @@ public class ResultsDirectory
         else
         {
             this.resultsDir = new File( configuration.resultDirPath() );
-            if ( this.resultsDir.exists() && false == resultsDir.isDirectory() )
+            if ( this.resultsDir.exists() && !resultsDir.isDirectory() )
             {
                 throw new ClientException( "Results directory is not directory: " + this.resultsDir.getAbsolutePath() );
             }
-            else if ( false == this.resultsDir.exists() )
+            else if ( !this.resultsDir.exists() )
             {
                 try
                 {
@@ -69,16 +69,16 @@ public class ResultsDirectory
     public File getOrCreateResultsLogFile( boolean warmup ) throws ClientException
     {
         File resultsLog = getResultsLogFile( warmup );
-        if ( false == resultsLog.exists() )
+        if ( !resultsLog.exists() )
         {
             try
             {
-                resultsLog.createNewFile();
+                com.ldbc.driver.util.FileUtils.createOrFail( resultsLog );
             }
             catch ( IOException e )
             {
                 throw new ClientException(
-                        format( "Error creating results log file: ", resultsLog.getAbsolutePath() ), e
+                        format( "Error creating results log file: %s", resultsLog.getAbsolutePath() ), e
                 );
             }
         }
@@ -117,16 +117,16 @@ public class ResultsDirectory
     public File getOrCreateResultsSummaryFile( boolean warmup ) throws ClientException
     {
         File resultsSummary = getResultsSummaryFile( warmup );
-        if ( false == resultsSummary.exists() )
+        if ( !resultsSummary.exists() )
         {
             try
             {
-                resultsSummary.createNewFile();
+                com.ldbc.driver.util.FileUtils.createOrFail( resultsSummary );
             }
             catch ( IOException e )
             {
                 throw new ClientException(
-                        format( "Error creating results summary file: ", resultsSummary.getAbsolutePath() ), e
+                        format( "Error creating results summary file: %s", resultsSummary.getAbsolutePath() ), e
                 );
             }
         }
@@ -148,16 +148,16 @@ public class ResultsDirectory
     public File getOrCreateConfigurationFile( boolean warmup ) throws ClientException
     {
         File configurationFile = getConfigurationFile( warmup );
-        if ( false == configurationFile.exists() )
+        if ( !configurationFile.exists() )
         {
             try
             {
-                configurationFile.createNewFile();
+                com.ldbc.driver.util.FileUtils.createOrFail( configurationFile );
             }
             catch ( IOException e )
             {
                 throw new ClientException(
-                        format( "Error creating configuration file: ", configurationFile.getAbsolutePath() ), e
+                        format( "Error creating configuration file: %s", configurationFile.getAbsolutePath() ), e
                 );
             }
         }
@@ -179,17 +179,16 @@ public class ResultsDirectory
     public File getOrCreateResultsValidationFile( boolean warmup ) throws ClientException
     {
         File resultsValidationFile = getResultsValidationFile( warmup );
-        if ( false == resultsValidationFile.exists() )
+        if ( !resultsValidationFile.exists() )
         {
             try
             {
-                resultsValidationFile.createNewFile();
+                com.ldbc.driver.util.FileUtils.createOrFail( resultsValidationFile );
             }
             catch ( IOException e )
             {
                 throw new ClientException(
-                        format( "Error creating results validation file: ",
-                                resultsValidationFile.getAbsolutePath() ),
+                        format( "Error creating results validation file: %s", resultsValidationFile.getAbsolutePath() ),
                         e
                 );
             }
@@ -232,7 +231,7 @@ public class ResultsDirectory
             Set<File> expectedFiles = new HashSet<>();
             if ( configuration.warmupCount() > 0 )
             {
-                if ( false == configuration.ignoreScheduledStartTimes() )
+                if ( !configuration.ignoreScheduledStartTimes() )
                 {
                     expectedFiles.add( getResultsValidationFile( true ) );
                 }
@@ -240,7 +239,7 @@ public class ResultsDirectory
                 expectedFiles.add( getResultsSummaryFile( true ) );
                 expectedFiles.add( getConfigurationFile( true ) );
             }
-            if ( false == configuration.ignoreScheduledStartTimes() )
+            if ( !configuration.ignoreScheduledStartTimes() )
             {
                 expectedFiles.add( getResultsValidationFile( false ) );
             }

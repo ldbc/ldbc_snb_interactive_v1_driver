@@ -43,7 +43,8 @@ public class LdbcSnbBiWorkloadConfiguration
     public final static String OPERATION_3_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery3TagEvolution.class.getSimpleName() + FREQUENCY_SUFFIX;
     public final static String OPERATION_4_FREQUENCY_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery4PopularCountryTopics.class.getSimpleName() + FREQUENCY_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery4PopularCountryTopics.class.getSimpleName() +
+            FREQUENCY_SUFFIX;
     public final static String OPERATION_5_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery5TopCountryPosters.class.getSimpleName() + FREQUENCY_SUFFIX;
     public final static String OPERATION_6_FREQUENCY_KEY =
@@ -63,25 +64,31 @@ public class LdbcSnbBiWorkloadConfiguration
     public final static String OPERATION_13_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery13PopularMonthlyTags.class.getSimpleName() + FREQUENCY_SUFFIX;
     public final static String OPERATION_14_FREQUENCY_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery14TopThreadInitiators.class.getSimpleName() + FREQUENCY_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery14TopThreadInitiators.class.getSimpleName() +
+            FREQUENCY_SUFFIX;
     public final static String OPERATION_15_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery15SocialNormals.class.getSimpleName() + FREQUENCY_SUFFIX;
     public final static String OPERATION_16_FREQUENCY_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery16ExpertsInSocialCircle.class.getSimpleName() + FREQUENCY_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery16ExpertsInSocialCircle.class.getSimpleName() +
+            FREQUENCY_SUFFIX;
     public final static String OPERATION_17_FREQUENCY_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery17FriendshipTriangles.class.getSimpleName() + FREQUENCY_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery17FriendshipTriangles.class.getSimpleName() +
+            FREQUENCY_SUFFIX;
     public final static String OPERATION_18_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery18PersonPostCounts.class.getSimpleName() + FREQUENCY_SUFFIX;
     public final static String OPERATION_19_FREQUENCY_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery19StrangerInteraction.class.getSimpleName() + FREQUENCY_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery19StrangerInteraction.class.getSimpleName() +
+            FREQUENCY_SUFFIX;
     public final static String OPERATION_20_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery20HighLevelTopics.class.getSimpleName() + FREQUENCY_SUFFIX;
     public final static String OPERATION_21_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery21Zombies.class.getSimpleName() + FREQUENCY_SUFFIX;
     public final static String OPERATION_22_FREQUENCY_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery22InternationalDialog.class.getSimpleName() + FREQUENCY_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery22InternationalDialog.class.getSimpleName() +
+            FREQUENCY_SUFFIX;
     public final static String OPERATION_23_FREQUENCY_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery23HolidayDestinations.class.getSimpleName() + FREQUENCY_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery23HolidayDestinations.class.getSimpleName() +
+            FREQUENCY_SUFFIX;
     public final static String OPERATION_24_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery24MessagesByTopic.class.getSimpleName() + FREQUENCY_SUFFIX;
     public final static List<String> OPERATION_FREQUENCY_KEYS = Lists.newArrayList(
@@ -111,7 +118,7 @@ public class LdbcSnbBiWorkloadConfiguration
             OPERATION_24_FREQUENCY_KEY
     );
 
-    private static final Map<Integer,String> typeToFrequencyKeyMapping()
+    private static Map<Integer,String> typeToFrequencyKeyMapping()
     {
         Map<Integer,String> mapping = new HashMap<>();
         mapping.put( LdbcSnbBiQuery1PostingSummary.TYPE, OPERATION_1_FREQUENCY_KEY );
@@ -154,7 +161,8 @@ public class LdbcSnbBiWorkloadConfiguration
     public final static String OPERATION_3_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery3TagEvolution.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public final static String OPERATION_4_INTERLEAVE_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery4PopularCountryTopics.class.getSimpleName() + INTERLEAVE_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery4PopularCountryTopics.class.getSimpleName() +
+            INTERLEAVE_SUFFIX;
     public final static String OPERATION_5_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery5TopCountryPosters.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public final static String OPERATION_6_INTERLEAVE_KEY =
@@ -172,27 +180,34 @@ public class LdbcSnbBiWorkloadConfiguration
     public final static String OPERATION_12_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery12TrendingPosts.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public final static String OPERATION_13_INTERLEAVE_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery13PopularMonthlyTags.class.getSimpleName() + INTERLEAVE_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery13PopularMonthlyTags.class.getSimpleName() +
+            INTERLEAVE_SUFFIX;
     public final static String OPERATION_14_INTERLEAVE_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery14TopThreadInitiators.class.getSimpleName() + INTERLEAVE_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery14TopThreadInitiators.class.getSimpleName() +
+            INTERLEAVE_SUFFIX;
     public final static String OPERATION_15_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery15SocialNormals.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public final static String OPERATION_16_INTERLEAVE_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery16ExpertsInSocialCircle.class.getSimpleName() + INTERLEAVE_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery16ExpertsInSocialCircle.class.getSimpleName() +
+            INTERLEAVE_SUFFIX;
     public final static String OPERATION_17_INTERLEAVE_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery17FriendshipTriangles.class.getSimpleName() + INTERLEAVE_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery17FriendshipTriangles.class.getSimpleName() +
+            INTERLEAVE_SUFFIX;
     public final static String OPERATION_18_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery18PersonPostCounts.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public final static String OPERATION_19_INTERLEAVE_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery19StrangerInteraction.class.getSimpleName() + INTERLEAVE_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery19StrangerInteraction.class.getSimpleName() +
+            INTERLEAVE_SUFFIX;
     public final static String OPERATION_20_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery20HighLevelTopics.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public final static String OPERATION_21_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery21Zombies.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public final static String OPERATION_22_INTERLEAVE_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery22InternationalDialog.class.getSimpleName() + INTERLEAVE_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery22InternationalDialog.class.getSimpleName() +
+            INTERLEAVE_SUFFIX;
     public final static String OPERATION_23_INTERLEAVE_KEY =
-            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery23HolidayDestinations.class.getSimpleName() + INTERLEAVE_SUFFIX;
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery23HolidayDestinations.class.getSimpleName() +
+            INTERLEAVE_SUFFIX;
     public final static String OPERATION_24_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery24MessagesByTopic.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public final static List<String> OPERATION_INTERLEAVE_KEYS = Lists.newArrayList(
@@ -222,7 +237,7 @@ public class LdbcSnbBiWorkloadConfiguration
             OPERATION_24_INTERLEAVE_KEY
     );
 
-    private static final Map<Integer,String> typeToInterleaveKeyMapping()
+    private static Map<Integer,String> typeToInterleaveKeyMapping()
     {
         Map<Integer,String> mapping = new HashMap<>();
         mapping.put( LdbcSnbBiQuery1PostingSummary.TYPE, OPERATION_1_INTERLEAVE_KEY );
@@ -655,26 +670,38 @@ public class LdbcSnbBiWorkloadConfiguration
         operationTypeToClassMapping.put( LdbcSnbBiQuery1PostingSummary.TYPE, LdbcSnbBiQuery1PostingSummary.class );
         operationTypeToClassMapping.put( LdbcSnbBiQuery2TopTags.TYPE, LdbcSnbBiQuery2TopTags.class );
         operationTypeToClassMapping.put( LdbcSnbBiQuery3TagEvolution.TYPE, LdbcSnbBiQuery3TagEvolution.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery4PopularCountryTopics.TYPE, LdbcSnbBiQuery4PopularCountryTopics.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery5TopCountryPosters.TYPE, LdbcSnbBiQuery5TopCountryPosters.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery4PopularCountryTopics.TYPE, LdbcSnbBiQuery4PopularCountryTopics.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery5TopCountryPosters.TYPE, LdbcSnbBiQuery5TopCountryPosters.class );
         operationTypeToClassMapping.put( LdbcSnbBiQuery6ActivePosters.TYPE, LdbcSnbBiQuery6ActivePosters.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery7AuthoritativeUsers.TYPE, LdbcSnbBiQuery7AuthoritativeUsers.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery7AuthoritativeUsers.TYPE, LdbcSnbBiQuery7AuthoritativeUsers.class );
         operationTypeToClassMapping.put( LdbcSnbBiQuery8RelatedTopics.TYPE, LdbcSnbBiQuery8RelatedTopics.class );
         operationTypeToClassMapping.put( LdbcSnbBiQuery9RelatedForums.TYPE, LdbcSnbBiQuery9RelatedForums.class );
         operationTypeToClassMapping.put( LdbcSnbBiQuery10TagPerson.TYPE, LdbcSnbBiQuery10TagPerson.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery11UnrelatedReplies.TYPE, LdbcSnbBiQuery11UnrelatedReplies.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery11UnrelatedReplies.TYPE, LdbcSnbBiQuery11UnrelatedReplies.class );
         operationTypeToClassMapping.put( LdbcSnbBiQuery12TrendingPosts.TYPE, LdbcSnbBiQuery12TrendingPosts.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery13PopularMonthlyTags.TYPE, LdbcSnbBiQuery13PopularMonthlyTags.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery14TopThreadInitiators.TYPE, LdbcSnbBiQuery14TopThreadInitiators.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery13PopularMonthlyTags.TYPE, LdbcSnbBiQuery13PopularMonthlyTags.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery14TopThreadInitiators.TYPE, LdbcSnbBiQuery14TopThreadInitiators.class );
         operationTypeToClassMapping.put( LdbcSnbBiQuery15SocialNormals.TYPE, LdbcSnbBiQuery15SocialNormals.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery16ExpertsInSocialCircle.TYPE, LdbcSnbBiQuery16ExpertsInSocialCircle.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery17FriendshipTriangles.TYPE, LdbcSnbBiQuery17FriendshipTriangles.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery18PersonPostCounts.TYPE, LdbcSnbBiQuery18PersonPostCounts.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery19StrangerInteraction.TYPE, LdbcSnbBiQuery19StrangerInteraction.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery16ExpertsInSocialCircle.TYPE, LdbcSnbBiQuery16ExpertsInSocialCircle.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery17FriendshipTriangles.TYPE, LdbcSnbBiQuery17FriendshipTriangles.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery18PersonPostCounts.TYPE, LdbcSnbBiQuery18PersonPostCounts.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery19StrangerInteraction.TYPE, LdbcSnbBiQuery19StrangerInteraction.class );
         operationTypeToClassMapping.put( LdbcSnbBiQuery20HighLevelTopics.TYPE, LdbcSnbBiQuery20HighLevelTopics.class );
         operationTypeToClassMapping.put( LdbcSnbBiQuery21Zombies.TYPE, LdbcSnbBiQuery21Zombies.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery22InternationalDialog.TYPE, LdbcSnbBiQuery22InternationalDialog.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery23HolidayDestinations.TYPE, LdbcSnbBiQuery23HolidayDestinations.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery22InternationalDialog.TYPE, LdbcSnbBiQuery22InternationalDialog.class );
+        operationTypeToClassMapping
+                .put( LdbcSnbBiQuery23HolidayDestinations.TYPE, LdbcSnbBiQuery23HolidayDestinations.class );
         operationTypeToClassMapping.put( LdbcSnbBiQuery24MessagesByTopic.TYPE, LdbcSnbBiQuery24MessagesByTopic.class );
         return operationTypeToClassMapping;
     }
