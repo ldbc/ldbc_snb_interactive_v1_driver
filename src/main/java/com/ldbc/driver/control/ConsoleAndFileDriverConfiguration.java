@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -325,7 +326,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             TimeUnit timeUnit = TimeUnit.valueOf( timeUnitString );
             Set<TimeUnit> validTimeUnits = new HashSet<>();
             validTimeUnits.addAll( Arrays.asList( VALID_TIME_UNITS ) );
-            if ( false == validTimeUnits.contains( timeUnit ) )
+            if ( !validTimeUnits.contains( timeUnit ) )
             {
                 throw new IllegalArgumentException();
             }
@@ -454,10 +455,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         if ( cmd.hasOption( PEER_IDS_ARG ) )
         {
             Set<String> peerIds = new HashSet<>();
-            for ( String peerId : cmd.getOptionValues( PEER_IDS_ARG ) )
-            {
-                peerIds.add( peerId );
-            }
+            Collections.addAll( peerIds, cmd.getOptionValues( PEER_IDS_ARG ) );
             cmdParams.put( PEER_IDS_ARG, serializePeerIdsToCommandline( peerIds ) );
         }
 
@@ -472,8 +470,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     tempFileProperties.load( new FileInputStream( propertyFilePath ) );
                     Map<String,String> tempFileParams = MapUtils.propertiesToMap( tempFileProperties );
                     boolean overwrite = true;
-                    fileParams =
-                            MapUtils.mergeMaps( convertLongKeysToShortKeys( tempFileParams ), fileParams, overwrite );
+                    fileParams = MapUtils.mergeMaps(
+                            convertLongKeysToShortKeys( tempFileParams ),
+                            fileParams,
+                            overwrite );
                 }
                 catch ( IOException e )
                 {
@@ -492,7 +492,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         }
 
         boolean overwrite = true;
-        return MapUtils.mergeMaps( convertLongKeysToShortKeys( fileParams ), convertLongKeysToShortKeys( cmdParams ),
+        return MapUtils.mergeMaps(
+                convertLongKeysToShortKeys( fileParams ),
+                convertLongKeysToShortKeys( cmdParams ),
                 overwrite );
     }
 
@@ -651,11 +653,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         String[] peerIdsArray = peerIdsString.split( COMMANDLINE_SEPARATOR_REGEX_STRING );
         for ( String peerId : peerIdsArray )
         {
-            if ( peerId.isEmpty() )
+            if ( !peerId.isEmpty() )
             {
-                continue;
+                peerIds.add( peerId );
             }
-            peerIds.add( peerId );
         }
         return peerIds;
     }
@@ -1123,7 +1124,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         argsList.addAll( Lists.newArrayList( "-" + TIME_UNIT_ARG, timeUnit.name() ) );
         argsList.addAll(
                 Lists.newArrayList( "-" + TIME_COMPRESSION_RATIO_ARG, Double.toString( timeCompressionRatio ) ) );
-        if ( false == peerIds.isEmpty() )
+        if ( !peerIds.isEmpty() )
         {
             argsList.addAll( Lists.newArrayList( "-" + PEER_IDS_ARG, serializePeerIdsToCommandline( peerIds ) ) );
         }
@@ -1351,7 +1352,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         // Write additional, workload/database-related keys as well
         Map<String,String> additionalConfigurationParameters =
                 MapUtils.copyExcludingKeys( paramsMap, coreConfigurationParameterKeys() );
-        if ( false == additionalConfigurationParameters.isEmpty() )
+        if ( !additionalConfigurationParameters.isEmpty() )
         {
             sb.append( "\n" );
             sb.append( "# ************************************************************************************\n" );
@@ -1422,7 +1423,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
         Map<String,String> filteredParamsMap =
                 MapUtils.copyExcludingKeys( convertLongKeysToShortKeys( paramsMap ), excludedKeys );
-        if ( false == filteredParamsMap.isEmpty() )
+        if ( !filteredParamsMap.isEmpty() )
         {
             sb.append( "\t" ).append( "User-defined parameters:" ).append( "\n" );
             sb.append( MapUtils.prettyPrint( filteredParamsMap, "\t\t" ) );
@@ -1557,7 +1558,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 throws DriverConfigurationException
         {
             String[] commandlineStringArray = commandlineString.split( COMMANDLINE_SEPARATOR_REGEX_STRING );
-            if ( false == (commandlineStringArray.length == 2) )
+            if ( commandlineStringArray.length != 2 )
             {
                 throw new DriverConfigurationException(
                         format( "Unexpected string value (%s). Should contain exactly 2 values.",

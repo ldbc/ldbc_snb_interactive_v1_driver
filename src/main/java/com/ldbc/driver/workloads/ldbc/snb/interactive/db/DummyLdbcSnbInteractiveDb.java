@@ -64,6 +64,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 import static java.lang.String.format;
 
@@ -79,7 +80,8 @@ public class DummyLdbcSnbInteractiveDb extends Db
 
     public enum SleepType
     {
-        THREAD_SLEEP,
+        SLEEP,
+        PARK,
         SPIN
     }
 
@@ -104,9 +106,9 @@ public class DummyLdbcSnbInteractiveDb extends Db
         String sleepDurationAsNanoAsString = params.get( SLEEP_DURATION_NANO_ARG );
         try
         {
-            crashOnClass =
-                    (params.containsKey( CRASH_ON_ARG )) ? ClassLoaderHelper.loadClass( params.get( CRASH_ON_ARG ) )
-                                                         : null;
+            crashOnClass = (params.containsKey( CRASH_ON_ARG ))
+                           ? ClassLoaderHelper.loadClass( params.get( CRASH_ON_ARG ) )
+                           : null;
         }
         catch ( Exception e )
         {
@@ -114,7 +116,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         }
         if ( null == sleepDurationAsNanoAsString )
         {
-            sleepDurationAsNano = 0l;
+            sleepDurationAsNano = 0L;
         }
         else
         {
@@ -124,7 +126,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
             }
             catch ( NumberFormatException e )
             {
-                throw new DbException( format( "Error encountered while trying to parse value [%s] for %s",
+                throw new DbException( format( "Error encountered while trying to parse value [%s] for argument [%s]",
                         sleepDurationAsNanoAsString, SLEEP_DURATION_NANO_ARG ), e );
             }
         }
@@ -174,7 +176,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         {
             switch ( sleepType )
             {
-            case THREAD_SLEEP:
+            case SLEEP:
                 sleepFun = new SleepFun()
                 {
                     @Override
@@ -188,6 +190,16 @@ public class DummyLdbcSnbInteractiveDb extends Db
                         {
                             // do nothing
                         }
+                    }
+                };
+                break;
+            case PARK:
+                sleepFun = new SleepFun()
+                {
+                    @Override
+                    public void sleep( Operation operation, long sleepNs )
+                    {
+                        LockSupport.parkNanos( sleepNs );
                     }
                 };
                 break;
