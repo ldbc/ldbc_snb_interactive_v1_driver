@@ -39,7 +39,7 @@ class ResultsLogValidationSummaryCalculator
         Long delaysAboveThresholdForType = delaysAboveThresholdPerType.get( operationType );
         if ( null == delaysAboveThresholdForType )
         {
-            delaysAboveThresholdForType = 0l;
+            delaysAboveThresholdForType = 0L;
             delaysAboveThresholdPerType.put( operationType, delaysAboveThresholdForType );
         }
         if ( delayAsMilli > excessiveDelayThresholdAsMilli )
