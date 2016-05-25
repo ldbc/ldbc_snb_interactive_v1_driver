@@ -159,7 +159,8 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
                         operation.scheduledStartTimeAsMilli(),
                         resultReporter.actualStartTimeAsMilli(),
                         resultReporter.runDurationAsNano(),
-                        resultReporter.resultCode()
+                        resultReporter.resultCode(),
+                        operation.timeStamp()
                 );
             }
         }

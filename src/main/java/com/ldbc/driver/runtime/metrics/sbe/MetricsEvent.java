@@ -5,7 +5,7 @@ import uk.co.real_logic.sbe.codec.java.*;
 
 public class MetricsEvent
 {
-    public static final int BLOCK_LENGTH = 33;
+    public static final int BLOCK_LENGTH = 41;
     public static final int TEMPLATE_ID = 1;
     public static final int SCHEMA_ID = 1;
     public static final int SCHEMA_VERSION = 0;
@@ -341,6 +341,17 @@ public class MetricsEvent
     public MetricsEvent resultCode(final int value)
     {
         CodecUtil.int32Put(buffer, offset + 29, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return this;
+    }
+    
+    public long originalStartTime()
+    {
+    	return CodecUtil.int64Get(buffer, offset + 33, java.nio.ByteOrder.LITTLE_ENDIAN);
+    }
+    
+    public MetricsEvent originalStartTime(final long value)
+    {
+        CodecUtil.int64Put(buffer, offset + 33, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 }

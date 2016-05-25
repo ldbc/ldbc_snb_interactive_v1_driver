@@ -109,7 +109,8 @@ public class ThreadedQueuedMetricsServiceThread extends Thread
                         Long.toString( submitOperationResultEvent.actualStartTimeAsMilli() ),
                         Long.toString(
                                 unit.convert( submitOperationResultEvent.runDurationAsNano(), TimeUnit.NANOSECONDS ) ),
-                        Integer.toString( submitOperationResultEvent.resultCode() )
+                        Integer.toString( submitOperationResultEvent.resultCode() ),
+                        Long.toString( submitOperationResultEvent.originalStartTime() )
                 );
             }
 
@@ -132,12 +133,14 @@ public class ThreadedQueuedMetricsServiceThread extends Thread
                                 + "Actual Start Time Ms: %s\n"
                                 + "Duration Ns: %s\n"
                                 + "Result Code: %s\n"
+                                + "Original start time: %s\n"
                                 ,
                                 submitOperationResultEvent.operationType(),
                                 submitOperationResultEvent.scheduledStartTimeAsMilli(),
                                 submitOperationResultEvent.actualStartTimeAsMilli(),
                                 submitOperationResultEvent.runDurationAsNano(),
                                 submitOperationResultEvent.resultCode(),
+                                submitOperationResultEvent.originalStartTime(),
                                 ConcurrentErrorReporter.stackTraceToString( e )
                         )
                 );

@@ -87,6 +87,7 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
             long actualStartTimeAsMilli = metricsEvent.actualStartTimeAsMilli();
             long runDurationAsNano = metricsEvent.runDurationAsNano();
             int resultCode = metricsEvent.resultCode();
+            long originalStartTime = metricsEvent.originalStartTime();
 
             if ( null != csvResultsLogWriter )
             {
@@ -102,7 +103,8 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
                         Long.toString( scheduledStartTimeAsMilli ),
                         Long.toString( actualStartTimeAsMilli ),
                         Long.toString( unit.convert( runDurationAsNano, TimeUnit.NANOSECONDS ) ),
-                        Integer.toString( resultCode )
+                        Integer.toString( resultCode ),
+                        Long.toString(originalStartTime)
                 );
             }
             metricsManager.measure( actualStartTimeAsMilli, runDurationAsNano, operationType );

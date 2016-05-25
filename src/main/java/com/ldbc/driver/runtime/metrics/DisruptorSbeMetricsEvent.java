@@ -41,7 +41,7 @@ public class DisruptorSbeMetricsEvent {
 
         @Override
         public DirectBuffer newInstance() {
-            final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(48);
+            final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(64);
             DirectBuffer directBuffer = new DirectBuffer(byteBuffer);
             messageHeader.wrap(directBuffer, 0, MESSAGE_TEMPLATE_VERSION)
                     .blockLength(metricsEvent.sbeBlockLength())
@@ -62,6 +62,7 @@ public class DisruptorSbeMetricsEvent {
                 ", actualStartTimeAsMilli=" + metricsEvent.actualStartTimeAsMilli() +
                 ", runDurationAsNano=" + metricsEvent.runDurationAsNano() +
                 ", resultCode=" + metricsEvent.resultCode() +
+                ", originalStartTime=" + metricsEvent.originalStartTime() +
                 '}';
     }
 }
