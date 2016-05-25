@@ -213,7 +213,7 @@ public class DisruptorJavolutionMetricsService implements MetricsService
 
         @Override
         public void submitOperationResult( int operationType, long scheduledStartTimeAsMilli,
-                long actualStartTimeAsMilli, long runDurationAsNano, int resultCode ) throws MetricsCollectionException
+                long actualStartTimeAsMilli, long runDurationAsNano, int resultCode, long originalStartTime ) throws MetricsCollectionException
         {
             if ( null != alreadyShutdownPolicy )
             {
@@ -221,7 +221,7 @@ public class DisruptorJavolutionMetricsService implements MetricsService
             }
             initiatedEvents.incrementAndGet();
             ringBuffer.publishEvent( SET_AS_SUBMIT_OPERATION_RESULT, operationType, scheduledStartTimeAsMilli,
-                    actualStartTimeAsMilli, runDurationAsNano, resultCode );
+                    actualStartTimeAsMilli, runDurationAsNano, resultCode, originalStartTime );
         }
 
         @Override

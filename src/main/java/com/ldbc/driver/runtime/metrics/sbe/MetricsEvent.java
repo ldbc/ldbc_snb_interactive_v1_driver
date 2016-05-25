@@ -5,7 +5,7 @@ import uk.co.real_logic.sbe.codec.java.*;
 
 public class MetricsEvent
 {
-    public static final int BLOCK_LENGTH = 33;
+    public static final int BLOCK_LENGTH = 41;
     public static final int TEMPLATE_ID = 1;
     public static final int SCHEMA_ID = 1;
     public static final int SCHEMA_VERSION = 0;
@@ -341,6 +341,49 @@ public class MetricsEvent
     public MetricsEvent resultCode(final int value)
     {
         CodecUtil.int32Put(buffer, offset + 29, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return this;
+    }
+
+    public static int originalStartTimeId()
+    {
+        return 7;
+    }
+
+    public static String originalStartTimeMetaAttribute(final MetaAttribute metaAttribute)
+    {
+        switch (metaAttribute)
+        {
+            case EPOCH: return "unix";
+            case TIME_UNIT: return "nanosecond";
+            case SEMANTIC_TYPE: return "";
+        }
+
+        return "";
+    }
+
+    public static long originalStartTimeNullValue()
+    {
+        return -9223372036854775808L;
+    }
+
+    public static long originalStartTimeMinValue()
+    {
+        return -9223372036854775807L;
+    }
+
+    public static long originalStartTimeMaxValue()
+    {
+        return 9223372036854775807L;
+    }
+
+    public long originalStartTime()
+    {
+        return CodecUtil.int64Get(buffer, offset + 33, java.nio.ByteOrder.LITTLE_ENDIAN);
+    }
+
+    public MetricsEvent originalStartTime(final long value)
+    {
+        CodecUtil.int64Put(buffer, offset + 33, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 }

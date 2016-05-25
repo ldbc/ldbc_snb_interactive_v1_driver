@@ -170,7 +170,7 @@ public class ThreadedQueuedMetricsService implements MetricsService
 
         @Override
         public void submitOperationResult( int operationType, long scheduledStartTimeAsMilli,
-                long actualStartTimeAsMilli, long runDurationAsNano, int resultCode ) throws MetricsCollectionException
+                long actualStartTimeAsMilli, long runDurationAsNano, int resultCode, long originalStartTime ) throws MetricsCollectionException
         {
             if ( null != alreadyShutdownPolicy )
             {
@@ -184,7 +184,8 @@ public class ThreadedQueuedMetricsService implements MetricsService
                         scheduledStartTimeAsMilli,
                         actualStartTimeAsMilli,
                         runDurationAsNano,
-                        resultCode
+                        resultCode,
+                        originalStartTime
                 );
                 queueEventSubmitter.submitEventToQueue( event );
             }
@@ -197,12 +198,14 @@ public class ThreadedQueuedMetricsService implements MetricsService
                         + "Actual Start Time Ms: %s\n"
                         + "Duration Ns: %s\n"
                         + "Result Code: %s\n"
+                        + "Original start time: %s\n"
                         ,
                         operationType,
                         scheduledStartTimeAsMilli,
                         actualStartTimeAsMilli,
                         runDurationAsNano,
-                        resultCode
+                        resultCode,
+                        originalStartTime
                 );
                 throw new MetricsCollectionException( errMsg, e );
             }

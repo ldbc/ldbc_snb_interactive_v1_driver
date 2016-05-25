@@ -223,7 +223,8 @@ public class DisruptorSbeMetricsService implements MetricsService
                 long scheduledStartTimeAsMilli,
                 long actualStartTimeAsMilli,
                 long runDurationAsNano,
-                int resultCode ) throws MetricsCollectionException
+                int resultCode,
+                long originalStartTime) throws MetricsCollectionException
         {
             if ( null != alreadyShutdownPolicy )
             {
@@ -231,7 +232,7 @@ public class DisruptorSbeMetricsService implements MetricsService
             }
             initiatedEvents.incrementAndGet();
             ringBuffer.publishEvent( submitOperationResultTranslator, operationType, scheduledStartTimeAsMilli,
-                    actualStartTimeAsMilli, runDurationAsNano, resultCode );
+                    actualStartTimeAsMilli, runDurationAsNano, resultCode, originalStartTime );
         }
 
         @Override
@@ -286,7 +287,8 @@ public class DisruptorSbeMetricsService implements MetricsService
                         .scheduledStartTimeAsMilli( (long) fields[1] )
                         .actualStartTimeAsMilli( (long) fields[2] )
                         .runDurationAsNano( (long) fields[3] )
-                        .resultCode( (int) fields[4] );
+                        .resultCode( (int) fields[4] )
+                        .originalStartTime((long) fields[5]);
             }
         }
 

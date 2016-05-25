@@ -13,7 +13,8 @@ public interface MetricsService
                 long scheduledStartTimeAsMilli,
                 long actualStartTimeAsMilli,
                 long runDurationAsNano,
-                int resultCode ) throws MetricsCollectionException;
+                int resultCode,
+                long originalStartTime) throws MetricsCollectionException;
 
         WorkloadStatusSnapshot status() throws MetricsCollectionException;
 

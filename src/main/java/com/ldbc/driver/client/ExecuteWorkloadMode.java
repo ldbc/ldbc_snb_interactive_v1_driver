@@ -174,7 +174,8 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                         "scheduled_start_time_" + TimeUnit.MILLISECONDS.name(),
                         "actual_start_time_" + TimeUnit.MILLISECONDS.name(),
                         "execution_duration_" + controlService.configuration().timeUnit().name(),
-                        "result_code"
+                        "result_code",
+                        "original_start_time"
                 );
             }
             catch ( IOException e )

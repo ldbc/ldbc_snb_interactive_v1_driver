@@ -21,18 +21,21 @@ abstract class ThreadedQueuedMetricsEvent {
         private final long actualStartTimeAsMilli;
         private final long runDurationAsNano;
         private final int resultCode;
+        private final long originalStartTime;
 
         public SubmitOperationResult(
                 int operationType,
                 long scheduledStartTimeAsMilli,
                 long actualStartTimeAsMilli,
                 long runDurationAsNano,
-                int resultCode) {
+                int resultCode,
+                long originalStartTime) {
             this.operationType = operationType;
             this.scheduledStartTimeAsMilli = scheduledStartTimeAsMilli;
             this.actualStartTimeAsMilli = actualStartTimeAsMilli;
             this.runDurationAsNano = runDurationAsNano;
             this.resultCode = resultCode;
+            this.originalStartTime = originalStartTime;
         }
 
         public int operationType() {
@@ -53,6 +56,10 @@ abstract class ThreadedQueuedMetricsEvent {
 
         public int resultCode() {
             return resultCode;
+        }
+        
+        public long originalStartTime() {
+        	return originalStartTime;
         }
 
         @Override

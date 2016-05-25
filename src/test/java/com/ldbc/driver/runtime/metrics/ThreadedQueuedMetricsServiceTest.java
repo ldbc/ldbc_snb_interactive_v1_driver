@@ -166,7 +166,7 @@ public class ThreadedQueuedMetricsServiceTest
         long operation1RunDuration = TimeUnit.MILLISECONDS.toNanos( 1 );
 
         metricsServiceWriter.submitOperationResult( operation1.type(), operation1.scheduledStartTimeAsMilli(),
-                operation1ActualStartTime, operation1RunDuration, operation1ResultCode );
+                operation1ActualStartTime, operation1RunDuration, operation1ResultCode, operation1.timeStamp() );
 
         assertThat( metricsServiceWriter.results().startTimeAsMilli(), equalTo( 2l ) );
         assertThat( metricsServiceWriter.results().latestFinishTimeAsMilli(), equalTo( 3l ) );
@@ -179,7 +179,7 @@ public class ThreadedQueuedMetricsServiceTest
         long operation2RunDuration = TimeUnit.MILLISECONDS.toNanos( 3 );
 
         metricsServiceWriter.submitOperationResult( operation2.type(), operation2.scheduledStartTimeAsMilli(),
-                operation2ActualStartTime, operation2RunDuration, operation2ResultCode );
+                operation2ActualStartTime, operation2RunDuration, operation2ResultCode, operation2.timeStamp() );
 
         assertThat( metricsServiceWriter.results().startTimeAsMilli(), equalTo( 2l ) );
         assertThat( metricsServiceWriter.results().latestFinishTimeAsMilli(), equalTo( 11l ) );
@@ -192,7 +192,7 @@ public class ThreadedQueuedMetricsServiceTest
         long operation3RunDuration = TimeUnit.MILLISECONDS.toNanos( 5 );
 
         metricsServiceWriter.submitOperationResult( operation3.type(), operation3.scheduledStartTimeAsMilli(),
-                operation3ActualStartTime, operation3RunDuration, operation3ResultCode );
+                operation3ActualStartTime, operation3RunDuration, operation3ResultCode, operation3.timeStamp() );
 
         WorkloadResultsSnapshot results = metricsServiceWriter.results();
         assertThat( results.startTimeAsMilli(), equalTo( 2l ) );

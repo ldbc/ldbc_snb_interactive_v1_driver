@@ -496,7 +496,8 @@ public class MetricsManagerPerformanceTest
                     startTime,
                     startTime,
                     duration,
-                    resultCode
+                    resultCode,
+                    startTime
             );
             // do nothing
         }
@@ -543,7 +544,8 @@ public class MetricsManagerPerformanceTest
                     startTime,
                     startTime,
                     duration,
-                    resultCode
+                    resultCode,
+                    startTime
             );
             metricsServiceThread.onEvent( event );
         }
@@ -586,7 +588,7 @@ public class MetricsManagerPerformanceTest
             int operationTypeIndex = startTime % operationTypeCount;
             long duration = durations[startTime % highestExpectedRuntimeDurationAsNano];
             int operationType = operationTypes[operationTypeIndex];
-            metricsServiceWriter.submitOperationResult( operationType, startTime, startTime, duration, resultCode );
+            metricsServiceWriter.submitOperationResult( operationType, startTime, startTime, duration, resultCode, startTime );
         }
         final WorkloadResultsSnapshot snapshot = metricsServiceWriter.results();
         final long benchmarkFinishTime = System.currentTimeMillis();
@@ -631,7 +633,7 @@ public class MetricsManagerPerformanceTest
             int operationTypeIndex = startTime % operationTypeCount;
             long duration = durations[startTime % highestExpectedRuntimeDurationAsNano];
             int operationType = operationTypes[operationTypeIndex];
-            metricsServiceWriter.submitOperationResult( operationType, startTime, startTime, duration, resultCode );
+            metricsServiceWriter.submitOperationResult( operationType, startTime, startTime, duration, resultCode, startTime );
         }
         final WorkloadResultsSnapshot snapshot = metricsServiceWriter.results();
         final long benchmarkFinishTime = System.currentTimeMillis();
@@ -676,7 +678,7 @@ public class MetricsManagerPerformanceTest
             int operationTypeIndex = startTime % operationTypeCount;
             long duration = durations[startTime % highestExpectedRuntimeDurationAsNano];
             int operationType = operationTypes[operationTypeIndex];
-            metricsServiceWriter.submitOperationResult( operationType, startTime, startTime, duration, resultCode );
+            metricsServiceWriter.submitOperationResult( operationType, startTime, startTime, duration, resultCode, startTime );
         }
         final WorkloadResultsSnapshot snapshot = metricsServiceWriter.results();
         final long benchmarkFinishTime = System.currentTimeMillis();
@@ -892,7 +894,7 @@ public class MetricsManagerPerformanceTest
                 try
                 {
                     metricsServiceWriter
-                            .submitOperationResult( operationType, startTime, startTime, duration, resultCode );
+                            .submitOperationResult( operationType, startTime, startTime, duration, resultCode, startTime );
                 }
                 catch ( MetricsCollectionException e )
                 {
