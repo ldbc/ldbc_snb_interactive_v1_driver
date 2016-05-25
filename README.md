@@ -4,8 +4,8 @@ This driver is being developed as part of the Linked Data Benchmark Council EU-f
 * [LDBC Project Website](http://ldbcouncil.org/)
 * [LDBC Company Website](http://ldbcouncil.org)
 * [LDBC LinkedIn Group](http://www.linkedin.com/groups/LDBC-4955240)
-* [LDBC Twitter Account](https://twitter.com/LDBCproject)
-* [LDBC Facebook Page](https://www.facebook.com/ldbcproject)
+* [LDBC Twitter Account](https://twitter.com/LDBCouncil)
+* [LDBC Facebook Page](https://www.facebook.com/ldbcouncil/)
 
 ### Try it
 
