@@ -343,12 +343,44 @@ public class MetricsEvent
         CodecUtil.int32Put(buffer, offset + 29, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
-    
+
+    public static int originalStartTimeId()
+    {
+        return 7;
+    }
+
+    public static String originalStartTimeMetaAttribute(final MetaAttribute metaAttribute)
+    {
+        switch (metaAttribute)
+        {
+            case EPOCH: return "unix";
+            case TIME_UNIT: return "nanosecond";
+            case SEMANTIC_TYPE: return "";
+        }
+
+        return "";
+    }
+
+    public static long originalStartTimeNullValue()
+    {
+        return -9223372036854775808L;
+    }
+
+    public static long originalStartTimeMinValue()
+    {
+        return -9223372036854775807L;
+    }
+
+    public static long originalStartTimeMaxValue()
+    {
+        return 9223372036854775807L;
+    }
+
     public long originalStartTime()
     {
-    	return CodecUtil.int64Get(buffer, offset + 33, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return CodecUtil.int64Get(buffer, offset + 33, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
-    
+
     public MetricsEvent originalStartTime(final long value)
     {
         CodecUtil.int64Put(buffer, offset + 33, value, java.nio.ByteOrder.LITTLE_ENDIAN);
