@@ -26,10 +26,9 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
     private final ConcurrentErrorReporter errorReporter;
     private final SimpleCsvFileWriter csvResultsLogWriter;
     private final TimeUnit unit;
-    private long processedEventCount = 0l;
+    private long processedEventCount = 0L;
     private final String[] operationNames;
     private final MetricsEvent metricsEvent;
-    private final String[] csvResultsLogRow;
 
     DisruptorSbeMetricsEventHandler( ConcurrentErrorReporter errorReporter,
             SimpleCsvFileWriter csvResultsLogWriter,
@@ -50,7 +49,6 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
                 loggingServiceFactory );
         operationNames = MetricsManager.toOperationNameArray( operationTypeToClassMapping );
         this.metricsEvent = new MetricsEvent();
-        this.csvResultsLogRow = new String[5];
     }
 
     AtomicStampedReference<WorkloadStatusSnapshot> statusSnapshot()
@@ -80,7 +78,7 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
 
         switch ( metricsEvent.eventType() )
         {
-        case DisruptorJavolutionMetricsEvent.SUBMIT_RESULT:
+        case DisruptorSbeMetricsEvent.SUBMIT_OPERATION_RESULT:
         {
             int operationType = metricsEvent.operationType();
             long scheduledStartTimeAsMilli = metricsEvent.scheduledStartTimeAsMilli();
@@ -91,27 +89,20 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
 
             if ( null != csvResultsLogWriter )
             {
-                // TODO benchmark
-//					csvResultsLogRow[0] = operationNames[operationType];
-//					csvResultsLogRow[1] = Long.toString(scheduledStartTimeAsMilli);
-//					csvResultsLogRow[2] = Long.toString(actualStartTimeAsMilli);
-//					csvResultsLogRow[3] = Long.toString(unit.convert(runDurationAsNano, TimeUnit.NANOSECONDS));
-//					csvResultsLogRow[4] = Integer.toString(resultCode);
-//					csvResultsLogWriter.writeRow(csvResultsLogRow);
                 csvResultsLogWriter.writeRow(
                         operationNames[operationType],
                         Long.toString( scheduledStartTimeAsMilli ),
                         Long.toString( actualStartTimeAsMilli ),
                         Long.toString( unit.convert( runDurationAsNano, TimeUnit.NANOSECONDS ) ),
                         Integer.toString( resultCode ),
-                        Long.toString(originalStartTime)
+                        Long.toString( originalStartTime )
                 );
             }
             metricsManager.measure( actualStartTimeAsMilli, runDurationAsNano, operationType );
             processedEventCount++;
             break;
         }
-        case DisruptorJavolutionMetricsEvent.WORKLOAD_STATUS:
+        case DisruptorSbeMetricsEvent.GET_WORKLOAD_STATUS:
         {
             WorkloadStatusSnapshot newStatus = metricsManager.status();
             WorkloadStatusSnapshot oldStatus;
@@ -121,10 +112,10 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
                 oldStatus = statusSnapshotReference.getReference();
                 oldStamp = statusSnapshotReference.getStamp();
             }
-            while ( false == statusSnapshotReference.compareAndSet( oldStatus, newStatus, oldStamp, oldStamp + 1 ) );
+            while ( !statusSnapshotReference.compareAndSet( oldStatus, newStatus, oldStamp, oldStamp + 1 ) );
             break;
         }
-        case DisruptorJavolutionMetricsEvent.WORKLOAD_RESULT:
+        case DisruptorSbeMetricsEvent.GET_WORKLOAD_RESULTS:
         {
             WorkloadResultsSnapshot newResults = metricsManager.snapshot();
             WorkloadResultsSnapshot oldResults;
@@ -134,7 +125,7 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
                 oldResults = resultsSnapshotReference.getReference();
                 oldStamp = resultsSnapshotReference.getStamp();
             }
-            while ( false == resultsSnapshotReference.compareAndSet( oldResults, newResults, oldStamp, oldStamp + 1 ) );
+            while ( !resultsSnapshotReference.compareAndSet( oldResults, newResults, oldStamp, oldStamp + 1 ) );
             break;
         }
         default:

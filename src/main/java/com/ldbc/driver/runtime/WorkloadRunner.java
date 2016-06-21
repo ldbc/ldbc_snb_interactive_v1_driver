@@ -185,7 +185,7 @@ public class WorkloadRunner
         @Override
         public boolean isDone()
         {
-            if ( false == isDone )
+            if ( !isDone )
             {
                 if ( workloadRunnerThread.state().equals( WorkloadRunnerThreadState.COMPLETED_FAILED ) ||
                      workloadRunnerThread.state().equals( WorkloadRunnerThreadState.COMPLETED_SUCCEEDED ) )
@@ -260,7 +260,7 @@ public class WorkloadRunner
         }
     }
 
-    private static enum WorkloadRunnerThreadState
+    private enum WorkloadRunnerThreadState
     {
         NOT_STARTED,
         RUNNING,
@@ -425,7 +425,7 @@ public class WorkloadRunner
                 boolean allExecutorsHaveCompleted = true;
                 for ( int i = 0; i < executorFinishedFlags.length; i++ )
                 {
-                    if ( false == executorFinishedFlags[i].get() )
+                    if ( !executorFinishedFlags[i].get() )
                     {
                         allExecutorsHaveCompleted = false;
                         break;

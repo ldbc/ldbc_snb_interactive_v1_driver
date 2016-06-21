@@ -6,6 +6,7 @@ import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
+import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Map;
@@ -44,7 +45,7 @@ public class ThreadedQueuedMetricsService implements MetricsService
             Map<Integer,Class<? extends Operation>> operationTypeToClassMapping,
             LoggingServiceFactory loggingServiceFactory ) throws MetricsCollectionException
     {
-        Queue<ThreadedQueuedMetricsEvent> queue = DefaultQueues.newNonBlockingBounded( 10000 );
+        Queue<ThreadedQueuedMetricsEvent> queue = DefaultQueues.newBlockingBounded( 10_000 );
         return new ThreadedQueuedMetricsService(
                 timeSource,
                 errorReporter,
@@ -170,7 +171,8 @@ public class ThreadedQueuedMetricsService implements MetricsService
 
         @Override
         public void submitOperationResult( int operationType, long scheduledStartTimeAsMilli,
-                long actualStartTimeAsMilli, long runDurationAsNano, int resultCode, long originalStartTime ) throws MetricsCollectionException
+                long actualStartTimeAsMilli, long runDurationAsNano, int resultCode, long originalStartTime )
+                throws MetricsCollectionException
         {
             if ( null != alreadyShutdownPolicy )
             {
@@ -295,9 +297,10 @@ public class ThreadedQueuedMetricsService implements MetricsService
         @Override
         public WorkloadResultsSnapshot get()
         {
-            while ( done.get() == false )
+            while ( !done.get() )
             {
                 // wait for value to be set
+                Spinner.powerNap( 1 );
             }
             return startTime.get();
         }
@@ -361,9 +364,10 @@ public class ThreadedQueuedMetricsService implements MetricsService
         @Override
         public WorkloadStatusSnapshot get()
         {
-            while ( done.get() == false )
+            while ( !done.get() )
             {
                 // wait for value to be set
+                Spinner.powerNap( 1 );
             }
             return status.get();
         }

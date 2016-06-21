@@ -16,8 +16,11 @@ public class DisruptorSbeMetricsEvent {
     static final short MESSAGE_TEMPLATE_VERSION = 0;
 
     // Event Type Codes
+    //   * Submit operation result for its metrics to be collected
     static final byte SUBMIT_OPERATION_RESULT = 1;
+    //   * Request metrics summary
     static final byte GET_WORKLOAD_STATUS = 2;
+    //   * Request complete workload results
     static final byte GET_WORKLOAD_RESULTS = 3;
 
     static {

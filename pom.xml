@@ -22,7 +22,6 @@
         <commons.io.version>2.4</commons.io.version>
         <common.math.version>3.2</common.math.version>
         <commmons.cli.version>1.2</commmons.cli.version>
-        <!-- TODO remove commons collections? -->
         <commmons.collections.version>4.0</commmons.collections.version>
         <log4j.version>1.2.17</log4j.version>
         <hdrhistogram.version>1.2.1</hdrhistogram.version>
@@ -30,14 +29,8 @@
         <stormpot.version>2.4</stormpot.version>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <!-- TODO add gs-collections? -->
-        <!--<gs-collections-version>5.1.0</gs-collections-version>-->
         <disruptor-version>3.3.2</disruptor-version>
         <!-- TODO add fastutil? -->
-        <!-- TODO remove javalution? -->
-        <javolution-version>6.0.0</javolution-version>
-        <!-- TODO remove jctools? -->
-        <jctools-core-version>1.0</jctools-core-version>
         <!-- TODO sbe-version 1.1.3-RC2-->
         <sbe-version>1.0.3-RC2</sbe-version>
     </properties>
@@ -54,30 +47,10 @@
             <version>${sbe-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jctools</groupId>
-            <artifactId>jctools-core</artifactId>
-            <version>${jctools-core-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.javolution</groupId>
-            <artifactId>javolution-core-java</artifactId>
-            <version>${javolution-version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>${disruptor-version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>it.unimi.dsi</groupId>-->
-        <!--<artifactId>fastutil</artifactId>-->
-        <!--<version>6.5.16</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>com.goldmansachs</groupId>-->
-        <!--<artifactId>gs-collections</artifactId>-->
-        <!--<version>${gs-collections-version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>

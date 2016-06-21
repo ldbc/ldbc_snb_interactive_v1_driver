@@ -44,7 +44,7 @@ public class DisruptorExceptionHandler implements ExceptionHandler
         errorReporter.reportError(
                 this,
                 format( "%s encountered error on shutdown\n%s",
-                        DisruptorJavolutionMetricsService.class.getSimpleName(),
+                        DisruptorSbeMetricsService.class.getSimpleName(),
                         ConcurrentErrorReporter.stackTraceToString( throwable )
                 )
         );
