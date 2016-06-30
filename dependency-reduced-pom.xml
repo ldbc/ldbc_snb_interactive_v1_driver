@@ -60,25 +60,23 @@
     </dependency>
   </dependencies>
   <properties>
-    <hamcrest.version>1.3</hamcrest.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <jctools-core-version>1.0</jctools-core-version>
-    <junit.version>4.12</junit.version>
-    <commons.io.version>2.4</commons.io.version>
-    <stormpot.version>2.4</stormpot.version>
-    <maven.assembly.version>2.4</maven.assembly.version>
-    <javolution-version>6.0.0</javolution-version>
+    <jackson.api.version>1.9.13</jackson.api.version>
     <hdrhistogram.version>1.2.1</hdrhistogram.version>
+    <junit.version>4.12</junit.version>
+    <maven.assembly.version>2.4</maven.assembly.version>
+    <hamcrest.version>1.3</hamcrest.version>
+    <sbe-version>1.0.3-RC2</sbe-version>
     <guava.version>18.0</guava.version>
     <maven.compiler.target>1.7</maven.compiler.target>
     <disruptor-version>3.3.2</disruptor-version>
-    <jackson.api.version>1.9.13</jackson.api.version>
-    <sbe-version>1.0.3-RC2</sbe-version>
-    <commmons.cli.version>1.2</commmons.cli.version>
-    <commmons.collections.version>4.0</commmons.collections.version>
-    <common.math.version>3.2</common.math.version>
     <log4j.version>1.2.17</log4j.version>
+    <commmons.collections.version>4.0</commmons.collections.version>
+    <commmons.cli.version>1.2</commmons.cli.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <commons.io.version>2.4</commons.io.version>
+    <stormpot.version>2.4</stormpot.version>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <common.math.version>3.2</common.math.version>
   </properties>
 </project>
 
