@@ -5,7 +5,6 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.List;
-import java.util.Set;
 
 public class CompletionTimeServiceAssistant
 {
@@ -44,17 +43,16 @@ public class CompletionTimeServiceAssistant
         return false;
     }
 
-    public SynchronizedCompletionTimeService newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
-            Set<String> peerIds ) throws CompletionTimeException
+    public SynchronizedCompletionTimeService newSynchronizedConcurrentCompletionTimeService()
+            throws CompletionTimeException
     {
-        return new SynchronizedCompletionTimeService( peerIds );
+        return new SynchronizedCompletionTimeService();
     }
 
-    public ThreadedQueuedCompletionTimeService newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(
+    public ThreadedQueuedCompletionTimeService newThreadedQueuedConcurrentCompletionTimeService(
             TimeSource timeSource,
-            Set<String> peerIds,
             ConcurrentErrorReporter errorReporter ) throws CompletionTimeException
     {
-        return new ThreadedQueuedCompletionTimeService( timeSource, peerIds, errorReporter );
+        return new ThreadedQueuedCompletionTimeService( timeSource, errorReporter );
     }
 }

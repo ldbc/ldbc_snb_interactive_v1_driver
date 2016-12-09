@@ -58,25 +58,33 @@ public class OperationStreamExecutorPerformanceTest
 
         experimentRepetitions = 100;
         operationCount = 100000;
-        spinnerSleepDuration = 0l;
-        synchronousExecutorPerformanceTestWithSpinnerDuration( spinnerSleepDuration, experimentRepetitions,
+        spinnerSleepDuration = 0L;
+        synchronousExecutorPerformanceTestWithSpinnerDuration(
+                spinnerSleepDuration,
+                experimentRepetitions,
                 operationCount );
 
         experimentRepetitions = 100;
         operationCount = 100000;
-        spinnerSleepDuration = 1l;
-        synchronousExecutorPerformanceTestWithSpinnerDuration( spinnerSleepDuration, experimentRepetitions,
+        spinnerSleepDuration = 1L;
+        synchronousExecutorPerformanceTestWithSpinnerDuration(
+                spinnerSleepDuration,
+                experimentRepetitions,
                 operationCount );
 
         experimentRepetitions = 100;
         operationCount = 100000;
-        spinnerSleepDuration = 10l;
-        synchronousExecutorPerformanceTestWithSpinnerDuration( spinnerSleepDuration, experimentRepetitions,
+        spinnerSleepDuration = 10L;
+        synchronousExecutorPerformanceTestWithSpinnerDuration(
+                spinnerSleepDuration,
+                experimentRepetitions,
                 operationCount );
     }
 
-    public void synchronousExecutorPerformanceTestWithSpinnerDuration( long spinnerSleepDuration,
-            int experimentRepetitions, long operationCount )
+    private void synchronousExecutorPerformanceTestWithSpinnerDuration(
+            long spinnerSleepDuration,
+            int experimentRepetitions,
+            long operationCount )
             throws CompletionTimeException, MetricsCollectionException, DbException, OperationExecutorException,
             IOException
     {
@@ -101,7 +109,7 @@ public class OperationStreamExecutorPerformanceTest
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
                 MetricsService metricsService = new DummyCountingMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli( 0l );
+                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli( 0L );
                 AtomicBoolean executorHasFinished = new AtomicBoolean( false );
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean( false );
                 timeSource.setNowFromMilli( 0 );
@@ -138,7 +146,7 @@ public class OperationStreamExecutorPerformanceTest
                 );
 
                 threadPoolExecutorTimes.add( doTest( thread, errorReporter, metricsService, operationCount ) );
-                executor.shutdown( 1000l );
+                executor.shutdown( 1000L );
                 db.close();
                 metricsService.shutdown();
             }
@@ -155,7 +163,7 @@ public class OperationStreamExecutorPerformanceTest
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
                 MetricsService metricsService = new DummyCountingMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli( 0l );
+                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli( 0L );
                 AtomicBoolean executorHasFinished = new AtomicBoolean( false );
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean( false );
                 timeSource.setNowFromMilli( 0 );
@@ -191,7 +199,7 @@ public class OperationStreamExecutorPerformanceTest
                 );
 
                 singleThreadExecutorTimes.add( doTest( thread, errorReporter, metricsService, operationCount ) );
-                executor.shutdown( 1000l );
+                executor.shutdown( 1000L );
                 db.close();
                 metricsService.shutdown();
             }
@@ -208,7 +216,7 @@ public class OperationStreamExecutorPerformanceTest
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
                 MetricsService metricsService = new DummyCountingMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli( 0l );
+                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli( 0L );
                 AtomicBoolean executorHasFinished = new AtomicBoolean( false );
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean( false );
                 timeSource.setNowFromMilli( 0 );
@@ -243,7 +251,7 @@ public class OperationStreamExecutorPerformanceTest
                 );
 
                 sameThreadExecutorTimes.add( doTest( thread, errorReporter, metricsService, operationCount ) );
-                executor.shutdown( 1000l );
+                executor.shutdown( 1000L );
                 db.close();
                 metricsService.shutdown();
             }
@@ -307,8 +315,8 @@ public class OperationStreamExecutorPerformanceTest
 
     private Iterator<Operation> getOperations( long count )
     {
-        Iterator<Long> scheduledStartTimes = gf.constant( 1l );
-        Iterator<Long> dependencyTimes = gf.constant( 0l );
+        Iterator<Long> scheduledStartTimes = gf.constant( 1L );
+        Iterator<Long> dependencyTimes = gf.constant( 0L );
         Iterator<String> names = gf.constant( "name" );
         Iterator<Operation> operations =
                 gf.limit( new TimedNamedOperation1Factory( scheduledStartTimes, dependencyTimes, names ), count );

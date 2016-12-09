@@ -24,13 +24,13 @@ public class DriverConfigurationFileHelper
         print();
     }
 
-    public static void updateDefaultConfigurationFiles() throws DriverConfigurationException, IOException
+    private static void updateDefaultConfigurationFiles() throws DriverConfigurationException, IOException
     {
         File driverRootDirectory = getDriverRootDirectory();
 
         File baseConfigurationFilePublicLocation = getBaseConfigurationFilePublicLocation( driverRootDirectory );
         createBaseConfigurationAt( baseConfigurationFilePublicLocation );
-        if ( false == readConfigurationFileAt( baseConfigurationFilePublicLocation ).equals( baseConfiguration() ) )
+        if ( !readConfigurationFileAt( baseConfigurationFilePublicLocation ).equals( baseConfiguration() ) )
         {
             throw new DriverConfigurationException(
                     format( "Default config file not equal to base configuration\n%s\n%s",
@@ -53,13 +53,18 @@ public class DriverConfigurationFileHelper
     }
 
 
-    public static void createBaseConfigurationAt( File baseConfigurationFile )
+    private static void createBaseConfigurationAt( File baseConfigurationFile )
             throws IOException, DriverConfigurationException
     {
         // Delete old configuration file and create new one, in appropriate directory
         if ( baseConfigurationFile.exists() )
-        { FileUtils.deleteQuietly( baseConfigurationFile ); }
-        baseConfigurationFile.createNewFile();
+        {
+            FileUtils.deleteQuietly( baseConfigurationFile );
+        }
+        if ( !baseConfigurationFile.createNewFile() )
+        {
+            throw new RuntimeException( "Unable to create file: " + baseConfigurationFile.getAbsolutePath() );
+        }
 
         // Create base default configuration
         ConsoleAndFileDriverConfiguration defaultsOnly = baseConfiguration();
@@ -70,10 +75,10 @@ public class DriverConfigurationFileHelper
         System.out.println( "New configuration file written to " + baseConfigurationFile.getAbsolutePath() );
     }
 
-    public static ConsoleAndFileDriverConfiguration readConfigurationFileAt( File configurationFile )
+    private static ConsoleAndFileDriverConfiguration readConfigurationFileAt( File configurationFile )
             throws IOException, DriverConfigurationException
     {
-        if ( false == configurationFile.exists() )
+        if ( !configurationFile.exists() )
         {
             throw new DriverConfigurationException(
                     "Config file does not exist: " + configurationFile.getAbsolutePath() );
@@ -86,14 +91,14 @@ public class DriverConfigurationFileHelper
                         MapUtils.<String,String>propertiesToMap( ldbcDriverDefaultConfigurationProperties )
                 );
 
-        if ( false == ldbcDriverDefaultConfigurationAsParamsMap
+        if ( !ldbcDriverDefaultConfigurationAsParamsMap
                 .containsKey( ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG ) )
         { ldbcDriverDefaultConfigurationAsParamsMap.put( ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "0" ); }
 
         return ConsoleAndFileDriverConfiguration.fromParamsMap( ldbcDriverDefaultConfigurationAsParamsMap );
     }
 
-    public static File getBaseConfigurationFilePublicLocation() throws DriverConfigurationException
+    static File getBaseConfigurationFilePublicLocation() throws DriverConfigurationException
     {
         return getBaseConfigurationFilePublicLocation( getDriverRootDirectory() );
     }
@@ -107,15 +112,14 @@ public class DriverConfigurationFileHelper
     public static File getWorkloadsDirectory( File driverRootDirectory ) throws DriverConfigurationException
     {
         File workloadsDirectory = new File( driverRootDirectory, CONFIGURATION_DIR_NAME );
-        if ( false == workloadsDirectory.exists() )
+        if ( !workloadsDirectory.exists() )
         {
             throw new DriverConfigurationException(
                     "Directory does not exist: " + workloadsDirectory.getAbsolutePath() );
         }
-        if ( false == workloadsDirectory.isDirectory() )
+        if ( !workloadsDirectory.isDirectory() )
         {
-            throw new DriverConfigurationException(
-                    "Directory not a directory: " + workloadsDirectory.getAbsolutePath() );
+            throw new DriverConfigurationException( "Not a directory: " + workloadsDirectory.getAbsolutePath() );
         }
         return workloadsDirectory;
     }
@@ -139,7 +143,7 @@ public class DriverConfigurationFileHelper
             throws DriverConfigurationException
     {
         File workloadsDirectory = new File( driverRootDirectory, CONFIGURATION_DIR_NAME );
-        if ( false == workloadsDirectory.exists() )
+        if ( !workloadsDirectory.exists() )
         {
             throw new DriverConfigurationException(
                     "Directory does not exist: " + workloadsDirectory.getAbsolutePath() );

@@ -4,13 +4,11 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -35,7 +33,6 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
     private final List<LocalCompletionTimeWriter> writers = new ArrayList<>();
 
     ThreadedQueuedCompletionTimeService( TimeSource timeSource,
-            Set<String> peerIds,
             ConcurrentErrorReporter errorReporter ) throws CompletionTimeException
     {
         this.timeSource = timeSource;
@@ -48,7 +45,6 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         threadedQueuedConcurrentCompletionTimeServiceThread = new ThreadedQueuedConcurrentCompletionTimeServiceThread(
                 completionTimeEventQueue,
                 errorReporter,
-                peerIds,
                 sharedGctReference );
         threadedQueuedConcurrentCompletionTimeServiceThread.start();
     }
@@ -87,8 +83,7 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         }
         catch ( Exception e )
         {
-            String errMsg = format( "Error requesting new local completion time writer" );
-            throw new CompletionTimeException( errMsg, e );
+            throw new CompletionTimeException( "Error requesting new local completion time writer", e );
         }
     }
 
@@ -103,8 +98,7 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         }
         catch ( Exception e )
         {
-            String errMsg = format( "Error requesting GCT future" );
-            throw new CompletionTimeException( errMsg, e );
+            throw new CompletionTimeException( "Error requesting GCT future", e );
         }
     }
 
@@ -112,23 +106,6 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
     public List<LocalCompletionTimeWriter> getAllWriters() throws CompletionTimeException
     {
         return writers;
-    }
-
-    @Override
-    synchronized public void submitPeerCompletionTime( String peerId, long timeAsMilli ) throws CompletionTimeException
-    {
-        try
-        {
-            sharedWriteEventCountReference.incrementAndGet();
-            queueEventSubmitter
-                    .submitEventToQueue( CompletionTimeEvent.writeExternalCompletionTime( peerId, timeAsMilli ) );
-        }
-        catch ( Exception e )
-        {
-            String errMsg = format( "Error submitting external completion time for PeerID[%s] Time[%s]", peerId,
-                    timeAsMilli );
-            throw new CompletionTimeException( errMsg, e );
-        }
     }
 
     @Override
@@ -224,15 +201,12 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         @Override
         public String toString()
         {
-            return "ThreadedQueuedLocalCompletionTimeWriter{" +
-                   "writerId=" + writerId +
-                   '}';
+            return "ThreadedQueuedLocalCompletionTimeWriter{" + "writerId=" + writerId + '}';
         }
     }
 
     public static class GlobalCompletionTimeFuture implements Future<Long>
     {
-        private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
         private final TimeSource timeSource;
         private final AtomicBoolean done = new AtomicBoolean( false );
         private final AtomicLong globalCompletionTimeReference = new AtomicLong( -1 );
@@ -271,9 +245,10 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         @Override
         public Long get()
         {
-            while ( done.get() == false )
+            while ( !done.get() )
             {
                 // wait for value to be set
+                // TODO sleep?
             }
             return globalCompletionTimeReference.get();
         }
@@ -333,9 +308,10 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         @Override
         public Integer get()
         {
-            while ( done.get() == false )
+            while ( !done.get() )
             {
                 // wait for value to be set
+                // TODO sleep?
             }
             return writerId.get();
         }

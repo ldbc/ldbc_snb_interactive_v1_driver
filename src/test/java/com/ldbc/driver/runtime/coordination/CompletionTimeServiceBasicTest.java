@@ -1,13 +1,10 @@
 package com.ldbc.driver.runtime.coordination;
 
-import com.google.common.collect.Sets;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -15,42 +12,52 @@ import java.util.concurrent.TimeoutException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CompletionTimeServiceBasicTest {
+public class CompletionTimeServiceBasicTest
+{
     @Test
-    public void shouldBehavePredictablyAfterInstantiationWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldBehavePredictablyAfterInstantiationWithSynchronizedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = new HashSet<>();
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
+        CompletionTimeService cts = assistant.newSynchronizedConcurrentCompletionTimeService();
 
         // Then
-        try {
-            shouldBehavePredictablyAfterInstantiation(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            shouldBehavePredictablyAfterInstantiation( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
     @Test
-    public void shouldBehavePredictablyAfterInstantiationWithThreadedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldBehavePredictablyAfterInstantiationWithThreadedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = new HashSet<>();
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
+        CompletionTimeService cts =
+                assistant.newThreadedQueuedConcurrentCompletionTimeService( timeSource, errorReporter );
 
         // Then
-        try {
-            shouldBehavePredictablyAfterInstantiation(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            shouldBehavePredictablyAfterInstantiation( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
-    public void shouldBehavePredictablyAfterInstantiation(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    private void shouldBehavePredictablyAfterInstantiation( CompletionTimeService cts )
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         // instantiated completion time service
 
@@ -58,860 +65,577 @@ public class CompletionTimeServiceBasicTest {
         // nothing
 
         // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(-1l));
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
+        assertThat( cts.globalCompletionTimeAsMilli(), is( -1L ) );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( -1L ) );
     }
 
     @Test
-    public void shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimesWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimesWithSynchronizedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = new HashSet<>();
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
+        CompletionTimeService cts = assistant.newSynchronizedConcurrentCompletionTimeService();
 
         // Then
-        try {
-            shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
     @Test
-    public void shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimesWithThreadedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimesWithThreadedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = new HashSet<>();
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
+        CompletionTimeService cts =
+                assistant.newThreadedQueuedConcurrentCompletionTimeService( timeSource, errorReporter );
 
         // Then
-        try {
-            shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
-    public void shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    private void shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes(
+            CompletionTimeService cts )
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
-        LocalCompletionTimeWriter writer1 = completionTimeService.newLocalCompletionTimeWriter();
-        LocalCompletionTimeWriter writer2 = completionTimeService.newLocalCompletionTimeWriter();
+        LocalCompletionTimeWriter writer1 = cts.newLocalCompletionTimeWriter();
+        LocalCompletionTimeWriter writer2 = cts.newLocalCompletionTimeWriter();
 
         // When
-        writer1.submitLocalInitiatedTime(0l);
-        writer1.submitLocalCompletedTime(0l);
-        writer2.submitLocalInitiatedTime(0l);
-        writer2.submitLocalCompletedTime(0l);
+        writer1.submitLocalInitiatedTime( 0L );
+        writer1.submitLocalCompletedTime( 0L );
+        writer2.submitLocalInitiatedTime( 0L );
+        writer2.submitLocalCompletedTime( 0L );
 
-        writer1.submitLocalInitiatedTime(1l);
-        writer2.submitLocalInitiatedTime(1l);
+        writer1.submitLocalInitiatedTime( 1L );
+        writer2.submitLocalInitiatedTime( 1L );
 
         // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(0l));
-        assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(0l));
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 0L ) );
+        assertThat( cts.globalCompletionTimeAsMilli(), is( 0L ) );
     }
 
     @Test
-    public void shouldReturnAllWritersWithSynchronizedImplementation() throws CompletionTimeException {
+    public void shouldReturnAllWritersWithSynchronizedImplementation() throws CompletionTimeException
+    {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = new HashSet<>();
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
-
+        CompletionTimeService cts = assistant.newSynchronizedConcurrentCompletionTimeService();
 
         // Then
-        try {
-            shouldReturnAllWriters(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            shouldReturnAllWriters( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
     @Test
-    public void shouldReturnAllWritersWithThreadedImplementation() throws CompletionTimeException {
+    public void shouldReturnAllWritersWithThreadedImplementation() throws CompletionTimeException
+    {
         // Given
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = new HashSet<>();
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
-
+        CompletionTimeService cts =
+                assistant.newThreadedQueuedConcurrentCompletionTimeService( timeSource, errorReporter );
 
         // Then
-        try {
-            shouldReturnAllWriters(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            shouldReturnAllWriters( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
-    public void shouldReturnAllWriters(CompletionTimeService completionTimeService) throws CompletionTimeException {
+    private void shouldReturnAllWriters( CompletionTimeService cts ) throws CompletionTimeException
+    {
         // Given
         // instantiated completion time service
 
         // When/Then
-        assertThat(completionTimeService.getAllWriters().size(), is(0));
+        assertThat( cts.getAllWriters().size(), is( 0 ) );
 
-        LocalCompletionTimeWriter writer1 = completionTimeService.newLocalCompletionTimeWriter();
+        LocalCompletionTimeWriter writer1 = cts.newLocalCompletionTimeWriter();
 
-        assertThat(completionTimeService.getAllWriters().size(), is(1));
-        assertThat(completionTimeService.getAllWriters().contains(writer1), is(true));
+        assertThat( cts.getAllWriters().size(), is( 1 ) );
+        assertThat( cts.getAllWriters().contains( writer1 ), is( true ) );
 
-        LocalCompletionTimeWriter writer2 = completionTimeService.newLocalCompletionTimeWriter();
-        LocalCompletionTimeWriter writer3 = completionTimeService.newLocalCompletionTimeWriter();
+        LocalCompletionTimeWriter writer2 = cts.newLocalCompletionTimeWriter();
+        LocalCompletionTimeWriter writer3 = cts.newLocalCompletionTimeWriter();
 
-        assertThat(completionTimeService.getAllWriters().size(), is(3));
-        assertThat(completionTimeService.getAllWriters().contains(writer1), is(true));
-        assertThat(completionTimeService.getAllWriters().contains(writer2), is(true));
-        assertThat(completionTimeService.getAllWriters().contains(writer3), is(true));
+        assertThat( cts.getAllWriters().size(), is( 3 ) );
+        assertThat( cts.getAllWriters().contains( writer1 ), is( true ) );
+        assertThat( cts.getAllWriters().contains( writer2 ), is( true ) );
+        assertThat( cts.getAllWriters().contains( writer3 ), is( true ) );
     }
 
     @Test
-    public void shouldReturnNullWhenNoLocalITNoLocalCTNoExternalCTWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldReturnNullWhenNoLocalITNoLocalCTWithSynchronizedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = new HashSet<>();
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
+        CompletionTimeService cts = assistant.newSynchronizedConcurrentCompletionTimeService();
 
         // Then
-        try {
-            doShouldReturnNullWhenNoLocalITNoLocalCTNoExternalCT(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            doShouldReturnNullWhenNoLocalITNoLocalCT( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
     @Test
-    public void shouldReturnNullWhenNoLocalITNoLocalCTNoExternalCTWithThreadedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldReturnNullWhenNoLocalITNoLocalCTWithThreadedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = new HashSet<>();
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
+        CompletionTimeService cts =
+                assistant.newThreadedQueuedConcurrentCompletionTimeService( timeSource, errorReporter );
 
         // Then
-        try {
-            doShouldReturnNullWhenNoLocalITNoLocalCTNoExternalCT(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            doShouldReturnNullWhenNoLocalITNoLocalCT( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
-    // LocalIT = none, LocalCT = none, ExternalCT = none --> null
-    public void doShouldReturnNullWhenNoLocalITNoLocalCTNoExternalCT(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    // LocalIT = none, LocalCT = none --> null
+    private void doShouldReturnNullWhenNoLocalITNoLocalCT( CompletionTimeService cts )
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
-        LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
 
         // When
         // no events have been initiated or completed
 
         // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( -1L ) );
     }
 
     @Test
-    public void shouldReturnNullWhenSomeITAndNoCTAndNoExternalCTWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldReturnNullWhenSomeITAndNoCTWithSynchronizedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = new HashSet<>();
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
+        CompletionTimeService cts = assistant.newSynchronizedConcurrentCompletionTimeService();
 
         // Then
-        try {
-            doShouldReturnNullWhenSomeITAndNoCTAndNoExternalCT(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            doShouldReturnNullWhenSomeITAndNoCT( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
     @Test
-    public void shouldReturnNullWhenSomeITAndNoCTAndNoExternalCTWithThreadedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldReturnNullWhenSomeITAndNoCTWithThreadedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = new HashSet<>();
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
+        CompletionTimeService cts =
+                assistant.newThreadedQueuedConcurrentCompletionTimeService( timeSource, errorReporter );
 
         // Then
-        try {
-            doShouldReturnNullWhenSomeITAndNoCTAndNoExternalCT(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            doShouldReturnNullWhenSomeITAndNoCT( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
-    // LocalIT = some, LocalCT = none, ExternalCT = none --> null
-    public void doShouldReturnNullWhenSomeITAndNoCTAndNoExternalCT(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    // LocalIT = some, LocalCT = none --> null
+    private void doShouldReturnNullWhenSomeITAndNoCT( CompletionTimeService cts )
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
-        LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
+        LocalCompletionTimeWriter localCompletionTimeWriter = cts.newLocalCompletionTimeWriter();
 
         // When
-        localCompletionTimeWriter.submitLocalInitiatedTime(1000l);
+        localCompletionTimeWriter.submitLocalInitiatedTime( 1000L );
 
         // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( -1L ) );
     }
 
     @Test
-    public void shouldReturnNullWhenNoLocalITAndNoLocalCTAndSomeExternalCTWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldReturnNullWhenSomeLocalITAndSomeLocalCTWithSynchronizedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet("other");
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
+        CompletionTimeService cts = assistant.newSynchronizedConcurrentCompletionTimeService();
 
         // Then
-        try {
-            doShouldReturnNullWhenNoLocalITAndNoLocalCTAndSomeExternalCT(completionTimeService, "other");
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            doShouldReturnNullWhenSomeLocalITAndSomeLocalCT( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
     @Test
-    public void shouldReturnNullWhenNoLocalITAndNoLocalCTAndSomeExternalCTWithThreadedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldReturnNullWhenSomeLocalITAndSomeLocalCTWithThreadedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet("other");
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
+        CompletionTimeService cts =
+                assistant.newThreadedQueuedConcurrentCompletionTimeService( timeSource, errorReporter );
 
         // Then
-        try {
-            doShouldReturnNullWhenNoLocalITAndNoLocalCTAndSomeExternalCT(completionTimeService, "other");
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            doShouldReturnNullWhenSomeLocalITAndSomeLocalCT( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
-    //  LocalIT = none, LocalCT = none, ExternalCT = some --> null
-    public void doShouldReturnNullWhenNoLocalITAndNoLocalCTAndSomeExternalCT(CompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    //  LocalIT = some, LocalCT = some --> null
+    private void doShouldReturnNullWhenSomeLocalITAndSomeLocalCT( CompletionTimeService cts )
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
-        ExternalCompletionTimeWriter externalCompletionTimeWriter = completionTimeService;
+        LocalCompletionTimeWriter localCompletionTimeWriter = cts.newLocalCompletionTimeWriter();
 
         // When
-        externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 1000l);
+        localCompletionTimeWriter.submitLocalInitiatedTime( 1000L );
+        localCompletionTimeWriter.submitLocalCompletedTime( 1000L );
 
         // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( -1L ) );
     }
 
     @Test
-    public void shouldReturnNullWhenSomeLocalITAndSomeLocalCTAndNoExternalCTWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithSynchronizedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet();
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
+        CompletionTimeService cts =
+                assistant.newSynchronizedConcurrentCompletionTimeService();
 
         // Then
-        try {
-            doShouldReturnNullWhenSomeLocalITAndSomeLocalCTAndNoExternalCT(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhen( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
     @Test
-    public void shouldReturnNullWhenSomeLocalITAndSomeLocalCTAndNoExternalCTWithThreadedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithThreadedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet();
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
+        CompletionTimeService cts =
+                assistant.newThreadedQueuedConcurrentCompletionTimeService( timeSource, errorReporter );
 
         // Then
-        try {
-            doShouldReturnNullWhenSomeLocalITAndSomeLocalCTAndNoExternalCT(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhen( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
-    //  LocalIT = some, LocalCT = some, ExternalCT = none --> null
-    public void doShouldReturnNullWhenSomeLocalITAndSomeLocalCTAndNoExternalCT(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    private void doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhen( CompletionTimeService cts )
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
-        LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
-
-        // When
-        localCompletionTimeWriter.submitLocalInitiatedTime(1000l);
-        localCompletionTimeWriter.submitLocalCompletedTime(1000l);
-
-        // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
-    }
-
-    @Test
-    public void shouldReturnNullWhenSomeLocalITAndNoLocalCTAndSomeExternalCTWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet("other");
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
-
-        // Then
-        try {
-            doShouldReturnNullWhenSomeLocalITAndNoLocalCTAndSomeExternalCT(completionTimeService, "other");
-        } finally {
-            completionTimeService.shutdown();
-        }
-    }
-
-    @Test
-    public void shouldReturnNullWhenSomeLocalITAndNoLocalCTAndSomeExternalCTWithThreadedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        TimeSource timeSource = new SystemTimeSource();
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet("other");
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
-
-        // Then
-        try {
-            doShouldReturnNullWhenSomeLocalITAndNoLocalCTAndSomeExternalCT(completionTimeService, "other");
-        } finally {
-            completionTimeService.shutdown();
-        }
-    }
-
-    //  LocalIT = 1, LocalCT = none, ExternalCT = 2 --> null
-    public void doShouldReturnNullWhenSomeLocalITAndNoLocalCTAndSomeExternalCT(CompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
-        ExternalCompletionTimeWriter externalCompletionTimeWriter = completionTimeService;
-
-        // When
-        localCompletionTimeWriter.submitLocalInitiatedTime(1000l);
-        externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 2000l);
-
-        // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
-    }
-
-    @Test
-    public void shouldReturnGCTWhenLowerLCTThanExternalCTWithSynchronizedImplementation() throws CompletionTimeException, ExecutionException, InterruptedException, TimeoutException {
-        // Given
-        CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet("other");
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
-
-        // Then
-        try {
-            doShouldReturnLCTWhenLowerLCTThanExternalCT(completionTimeService, "other");
-        } finally {
-            completionTimeService.shutdown();
-        }
-    }
-
-    @Test
-    public void shouldReturnGCTWhenLowerLCTThanExternalCTWithThreadedImplementation() throws CompletionTimeException, ExecutionException, InterruptedException, TimeoutException {
-        // Given
-        TimeSource timeSource = new SystemTimeSource();
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet("other");
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
-
-        // Then
-        try {
-            doShouldReturnLCTWhenLowerLCTThanExternalCT(completionTimeService, "other");
-        } finally {
-            completionTimeService.shutdown();
-        }
-    }
-
-    //  LocalIT = 1, LocalCT = 1, ExternalCT = 2 --> 1
-    public void doShouldReturnLCTWhenLowerLCTThanExternalCT(CompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, ExecutionException, InterruptedException, TimeoutException {
-        // Given
-        LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
-        ExternalCompletionTimeWriter externalCompletionTimeWriter = completionTimeService;
-
-        // When/Then
-        localCompletionTimeWriter.submitLocalInitiatedTime(1000l);
-        localCompletionTimeWriter.submitLocalCompletedTime(1000l);
-        externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 2000l);
-
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(), is(-1l));
-
-        localCompletionTimeWriter.submitLocalInitiatedTime(2000l);
-
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(1000l));
-    }
-
-    @Test
-    public void shouldReturnExternalCTWhenLowerLCTThanExternalCTWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet("other");
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
-
-        // Then
-        try {
-            doShouldReturnExternalCTWhenLowerLCTThanExternalCT(completionTimeService, "other");
-        } finally {
-            completionTimeService.shutdown();
-        }
-    }
-
-    @Test
-    public void shouldReturnExternalCTWhenLowerLCTThanExternalCTWithThreadedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        TimeSource timeSource = new SystemTimeSource();
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet("other");
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
-
-        // Then
-        try {
-            doShouldReturnExternalCTWhenLowerLCTThanExternalCT(completionTimeService, "other");
-        } finally {
-            completionTimeService.shutdown();
-        }
-    }
-
-    //  LocalIT = 2, LocalCT = 2, ExternalCT =  --> 1
-    public void doShouldReturnExternalCTWhenLowerLCTThanExternalCT(CompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
-        ExternalCompletionTimeWriter externalCompletionTimeWriter = completionTimeService;
-
-        // When/Then
-        localCompletionTimeWriter.submitLocalInitiatedTime(2000l);
-        localCompletionTimeWriter.submitLocalCompletedTime(2000l);
-        externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 1000l);
-
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
-
-        localCompletionTimeWriter.submitLocalInitiatedTime(3000l);
-
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(1000l));
-    }
-
-    @Test
-    public void shouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeersWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet();
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
-
-        // Then
-        try {
-            doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeers(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
-        }
-    }
-
-    @Test
-    public void shouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeersWithThreadedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        TimeSource timeSource = new SystemTimeSource();
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet();
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
-
-        // Then
-        try {
-            doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeers(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
-        }
-    }
-
-    public void doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeers(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
+        LocalCompletionTimeWriter localCompletionTimeWriter = cts.newLocalCompletionTimeWriter();
 
         // When/Then
         // initiated [1]
         // completed []
-        // external  (-)
-        localCompletionTimeWriter.submitLocalInitiatedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
+        localCompletionTimeWriter.submitLocalInitiatedTime( 1000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( -1L ) );
 
         // initiated [1]
         // completed [1]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalCompletedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
+        localCompletionTimeWriter.submitLocalCompletedTime( 1000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( -1L ) );
 
         // initiated [1,2]
         // completed [1]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalInitiatedTime(2000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(1000l));
+        localCompletionTimeWriter.submitLocalInitiatedTime( 2000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 1000L
+        ) );
 
         // initiated [1,2]
         // completed [1,2]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalCompletedTime(2000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(1000l));
+        localCompletionTimeWriter.submitLocalCompletedTime( 2000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 1000L
+        ) );
 
         // initiated [1,2,3]
         // completed [1,2]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalInitiatedTime(3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        localCompletionTimeWriter.submitLocalInitiatedTime( 3000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L
+        ) );
 
         // initiated [1,2,3,4]
         // completed [1,2]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalInitiatedTime(4000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        localCompletionTimeWriter.submitLocalInitiatedTime( 4000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L
+        ) );
 
         // initiated [1,2,3,4,5]
         // completed [1,2]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalInitiatedTime(5000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        localCompletionTimeWriter.submitLocalInitiatedTime( 5000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L
+        ) );
 
         // initiated [1,2,3,4,5]
         // completed [1,2, , ,5]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalCompletedTime(5000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        localCompletionTimeWriter.submitLocalCompletedTime( 5000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L
+        ) );
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2, , ,5, , , , ,  ]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalInitiatedTime(6000l);
-        localCompletionTimeWriter.submitLocalInitiatedTime(7000l);
-        localCompletionTimeWriter.submitLocalInitiatedTime(8000l);
-        localCompletionTimeWriter.submitLocalInitiatedTime(9000l);
-        localCompletionTimeWriter.submitLocalInitiatedTime(10000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        localCompletionTimeWriter.submitLocalInitiatedTime( 6000L );
+        localCompletionTimeWriter.submitLocalInitiatedTime( 7000L );
+        localCompletionTimeWriter.submitLocalInitiatedTime( 8000L );
+        localCompletionTimeWriter.submitLocalInitiatedTime( 9000L );
+        localCompletionTimeWriter.submitLocalInitiatedTime( 10000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L
+        ) );
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2, , ,5, , ,8, ,  ]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalCompletedTime(8000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        localCompletionTimeWriter.submitLocalCompletedTime( 8000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L
+        ) );
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2, , ,5, ,7,8, ,  ]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalCompletedTime(7000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        localCompletionTimeWriter.submitLocalCompletedTime( 7000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L
+        ) );
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2, , ,5, ,7,8,9,  ]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalCompletedTime(9000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        localCompletionTimeWriter.submitLocalCompletedTime( 9000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L
+        ) );
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2, ,4,5, ,7,8,9,  ]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalCompletedTime(4000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        localCompletionTimeWriter.submitLocalCompletedTime( 4000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L
+        ) );
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2,3,4,5, ,7,8,9,  ]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalCompletedTime(3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(5000l));
+        localCompletionTimeWriter.submitLocalCompletedTime( 3000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 5000L
+        ) );
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2,3,4,5,6,7,8,9,  ]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalCompletedTime(6000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(9000l));
+        localCompletionTimeWriter.submitLocalCompletedTime( 6000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 9000L
+        ) );
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2,3,4,5,6,7,8,9,10]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalCompletedTime(10000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(9000l));
+        localCompletionTimeWriter.submitLocalCompletedTime( 10000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 9000L
+        ) );
 
         // initiated [1,2,3,4,5,6,7,8,9,10,11]
         // completed [1,2,3,4,5,6,7,8,9,10,  ]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalInitiatedTime(11000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(10000l));
+        localCompletionTimeWriter.submitLocalInitiatedTime( 11000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ),
+                is( 10000L ) );
     }
 
     @Test
-    public void shouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeersWithDuplicateTimesWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimesWithSynchronizedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet();
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
+        CompletionTimeService cts = assistant.newSynchronizedConcurrentCompletionTimeService();
 
         // Then
-        try {
-            doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeersWithDuplicateTimes(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimes( cts );
+        }
+        finally
+        {
+            cts.shutdown();
         }
     }
 
     @Test
-    public void shouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeersWithDuplicateTimesWithThreadedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimesWithThreadedImplementation()
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet();
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
+        CompletionTimeService cts =
+                assistant.newThreadedQueuedConcurrentCompletionTimeService( timeSource, errorReporter );
 
         // Then
-        try {
-            doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeersWithDuplicateTimes(completionTimeService);
-        } finally {
-            completionTimeService.shutdown();
+        try
+        {
+            doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimes( cts );
         }
-    }
-
-    public void doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeersWithDuplicateTimes(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
-
-        // When/Then
-        // initiated [1]
-        // completed [1]
-        localCompletionTimeWriter.submitLocalInitiatedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
-        localCompletionTimeWriter.submitLocalCompletedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
-
-        // initiated [1,2]
-        // completed [1,2]
-        localCompletionTimeWriter.submitLocalInitiatedTime(2000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(1000l));
-        localCompletionTimeWriter.submitLocalCompletedTime(2000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(1000l));
-
-        // initiated [1,2,3]
-        // completed [1,2, ]
-        localCompletionTimeWriter.submitLocalInitiatedTime(3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
-
-        // initiated [1,2,3,3]
-        // completed [1,2, , ]
-        localCompletionTimeWriter.submitLocalInitiatedTime(3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
-
-        // initiated [1,2,3,3,3]
-        // completed [1,2, , , ]
-        localCompletionTimeWriter.submitLocalInitiatedTime(3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
-
-        // initiated [1,2,3,3,3,4]
-        // completed [1,2, , , , ]
-        localCompletionTimeWriter.submitLocalInitiatedTime(4000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
-
-        // initiated [1,2,3,3,3,4,5]
-        // completed [1,2, , , , , ]
-        localCompletionTimeWriter.submitLocalInitiatedTime(5000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
-
-        // initiated [1,2,3,3,3,4,5,6]
-        // completed [1,2, , , , , , ]
-        localCompletionTimeWriter.submitLocalInitiatedTime(6000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
-
-        // initiated [1,2,3,3,3,4,5,6]
-        // completed [1,2, , , , ,5, ]
-        localCompletionTimeWriter.submitLocalCompletedTime(5000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
-
-        // initiated [1,2,3,3,3,4,5,6]
-        // completed [1,2, , ,3, ,5, ]
-        localCompletionTimeWriter.submitLocalCompletedTime(3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
-
-        // initiated [1,2,3,3,3,4,5,6]
-        // completed [1,2, ,3,3, ,5, ]
-        localCompletionTimeWriter.submitLocalCompletedTime(3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
-
-        // initiated [1,2,3,3,3,4,5,6]
-        // completed [1,2,3,3,3, ,5, ]
-        localCompletionTimeWriter.submitLocalCompletedTime(3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(3000l));
-
-        // initiated [1,2,3,3,3,4,5,6]
-        // completed [1,2,3,3,3,4,5, ]
-        localCompletionTimeWriter.submitLocalCompletedTime(4000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(5000l));
-
-        // initiated [1,2,3,3,3,4,5,6]
-        // completed [1,2,3,3,3,4,5,6]
-        localCompletionTimeWriter.submitLocalCompletedTime(6000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(5000l));
-    }
-
-    @Test
-    public void shouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimesWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet("other");
-        CompletionTimeService completionTimeService =
-                assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
-
-        // Then
-        try {
-            doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimes(completionTimeService, "other");
-        } finally {
-            completionTimeService.shutdown();
-        }
-    }
-
-    @Test
-    public void shouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimesWithThreadedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
-        // Given
-        TimeSource timeSource = new SystemTimeSource();
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        Set<String> peerIds = Sets.newHashSet("other");
-        CompletionTimeService completionTimeService =
-                assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
-
-        // Then
-        try {
-            doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimes(completionTimeService, "other");
-        } finally {
-            try {
-                completionTimeService.shutdown();
-            } catch (Throwable e) {
+        finally
+        {
+            try
+            {
+                cts.shutdown();
+            }
+            catch ( Throwable e )
+            {
                 // do nothing, exception is expected because test was trying to force an error
             }
         }
     }
 
-    public void doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimes(CompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    private void doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimes( CompletionTimeService cts )
+            throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException
+    {
         // Given
-        LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
-        ExternalCompletionTimeWriter externalCompletionTimeWriter = completionTimeService;
+        LocalCompletionTimeWriter lctWriter = cts.newLocalCompletionTimeWriter();
 
         // When/Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( -1L ) );
 
         // initiated [1]
         // completed [1]
-        // external  (-)
-        localCompletionTimeWriter.submitLocalInitiatedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
+        lctWriter.submitLocalInitiatedTime( 1000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( -1L ) );
 
-        localCompletionTimeWriter.submitLocalCompletedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
-
-        // initiated [1]
-        // completed [1]
-        // external  (1)
-        externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
+        lctWriter.submitLocalCompletedTime( 1000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( -1L ) );
 
         // initiated [1]
         // completed [1]
-        // external  (3)
-        externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( -1L ) );
+
+        // initiated [1]
+        // completed [1]
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( -1L ) );
 
         // initiated [1,2]
         // completed [1]
-        // external  (3)
-        localCompletionTimeWriter.submitLocalInitiatedTime(2000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(1000l));
+        lctWriter.submitLocalInitiatedTime( 2000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 1000L ) );
 
         // initiated [1,2,3]
         // completed [1]
-        // external  (3)
-        localCompletionTimeWriter.submitLocalInitiatedTime(3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(1000l));
+        lctWriter.submitLocalInitiatedTime( 3000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 1000L ) );
 
         // initiated [1,2,3,4]
         // completed [1]
-        // external  (3)
-        localCompletionTimeWriter.submitLocalInitiatedTime(4000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(1000l));
+        lctWriter.submitLocalInitiatedTime( 4000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 1000L ) );
 
         // initiated [1,2,3,4]
         // completed [1, , ,4]
-        // external  (3)
-        localCompletionTimeWriter.submitLocalCompletedTime(4000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(1000l));
+        lctWriter.submitLocalCompletedTime( 4000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 1000L ) );
 
         // initiated [1,2,3,4]
         // completed [1,2, ,4]
-        // external  (3)
-        localCompletionTimeWriter.submitLocalCompletedTime(2000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        lctWriter.submitLocalCompletedTime( 2000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L ) );
 
         // initiated [1,2,3,4,5]
         // completed [1,2, ,4, ]
-        // external  (3)
-        localCompletionTimeWriter.submitLocalInitiatedTime(5000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        lctWriter.submitLocalInitiatedTime( 5000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L ) );
 
         // initiated [1,2,3,4,5]
         // completed [1,2, ,4, ]
-        // external  (4)
-        externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 4000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(2000l));
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 2000L ) );
 
         // initiated [1,2,3,4,5]
         // completed [1,2,3,4, ]
-        // external  (4)
-        localCompletionTimeWriter.submitLocalCompletedTime(3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(4000l));
+        lctWriter.submitLocalCompletedTime( 3000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 4000L ) );
 
         // initiated [1,2,3,4,5]
         // completed [1,2,3,4,5]
-        // external  (4)
-        localCompletionTimeWriter.submitLocalCompletedTime(5000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(4000l));
+        lctWriter.submitLocalCompletedTime( 5000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 4000L ) );
 
         // initiated [1,2,3,4,5]
         // completed [1,2,3,4,5]
-        // external  (5)
-        externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 5000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(4000l));
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 4000L ) );
 
         // initiated [1,2,3,4,5,6]
         // completed [1,2,3,4,5]
-        // external  (5)
-        localCompletionTimeWriter.submitLocalInitiatedTime(6000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(5000l));
-
-        // initiated [1,2,3,4,5,6]
-        // completed [1,2,3,4,5]
-        // external  (4) <-- SHOULD NEVER DECREASE
-        boolean exceptionThrown = false;
-        try {
-            externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 4000l);
-            completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS);
-        } catch (Throwable e) {
-            exceptionThrown = true;
-        }
-        assertThat(exceptionThrown, is(true));
+        lctWriter.submitLocalInitiatedTime( 6000L );
+        assertThat( cts.globalCompletionTimeAsMilliFuture().get( 1, TimeUnit.SECONDS ), is( 5000L ) );
     }
 }

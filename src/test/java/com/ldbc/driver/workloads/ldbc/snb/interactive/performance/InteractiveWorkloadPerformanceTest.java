@@ -32,10 +32,8 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -46,7 +44,7 @@ public class InteractiveWorkloadPerformanceTest
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    TimeSource timeSource = new SystemTimeSource();
+    private TimeSource timeSource = new SystemTimeSource();
 
     @Ignore
     @Test
@@ -83,7 +81,7 @@ public class InteractiveWorkloadPerformanceTest
         }
     }
 
-    public void doIgnoreTimesPerformanceTest( int threadCount,
+    private void doIgnoreTimesPerformanceTest( int threadCount,
             long operationCount,
             String updateStreamsDir,
             String parametersDir,
@@ -115,7 +113,6 @@ public class InteractiveWorkloadPerformanceTest
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
             double timeCompressionRatio = 0.0000001;
-            Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean calculateWorkloadStatistics = false;
@@ -136,7 +133,6 @@ public class InteractiveWorkloadPerformanceTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    peerIds,
                     validationParams,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,
@@ -280,7 +276,6 @@ public class InteractiveWorkloadPerformanceTest
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
             double timeCompressionRatio = 0.0000001;
-            Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             // TODO should be false
@@ -302,7 +297,6 @@ public class InteractiveWorkloadPerformanceTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    peerIds,
                     validationParams,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,

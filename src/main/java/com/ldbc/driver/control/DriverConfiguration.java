@@ -1,7 +1,6 @@
 package com.ldbc.driver.control;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public interface DriverConfiguration
@@ -23,8 +22,6 @@ public interface DriverConfiguration
     String resultDirPath();
 
     double timeCompressionRatio();
-
-    Set<String> peerIds();
 
     ValidationParamOptions validationParamsCreationOptions();
 
@@ -54,10 +51,10 @@ public interface DriverConfiguration
 
     DriverConfiguration applyArgs( Map<String,String> newMap ) throws DriverConfigurationException;
 
-    public interface ValidationParamOptions
+    interface ValidationParamOptions
     {
-        public String filePath();
+        String filePath();
 
-        public int validationSetSize();
+        int validationSetSize();
     }
 }

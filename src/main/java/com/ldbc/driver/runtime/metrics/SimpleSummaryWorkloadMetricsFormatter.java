@@ -17,23 +17,28 @@ public class SimpleSummaryWorkloadMetricsFormatter implements WorkloadMetricsFor
     private static final DecimalFormat FLOAT_FORMATTER = new DecimalFormat( "###,###,###,##0.00" );
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
 
-    public String format( WorkloadResultsSnapshot workloadResultsSnapshot )
+    public String format( WorkloadResultsSnapshot resultsSnapshot )
     {
-        List<OperationMetricsSnapshot> sortedMetrics = Lists.newArrayList( workloadResultsSnapshot.allMetrics() );
+        List<OperationMetricsSnapshot> sortedMetrics = Lists.newArrayList( resultsSnapshot.allMetrics() );
         Collections.sort( sortedMetrics, new OperationTypeMetricsManager.OperationMetricsNameComparator() );
 
         int padRightDistance = 40;
         StringBuilder sb = new StringBuilder();
         sb.append( "------------------------------------------------------------------------------\n" );
-        sb.append( String.format( "%1$-" + padRightDistance + "s", "Operation Count:" ) ).append(
-                INTEGER_FORMATTER.format( workloadResultsSnapshot.totalOperationCount() ) ).append( "\n" );
-        sb.append( String.format( "%1$-" + padRightDistance + "s", "Duration:" ) ).append(
-                TEMPORAL_UTIL.nanoDurationToString( workloadResultsSnapshot.totalRunDurationAsNano() ) ).append( "\n" );
-        double opsPerNs = (workloadResultsSnapshot.totalOperationCount() /
-                           (double) workloadResultsSnapshot.totalRunDurationAsNano());
+        sb
+                .append( String.format( "%1$-" + padRightDistance + "s", "Operation Count:" ) )
+                .append( INTEGER_FORMATTER.format( resultsSnapshot.totalOperationCount() ) )
+                .append( "\n" );
+        sb
+                .append( String.format( "%1$-" + padRightDistance + "s", "Duration:" ) )
+                .append( TEMPORAL_UTIL.nanoDurationToString( resultsSnapshot.totalRunDurationAsNano() ) )
+                .append( "\n" );
+        double opsPerNs = (resultsSnapshot.totalOperationCount() / (double) resultsSnapshot.totalRunDurationAsNano());
         double opsPerS = opsPerNs * TimeUnit.SECONDS.toNanos( 1 );
-        sb.append( String.format( "%1$-" + padRightDistance + "s", "Throughput:" ) ).append(
-                FLOAT_FORMATTER.format( opsPerS ) ).append( " (op/s)\n" );
+        sb
+                .append( String.format( "%1$-" + padRightDistance + "s", "Throughput:" ) )
+                .append( FLOAT_FORMATTER.format( opsPerS ) )
+                .append( " (op/s)\n" );
         sb.append( "------------------------------------------------------------------------------\n" );
         int namePadRightDistance = 0;
         int countPadRightDistance = 0;
@@ -56,13 +61,15 @@ public class SimpleSummaryWorkloadMetricsFormatter implements WorkloadMetricsFor
         String name = (null == metric.name()) ? DEFAULT_NAME : metric.name();
         String unit = (null == metric.durationUnit()) ? DEFAULT_UNIT
                                                       : TEMPORAL_UTIL.abbreviatedTimeUnit( metric.durationUnit() );
-        StringBuilder sb = new StringBuilder();
-        sb.append( offset );
-        sb.append( String.format( "%1$-" + namePadRightDistance + "s", name ) );
-        sb.append( "Count: " ).append( String.format( "%1$-" + countPadRightDistance + "s",
-                INTEGER_FORMATTER.format( metric.runTimeMetric().count() ) ) ).append( " " );
-        sb.append( "Mean: " ).append( FLOAT_FORMATTER.format( metric.runTimeMetric().mean() ) ).append( " " )
-                .append( unit ).append( "\n" );
-        return sb.toString();
+        return new StringBuilder()
+                .append( offset )
+                .append( String.format( "%1$-" + namePadRightDistance + "s", name ) )
+                .append( "Count: " )
+                .append( String.format( "%1$-" + countPadRightDistance + "s",
+                        INTEGER_FORMATTER.format( metric.runTimeMetric().count() ) ) ).append( " " )
+                .append( "Mean: " )
+                .append( FLOAT_FORMATTER.format( metric.runTimeMetric().mean() ) ).append( " " ).append( unit )
+                .append( "\n" )
+                .toString();
     }
 }

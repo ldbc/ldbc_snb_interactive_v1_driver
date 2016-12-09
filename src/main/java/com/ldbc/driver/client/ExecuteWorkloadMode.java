@@ -95,12 +95,6 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     @Override
     public Object startExecutionAndAwaitCompletion() throws ClientException
     {
-        if ( controlService.configuration().skipCount() > 0 )
-        {
-            loggingService.info(
-                    format( "\n --- First %s operations will be skipped ---",
-                            NUMBER_FORMAT.format( controlService.configuration().skipCount() ) ) );
-        }
         if ( controlService.configuration().warmupCount() > 0 )
         {
             loggingService.info( "\n" +
@@ -118,8 +112,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             }
             catch ( DbException e )
             {
-                throw new ClientException(
-                        format( "Error reinitializing DB after warmup: %s", database.getClass().getName() ), e );
+                throw new ClientException( format( "Error reinitializing DB: %s", database.getClass().getName() ), e );
             }
         }
         else
@@ -257,7 +250,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             catch ( DbException e )
             {
                 throw new ClientException(
-                        format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
+                        format( "Error initializing DB: %s", controlService.configuration().dbClassName() ), e );
             }
             loggingService.info( format( "Loaded DB: %s", database.getClass().getName() ) );
         }
@@ -290,17 +283,14 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         try
         {
             completionTimeService =
-                    completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(
+                    completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeService(
                             timeSource,
-                            controlService.configuration().peerIds(),
                             errorReporter
                     );
         }
         catch ( CompletionTimeException e )
         {
-            throw new ClientException(
-                    format( "Error while instantiating Completion Time Service with peer IDs %s",
-                            controlService.configuration().peerIds().toString() ), e );
+            throw new ClientException( "Error instantiating Completion Time Service", e );
         }
 
         //  ========================

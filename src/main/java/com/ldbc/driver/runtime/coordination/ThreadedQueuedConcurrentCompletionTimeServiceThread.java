@@ -7,7 +7,6 @@ import com.ldbc.driver.temporal.TemporalUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -17,11 +16,9 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread
 {
 
     /**
-     * LocalCompletionTime: Completion Time of local instance, ignoring times received from peers
-     * - WRITE here, RECEIVE from Workers, READ by PeerCommunicator
-     * ExternalCompletionTime: Completion Time of peers instances, ignoring times from local workers
-     * - RECEIVE from PeerCommunicator, WRITE here, READ here
-     * GlobalCompletionTime: minimum of LocalCompletionTime & ExternalCompletionTime
+     * LocalCompletionTime: Completion Time
+     * - WRITE here, RECEIVE from Workers
+     * GlobalCompletionTime: minimum of LocalCompletionTime
      * - WRITE here, READ by Workers
      * Note:
      * - shared memory READS/WRITES can later be converted req/resp messages between actors
@@ -33,28 +30,20 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread
     private final AtomicLong globalCompletionTimeSharedReference;
     private final QueueEventFetcher<CompletionTimeEvent> completionTimeEventQueueEventFetcher;
     private final ConcurrentErrorReporter errorReporter;
-    private Long processedWriteEventCount = 0l;
+    private Long processedWriteEventCount = 0L;
     private Long expectedEventCount = null;
     private final Map<Integer,LocalCompletionTimeWriter> localCompletionTimeWriters;
     private final AtomicBoolean shutdownComplete = new AtomicBoolean( false );
 
-    ThreadedQueuedConcurrentCompletionTimeServiceThread( Queue<CompletionTimeEvent> completionTimeQueue,
+    ThreadedQueuedConcurrentCompletionTimeServiceThread(
+            Queue<CompletionTimeEvent> completionTimeQueue,
             ConcurrentErrorReporter errorReporter,
-            Set<String> peerIds,
             AtomicLong globalCompletionTimeSharedReference ) throws CompletionTimeException
     {
         super( ThreadedQueuedConcurrentCompletionTimeServiceThread.class.getSimpleName() + "-" +
                System.currentTimeMillis() );
         localCompletionTimeConcurrentStateManager = new MultiWriterLocalCompletionTimeConcurrentStateManager();
         this.localCompletionTimeWriters = new HashMap<>();
-        ExternalCompletionTimeStateManager externalCompletionTimeStateManager =
-                new ExternalCompletionTimeStateManager( peerIds );
-        ExternalCompletionTimeReader externalCompletionTimeReader =
-                (peerIds.isEmpty())
-                // prevents GCT from blocking in the case when there are no peers (because ECT would not advance)
-                ? new LocalCompletionTimeReaderToExternalCompletionTimeReader(
-                        localCompletionTimeConcurrentStateManager )
-                : externalCompletionTimeStateManager;
         globalCompletionTimeStateManager = new GlobalCompletionTimeStateManager(
                 // *** LCT Reader ***
                 // Local Completion Time will only get read from MultiConsumerLocalCompletionTimeConcurrentStateManager,
@@ -71,11 +60,7 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread
                 // which will result in an error when the lower Initiated Time is finally submitted.
                 // MultiConsumerLocalCompletionTimeConcurrentStateManagerConsumer instances,
                 // via newLocalCompletionTimeWriter(), will perform the Local Completion Time writing
-                null,
-                // *** ECT Reader ***
-                externalCompletionTimeReader,
-                // *** ECT Writer ***
-                externalCompletionTimeStateManager
+                null
         );
 
         this.completionTimeEventQueueEventFetcher = QueueEventFetcher.queueEventFetcherFor( completionTimeQueue );
@@ -118,16 +103,6 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread
                     processedWriteEventCount++;
                     break;
                 }
-                case WRITE_EXTERNAL_COMPLETION_TIME:
-                {
-                    String peerId = ((CompletionTimeEvent.ExternalCompletionTimeEvent) event).peerId();
-                    long peerCompletionTimeAsMilli =
-                            ((CompletionTimeEvent.ExternalCompletionTimeEvent) event).timeAsMilli();
-                    globalCompletionTimeStateManager.submitPeerCompletionTime( peerId, peerCompletionTimeAsMilli );
-                    updateGlobalCompletionTime();
-                    processedWriteEventCount++;
-                    break;
-                }
                 case READ_GCT_FUTURE:
                 {
                     ThreadedQueuedCompletionTimeService.GlobalCompletionTimeFuture future =
@@ -142,7 +117,7 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread
                     MultiWriterLocalCompletionTimeConcurrentStateManagerWriter localCompletionTimeWriter =
                             (MultiWriterLocalCompletionTimeConcurrentStateManagerWriter)
                                     localCompletionTimeConcurrentStateManager
-                                    .newLocalCompletionTimeWriter();
+                                            .newLocalCompletionTimeWriter();
                     localCompletionTimeWriters.put( localCompletionTimeWriter.id(), localCompletionTimeWriter );
                     future.set( localCompletionTimeWriter.id() );
                     break;
@@ -204,9 +179,7 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread
         long newGlobalCompletionTimeAsMilli = globalCompletionTimeStateManager.globalCompletionTimeAsMilli();
         if ( -1 == newGlobalCompletionTimeAsMilli )
         {
-            // Either Completion Time has not been received from one or more peers, or no local Completion Time has
-            // been receive
-            // Until both of the above have occurred there is no way of knowing what the lowest global time is
+            // no Local Completion Time receive yet --> not yet possible to know what the lowest global time is
             return;
         }
         long prevGlobalCompletionTimeAsMilli = globalCompletionTimeSharedReference.get();

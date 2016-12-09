@@ -49,7 +49,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -66,15 +65,15 @@ public class WorkloadRunnerTest
 {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     private static final LoggingServiceFactory LOGGING_SERVICE_FACTORY = new Log4jLoggingServiceFactory( false );
-    DecimalFormat numberFormatter = new DecimalFormat( "###,###,###,###" );
-    DecimalFormat doubleNumberFormatter = new DecimalFormat( "###,###,###,##0.00" );
+    private DecimalFormat numberFormatter = new DecimalFormat( "###,###,###,###" );
+    private DecimalFormat doubleNumberFormatter = new DecimalFormat( "###,###,###,##0.00" );
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
     private static final long ONE_SECOND_AS_NANO = TimeUnit.SECONDS.toNanos( 1 );
 
-    TimeSource timeSource = new SystemTimeSource();
-    CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
+    private TimeSource timeSource = new SystemTimeSource();
+    private CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
 
     @Test
     public void shouldRunReadOnlyLdbcWorkloadWithNothingDbAndCrashInSaneManner()
@@ -107,11 +106,10 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.0000001;
-            Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean calculateWorkloadStatistics = false;
-            long spinnerSleepDuration = 0l;
+            long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
@@ -128,7 +126,6 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    peerIds,
                     validationParams,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,
@@ -185,9 +182,7 @@ public class WorkloadRunnerTest
                     LOGGING_SERVICE_FACTORY
             );
 
-            completionTimeService =
-                    completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
-                            controlService.configuration().peerIds() );
+            completionTimeService = completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeService();
 
             db = new DummyLdbcSnbInteractiveDb();
             db.init(
@@ -284,7 +279,7 @@ public class WorkloadRunnerTest
         }
     }
 
-    public void doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(
+    private void doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(
             int threadCount, long operationCount )
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
             CompletionTimeException, DriverConfigurationException, ExecutionException
@@ -312,11 +307,10 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.0000001;
-            Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean calculateWorkloadStatistics = false;
-            long spinnerSleepDuration = 0l;
+            long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
@@ -333,7 +327,6 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    peerIds,
                     validationParams,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,
@@ -390,9 +383,7 @@ public class WorkloadRunnerTest
                     LOGGING_SERVICE_FACTORY
             );
 
-            completionTimeService =
-                    completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
-                            controlService.configuration().peerIds() );
+            completionTimeService = completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeService();
 
             db = new DummyLdbcSnbInteractiveDb();
             db.init(
@@ -535,11 +526,10 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.000001;
-            Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean calculateWorkloadStatistics = false;
-            long spinnerSleepDuration = 0l;
+            long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
@@ -556,7 +546,6 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    peerIds,
                     validationParams,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,
@@ -620,9 +609,7 @@ public class WorkloadRunnerTest
                     workload.operationTypeToClassMapping()
             );
 
-            completionTimeService =
-                    completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
-                            controlService.configuration().peerIds() );
+            completionTimeService = completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeService();
 
             int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
             WorkloadRunner runner = new WorkloadRunner(
@@ -729,8 +716,7 @@ public class WorkloadRunnerTest
         {
             ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
             CompletionTimeService completionTimeService =
-                    completionTimeServiceAssistant
-                            .newSynchronizedConcurrentCompletionTimeServiceFromPeerIds( new HashSet<String>() );
+                    completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeService();
             try
             {
                 doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(
@@ -759,9 +745,9 @@ public class WorkloadRunnerTest
         {
             ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
             CompletionTimeService completionTimeService =
-                    completionTimeServiceAssistant
-                            .newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds( new SystemTimeSource(),
-                                    new HashSet<String>(), new ConcurrentErrorReporter() );
+                    completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeService(
+                            new SystemTimeSource(),
+                            new ConcurrentErrorReporter() );
             try
             {
                 doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(
@@ -778,7 +764,7 @@ public class WorkloadRunnerTest
         }
     }
 
-    public void doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(
+    private void doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(
             int threadCount,
             long operationCount,
             CompletionTimeService completionTimeService,
@@ -805,11 +791,10 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 1.0;
-            Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean calculateWorkloadStatistics = false;
-            long spinnerSleepDuration = 0l;
+            long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
             long warmupCount = 100;
@@ -826,7 +811,6 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    peerIds,
                     validationParams,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,
