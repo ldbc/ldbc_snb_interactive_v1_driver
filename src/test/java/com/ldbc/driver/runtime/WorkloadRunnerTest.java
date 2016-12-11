@@ -182,7 +182,7 @@ public class WorkloadRunnerTest
                     LOGGING_SERVICE_FACTORY
             );
 
-            completionTimeService = completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeService();
+            completionTimeService = completionTimeServiceAssistant.newSynchronizedCompletionTimeService();
 
             db = new DummyLdbcSnbInteractiveDb();
             db.init(
@@ -383,7 +383,7 @@ public class WorkloadRunnerTest
                     LOGGING_SERVICE_FACTORY
             );
 
-            completionTimeService = completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeService();
+            completionTimeService = completionTimeServiceAssistant.newSynchronizedCompletionTimeService();
 
             db = new DummyLdbcSnbInteractiveDb();
             db.init(
@@ -609,7 +609,7 @@ public class WorkloadRunnerTest
                     workload.operationTypeToClassMapping()
             );
 
-            completionTimeService = completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeService();
+            completionTimeService = completionTimeServiceAssistant.newSynchronizedCompletionTimeService();
 
             int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
             WorkloadRunner runner = new WorkloadRunner(
@@ -716,7 +716,7 @@ public class WorkloadRunnerTest
         {
             ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
             CompletionTimeService completionTimeService =
-                    completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeService();
+                    completionTimeServiceAssistant.newSynchronizedCompletionTimeService();
             try
             {
                 doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(
@@ -745,7 +745,7 @@ public class WorkloadRunnerTest
         {
             ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
             CompletionTimeService completionTimeService =
-                    completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeService(
+                    completionTimeServiceAssistant.newThreadedQueuedCompletionTimeService(
                             new SystemTimeSource(),
                             new ConcurrentErrorReporter() );
             try

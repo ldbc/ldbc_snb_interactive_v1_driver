@@ -7,64 +7,65 @@ import java.util.concurrent.TimeUnit;
 
 public class SynchronizedCompletionTimeService implements CompletionTimeService
 {
-    private final GlobalCompletionTimeStateManager globalCompletionTimeStateManager;
-    private final MultiWriterLocalCompletionTimeConcurrentStateManager localCompletionTimeConcurrentStateManager;
-    private final List<LocalCompletionTimeWriter> localCompletionTimeWriters;
+    private final MultiWriterCompletionTimeStateManager completionTimeStateManager;
+    private final List<CompletionTimeWriter> completionTimeWriters;
 
     private enum Event
     {
-        READ_GLOBAL_COMPLETION_TIME,
-        READ_FUTURE_GLOBAL_COMPLETION_TIME,
-        CREATE_NEW_LOCAL_COMPLETION_TIME_WRITER,
+        READ_COMPLETION_TIME,
+        READ_FUTURE_COMPLETION_TIME,
+        CREATE_NEW_COMPLETION_TIME_WRITER,
         GET_ALL_WRITERS
     }
 
     SynchronizedCompletionTimeService() throws CompletionTimeException
     {
-        this.localCompletionTimeConcurrentStateManager = new MultiWriterLocalCompletionTimeConcurrentStateManager();
-        this.localCompletionTimeWriters = new ArrayList<>();
-        this.globalCompletionTimeStateManager = new GlobalCompletionTimeStateManager(
-                // *** LCT Reader ***
-                // Local Completion Time will only get read from MultiConsumerLocalCompletionTimeConcurrentStateManager,
-                // and its internal Local Completion Time values will be written to by multiple instances of
-                // MultiConsumerLocalCompletionTimeConcurrentStateManagerConsumer, retrieved via
-                // newLocalCompletionTimeWriter()
-                localCompletionTimeConcurrentStateManager,
-                // *** LCT Writer ***
-                // it is not safe to write Local Completion Time directly through GlobalCompletionTimeStateManager,
-                // because there are, potentially, many Local Completion Time writers.
-                // every Local Completion Time writing thread must have its own LocalCompletionTimeWriter,
-                // to avoid race conditions where one thread submits tries to submit an Initiated Time,
-                // another thread submits a higher Completed Time first, and then Local Completion Time advances,
-                // which will result in an error when the lower Initiated Time is finally submitted.
-                // MultiConsumerLocalCompletionTimeConcurrentStateManagerConsumer instances,
-                // via newLocalCompletionTimeWriter(), will perform the Local Completion Time writing.
-                null
-        );
+        // *** CT Reader ***
+        // Completion Time will only get read from MultiWriterCompletionTimeStateManager,
+        // and its internal Completion Time values will be written to by multiple instances of
+        // MultiWriterCompletionTimeStateManagerWriter, retrieved via newCompletionTimeWriter()
+        // *** CT Writer ***
+        // it is not safe to write Completion Time directly through CompletionTimeStateManager,
+        // because there are, potentially, many Completion Time writers.
+        // every Completion Time writing thread must have its own CompletionTimeWriter,
+        // to avoid race conditions where one thread tries to submit an Initiated Time,
+        // another thread submits a higher Completed Time first, and then Completion Time advances,
+        // which will result in an error when the lower Initiated Time is finally submitted.
+        // MultiWriterCompletionTimeStateManagerWriter instances, via newCompletionTimeWriter(),
+        // will perform the Completion Time writing
+        this.completionTimeStateManager = new MultiWriterCompletionTimeStateManager();
+        this.completionTimeWriters = new ArrayList<>();
     }
 
     @Override
-    public Future<Long> globalCompletionTimeAsMilliFuture() throws CompletionTimeException
+    public Future<Long> completionTimeAsMilliFuture() throws CompletionTimeException
     {
-        return (GlobalCompletionTimeAsMilliFuture) processEvent( Event.READ_FUTURE_GLOBAL_COMPLETION_TIME );
+        return (CompletionTimeAsMilliFuture) processEvent( Event.READ_FUTURE_COMPLETION_TIME );
     }
 
     @Override
-    public List<LocalCompletionTimeWriter> getAllWriters() throws CompletionTimeException
+    public List<CompletionTimeWriter> getAllWriters() throws CompletionTimeException
     {
-        return (List<LocalCompletionTimeWriter>) processEvent( Event.GET_ALL_WRITERS );
+        return (List<CompletionTimeWriter>) processEvent( Event.GET_ALL_WRITERS );
     }
 
     @Override
-    public long globalCompletionTimeAsMilli() throws CompletionTimeException
+    // TODO remove from interface
+    public long lastKnownLowestInitiatedTimeAsMilli() throws CompletionTimeException
     {
-        return (long) processEvent( Event.READ_GLOBAL_COMPLETION_TIME );
+        throw new UnsupportedOperationException( "Method not supported" );
     }
 
     @Override
-    public LocalCompletionTimeWriter newLocalCompletionTimeWriter() throws CompletionTimeException
+    public long completionTimeAsMilli() throws CompletionTimeException
     {
-        return (LocalCompletionTimeWriter) processEvent( Event.CREATE_NEW_LOCAL_COMPLETION_TIME_WRITER );
+        return (long) processEvent( Event.READ_COMPLETION_TIME );
+    }
+
+    @Override
+    public CompletionTimeWriter newCompletionTimeWriter() throws CompletionTimeException
+    {
+        return (CompletionTimeWriter) processEvent( Event.CREATE_NEW_COMPLETION_TIME_WRITER );
     }
 
     @Override
@@ -74,29 +75,27 @@ public class SynchronizedCompletionTimeService implements CompletionTimeService
 
     private Object processEvent( Event event ) throws CompletionTimeException
     {
-        synchronized ( globalCompletionTimeStateManager )
+        synchronized ( completionTimeStateManager )
         {
             switch ( event )
             {
-            case READ_GLOBAL_COMPLETION_TIME:
+            case READ_COMPLETION_TIME:
             {
-                return globalCompletionTimeStateManager.globalCompletionTimeAsMilli();
+                return completionTimeStateManager.completionTimeAsMilli();
             }
-            case READ_FUTURE_GLOBAL_COMPLETION_TIME:
+            case READ_FUTURE_COMPLETION_TIME:
             {
-                return new GlobalCompletionTimeAsMilliFuture(
-                        globalCompletionTimeStateManager.globalCompletionTimeAsMilli() );
+                return new CompletionTimeAsMilliFuture( completionTimeStateManager.completionTimeAsMilli() );
             }
-            case CREATE_NEW_LOCAL_COMPLETION_TIME_WRITER:
+            case CREATE_NEW_COMPLETION_TIME_WRITER:
             {
-                LocalCompletionTimeWriter localCompletionTimeWriter =
-                        localCompletionTimeConcurrentStateManager.newLocalCompletionTimeWriter();
-                localCompletionTimeWriters.add( localCompletionTimeWriter );
-                return localCompletionTimeWriter;
+                CompletionTimeWriter completionTimeWriter = completionTimeStateManager.newCompletionTimeWriter();
+                completionTimeWriters.add( completionTimeWriter );
+                return completionTimeWriter;
             }
             case GET_ALL_WRITERS:
             {
-                return localCompletionTimeWriters;
+                return completionTimeWriters;
             }
             default:
             {
@@ -106,13 +105,13 @@ public class SynchronizedCompletionTimeService implements CompletionTimeService
         }
     }
 
-    private static class GlobalCompletionTimeAsMilliFuture implements Future<Long>
+    private static class CompletionTimeAsMilliFuture implements Future<Long>
     {
-        private final long globalCompletionTimeValueAsMilli;
+        private final long completionTimeValueAsMilli;
 
-        GlobalCompletionTimeAsMilliFuture( long globalCompletionTimeValueAsMilli )
+        CompletionTimeAsMilliFuture( long completionTimeValueAsMilli )
         {
-            this.globalCompletionTimeValueAsMilli = globalCompletionTimeValueAsMilli;
+            this.completionTimeValueAsMilli = completionTimeValueAsMilli;
         }
 
         @Override
@@ -136,13 +135,13 @@ public class SynchronizedCompletionTimeService implements CompletionTimeService
         @Override
         public Long get()
         {
-            return globalCompletionTimeValueAsMilli;
+            return completionTimeValueAsMilli;
         }
 
         @Override
         public Long get( long timeout, TimeUnit unit )
         {
-            return globalCompletionTimeValueAsMilli;
+            return completionTimeValueAsMilli;
         }
     }
 }

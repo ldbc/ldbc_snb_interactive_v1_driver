@@ -10,7 +10,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-// TODO rewrite like sync GCT tracker class, to be more threadsafe
+// TODO rewrite like sync CT tracker class, to be more threadsafe
 public class ConcurrentErrorReporter
 {
     public static String stackTraceToString( Throwable e )
@@ -21,7 +21,7 @@ public class ConcurrentErrorReporter
         return sw.toString();
     }
 
-    public static String whoAmI( Object caller )
+    private static String whoAmI( Object caller )
     {
         Thread myThread = Thread.currentThread();
         return format( "%s [%s] (Thread: ID=%s, Name=%s, Priority=%s)",
@@ -32,7 +32,7 @@ public class ConcurrentErrorReporter
                 myThread.getPriority() );
     }
 
-    public static String formatErrors( List<ErrorReport> errors )
+    private static String formatErrors( List<ErrorReport> errors )
     {
         StringBuilder sb = new StringBuilder();
         sb.append( "\n- Start Error Log -" );
@@ -60,7 +60,7 @@ public class ConcurrentErrorReporter
         return !syncGetErrorMessages().isEmpty();
     }
 
-    public List<ErrorReport> errorMessages()
+    List<ErrorReport> errorMessages()
     {
         return syncGetErrorMessages();
     }
@@ -88,7 +88,7 @@ public class ConcurrentErrorReporter
         private final String source;
         private final String error;
 
-        public ErrorReport( String source, String error )
+        ErrorReport( String source, String error )
         {
             this.source = source;
             this.error = error;

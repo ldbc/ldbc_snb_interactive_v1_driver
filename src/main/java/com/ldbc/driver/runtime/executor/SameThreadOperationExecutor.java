@@ -6,8 +6,8 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandlerRunnableContext;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeReader;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TimeSource;
@@ -25,8 +25,8 @@ public class SameThreadOperationExecutor implements OperationExecutor
 
     public SameThreadOperationExecutor( Db db,
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-            LocalCompletionTimeWriter localCompletionTimeWriter,
-            GlobalCompletionTimeReader globalCompletionTimeReader,
+            CompletionTimeWriter completionTimeWriter,
+            CompletionTimeReader completionTimeReader,
             Spinner spinner,
             TimeSource timeSource,
             ConcurrentErrorReporter errorReporter,
@@ -38,13 +38,12 @@ public class SameThreadOperationExecutor implements OperationExecutor
         this.operationHandlerRunnableContextRetriever = new OperationHandlerRunnableContextRetriever(
                 streamDefinition,
                 db,
-                localCompletionTimeWriter,
-                globalCompletionTimeReader,
+                completionTimeWriter,
+                completionTimeReader,
                 spinner,
                 timeSource,
                 errorReporter,
-                metricsService
-        );
+                metricsService );
     }
 
     @Override

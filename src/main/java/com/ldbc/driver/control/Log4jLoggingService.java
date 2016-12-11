@@ -22,7 +22,7 @@ public class Log4jLoggingService implements LoggingService
     private final WorkloadMetricsFormatter summaryWorkloadMetricsFormatter;
     private final WorkloadMetricsFormatter detailedWorkloadMetricsFormatter;
 
-    public Log4jLoggingService( String source, TemporalUtil temporalUtil, boolean detailedStatus )
+    Log4jLoggingService( String source, TemporalUtil temporalUtil, boolean detailedStatus )
     {
         this.logger = Logger.getLogger( source );
         this.temporalUtil = temporalUtil;
@@ -41,19 +41,19 @@ public class Log4jLoggingService implements LoggingService
     public void status(
             WorkloadStatusSnapshot status,
             RecentThroughputAndDuration recentThroughputAndDuration,
-            long globalCompletionTimeAsMilli )
+            long completionTimeAsMilli )
     {
         String statusString;
         statusString = (detailedStatus) ?
-                       formatWithGct(
+                       formatWithCt(
                                status.operationCount(),
                                status.runDurationAsMilli(),
                                status.durationSinceLastMeasurementAsMilli(),
                                status.throughput(),
                                recentThroughputAndDuration.throughput(),
                                recentThroughputAndDuration.duration(),
-                               globalCompletionTimeAsMilli ) :
-                       formatWithoutGct(
+                               completionTimeAsMilli ) :
+                       formatWithoutCt(
                                status.operationCount(),
                                status.runDurationAsMilli(),
                                status.durationSinceLastMeasurementAsMilli(),
@@ -75,24 +75,45 @@ public class Log4jLoggingService implements LoggingService
         logger.info( "\n" + detailedWorkloadMetricsFormatter.format( workloadResultsSnapshot ) );
     }
 
-    private String formatWithoutGct( long operationCount, long runDurationAsMilli,
-            long durationSinceLastMeasurementAsMilli, double throughput, double recentThroughput,
+    private String formatWithoutCt(
+            long operationCount,
+            long runDurationAsMilli,
+            long durationSinceLastMeasurementAsMilli,
+            double throughput,
+            double recentThroughput,
             long recentDurationAsMilli )
     {
-        return format( operationCount, runDurationAsMilli, durationSinceLastMeasurementAsMilli, throughput,
-                recentThroughput, recentDurationAsMilli, null ).toString();
+        return format(
+                operationCount,
+                runDurationAsMilli,
+                durationSinceLastMeasurementAsMilli,
+                throughput,
+                recentThroughput,
+                recentDurationAsMilli,
+                null ).toString();
     }
 
-    private String formatWithGct( long operationCount, long runDurationAsMilli,
-            long durationSinceLastMeasurementAsMilli, double throughput, double recentThroughput,
-            long recentDurationAsMilli, long gctAsMilli )
+    private String formatWithCt(
+            long operationCount,
+            long runDurationAsMilli,
+            long durationSinceLastMeasurementAsMilli,
+            double throughput,
+            double recentThroughput,
+            long recentDurationAsMilli,
+            long ctAsMilli )
     {
-        return format( operationCount, runDurationAsMilli, durationSinceLastMeasurementAsMilli, throughput,
-                recentThroughput, recentDurationAsMilli, gctAsMilli ).toString();
+        return format(
+                operationCount,
+                runDurationAsMilli,
+                durationSinceLastMeasurementAsMilli,
+                throughput,
+                recentThroughput,
+                recentDurationAsMilli,
+                ctAsMilli ).toString();
     }
 
     private StringBuffer format( long operationCount, long runDurationAsMilli, long durationSinceLastMeasurementAsMilli,
-            double throughput, double recentThroughput, long recentDurationAsMilli, Long gctAsMilli )
+            double throughput, double recentThroughput, long recentDurationAsMilli, Long ctAsMilli )
     {
         StringBuffer sb = new StringBuffer();
         sb.append( "Runtime [" )
@@ -105,10 +126,10 @@ public class Log4jLoggingService implements LoggingService
         sb.append( " (Total) [" ).append( THROUGHPUT_FORMATTER.format( throughput ) ).append( "]" );
         sb.append( " (Last " ).append( TimeUnit.MILLISECONDS.toSeconds( recentDurationAsMilli ) ).append( "s) [" )
                 .append( THROUGHPUT_FORMATTER.format( recentThroughput ) ).append( "]" );
-        if ( null != gctAsMilli )
+        if ( null != ctAsMilli )
         {
             sb.append(
-                    ", GCT: " + ((-1 == gctAsMilli) ? "--" : temporalUtil.milliTimeToDateTimeString( gctAsMilli )) );
+                    ", CT: " + ((-1 == ctAsMilli) ? "--" : temporalUtil.milliTimeToDateTimeString( ctAsMilli )) );
         }
         return sb;
     }

@@ -3,13 +3,13 @@ package com.ldbc.driver.runtime.coordination;
 import java.util.List;
 import java.util.concurrent.Future;
 
-public interface CompletionTimeService extends GlobalCompletionTimeReader
+public interface CompletionTimeService extends CompletionTimeReader
 {
-    LocalCompletionTimeWriter newLocalCompletionTimeWriter() throws CompletionTimeException;
+    CompletionTimeWriter newCompletionTimeWriter() throws CompletionTimeException;
 
-    Future<Long> globalCompletionTimeAsMilliFuture() throws CompletionTimeException;
+    Future<Long> completionTimeAsMilliFuture() throws CompletionTimeException;
 
-    List<LocalCompletionTimeWriter> getAllWriters() throws CompletionTimeException;
+    List<CompletionTimeWriter> getAllWriters() throws CompletionTimeException;
 
     void shutdown() throws CompletionTimeException;
 }

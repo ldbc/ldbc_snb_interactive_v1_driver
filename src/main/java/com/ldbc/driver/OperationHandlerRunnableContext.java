@@ -1,7 +1,7 @@
 package com.ldbc.driver;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
@@ -25,7 +25,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
     private TimeSource timeSource = null;
     private Spinner spinner = null;
     private Operation operation = null;
-    private LocalCompletionTimeWriter localCompletionTimeWriter = null;
+    private CompletionTimeWriter completionTimeWriter = null;
     private ConcurrentErrorReporter errorReporter = null;
     private MetricsService.MetricsServiceWriter metricsServiceWriter = null;
 
@@ -36,7 +36,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
 
     private ResultReporter.SimpleResultReporter resultReporter = null;
 
-    public final void setSlot( Slot slot )
+    final void setSlot( Slot slot )
     {
         this.slot = slot;
     }
@@ -44,7 +44,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
     public final void init( TimeSource timeSource,
             Spinner spinner,
             Operation operation,
-            LocalCompletionTimeWriter localCompletionTimeWriter,
+            CompletionTimeWriter completionTimeWriter,
             ConcurrentErrorReporter errorReporter,
             MetricsService metricsService ) throws OperationException
     {
@@ -71,17 +71,17 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
             }
         }
         this.operation = operation;
-        this.localCompletionTimeWriter = localCompletionTimeWriter;
+        this.completionTimeWriter = completionTimeWriter;
         this.beforeExecuteCheck = Spinner.TRUE_CHECK;
         this.initialized = true;
     }
 
-    public final void setOperationHandler( OperationHandler operationHandler )
+    final void setOperationHandler( OperationHandler operationHandler )
     {
         this.operationHandler = operationHandler;
     }
 
-    public final void setDbConnectionState( DbConnectionState dbConnectionState )
+    final void setDbConnectionState( DbConnectionState dbConnectionState )
     {
         this.dbConnectionState = dbConnectionState;
     }
@@ -99,11 +99,6 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
     public final OperationHandler operationHandler()
     {
         return operationHandler;
-    }
-
-    public final LocalCompletionTimeWriter localCompletionTimeWriter()
-    {
-        return localCompletionTimeWriter;
     }
 
     public final DbConnectionState dbConnectionState()
@@ -128,14 +123,14 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
     @Override
     public void run()
     {
-        if ( false == initialized )
+        if ( !initialized )
         {
             errorReporter.reportError( this, "Handler was executed before being initialized" );
             return;
         }
         try
         {
-            if ( false == spinner.waitForScheduledStartTime( operation, beforeExecuteCheck ) )
+            if ( !spinner.waitForScheduledStartTime( operation, beforeExecuteCheck ) )
             {
                 // TODO something more elaborate here? see comments in Spinner
                 // TODO should probably report failed operation
@@ -153,7 +148,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
             }
             else
             {
-                localCompletionTimeWriter.submitLocalCompletedTime( operation.timeStamp() );
+                completionTimeWriter.submitCompletedTime( operation.timeStamp() );
                 metricsServiceWriter.submitOperationResult(
                         operation.type(),
                         operation.scheduledStartTimeAsMilli(),
@@ -197,6 +192,8 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
     {
         initialized = false;
         if ( null != slot )
-        { slot.release( this ); }
+        {
+            slot.release( this );
+        }
     }
 }

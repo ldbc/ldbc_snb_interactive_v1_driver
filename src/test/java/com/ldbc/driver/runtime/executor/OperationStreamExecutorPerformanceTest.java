@@ -11,9 +11,9 @@ import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.DummyGlobalCompletionTimeReader;
-import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.DummyCompletionTimeReader;
+import com.ldbc.driver.runtime.coordination.DummyCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.DummyCountingMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsService;
@@ -106,10 +106,10 @@ public class OperationStreamExecutorPerformanceTest
                 Map<String,String> dummyDbParameters = new HashMap<>();
                 dummyDbParameters.put( DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString( true ) );
                 db.init( dummyDbParameters, loggingService, new HashMap<Integer,Class<? extends Operation>>() );
-                LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
+                CompletionTimeWriter completionTimeWriter = new DummyCompletionTimeWriter();
                 MetricsService metricsService = new DummyCountingMetricsService();
-                DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli( 0L );
+                DummyCompletionTimeReader completionTimeReader = new DummyCompletionTimeReader();
+                completionTimeReader.setCompletionTimeAsMilli( 0L );
                 AtomicBoolean executorHasFinished = new AtomicBoolean( false );
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean( false );
                 timeSource.setNowFromMilli( 0 );
@@ -128,8 +128,8 @@ public class OperationStreamExecutorPerformanceTest
                         DefaultQueues.DEFAULT_BOUND_1000,
                         db,
                         streamDefinition,
-                        localCompletionTimeWriter,
-                        globalCompletionTimeReader,
+                        completionTimeWriter,
+                        completionTimeReader,
                         spinner,
                         timeSource,
                         errorReporter,
@@ -140,7 +140,7 @@ public class OperationStreamExecutorPerformanceTest
                         errorReporter,
                         streamDefinition,
                         executor,
-                        localCompletionTimeWriter,
+                        completionTimeWriter,
                         executorHasFinished,
                         forceThreadToTerminate
                 );
@@ -160,10 +160,10 @@ public class OperationStreamExecutorPerformanceTest
                 Map<String,String> dummyDbParameters = new HashMap<>();
                 dummyDbParameters.put( DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString( true ) );
                 db.init( dummyDbParameters, loggingService, new HashMap<Integer,Class<? extends Operation>>() );
-                LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
+                CompletionTimeWriter completionTimeWriter = new DummyCompletionTimeWriter();
                 MetricsService metricsService = new DummyCountingMetricsService();
-                DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli( 0L );
+                DummyCompletionTimeReader completionTimeReader = new DummyCompletionTimeReader();
+                completionTimeReader.setCompletionTimeAsMilli( 0L );
                 AtomicBoolean executorHasFinished = new AtomicBoolean( false );
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean( false );
                 timeSource.setNowFromMilli( 0 );
@@ -180,8 +180,8 @@ public class OperationStreamExecutorPerformanceTest
                 OperationExecutor executor = new SingleThreadOperationExecutor(
                         db,
                         streamDefinition,
-                        localCompletionTimeWriter,
-                        globalCompletionTimeReader,
+                        completionTimeWriter,
+                        completionTimeReader,
                         spinner,
                         timeSource,
                         errorReporter,
@@ -193,7 +193,7 @@ public class OperationStreamExecutorPerformanceTest
                         errorReporter,
                         streamDefinition,
                         executor,
-                        localCompletionTimeWriter,
+                        completionTimeWriter,
                         executorHasFinished,
                         forceThreadToTerminate
                 );
@@ -213,10 +213,10 @@ public class OperationStreamExecutorPerformanceTest
                 Map<String,String> dummyDbParameters = new HashMap<>();
                 dummyDbParameters.put( DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString( true ) );
                 db.init( dummyDbParameters, loggingService, new HashMap<Integer,Class<? extends Operation>>() );
-                LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
+                CompletionTimeWriter completionTimeWriter = new DummyCompletionTimeWriter();
                 MetricsService metricsService = new DummyCountingMetricsService();
-                DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli( 0L );
+                DummyCompletionTimeReader completionTimeReader = new DummyCompletionTimeReader();
+                completionTimeReader.setCompletionTimeAsMilli( 0L );
                 AtomicBoolean executorHasFinished = new AtomicBoolean( false );
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean( false );
                 timeSource.setNowFromMilli( 0 );
@@ -233,8 +233,8 @@ public class OperationStreamExecutorPerformanceTest
                 OperationExecutor executor = new SameThreadOperationExecutor(
                         db,
                         streamDefinition,
-                        localCompletionTimeWriter,
-                        globalCompletionTimeReader,
+                        completionTimeWriter,
+                        completionTimeReader,
                         spinner,
                         timeSource,
                         errorReporter,
@@ -245,7 +245,7 @@ public class OperationStreamExecutorPerformanceTest
                         errorReporter,
                         streamDefinition,
                         executor,
-                        localCompletionTimeWriter,
+                        completionTimeWriter,
                         executorHasFinished,
                         forceThreadToTerminate
                 );
@@ -327,7 +327,7 @@ public class OperationStreamExecutorPerformanceTest
             ConcurrentErrorReporter errorReporter,
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
             OperationExecutor operationExecutor,
-            LocalCompletionTimeWriter localCompletionTimeWriter,
+            CompletionTimeWriter completionTimeWriter,
             AtomicBoolean executorHasFinished,
             AtomicBoolean forceThreadToTerminate
     ) throws CompletionTimeException, MetricsCollectionException, DbException
@@ -339,7 +339,7 @@ public class OperationStreamExecutorPerformanceTest
                         streamDefinition,
                         executorHasFinished,
                         forceThreadToTerminate,
-                        localCompletionTimeWriter
+                        completionTimeWriter
                 );
 
         return operationStreamExecutorThread;

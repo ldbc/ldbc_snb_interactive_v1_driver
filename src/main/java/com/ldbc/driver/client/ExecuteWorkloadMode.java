@@ -18,7 +18,7 @@ import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeService;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.DisruptorSbeMetricsService;
 import com.ldbc.driver.runtime.metrics.JsonWorkloadMetricsFormatter;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
@@ -81,8 +81,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
      */
     public WorkloadStatusSnapshot status() throws MetricsCollectionException
     {
-        // TODO
-        return null;
+        throw new UnsupportedOperationException( "Not yet implemented" );
     }
 
     @Override
@@ -283,7 +282,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         try
         {
             completionTimeService =
-                    completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeService(
+                    completionTimeServiceAssistant.newThreadedQueuedCompletionTimeService(
                             timeSource,
                             errorReporter
                     );
@@ -328,48 +327,47 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         {
             if ( completionTimeService.getAllWriters().isEmpty() )
             {
-                // There are no local completion time writers, GCT would never advance or be non-null,
+                // There are no completion time writers, CT would never advance or be non-null,
                 // set to max so nothing ever waits on it
                 long nearlyMaxPossibleTimeAsMilli = Long.MAX_VALUE - 1;
                 long maxPossibleTimeAsMilli = Long.MAX_VALUE;
-                // Create a writer to use for advancing GCT
-                LocalCompletionTimeWriter localCompletionTimeWriter =
-                        completionTimeService.newLocalCompletionTimeWriter();
-                localCompletionTimeWriter.submitLocalInitiatedTime( nearlyMaxPossibleTimeAsMilli );
-                localCompletionTimeWriter.submitLocalCompletedTime( nearlyMaxPossibleTimeAsMilli );
-                localCompletionTimeWriter.submitLocalInitiatedTime( maxPossibleTimeAsMilli );
-                localCompletionTimeWriter.submitLocalCompletedTime( maxPossibleTimeAsMilli );
+                // Create a writer to use for advancing CT
+                CompletionTimeWriter completionTimeWriter = completionTimeService.newCompletionTimeWriter();
+                completionTimeWriter.submitInitiatedTime( nearlyMaxPossibleTimeAsMilli );
+                completionTimeWriter.submitCompletedTime( nearlyMaxPossibleTimeAsMilli );
+                completionTimeWriter.submitInitiatedTime( maxPossibleTimeAsMilli );
+                completionTimeWriter.submitCompletedTime( maxPossibleTimeAsMilli );
             }
             else
             {
-                // There are some local completion time writers, initialize them to lowest time stamp in workload
+                // There are some completion time writers, initialize them to lowest time stamp in workload
                 completionTimeServiceAssistant
                         .writeInitiatedAndCompletedTimesToAllWriters( completionTimeService, minimumTimeStamp - 1 );
                 completionTimeServiceAssistant
                         .writeInitiatedAndCompletedTimesToAllWriters( completionTimeService, minimumTimeStamp );
-                boolean globalCompletionTimeAdvancedToDesiredTime =
-                        completionTimeServiceAssistant.waitForGlobalCompletionTime(
+                boolean completionTimeAdvancedToDesiredTime =
+                        completionTimeServiceAssistant.waitForCompletionTime(
                                 timeSource,
                                 minimumTimeStamp - 1,
                                 TimeUnit.SECONDS.toMillis( 5 ),
                                 completionTimeService,
                                 errorReporter
                         );
-                long globalCompletionTimeWaitTimeoutDurationAsMilli = TimeUnit.SECONDS.toMillis( 5 );
-                if ( !globalCompletionTimeAdvancedToDesiredTime )
+                long completionTimeWaitTimeoutDurationAsMilli = TimeUnit.SECONDS.toMillis( 5 );
+                if ( !completionTimeAdvancedToDesiredTime )
                 {
                     throw new ClientException(
                             format(
-                                    "Timed out [%s] while waiting for global completion time to advance to workload " +
-                                    "start time\nCurrent GCT: %s\nWaiting For GCT: %s",
-                                    globalCompletionTimeWaitTimeoutDurationAsMilli,
-                                    completionTimeService.globalCompletionTimeAsMilli(),
+                                    "Timed out [%s] while waiting for completion time to advance to workload " +
+                                    "start time\nCurrent CT: %s\nWaiting For CT: %s",
+                                    completionTimeWaitTimeoutDurationAsMilli,
+                                    completionTimeService.completionTimeAsMilli(),
                                     controlService.workloadStartTimeAsMilli() )
                     );
                 }
-                loggingService.info( "GCT: " + temporalUtil
-                        .milliTimeToDateTimeString( completionTimeService.globalCompletionTimeAsMilli() ) + " / " +
-                                     completionTimeService.globalCompletionTimeAsMilli() );
+                loggingService.info( "CT: " + temporalUtil
+                        .milliTimeToDateTimeString( completionTimeService.completionTimeAsMilli() ) + " / " +
+                                     completionTimeService.completionTimeAsMilli() );
             }
         }
         catch ( CompletionTimeException e )
@@ -451,10 +449,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     // TODO make this feature accessible directly
                     ResultsLogValidator resultsLogValidator = new ResultsLogValidator();
                     ResultsLogValidationTolerances resultsLogValidationTolerances =
-                            workload.resultsLogValidationTolerances(
-                                    controlService.configuration(),
-                                    warmup
-                            );
+                            workload.resultsLogValidationTolerances( controlService.configuration(), warmup );
                     ResultsLogValidationSummary resultsLogValidationSummary = resultsLogValidator.compute(
                             resultsDirectory.getOrCreateResultsLogFile( warmup ),
                             resultsLogValidationTolerances.excessiveDelayThresholdAsMilli()

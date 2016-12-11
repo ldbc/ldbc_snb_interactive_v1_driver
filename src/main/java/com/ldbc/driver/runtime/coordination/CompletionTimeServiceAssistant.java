@@ -8,19 +8,21 @@ import java.util.List;
 
 public class CompletionTimeServiceAssistant
 {
-    public void writeInitiatedAndCompletedTimesToAllWriters( CompletionTimeService completionTimeService,
+    public void writeInitiatedAndCompletedTimesToAllWriters(
+            CompletionTimeService completionTimeService,
             long timeAsMilli ) throws CompletionTimeException
     {
-        List<LocalCompletionTimeWriter> writers = completionTimeService.getAllWriters();
-        for ( LocalCompletionTimeWriter writer : writers )
+        List<CompletionTimeWriter> writers = completionTimeService.getAllWriters();
+        for ( CompletionTimeWriter writer : writers )
         {
-            writer.submitLocalInitiatedTime( timeAsMilli );
-            writer.submitLocalCompletedTime( timeAsMilli );
+            writer.submitInitiatedTime( timeAsMilli );
+            writer.submitCompletedTime( timeAsMilli );
         }
     }
 
-    public boolean waitForGlobalCompletionTime( TimeSource timeSource,
-            long globalCompletionTimeToWaitForAsMilli,
+    public boolean waitForCompletionTime(
+            TimeSource timeSource,
+            long completionTimeToWaitForAsMilli,
             long timeoutDurationAsMilli,
             CompletionTimeService completionTimeService,
             ConcurrentErrorReporter errorReporter ) throws CompletionTimeException
@@ -29,27 +31,26 @@ public class CompletionTimeServiceAssistant
         long timeoutTimeAsMilli = timeSource.nowAsMilli() + timeoutDurationAsMilli;
         while ( timeSource.nowAsMilli() < timeoutTimeAsMilli )
         {
-            long currentGlobalCompletionTimeAsMilli = completionTimeService.globalCompletionTimeAsMilli();
-            if ( -1 == currentGlobalCompletionTimeAsMilli )
+            long currentCompletionTimeAsMilli = completionTimeService.completionTimeAsMilli();
+            if ( -1 == currentCompletionTimeAsMilli )
             { continue; }
-            if ( globalCompletionTimeToWaitForAsMilli <= currentGlobalCompletionTimeAsMilli )
+            if ( completionTimeToWaitForAsMilli <= currentCompletionTimeAsMilli )
             { return true; }
             if ( errorReporter.errorEncountered() )
             {
-                throw new CompletionTimeException( "Encountered error while waiting for GCT" );
+                throw new CompletionTimeException( "Encountered error while waiting for CT" );
             }
             Spinner.powerNap( sleepDurationAsMilli );
         }
         return false;
     }
 
-    public SynchronizedCompletionTimeService newSynchronizedConcurrentCompletionTimeService()
-            throws CompletionTimeException
+    public SynchronizedCompletionTimeService newSynchronizedCompletionTimeService() throws CompletionTimeException
     {
         return new SynchronizedCompletionTimeService();
     }
 
-    public ThreadedQueuedCompletionTimeService newThreadedQueuedConcurrentCompletionTimeService(
+    public ThreadedQueuedCompletionTimeService newThreadedQueuedCompletionTimeService(
             TimeSource timeSource,
             ConcurrentErrorReporter errorReporter ) throws CompletionTimeException
     {

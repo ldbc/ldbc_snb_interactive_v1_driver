@@ -24,13 +24,12 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
 
     private final TimeSource timeSource;
     private final QueueEventSubmitter<CompletionTimeEvent> queueEventSubmitter;
-    private final AtomicLong sharedGctReference;
+    private final AtomicLong sharedCtReference;
     private final AtomicLong sharedWriteEventCountReference;
-    private final ThreadedQueuedConcurrentCompletionTimeServiceThread
-            threadedQueuedConcurrentCompletionTimeServiceThread;
+    private final ThreadedQueuedCompletionTimeServiceThread threadedQueuedCompletionTimeServiceThread;
     private final AtomicBoolean sharedIsShuttingDownReference = new AtomicBoolean( false );
     private final ConcurrentErrorReporter errorReporter;
-    private final List<LocalCompletionTimeWriter> writers = new ArrayList<>();
+    private final List<CompletionTimeWriter> writers = new ArrayList<>();
 
     ThreadedQueuedCompletionTimeService( TimeSource timeSource,
             ConcurrentErrorReporter errorReporter ) throws CompletionTimeException
@@ -39,35 +38,34 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         this.errorReporter = errorReporter;
         Queue<CompletionTimeEvent> completionTimeEventQueue = DefaultQueues.newBlockingBounded( 10000 );
         this.queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor( completionTimeEventQueue );
-
-        this.sharedGctReference = new AtomicLong( -1 );
+        this.sharedCtReference = new AtomicLong( -1 );
         this.sharedWriteEventCountReference = new AtomicLong( 0 );
-        threadedQueuedConcurrentCompletionTimeServiceThread = new ThreadedQueuedConcurrentCompletionTimeServiceThread(
+        threadedQueuedCompletionTimeServiceThread = new ThreadedQueuedCompletionTimeServiceThread(
                 completionTimeEventQueue,
                 errorReporter,
-                sharedGctReference );
-        threadedQueuedConcurrentCompletionTimeServiceThread.start();
+                sharedCtReference );
+        threadedQueuedCompletionTimeServiceThread.start();
     }
 
     @Override
-    public long globalCompletionTimeAsMilli()
+    public long completionTimeAsMilli()
     {
-        return sharedGctReference.get();
+        return sharedCtReference.get();
     }
 
     @Override
-    public LocalCompletionTimeWriter newLocalCompletionTimeWriter() throws CompletionTimeException
+    public CompletionTimeWriter newCompletionTimeWriter() throws CompletionTimeException
     {
         long futureTimeoutDurationAsMilli = TimeUnit.MINUTES.toMillis( 1 );
         try
         {
-            LocalCompletionTimeWriterFuture future = new LocalCompletionTimeWriterFuture( timeSource );
-            queueEventSubmitter.submitEventToQueue( CompletionTimeEvent.newLocalCompletionTimeWriter( future ) );
+            CompletionTimeWriterFuture future = new CompletionTimeWriterFuture( timeSource );
+            queueEventSubmitter.submitEventToQueue( CompletionTimeEvent.newCompletionTimeWriter( future ) );
             int writerId;
             try
             {
                 writerId = future.get( futureTimeoutDurationAsMilli, TimeUnit.MILLISECONDS );
-                LocalCompletionTimeWriter writer = new ThreadedQueuedLocalCompletionTimeWriter(
+                CompletionTimeWriter writer = new ThreadedQueuedCompletionTimeWriter(
                         writerId,
                         sharedIsShuttingDownReference,
                         sharedWriteEventCountReference,
@@ -83,29 +81,36 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         }
         catch ( Exception e )
         {
-            throw new CompletionTimeException( "Error requesting new local completion time writer", e );
+            throw new CompletionTimeException( "Error requesting new completion time writer", e );
         }
     }
 
     @Override
-    synchronized public Future<Long> globalCompletionTimeAsMilliFuture() throws CompletionTimeException
+    synchronized public Future<Long> completionTimeAsMilliFuture() throws CompletionTimeException
     {
         try
         {
-            GlobalCompletionTimeFuture future = new GlobalCompletionTimeFuture( timeSource );
-            queueEventSubmitter.submitEventToQueue( CompletionTimeEvent.globalCompletionTimeFuture( future ) );
+            CompletionTimeFuture future = new CompletionTimeFuture( timeSource );
+            queueEventSubmitter.submitEventToQueue( CompletionTimeEvent.completionTimeFuture( future ) );
             return future;
         }
         catch ( Exception e )
         {
-            throw new CompletionTimeException( "Error requesting GCT future", e );
+            throw new CompletionTimeException( "Error requesting CT future", e );
         }
     }
 
     @Override
-    public List<LocalCompletionTimeWriter> getAllWriters() throws CompletionTimeException
+    public List<CompletionTimeWriter> getAllWriters() throws CompletionTimeException
     {
         return writers;
+    }
+
+    @Override
+    // TODO remove from interface
+    public long lastKnownLowestInitiatedTimeAsMilli() throws CompletionTimeException
+    {
+        throw new UnsupportedOperationException( "Method not supported" );
     }
 
     @Override
@@ -130,7 +135,7 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         }
         while ( timeSource.nowAsMilli() < shutdownTimeoutTimeAsMilli )
         {
-            if ( threadedQueuedConcurrentCompletionTimeServiceThread.shutdownComplete() )
+            if ( threadedQueuedCompletionTimeServiceThread.shutdownComplete() )
             {
                 return;
             }
@@ -144,14 +149,14 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         throw new CompletionTimeException( "Service took too long to shutdown" );
     }
 
-    public static class ThreadedQueuedLocalCompletionTimeWriter implements LocalCompletionTimeWriter
+    public static class ThreadedQueuedCompletionTimeWriter implements CompletionTimeWriter
     {
         private final int writerId;
         private final AtomicBoolean sharedIsShuttingDownReference;
         private final AtomicLong sharedWriteEventCountReference;
         private final QueueEventSubmitter<CompletionTimeEvent> queueEventSubmitter;
 
-        ThreadedQueuedLocalCompletionTimeWriter( int writerId,
+        ThreadedQueuedCompletionTimeWriter( int writerId,
                 AtomicBoolean sharedIsShuttingDownReference,
                 AtomicLong sharedWriteEventCountReference,
                 QueueEventSubmitter<CompletionTimeEvent> queueEventSubmitter )
@@ -163,7 +168,7 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         }
 
         @Override
-        public void submitLocalInitiatedTime( long timeAsMilli ) throws CompletionTimeException
+        public void submitInitiatedTime( long timeAsMilli ) throws CompletionTimeException
         {
             if ( sharedIsShuttingDownReference.get() )
             {
@@ -172,8 +177,8 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
             try
             {
                 sharedWriteEventCountReference.incrementAndGet();
-                queueEventSubmitter
-                        .submitEventToQueue( CompletionTimeEvent.writeLocalInitiatedTime( writerId, timeAsMilli ) );
+                queueEventSubmitter.submitEventToQueue(
+                        CompletionTimeEvent.writeInitiatedTime( writerId, timeAsMilli ) );
             }
             catch ( Exception e )
             {
@@ -183,13 +188,13 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         }
 
         @Override
-        public void submitLocalCompletedTime( long timeAsMilli ) throws CompletionTimeException
+        public void submitCompletedTime( long timeAsMilli ) throws CompletionTimeException
         {
             try
             {
                 sharedWriteEventCountReference.incrementAndGet();
-                queueEventSubmitter
-                        .submitEventToQueue( CompletionTimeEvent.writeLocalCompletedTime( writerId, timeAsMilli ) );
+                queueEventSubmitter.submitEventToQueue(
+                        CompletionTimeEvent.writeCompletedTime( writerId, timeAsMilli ) );
             }
             catch ( Exception e )
             {
@@ -201,17 +206,17 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         @Override
         public String toString()
         {
-            return "ThreadedQueuedLocalCompletionTimeWriter{" + "writerId=" + writerId + '}';
+            return "ThreadedQueuedCompletionTimeWriter{" + "writerId=" + writerId + '}';
         }
     }
 
-    public static class GlobalCompletionTimeFuture implements Future<Long>
+    public static class CompletionTimeFuture implements Future<Long>
     {
         private final TimeSource timeSource;
         private final AtomicBoolean done = new AtomicBoolean( false );
-        private final AtomicLong globalCompletionTimeReference = new AtomicLong( -1 );
+        private final AtomicLong completionTimeReference = new AtomicLong( -1 );
 
-        private GlobalCompletionTimeFuture( TimeSource timeSource )
+        private CompletionTimeFuture( TimeSource timeSource )
         {
             this.timeSource = timeSource;
         }
@@ -219,8 +224,10 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         synchronized void set( long timeAsMilli ) throws CompletionTimeException
         {
             if ( done.get() )
-            { throw new CompletionTimeException( "Value has already been set" ); }
-            this.globalCompletionTimeReference.set( timeAsMilli );
+            {
+                throw new CompletionTimeException( "Value has already been set" );
+            }
+            this.completionTimeReference.set( timeAsMilli );
             done.set( true );
         }
 
@@ -250,7 +257,7 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
                 // wait for value to be set
                 // TODO sleep?
             }
-            return globalCompletionTimeReference.get();
+            return completionTimeReference.get();
         }
 
         @Override
@@ -262,19 +269,22 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
             {
                 // wait for value to be set
                 if ( done.get() )
-                { return globalCompletionTimeReference.get(); }
+                {
+                    return completionTimeReference.get();
+                }
+                // TODO sleep?
             }
             throw new TimeoutException( "Could not complete future in time" );
         }
     }
 
-    public static class LocalCompletionTimeWriterFuture implements Future<Integer>
+    public static class CompletionTimeWriterFuture implements Future<Integer>
     {
         private final TimeSource timeSource;
         private final AtomicBoolean done = new AtomicBoolean( false );
         private final AtomicInteger writerId = new AtomicInteger();
 
-        private LocalCompletionTimeWriterFuture( TimeSource timeSource )
+        private CompletionTimeWriterFuture( TimeSource timeSource )
         {
             this.timeSource = timeSource;
         }
@@ -282,7 +292,9 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
         synchronized void set( int value ) throws CompletionTimeException
         {
             if ( done.get() )
-            { throw new CompletionTimeException( "Value has already been set" ); }
+            {
+                throw new CompletionTimeException( "Value has already been set" );
+            }
             this.writerId.set( value );
             done.set( true );
         }
@@ -325,7 +337,10 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
             {
                 // wait for value to be set
                 if ( done.get() )
-                { return writerId.get(); }
+                {
+                    return writerId.get();
+                }
+                // TODO sleep?
             }
             throw new TimeoutException( "Could not complete future in time" );
         }

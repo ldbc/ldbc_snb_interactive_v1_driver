@@ -63,7 +63,7 @@ class WorkloadStatusThread extends Thread
                 loggingService.status(
                         status,
                         settableRecentThroughputAndDuration,
-                        completionTimeService.globalCompletionTimeAsMilli()
+                        completionTimeService.completionTimeAsMilli()
                 );
 
                 Spinner.powerNap( statusUpdateIntervalAsMilli );
