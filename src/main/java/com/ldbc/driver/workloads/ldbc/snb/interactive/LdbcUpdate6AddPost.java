@@ -28,6 +28,9 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
     private final long forumId;
     private final long countryId;
     private final List<Long> tagIds;
+    private final List<Long> mentionedIds;
+    private final Boolean privacy;
+    private final String link;
 
     public LdbcUpdate6AddPost( long postId,
             String imageFile,
@@ -40,7 +43,10 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
             long authorPersonId,
             long forumId,
             long countryId,
-            List<Long> tagIds )
+            List<Long> tagIds,
+            List<Long> mentionedIds,
+            Boolean privacy,
+            String link)
     {
         this.postId = postId;
         this.imageFile = imageFile;
@@ -54,6 +60,9 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
         this.forumId = forumId;
         this.countryId = countryId;
         this.tagIds = tagIds;
+	this.mentionedIds = mentionedIds;
+	this.privacy = privacy;
+	this.link = link;
     }
 
     public long postId()
@@ -116,6 +125,21 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
         return tagIds;
     }
 
+    public List<Long> mentionedIds()
+    {
+        return mentionedIds;
+    }
+
+    public Boolean privacy()
+    {
+	return privacy;
+    }
+    
+    public String link()
+    {
+        return link;
+    }
+
     @Override
     public boolean equals( Object o )
     {
@@ -150,7 +174,13 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
         { return false; }
         if ( tagIds != null ? !ListUtils.listsEqual( sort( tagIds ), sort( that.tagIds ) ) : that.tagIds != null )
         { return false; }
-
+        if ( mentionedIds != null ? !ListUtils.listsEqual( sort( mentionedIds ), sort( that.mentionedIds ) ) : that.mentionedIds != null )
+        { return false; }
+	if ( privacy != null ? !privacy.equals( that.privacy ) : that.privacy != null )
+	{ return false; }
+	if ( link != null ? !link.equals( that.link ) : that.link != null )
+	{ return false; }
+	
         return true;
     }
 
@@ -175,6 +205,9 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
         result = 31 * result + (int) (forumId ^ (forumId >>> 32));
         result = 31 * result + (int) (countryId ^ (countryId >>> 32));
         result = 31 * result + (tagIds != null ? tagIds.hashCode() : 0);
+	result = 31 * result + (mentionedIds != null ? mentionedIds.hashCode() : 0);
+	result = 31 * result + (privacy != null ? privacy.hashCode() : 0);
+	result = 31 * result + (link != null ? link.hashCode() : 0);
         return result;
     }
 
@@ -194,6 +227,9 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
                ", forumId=" + forumId +
                ", countryId=" + countryId +
                ", tagIds=" + tagIds +
+               ", mentionedIds=" + mentionedIds +
+               ", privacy=" + privacy +
+               ", link=" + link +
                '}';
     }
 

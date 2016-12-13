@@ -560,19 +560,25 @@ public class InteractiveOperationEqualityTest
         long forumId1 = 10;
         long countryId1 = 11;
         List<Long> tagIds1 = Lists.newArrayList(12l);
+	List<Long> mentionedIds1 = Lists.newArrayList(13l);
+	Boolean privacy1 = null;
+	String link1 = "14";
 
-        long postId2 = 13;
-        String imageFile2 = "14";
-        Date creationDate2 = new Date(15);
-        String locationIp2 = "16";
-        String browserUsed2 = "17";
-        String language2 = "18";
-        String content2 = "19";
-        int length2 = 20;
-        long authorPersonId2 = 21;
-        long forumId2 = 22;
-        long countryId2 = 23;
-        List<Long> tagIds2 = Lists.newArrayList(24l, 25l, 26l);
+        long postId2 = 15;
+        String imageFile2 = "16";
+        Date creationDate2 = new Date(17);
+        String locationIp2 = "18";
+        String browserUsed2 = "19";
+        String language2 = "20";
+        String content2 = "21";
+        int length2 = 22;
+        long authorPersonId2 = 23;
+        long forumId2 = 24;
+        long countryId2 = 25;
+        List<Long> tagIds2 = Lists.newArrayList(26l, 27l, 28l);
+	List<Long> mentionedIds2 = Lists.newArrayList(29l);
+	Boolean privacy2 = null;
+	String link2 = "30";
 
         // When
         LdbcUpdate6AddPost ldbcUpdate1a = new LdbcUpdate6AddPost(
@@ -587,7 +593,10 @@ public class InteractiveOperationEqualityTest
                 authorPersonId1,
                 forumId1,
                 countryId1,
-                tagIds1);
+                tagIds1,
+		mentionedIds1,
+		privacy1,
+		link1);
 
         LdbcUpdate6AddPost ldbcUpdate1b = new LdbcUpdate6AddPost(
                 postId1,
@@ -601,7 +610,10 @@ public class InteractiveOperationEqualityTest
                 authorPersonId1,
                 forumId1,
                 countryId1,
-                tagIds1);
+                tagIds1,
+		mentionedIds1,
+		privacy1,
+		link1);
 
         LdbcUpdate6AddPost ldbcUpdate2a = new LdbcUpdate6AddPost(
                 postId2,
@@ -615,7 +627,10 @@ public class InteractiveOperationEqualityTest
                 authorPersonId2,
                 forumId2,
                 countryId2,
-                tagIds2);
+                tagIds2,
+		mentionedIds2,
+		privacy2,
+		link2);
 
         LdbcUpdate6AddPost ldbcUpdate3a = new LdbcUpdate6AddPost(
                 postId1,
@@ -629,7 +644,10 @@ public class InteractiveOperationEqualityTest
                 authorPersonId1,
                 forumId1,
                 countryId1,
-                tagIds2);
+                tagIds2,
+		mentionedIds2,
+		privacy2,
+		link2);
 
 
         // Then
@@ -653,18 +671,27 @@ public class InteractiveOperationEqualityTest
         long replyToPostId1 = 9;
         long replyToCommentId1 = 10;
         List<Long> tagIds1 = Lists.newArrayList();
+	List<Long> mentionedIds1 = Lists.newArrayList();
+	Boolean privacy1 = null;
+	String link1 = "11";
+	String gif1 = "12";
 
-        long commentId2 = 11;
-        Date creationDate2 = new Date(12);
+        long commentId2 = 13;
+        Date creationDate2 = new Date(14);
         String locationIp2 = "\u0634";
-        String browserUsed2 = "14";
-        String content2 = "15";
-        int length2 = 16;
-        long authorPersonId2 = 17;
-        long countryId2 = 18;
-        long replyToPostId2 = 19;
-        long replyToCommentId2 = 20;
-        List<Long> tagIds2 = Lists.newArrayList(21l);
+        String browserUsed2 = "15";
+        String content2 = "16";
+        int length2 = 17;
+        long authorPersonId2 = 18;
+        long countryId2 = 19;
+        long replyToPostId2 = 20;
+        long replyToCommentId2 = 21;
+        List<Long> tagIds2 = Lists.newArrayList(22l);
+	List<Long> mentionedIds2 = Lists.newArrayList(23l);
+	Boolean privacy2 = null;
+	String link2 = "24";
+	String gif2 = "25";
+	
 
         // When
         LdbcUpdate7AddComment ldbcUpdate1a = new LdbcUpdate7AddComment(
@@ -678,7 +705,11 @@ public class InteractiveOperationEqualityTest
                 countryId1,
                 replyToPostId1,
                 replyToCommentId1,
-                tagIds1);
+                tagIds1,
+		mentionedIds1,
+		privacy1,
+		link1,
+		gif1);
 
         LdbcUpdate7AddComment ldbcUpdate1b = new LdbcUpdate7AddComment(
                 commentId1,
@@ -691,7 +722,11 @@ public class InteractiveOperationEqualityTest
                 countryId1,
                 replyToPostId1,
                 replyToCommentId1,
-                tagIds1);
+                tagIds1,
+		mentionedIds1,
+		privacy1,
+		link1,
+		gif1);
 
         LdbcUpdate7AddComment ldbcUpdate2a = new LdbcUpdate7AddComment(
                 commentId2,
@@ -704,7 +739,11 @@ public class InteractiveOperationEqualityTest
                 countryId2,
                 replyToPostId2,
                 replyToCommentId2,
-                tagIds2);
+                tagIds2,
+		mentionedIds2,
+		privacy2,
+		link2,
+		gif2);
 
         LdbcUpdate7AddComment ldbcUpdate3a = new LdbcUpdate7AddComment(
                 commentId1,
@@ -717,7 +756,11 @@ public class InteractiveOperationEqualityTest
                 countryId1,
                 replyToPostId1,
                 replyToCommentId1,
-                tagIds2);
+                tagIds2,
+		mentionedIds2,
+		privacy2,
+		link2,
+		gif2);
 
         // Then
         assertThat(ldbcUpdate1a, equalTo(ldbcUpdate1b));

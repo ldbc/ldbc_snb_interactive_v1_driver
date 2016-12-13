@@ -2572,9 +2572,20 @@ public class LdbcSnbInteractiveWorkload extends Workload
                             return number.longValue();
                         }
                     } ) );
+	    List<Long> mentionedIds = Lists.newArrayList(
+                    Iterables.transform( (List<Number>) operationAsList.get( 13 ), new Function<Number,Long>()
+                    {
+                        @Override
+                        public Long apply( Number number )
+                        {
+                            return number.longValue();
+                        }
+                    } ) );
+	    Boolean privacy = (Boolean) operationAsList.get( 14 );
+	    String link = (String) operationAsList.get( 15 );
 
             return new LdbcUpdate6AddPost( postId, imageFile, creationDate, locationIp, browserUsed, language, content,
-                    length, authorPersonId, forumId, countryId, tagIds );
+					   length, authorPersonId, forumId, countryId, tagIds, mentionedIds, privacy, link);
         }
 
         if ( operationTypeName.equals( LdbcUpdate7AddComment.class.getName() ) )
@@ -2598,9 +2609,22 @@ public class LdbcSnbInteractiveWorkload extends Workload
                             return number.longValue();
                         }
                     } ) );
+	    List<Long> mentionedIds = Lists.newArrayList(
+                    Iterables.transform( (List<Number>) operationAsList.get( 12 ), new Function<Number,Long>()
+                    {
+                        @Override
+                        public Long apply( Number number )
+                        {
+                            return number.longValue();
+                        }
+                    } ) );
+	    Boolean privacy = (Boolean) operationAsList.get( 13 );
+	    String link = (String) operationAsList.get( 14 );
+	    String gif = (String) operationAsList.get( 15 );
+	    
 
             return new LdbcUpdate7AddComment( commentId, creationDate, locationIp, browserUsed, content, length,
-                    authorPersonId, countryId, replyToPostId, replyToCommentId, tagIds );
+					      authorPersonId, countryId, replyToPostId, replyToCommentId, tagIds, mentionedIds, privacy, link, gif );
         }
 
         if ( operationTypeName.equals( LdbcUpdate8AddFriendship.class.getName() ) )
