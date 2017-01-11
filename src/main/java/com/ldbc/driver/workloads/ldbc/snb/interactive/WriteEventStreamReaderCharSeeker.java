@@ -64,11 +64,16 @@ public class WriteEventStreamReaderCharSeeker {
 
                 Long birthdayAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    birthdayAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
+		    String birthdayAsMilliStr = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == birthdayAsMilliStr) birthdayAsMilli = null;
+		    else birthdayAsMilli = Long.parseLong(birthdayAsMilliStr);
+                    //birthdayAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving birthday");
                 }
-                Date birthday = new Date(birthdayAsMilli);
+		Date birthday = null;
+		if (birthdayAsMilli != null)
+		    birthday = new Date(birthdayAsMilli);
 
                 long creationDateAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
