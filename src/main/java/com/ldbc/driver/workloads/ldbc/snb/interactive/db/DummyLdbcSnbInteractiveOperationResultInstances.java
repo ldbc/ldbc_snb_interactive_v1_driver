@@ -60,11 +60,11 @@ public class DummyLdbcSnbInteractiveOperationResultInstances {
     }
 
     public static LdbcQuery13Result read13Result() {
-        return new LdbcQuery13Result(1);
+	return new LdbcQuery13Result(1, "\u16a0", "\u3055", 4, "\u4e35", 6);
     }
 
     public static LdbcQuery14Result read14Result() {
-        return new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 3);
+	return new LdbcQuery14Result("\u16a0", 2);
     }
 
     /*

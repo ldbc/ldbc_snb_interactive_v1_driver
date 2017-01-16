@@ -621,15 +621,14 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
                 }
                 break;
             }
-            case LdbcQuery14.TYPE:
+	    case LdbcQuery13.TYPE:
             {
-                List<LdbcQuery14Result> typedResults = (List<LdbcQuery14Result>) result;
+                List<LdbcQuery13Result> typedResults = (List<LdbcQuery13Result>) result;
                 for ( int i = 0; i < typedResults.size(); i++ )
                 {
-                    for ( Number personId : typedResults.get( i ).personsIdsInPath() )
-                    {
-                        personIdBuffer.add( personId.longValue() );
-                    }
+                    LdbcQuery13Result typedResult = typedResults.get( i );
+                    personIdBuffer.add( typedResult.personId() );
+                    messageIdBuffer.add( typedResult.postOrCommentId() );
                 }
                 break;
             }

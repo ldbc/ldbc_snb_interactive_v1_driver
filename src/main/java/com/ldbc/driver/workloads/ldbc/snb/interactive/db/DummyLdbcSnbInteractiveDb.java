@@ -445,7 +445,7 @@ public class DummyLdbcSnbInteractiveDb extends Db
         }
     }
 
-    private static final LdbcQuery13Result LDBC_QUERY_13_RESULTS =
+    private static final List<LdbcQuery13Result> LDBC_QUERY_13_RESULTS =
             DummyLdbcSnbInteractiveOperationResultSets.read13Results();
 
     public static class LdbcQuery13Handler implements OperationHandler<LdbcQuery13,DummyDbConnectionState>

@@ -60,11 +60,11 @@ public class DummyLdbcSnbInteractiveOperationInstances {
     }
 
     public static LdbcQuery13 read13() {
-        return new LdbcQuery13(1, 3);
+        return new LdbcQuery13(1, new Date(3));
     }
 
     public static LdbcQuery14 read14() {
-        return new LdbcQuery14(1, 3);
+        return new LdbcQuery14(1, new Date(3));
     }
 
     /*

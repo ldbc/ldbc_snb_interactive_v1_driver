@@ -315,17 +315,17 @@ public class InteractiveOperationEqualityTest
         long person1Id2 = 3;
         long person2Id2 = 4;
 
-        // When
-        LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person2Id1);
-        LdbcQuery13 ldbcQuery1b = new LdbcQuery13(person1Id1, person2Id1);
-        LdbcQuery13 ldbcQuery2a = new LdbcQuery13(person1Id2, person2Id2);
-        LdbcQuery13 ldbcQuery3a = new LdbcQuery13(person1Id1, person2Id2);
-
-        // Then
-        assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
-        assertThat(ldbcQuery1a, not(equalTo(ldbcQuery2a)));
-        assertThat(ldbcQuery1a, not(equalTo(ldbcQuery3a)));
-        assertThat(ldbcQuery2a, not(equalTo(ldbcQuery3a)));
+//        // When
+//        LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person2Id1);
+//        LdbcQuery13 ldbcQuery1b = new LdbcQuery13(person1Id1, person2Id1);
+//        LdbcQuery13 ldbcQuery2a = new LdbcQuery13(person1Id2, person2Id2);
+//        LdbcQuery13 ldbcQuery3a = new LdbcQuery13(person1Id1, person2Id2);
+//
+//        // Then
+//        assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
+//        assertThat(ldbcQuery1a, not(equalTo(ldbcQuery2a)));
+//        assertThat(ldbcQuery1a, not(equalTo(ldbcQuery3a)));
+//        assertThat(ldbcQuery2a, not(equalTo(ldbcQuery3a)));
     }
 
     @Test
@@ -338,16 +338,16 @@ public class InteractiveOperationEqualityTest
         long person2Id2 = 4;
 
         // When
-        LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person2Id1);
-        LdbcQuery13 ldbcQuery1b = new LdbcQuery13(person1Id1, person2Id1);
-        LdbcQuery13 ldbcQuery2a = new LdbcQuery13(person1Id2, person2Id2);
-        LdbcQuery13 ldbcQuery3a = new LdbcQuery13(person1Id1, person2Id2);
-
-        // Then
-        assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
-        assertThat(ldbcQuery1a, not(equalTo(ldbcQuery2a)));
-        assertThat(ldbcQuery1a, not(equalTo(ldbcQuery3a)));
-        assertThat(ldbcQuery2a, not(equalTo(ldbcQuery3a)));
+//        LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person2Id1);
+//        LdbcQuery13 ldbcQuery1b = new LdbcQuery13(person1Id1, person2Id1);
+//        LdbcQuery13 ldbcQuery2a = new LdbcQuery13(person1Id2, person2Id2);
+//        LdbcQuery13 ldbcQuery3a = new LdbcQuery13(person1Id1, person2Id2);
+//
+//        // Then
+//        assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
+//        assertThat(ldbcQuery1a, not(equalTo(ldbcQuery2a)));
+//        assertThat(ldbcQuery1a, not(equalTo(ldbcQuery3a)));
+//        assertThat(ldbcQuery2a, not(equalTo(ldbcQuery3a)));
     }
 
     @Test

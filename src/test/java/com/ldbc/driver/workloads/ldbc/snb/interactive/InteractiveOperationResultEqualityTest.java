@@ -407,33 +407,47 @@ public class InteractiveOperationResultEqualityTest
 
     @Test
     public void ldbcQuery13ResultShouldDoEqualsCorrectly() {
-        int shortestPathLength1 = 1;
+	long personId1 = 1;
+        String personFirstName1 = "\u16a0";
+        String personLastName1 = "\u16a0";
+        long postOrCommentId1 = 1;
+        String postOrCommentContent1 = "\u16a0";
+        long postOrCommentCreationDate1 = 1;
 
-        int shortestPathLength2 = 2;
+        long personId2 = 2;
+        String personFirstName2 = "\u3055";
+        String personLastName2 = "\u3055";
+        long postOrCommentId2 = 2;
+        String postOrCommentContent2 = "\u3055";
+        long postOrCommentCreationDate2 = 2;
 
-        LdbcQuery13Result result1a = new LdbcQuery13Result(shortestPathLength1);
-        LdbcQuery13Result result1b = new LdbcQuery13Result(shortestPathLength1);
-        LdbcQuery13Result result2a = new LdbcQuery13Result(shortestPathLength2);
-
-        assertThat(result1a, equalTo(result1b));
-        assertThat(result1a, not(equalTo(result2a)));
-        assertThat(result1b, not(equalTo(result2a)));
-    }
-
-    @Test
-    public void ldbcQuery14ResultShouldDoEqualsCorrectly() {
-        LdbcQuery14Result result1a = new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 1d);
-        LdbcQuery14Result result1b = new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 1d);
-        LdbcQuery14Result result2a = new LdbcQuery14Result(Lists.newArrayList(1l, 3l), 2d);
-        LdbcQuery14Result result3a = new LdbcQuery14Result(Lists.newArrayList(2l, 1l), 1d);
-        LdbcQuery14Result result4a = new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 2d);
+        LdbcQuery13Result result1a = new LdbcQuery13Result(personId1, personFirstName1, personLastName1, postOrCommentId1, postOrCommentContent1, postOrCommentCreationDate1);
+        LdbcQuery13Result result1b = new LdbcQuery13Result(personId1, personFirstName1, personLastName1, postOrCommentId1, postOrCommentContent1, postOrCommentCreationDate1);
+        LdbcQuery13Result result2a = new LdbcQuery13Result(personId2, personFirstName2, personLastName2, postOrCommentId2, postOrCommentContent2, postOrCommentCreationDate2);
+        LdbcQuery13Result result3a = new LdbcQuery13Result(personId1, personFirstName1, personLastName1, postOrCommentId1, postOrCommentContent1, postOrCommentCreationDate2);
 
         assertThat(result1a, equalTo(result1b));
         assertThat(result1a, not(equalTo(result2a)));
         assertThat(result1a, not(equalTo(result3a)));
-        assertThat(result1a, not(equalTo(result4a)));
         assertThat(result2a, not(equalTo(result3a)));
-        assertThat(result2a, not(equalTo(result4a)));
-        assertThat(result3a, not(equalTo(result4a)));
+    }
+
+    @Test
+    public void ldbcQuery14ResultShouldDoEqualsCorrectly() {
+	String link1 = "\u16a0";
+        int linkCount1 = 2;
+
+        String link2 = "\u4e35";
+        int linkCount2 = 4;
+
+        LdbcQuery14Result result1a = new LdbcQuery14Result(link1, linkCount1);
+        LdbcQuery14Result result1b = new LdbcQuery14Result(link1, linkCount1);
+        LdbcQuery14Result result2a = new LdbcQuery14Result(link2, linkCount2);
+        LdbcQuery14Result result3a = new LdbcQuery14Result(link1, linkCount2);
+
+        assertThat(result1a, equalTo(result1b));
+        assertThat(result1a, not(equalTo(result2a)));
+        assertThat(result1a, not(equalTo(result3a)));
+        assertThat(result2a, not(equalTo(result3a)));	
     }
 }

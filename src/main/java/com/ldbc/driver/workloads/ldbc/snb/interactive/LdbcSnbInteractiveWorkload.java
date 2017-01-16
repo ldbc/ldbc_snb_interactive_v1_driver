@@ -1928,8 +1928,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery13 ldbcQuery = (LdbcQuery13) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.person1Id() );
-            operationAsList.add( ldbcQuery.person2Id() );
+            operationAsList.add( ldbcQuery.personId() );
+            operationAsList.add( ldbcQuery.maxDate().getTime() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1945,8 +1945,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery14 ldbcQuery = (LdbcQuery14) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.person1Id() );
-            operationAsList.add( ldbcQuery.person2Id() );
+            operationAsList.add( ldbcQuery.personId() );
+            operationAsList.add( ldbcQuery.maxDate().getTime() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2397,16 +2397,16 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         if ( operationTypeName.equals( LdbcQuery13.class.getName() ) )
         {
-            long person1Id = ((Number) operationAsList.get( 1 )).longValue();
-            long person2Id = ((Number) operationAsList.get( 2 )).longValue();
-            return new LdbcQuery13( person1Id, person2Id );
+	    long personId = ((Number) operationAsList.get( 1 )).longValue();
+            Date maxDate = new Date( ((Number) operationAsList.get( 2 )).longValue() );
+            return new LdbcQuery13( personId, maxDate );
         }
 
         if ( operationTypeName.equals( LdbcQuery14.class.getName() ) )
         {
-            long person1Id = ((Number) operationAsList.get( 1 )).longValue();
-            long person2Id = ((Number) operationAsList.get( 2 )).longValue();
-            return new LdbcQuery14( person1Id, person2Id );
+            long personId = ((Number) operationAsList.get( 1 )).longValue();
+            Date maxDate = new Date( ((Number) operationAsList.get( 2 )).longValue() );
+            return new LdbcQuery14( personId, maxDate );
         }
 
         if ( operationTypeName.equals( LdbcShortQuery1PersonProfile.class.getName() ) )
@@ -2666,70 +2666,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         if ( null == result1 || null == result2 )
         {
             return false;
-        }
-        else if ( operation.type() == LdbcQuery14.TYPE )
-        {
-            // TODO can this logic not be moved to LdbcQuery14Result class and performed in equals() method?
-            /*
-            Group results by weight, because results with same weight can come in any order
-                Convert
-                   [(weight, [ids...]), ...]
-                To
-                   Map<weight, [(weight, [ids...])]>
-             */
-            List<LdbcQuery14Result> typedResults1 = (List<LdbcQuery14Result>) result1;
-            Map<Double,List<LdbcQuery14Result>> results1ByWeight = new HashMap<>();
-            for ( LdbcQuery14Result typedResult : typedResults1 )
-            {
-                List<LdbcQuery14Result> resultByWeight = results1ByWeight.get( typedResult.pathWeight() );
-                if ( null == resultByWeight )
-                {
-                    resultByWeight = new ArrayList<>();
-                }
-                resultByWeight.add( typedResult );
-                results1ByWeight.put( typedResult.pathWeight(), resultByWeight );
-            }
-
-            List<LdbcQuery14Result> typedResults2 = (List<LdbcQuery14Result>) result2;
-            Map<Double,List<LdbcQuery14Result>> results2ByWeight = new HashMap<>();
-            for ( LdbcQuery14Result typedResult : typedResults2 )
-            {
-                List<LdbcQuery14Result> resultByWeight = results2ByWeight.get( typedResult.pathWeight() );
-                if ( null == resultByWeight )
-                {
-                    resultByWeight = new ArrayList<>();
-                }
-                resultByWeight.add( typedResult );
-                results2ByWeight.put( typedResult.pathWeight(), resultByWeight );
-            }
-
-            /*
-            Perform equality check
-                - compare set of keys
-                - convert list of lists to set of lists & compare contains all for set of lists for each key
-             */
-            // compare set of keys
-            if ( false == results1ByWeight.keySet().equals( results2ByWeight.keySet() ) )
-            {
-                return false;
-            }
-            // convert list of lists to set of lists & compare contains all for set of lists for each key
-            for ( Double weight : results1ByWeight.keySet() )
-            {
-                if ( results1ByWeight.get( weight ).size() != results2ByWeight.get( weight ).size() )
-                {
-                    return false;
-                }
-
-                if ( false == CollectionUtils
-                        .isEqualCollection( results1ByWeight.get( weight ), results2ByWeight.get( weight ),
-                                LDBC_QUERY_14_RESULT_EQUATOR ) )
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
         else
         {
