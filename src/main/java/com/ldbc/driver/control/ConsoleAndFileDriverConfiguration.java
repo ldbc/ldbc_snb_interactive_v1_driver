@@ -183,6 +183,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private static final String PROPERTY_DESCRIPTION =
             "properties to be passed to DB and Workload - these will override properties loaded from files";
 
+    private static final String WORKLOAD_MODE = "wm";
     private static final Options OPTIONS = buildOptions();
 
     private static final char COMMANDLINE_SEPARATOR_CHAR = '|';

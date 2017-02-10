@@ -7,8 +7,6 @@ import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.temporal.TimeSource;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import stormpot.Poolable;
 import stormpot.Slot;
 
@@ -21,7 +19,6 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
     // set by Db
     private DbConnectionState dbConnectionState = null;
     private OperationHandler operationHandler = null;
-    private KafkaProducer<String, Operation> updateProducer = null;
 
     // set by DependencyAndNonDependencyHandlersRetriever
     private TimeSource timeSource = null;
@@ -50,8 +47,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
         Operation operation,
         LocalCompletionTimeWriter localCompletionTimeWriter,
         ConcurrentErrorReporter errorReporter,
-        MetricsService metricsService,
-        KafkaProducer<String, Operation> updateProducer ) throws OperationException {
+        MetricsService metricsService ) throws OperationException {
         if (initialized) {
             throw new OperationException( format( "%s can not be initialized twice", getClass().getSimpleName() ) );
         }
@@ -68,7 +64,6 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
                 throw new OperationException( "Error while retrieving metrics writer", e );
             }
         }
-        this.updateProducer = updateProducer;
         this.operation = operation;
         this.localCompletionTimeWriter = localCompletionTimeWriter;
         this.beforeExecuteCheck = Spinner.TRUE_CHECK;
@@ -123,8 +118,8 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
             return;
         }
 
-        if (operation.isUpdate() && updateProducer != null) {
-            updateProducer.send( new ProducerRecord<String, Operation>( TOPIC, operation ) );
+        if (operation.isUpdate() && dbConnectionState.getUpdateProducer() != null) {
+            dbConnectionState.getUpdateProducer().send( operation );
         } else {
             try {
                 if (!spinner.waitForScheduledStartTime( operation, beforeExecuteCheck )) {

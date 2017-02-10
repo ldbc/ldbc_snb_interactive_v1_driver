@@ -5,10 +5,10 @@ import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import org.apache.kafka.clients.producer.KafkaProducer;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.String.format;
@@ -21,34 +21,6 @@ public abstract class Db implements Closeable {
     private OperationHandler[] operationHandlersArray = null;
     private OperationHandlerRunnerFactory operationHandlerRunnableContextFactory = null;
     private KafkaProducer<String, Operation> updateProducer = null;
-    private static final String KAFKA_UPDATE_TOPIC = "UPDATES";
-    private static final String KAFKA_PRODUCER_PROPERTIES = "producer.properties";
-
-    private void setUpKafka( String config_file ) {
-        Properties prop = new Properties();
-        InputStream input = null;
-        try {
-            ClassLoader classLoader = getClass().getClassLoader();
-            input = classLoader.getResourceAsStream( config_file );
-            prop.load( input );
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        try {
-            updateProducer = new KafkaProducer<>( prop );
-        } catch (Exception e) {
-            e.printStackTrace();
-            updateProducer = null;
-        }
-    }
 
     synchronized public final void init(
         Map<String, String> params,
@@ -60,13 +32,13 @@ public abstract class Db implements Closeable {
         }
         onInit( params, loggingService );
         dbConnectionState = getConnectionState();
+        dbConnectionState.setUpKafka();
         operationHandlerRunnableContextFactory = new PoolingOperationHandlerRunnerFactory(
             new InstantiatingOperationHandlerRunnerFactory()
         );
         operationHandlersArray = toOperationHandlerArray( operationTypeToClassMapping, operationHandlers );
         operationHandlers = null;
         isInitialized = true;
-        setUpKafka( KAFKA_PRODUCER_PROPERTIES );
     }
 
     /**
