@@ -88,7 +88,8 @@ class OperationHandlerRunnableContextRetriever
                     operation,
                     localCompletionTimeWriterForHandler,
                     errorReporter,
-                    metricsService
+                    metricsService,
+                db.getUpdateProducer()
             );
         }
         catch ( Exception e )
