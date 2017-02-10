@@ -5,7 +5,7 @@ import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.ByteBufferOutput;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcUpdate1AddPerson;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 
@@ -63,16 +63,22 @@ public class OperationSerializer implements Closeable, AutoCloseable, Serializer
                     operation = LdbcUpdate1AddPerson.readKyro( input );
                     break;
                 case 1002:
+                    operation = LdbcUpdate2AddPostLike.readKyro( input );
                     break;
                 case 1003:
+                    operation = LdbcUpdate3AddCommentLike.readKyro( input );
                     break;
                 case 1004:
+                    operation = LdbcUpdate4AddForum.readKyro( input );
                     break;
                 case 1005:
+                    operation = LdbcUpdate5AddForumMembership.readKyro( input );
                     break;
                 case 1006:
+                    operation = LdbcUpdate6AddPost.readKyro( input );
                     break;
                 case 1007:
+                    operation = LdbcUpdate7AddComment.readKyro( input );
                     break;
                 default:
                     throw new IllegalArgumentException( "unexpected type" );
