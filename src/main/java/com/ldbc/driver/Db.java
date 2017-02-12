@@ -32,7 +32,7 @@ public abstract class Db implements Closeable {
         }
         onInit( params, loggingService );
         dbConnectionState = getConnectionState();
-        dbConnectionState.setUpKafka();
+        if (dbConnectionState != null) dbConnectionState.setUpKafka();
         operationHandlerRunnableContextFactory = new PoolingOperationHandlerRunnerFactory(
             new InstantiatingOperationHandlerRunnerFactory()
         );

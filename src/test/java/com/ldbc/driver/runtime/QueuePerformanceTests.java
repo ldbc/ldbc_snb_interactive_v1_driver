@@ -116,8 +116,8 @@ public class QueuePerformanceTests
                 printHelp,
                 ignoreScheduledStartTimes,
                 warmupCount,
-                skipCount
-        );
+                skipCount,
+                true );
 
         GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
         boolean returnStreamsWithDbConnector = false;

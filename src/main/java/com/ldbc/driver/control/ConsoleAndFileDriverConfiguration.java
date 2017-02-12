@@ -177,21 +177,24 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     public static final String PROPERTY_FILE_ARG = "P";
     private static final String PROPERTY_FILE_DESCRIPTION =
             "load properties from file(s) - files will be loaded in the order provided\n" +
-            "first files are highest priority; later values will not override earlier values";
+                    "first files are highest priority; later values will not override earlier values";
 
     public static final String PROPERTY_ARG = "p";
     private static final String PROPERTY_DESCRIPTION =
             "properties to be passed to DB and Workload - these will override properties loaded from files";
 
-    private static final String WORKLOAD_MODE = "wm";
+    private static final String CONSUME_UPDATES_ARG = "cu";
+    private static final String CONSUME_UPDATES_ARG_LONG = "consume_updates";
+    private static final String CONSUME_UPDATES_DESCRIPTION = "updates consumed and run on SUT";
+
     private static final Options OPTIONS = buildOptions();
 
     private static final char COMMANDLINE_SEPARATOR_CHAR = '|';
     private static final String COMMANDLINE_SEPARATOR_REGEX_STRING = "\\|";
 
-    public static Map<String,String> defaultsAsMap() throws DriverConfigurationException
+    public static Map<String, String> defaultsAsMap() throws DriverConfigurationException
     {
-        Map<String,String> defaultParamsMap = new HashMap<>();
+        Map<String, String> defaultParamsMap = new HashMap<>();
         defaultParamsMap.put( IGNORE_SCHEDULED_START_TIMES_ARG, IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING );
         defaultParamsMap.put( HELP_ARG, HELP_DEFAULT_STRING );
         defaultParamsMap.put( OPERATION_COUNT_ARG, OPERATION_COUNT_DEFAULT_STRING );
@@ -224,7 +227,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     {
         try
         {
-            Map<String,String> paramsMap = parseArgs( args, OPTIONS );
+            Map<String, String> paramsMap = parseArgs( args, OPTIONS );
             return fromParamsMap( paramsMap );
         }
         catch ( Exception e )
@@ -240,7 +243,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     {
         try
         {
-            Map<String,String> paramsMap = defaultsAsMap();
+            Map<String, String> paramsMap = defaultsAsMap();
             paramsMap.put( DB_ARG, databaseClassName );
             paramsMap.put( WORKLOAD_ARG, workloadClassName );
             paramsMap.put( OPERATION_COUNT_ARG, Long.toString( operationCount ) );
@@ -253,7 +256,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         }
     }
 
-    public static ConsoleAndFileDriverConfiguration fromParamsMap( Map<String,String> paramsMap )
+    public static ConsoleAndFileDriverConfiguration fromParamsMap( Map<String, String> paramsMap )
             throws DriverConfigurationException
     {
         try
@@ -279,9 +282,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             Set<String> peerIds = parsePeerIdsFromCommandline( paramsMap.get( PEER_IDS_ARG ) );
             ConsoleAndFileValidationParamOptions databaseConsoleAndFileValidationParams =
                     (null == paramsMap.get( CREATE_VALIDATION_PARAMS_ARG )) ?
-                    null :
-                    ConsoleAndFileValidationParamOptions
-                            .fromCommandlineString( paramsMap.get( CREATE_VALIDATION_PARAMS_ARG ) );
+                            null :
+                            ConsoleAndFileValidationParamOptions
+                                    .fromCommandlineString( paramsMap.get( CREATE_VALIDATION_PARAMS_ARG ) );
             String databaseValidationFilePath = paramsMap.get( DB_VALIDATION_FILE_PATH_ARG );
             boolean calculateWorkloadStatistics =
                     Boolean.parseBoolean( paramsMap.get( CALCULATE_WORKLOAD_STATISTICS_ARG ) );
@@ -291,6 +294,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             boolean printHelp = Boolean.parseBoolean( paramsMap.get( HELP_ARG ) );
             boolean ignoreScheduledStartTimes =
                     Boolean.parseBoolean( paramsMap.get( IGNORE_SCHEDULED_START_TIMES_ARG ) );
+            boolean consumeUpdates =
+                    Boolean.parseBoolean( paramsMap.get( CONSUME_UPDATES_ARG ) );
             return new ConsoleAndFileDriverConfiguration(
                     paramsMap,
                     name,
@@ -310,8 +315,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     printHelp,
                     ignoreScheduledStartTimes,
                     warmupCount,
-                    skipCount
-            );
+                    skipCount,
+                    consumeUpdates );
         }
         catch ( DriverConfigurationException e )
         {
@@ -338,11 +343,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         }
     }
 
-    private static Map<String,String> parseArgs( String[] args, Options options )
+    private static Map<String, String> parseArgs( String[] args, Options options )
             throws ParseException, DriverConfigurationException
     {
-        Map<String,String> cmdParams = new HashMap<>();
-        Map<String,String> fileParams = new HashMap<>();
+        Map<String, String> cmdParams = new HashMap<>();
+        Map<String, String> fileParams = new HashMap<>();
 
         CommandLineParser parser = new BasicParser();
 
@@ -444,6 +449,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             cmdParams.put( SKIP_COUNT_ARG, cmd.getOptionValue( SKIP_COUNT_ARG ) );
         }
 
+        if ( cmd.hasOption( CONSUME_UPDATES_ARG ) )
+        {
+            cmdParams.put( CONSUME_UPDATES_ARG, cmd.getOptionValue( CONSUME_UPDATES_ARG ) );
+        }
+
         if ( cmd.hasOption( CREATE_VALIDATION_PARAMS_ARG ) )
         {
             String[] validationParams = cmd.getOptionValues( CREATE_VALIDATION_PARAMS_ARG );
@@ -469,7 +479,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 {
                     Properties tempFileProperties = new Properties();
                     tempFileProperties.load( new FileInputStream( propertyFilePath ) );
-                    Map<String,String> tempFileParams = MapUtils.propertiesToMap( tempFileProperties );
+                    Map<String, String> tempFileParams = MapUtils.propertiesToMap( tempFileProperties );
                     boolean overwrite = true;
                     fileParams = MapUtils.mergeMaps(
                             convertLongKeysToShortKeys( tempFileParams ),
@@ -486,7 +496,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
         if ( cmd.hasOption( PROPERTY_ARG ) )
         {
-            for ( Entry<Object,Object> cmdProperty : cmd.getOptionProperties( PROPERTY_ARG ).entrySet() )
+            for ( Entry<Object, Object> cmdProperty : cmd.getOptionProperties( PROPERTY_ARG ).entrySet() )
             {
                 cmdParams.put( (String) cmdProperty.getKey(), (String) cmdProperty.getValue() );
             }
@@ -499,7 +509,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 overwrite );
     }
 
-    public static Map<String,String> convertLongKeysToShortKeys( Map<String,String> paramsMap )
+    public static Map<String, String> convertLongKeysToShortKeys( Map<String, String> paramsMap )
     {
         paramsMap = replaceKey( paramsMap, OPERATION_COUNT_ARG_LONG, OPERATION_COUNT_ARG );
         paramsMap = replaceKey( paramsMap, NAME_ARG_LONG, NAME_ARG );
@@ -517,12 +527,13 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         paramsMap = replaceKey( paramsMap, SPINNER_SLEEP_DURATION_ARG_LONG, SPINNER_SLEEP_DURATION_ARG );
         paramsMap = replaceKey( paramsMap, WARMUP_COUNT_ARG_LONG, WARMUP_COUNT_ARG );
         paramsMap = replaceKey( paramsMap, SKIP_COUNT_ARG_LONG, SKIP_COUNT_ARG );
+        paramsMap = replaceKey( paramsMap, CONSUME_UPDATES_ARG_LONG, CONSUME_UPDATES_ARG );
         return paramsMap;
     }
 
     // NOTE: not safe in general case, no check for duplicate keys, i.e., if newKey already exists its value will be
     // overwritten
-    private static Map<String,String> replaceKey( Map<String,String> paramsMap, String oldKey, String newKey )
+    private static Map<String, String> replaceKey( Map<String, String> paramsMap, String oldKey, String newKey )
     {
         if ( false == paramsMap.containsKey( oldKey ) )
         {
@@ -564,8 +575,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
         Option resultFileOption =
                 OptionBuilder.hasArgs( 1 ).withArgName( "path" ).withDescription( RESULT_DIR_PATH_DESCRIPTION )
-                        .withLongOpt(
-                                RESULT_DIR_PATH_ARG_LONG ).create( RESULT_DIR_PATH_ARG );
+                             .withLongOpt(
+                                     RESULT_DIR_PATH_ARG_LONG ).create( RESULT_DIR_PATH_ARG );
         options.addOption( resultFileOption );
 
         Option threadsOption =
@@ -575,8 +586,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
         Option statusOption =
                 OptionBuilder.hasArgs( 1 ).withArgName( "seconds" ).withDescription( SHOW_STATUS_DESCRIPTION )
-                        .withLongOpt(
-                                SHOW_STATUS_ARG_LONG ).create( SHOW_STATUS_ARG );
+                             .withLongOpt(
+                                     SHOW_STATUS_ARG_LONG ).create( SHOW_STATUS_ARG );
         options.addOption( statusOption );
 
         Option timeUnitOption =
@@ -586,25 +597,25 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
         Option timeCompressionRatioOption =
                 OptionBuilder.hasArgs( 1 ).withArgName( "ratio" ).withDescription( TIME_COMPRESSION_RATIO_DESCRIPTION )
-                        .withLongOpt(
-                                TIME_COMPRESSION_RATIO_ARG_LONG ).create( TIME_COMPRESSION_RATIO_ARG );
+                             .withLongOpt(
+                                     TIME_COMPRESSION_RATIO_ARG_LONG ).create( TIME_COMPRESSION_RATIO_ARG );
         options.addOption( timeCompressionRatioOption );
 
         Option peerIdsOption = OptionBuilder.hasArgs().withValueSeparator( COMMANDLINE_SEPARATOR_CHAR )
-                .withArgName( "peerId1" + COMMANDLINE_SEPARATOR_CHAR + "peerId2" ).withDescription(
+                                            .withArgName( "peerId1" + COMMANDLINE_SEPARATOR_CHAR + "peerId2" ).withDescription(
                         PEER_IDS_DESCRIPTION ).withLongOpt( PEER_IDS_ARG_LONG ).create( PEER_IDS_ARG );
         options.addOption( peerIdsOption );
 
         Option dbValidationParamsOption = OptionBuilder.hasArgs( 2 ).withValueSeparator( COMMANDLINE_SEPARATOR_CHAR )
-                .withArgName( "path" + COMMANDLINE_SEPARATOR_CHAR + "count" )
-                .withDescription( CREATE_VALIDATION_PARAMS_DESCRIPTION ).withLongOpt(
+                                                       .withArgName( "path" + COMMANDLINE_SEPARATOR_CHAR + "count" )
+                                                       .withDescription( CREATE_VALIDATION_PARAMS_DESCRIPTION ).withLongOpt(
                         CREATE_VALIDATION_PARAMS_ARG_LONG ).create( CREATE_VALIDATION_PARAMS_ARG );
         options.addOption( dbValidationParamsOption );
 
         Option databaseValidationFilePathOption =
                 OptionBuilder.hasArgs( 1 ).withArgName( "path" ).withDescription( DB_VALIDATION_FILE_PATH_DESCRIPTION )
-                        .withLongOpt(
-                                DB_VALIDATION_FILE_PATH_ARG_LONG ).create( DB_VALIDATION_FILE_PATH_ARG );
+                             .withLongOpt(
+                                     DB_VALIDATION_FILE_PATH_ARG_LONG ).create( DB_VALIDATION_FILE_PATH_ARG );
         options.addOption( databaseValidationFilePathOption );
 
         Option calculateWorkloadStatisticsOption =
@@ -613,35 +624,40 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         options.addOption( calculateWorkloadStatisticsOption );
 
         Option spinnerSleepDurationOption = OptionBuilder.hasArgs( 1 ).withArgName( "duration" )
-                .withDescription( SPINNER_SLEEP_DURATION_DESCRIPTION ).withLongOpt(
+                                                         .withDescription( SPINNER_SLEEP_DURATION_DESCRIPTION ).withLongOpt(
                         SPINNER_SLEEP_DURATION_ARG_LONG ).create( SPINNER_SLEEP_DURATION_ARG );
         options.addOption( spinnerSleepDurationOption );
 
         Option warmupCountOption =
                 OptionBuilder.hasArgs( 1 ).withArgName( "count" ).withDescription( WARMUP_COUNT_DESCRIPTION )
-                        .withLongOpt( WARMUP_COUNT_ARG_LONG ).create( WARMUP_COUNT_ARG );
+                             .withLongOpt( WARMUP_COUNT_ARG_LONG ).create( WARMUP_COUNT_ARG );
         options.addOption( warmupCountOption );
 
         Option skipCountOption =
                 OptionBuilder.hasArgs( 1 ).withArgName( "count" ).withDescription( SKIP_COUNT_DESCRIPTION )
-                        .withLongOpt( SKIP_COUNT_ARG_LONG ).create( SKIP_COUNT_ARG );
+                             .withLongOpt( SKIP_COUNT_ARG_LONG ).create( SKIP_COUNT_ARG );
         options.addOption( skipCountOption );
+
+        Option consumeUpdatesOption =
+                OptionBuilder.withDescription( CONSUME_UPDATES_DESCRIPTION )
+                             .withLongOpt( CONSUME_UPDATES_ARG_LONG ).create( CONSUME_UPDATES_ARG );
+        options.addOption( consumeUpdatesOption );
 
         Option printHelpOption = OptionBuilder.withDescription( HELP_DESCRIPTION ).create( HELP_ARG );
         options.addOption( printHelpOption );
 
         Option ignoreScheduledStartTimesOption =
                 OptionBuilder.withDescription( IGNORE_SCHEDULED_START_TIMES_DESCRIPTION )
-                        .create( IGNORE_SCHEDULED_START_TIMES_ARG );
+                             .create( IGNORE_SCHEDULED_START_TIMES_ARG );
         options.addOption( ignoreScheduledStartTimesOption );
 
         Option propertyFileOption = OptionBuilder.hasArgs().withValueSeparator( COMMANDLINE_SEPARATOR_CHAR )
-                .withArgName( "file1" + COMMANDLINE_SEPARATOR_CHAR + "file2" ).withDescription(
+                                                 .withArgName( "file1" + COMMANDLINE_SEPARATOR_CHAR + "file2" ).withDescription(
                         PROPERTY_FILE_DESCRIPTION ).create( PROPERTY_FILE_ARG );
         options.addOption( propertyFileOption );
 
         Option propertyOption = OptionBuilder.hasArgs( 2 ).withValueSeparator( COMMANDLINE_SEPARATOR_CHAR )
-                .withArgName( "key" + COMMANDLINE_SEPARATOR_CHAR + "value" ).withDescription(
+                                             .withArgName( "key" + COMMANDLINE_SEPARATOR_CHAR + "value" ).withDescription(
                         PROPERTY_DESCRIPTION ).create( PROPERTY_ARG );
         options.addOption( propertyOption );
 
@@ -730,7 +746,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         return os.toString();
     }
 
-    private final Map<String,String> paramsMap;
+    private final Map<String, String> paramsMap;
     private final String name;
     private final String dbClassName;
     private final String workloadClassName;
@@ -749,8 +765,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private final boolean ignoreScheduledStartTimes;
     private final long warmupCount;
     private final long skipCount;
+    private final boolean consumeUpdates;
 
-    public ConsoleAndFileDriverConfiguration( Map<String,String> paramsMap,
+    public ConsoleAndFileDriverConfiguration(
+            Map<String, String> paramsMap,
             String name,
             String dbClassName,
             String workloadClassName,
@@ -768,7 +786,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             boolean printHelp,
             boolean ignoreScheduledStartTimes,
             long warmupCount,
-            long skipCount )
+            long skipCount,
+            boolean consumeUpdates )
     {
         if ( null == paramsMap )
         {
@@ -793,6 +812,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         this.ignoreScheduledStartTimes = ignoreScheduledStartTimes;
         this.warmupCount = warmupCount;
         this.skipCount = skipCount;
+        this.consumeUpdates = consumeUpdates;
 
         if ( null != name )
         {
@@ -830,6 +850,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         paramsMap.put( IGNORE_SCHEDULED_START_TIMES_ARG, Boolean.toString( ignoreScheduledStartTimes ) );
         paramsMap.put( WARMUP_COUNT_ARG, Long.toString( warmupCount ) );
         paramsMap.put( SKIP_COUNT_ARG, Long.toString( skipCount ) );
+        paramsMap.put( CONSUME_UPDATES_ARG, Boolean.toString( consumeUpdates ) );
     }
 
     @Override
@@ -954,7 +975,13 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     }
 
     @Override
-    public Map<String,String> asMap()
+    public boolean consumeUpdates()
+    {
+        return consumeUpdates;
+    }
+
+    @Override
+    public Map<String, String> asMap()
     {
         return paramsMap;
     }
@@ -988,7 +1015,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
      */
     public DriverConfiguration applyArg( String argument, String newValue ) throws DriverConfigurationException
     {
-        Map<String,String> newParamsMap = new HashMap<>();
+        Map<String, String> newParamsMap = new HashMap<>();
         newParamsMap.put( argument, newValue );
         return applyArgs( newParamsMap );
     }
@@ -1005,73 +1032,76 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
      * @throws DriverConfigurationException
      */
     @Override
-    public DriverConfiguration applyArgs( Map<String,String> newParamsMap ) throws DriverConfigurationException
+    public DriverConfiguration applyArgs( Map<String, String> newParamsMap ) throws DriverConfigurationException
     {
-        Map<String,String> newParamsMapWithShortKeys = convertLongKeysToShortKeys( newParamsMap );
-        Map<String,String> newOtherParams = MapUtils.mergeMaps( this.paramsMap, newParamsMapWithShortKeys, true );
+        Map<String, String> newParamsMapWithShortKeys = convertLongKeysToShortKeys( newParamsMap );
+        Map<String, String> newOtherParams = MapUtils.mergeMaps( this.paramsMap, newParamsMapWithShortKeys, true );
 
         String newName = (newParamsMapWithShortKeys.containsKey( NAME_ARG )) ?
-                         newParamsMapWithShortKeys.get( NAME_ARG ) :
-                         name;
+                newParamsMapWithShortKeys.get( NAME_ARG ) :
+                name;
         String newDbClassName = (newParamsMapWithShortKeys.containsKey( DB_ARG )) ?
-                                newParamsMapWithShortKeys.get( DB_ARG ) :
-                                dbClassName;
+                newParamsMapWithShortKeys.get( DB_ARG ) :
+                dbClassName;
         String newWorkloadClassName = (newParamsMapWithShortKeys.containsKey( WORKLOAD_ARG )) ?
-                                      newParamsMapWithShortKeys.get( WORKLOAD_ARG ) :
-                                      workloadClassName;
+                newParamsMapWithShortKeys.get( WORKLOAD_ARG ) :
+                workloadClassName;
         long newOperationCount = (newParamsMapWithShortKeys.containsKey( OPERATION_COUNT_ARG )) ?
-                                 Long.parseLong( newParamsMapWithShortKeys.get( OPERATION_COUNT_ARG ) ) :
-                                 operationCount;
+                Long.parseLong( newParamsMapWithShortKeys.get( OPERATION_COUNT_ARG ) ) :
+                operationCount;
         int newThreadCount = (newParamsMapWithShortKeys.containsKey( THREADS_ARG )) ?
-                             Integer.parseInt( newParamsMapWithShortKeys.get( THREADS_ARG ) ) :
-                             threadCount;
+                Integer.parseInt( newParamsMapWithShortKeys.get( THREADS_ARG ) ) :
+                threadCount;
         int newStatusDisplayIntervalAsSeconds = (newParamsMapWithShortKeys.containsKey( SHOW_STATUS_ARG )) ?
-                                                Integer.parseInt( newParamsMapWithShortKeys.get( SHOW_STATUS_ARG ) ) :
-                                                statusDisplayIntervalAsSeconds;
+                Integer.parseInt( newParamsMapWithShortKeys.get( SHOW_STATUS_ARG ) ) :
+                statusDisplayIntervalAsSeconds;
         TimeUnit newTimeUnit = (newParamsMapWithShortKeys.containsKey( TIME_UNIT_ARG )) ?
-                               TimeUnit.valueOf( newParamsMapWithShortKeys.get( TIME_UNIT_ARG ) ) :
-                               timeUnit;
+                TimeUnit.valueOf( newParamsMapWithShortKeys.get( TIME_UNIT_ARG ) ) :
+                timeUnit;
         String newResultDirPath = (newParamsMapWithShortKeys.containsKey( RESULT_DIR_PATH_ARG )) ?
-                                  newParamsMapWithShortKeys.get( RESULT_DIR_PATH_ARG ) :
-                                  resultDirPath;
+                newParamsMapWithShortKeys.get( RESULT_DIR_PATH_ARG ) :
+                resultDirPath;
         double newTimeCompressionRatio = (newParamsMapWithShortKeys.containsKey( TIME_COMPRESSION_RATIO_ARG )) ?
-                                         Double.parseDouble(
-                                                 newParamsMapWithShortKeys.get( TIME_COMPRESSION_RATIO_ARG ) ) :
-                                         timeCompressionRatio;
+                Double.parseDouble(
+                        newParamsMapWithShortKeys.get( TIME_COMPRESSION_RATIO_ARG ) ) :
+                timeCompressionRatio;
         Set<String> newPeerIds = (newParamsMapWithShortKeys.containsKey( PEER_IDS_ARG )) ?
-                                 parsePeerIdsFromCommandline( newParamsMapWithShortKeys.get( PEER_IDS_ARG ) ) :
-                                 peerIds;
+                parsePeerIdsFromCommandline( newParamsMapWithShortKeys.get( PEER_IDS_ARG ) ) :
+                peerIds;
         ConsoleAndFileValidationParamOptions newValidationParams =
                 (newParamsMapWithShortKeys.containsKey( CREATE_VALIDATION_PARAMS_ARG ))
-                ? (null == newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG )) ? null
-                                                                                          :
-                  ConsoleAndFileValidationParamOptions
-                          .fromCommandlineString( newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG ) )
-                : validationCreationParams;
+                        ? (null == newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG )) ? null
+                        :
+                        ConsoleAndFileValidationParamOptions
+                                .fromCommandlineString( newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG ) )
+                        : validationCreationParams;
         String newDatabaseValidationFilePath = (newParamsMapWithShortKeys.containsKey( DB_VALIDATION_FILE_PATH_ARG )) ?
-                                               newParamsMapWithShortKeys.get( DB_VALIDATION_FILE_PATH_ARG ) :
-                                               databaseValidationFilePath;
+                newParamsMapWithShortKeys.get( DB_VALIDATION_FILE_PATH_ARG ) :
+                databaseValidationFilePath;
         boolean newCalculateWorkloadStatistics =
                 (newParamsMapWithShortKeys.containsKey( CALCULATE_WORKLOAD_STATISTICS_ARG )) ?
-                Boolean.parseBoolean( newParamsMapWithShortKeys.get( CALCULATE_WORKLOAD_STATISTICS_ARG ) ) :
-                calculateWorkloadStatistics;
+                        Boolean.parseBoolean( newParamsMapWithShortKeys.get( CALCULATE_WORKLOAD_STATISTICS_ARG ) ) :
+                        calculateWorkloadStatistics;
         long newSpinnerSleepDurationAsMilli = (newParamsMapWithShortKeys.containsKey( SPINNER_SLEEP_DURATION_ARG )) ?
-                                              Long.parseLong(
-                                                      (newParamsMapWithShortKeys.get( SPINNER_SLEEP_DURATION_ARG )) ) :
-                                              spinnerSleepDurationAsMilli;
+                Long.parseLong(
+                        (newParamsMapWithShortKeys.get( SPINNER_SLEEP_DURATION_ARG )) ) :
+                spinnerSleepDurationAsMilli;
         boolean newPrintHelp = (newParamsMapWithShortKeys.containsKey( HELP_ARG )) ?
-                               Boolean.parseBoolean( newParamsMapWithShortKeys.get( HELP_ARG ) ) :
-                               printHelp;
+                Boolean.parseBoolean( newParamsMapWithShortKeys.get( HELP_ARG ) ) :
+                printHelp;
         boolean newIgnoreScheduledStartTimes =
                 (newParamsMapWithShortKeys.containsKey( IGNORE_SCHEDULED_START_TIMES_ARG )) ?
-                Boolean.parseBoolean( newParamsMapWithShortKeys.get( IGNORE_SCHEDULED_START_TIMES_ARG ) ) :
-                ignoreScheduledStartTimes;
+                        Boolean.parseBoolean( newParamsMapWithShortKeys.get( IGNORE_SCHEDULED_START_TIMES_ARG ) ) :
+                        ignoreScheduledStartTimes;
         long newWarmupCount = (newParamsMapWithShortKeys.containsKey( WARMUP_COUNT_ARG )) ?
-                              Long.parseLong( newParamsMapWithShortKeys.get( WARMUP_COUNT_ARG ) ) :
-                              warmupCount;
+                Long.parseLong( newParamsMapWithShortKeys.get( WARMUP_COUNT_ARG ) ) :
+                warmupCount;
         long newSkipCount = (newParamsMapWithShortKeys.containsKey( SKIP_COUNT_ARG )) ?
-                            Long.parseLong( newParamsMapWithShortKeys.get( SKIP_COUNT_ARG ) ) :
-                            skipCount;
+                Long.parseLong( newParamsMapWithShortKeys.get( SKIP_COUNT_ARG ) ) :
+                skipCount;
+        boolean newConsumeUpdates = (newParamsMapWithShortKeys.containsKey( CONSUME_UPDATES_ARG )) ?
+                Boolean.parseBoolean( newParamsMapWithShortKeys.get( CONSUME_UPDATES_ARG ) ) :
+                consumeUpdates();
 
         return new ConsoleAndFileDriverConfiguration(
                 newOtherParams,
@@ -1092,8 +1122,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 newPrintHelp,
                 newIgnoreScheduledStartTimes,
                 newWarmupCount,
-                newSkipCount
-        );
+                newSkipCount,
+                newConsumeUpdates );
     }
 
     public String[] toArgs() throws DriverConfigurationException
@@ -1114,6 +1144,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         argsList.addAll( Lists.newArrayList( "-" + THREADS_ARG, Integer.toString( threadCount ) ) );
         argsList.addAll( Lists.newArrayList( "-" + WARMUP_COUNT_ARG, Long.toString( warmupCount ) ) );
         argsList.addAll( Lists.newArrayList( "-" + SKIP_COUNT_ARG, Long.toString( skipCount ) ) );
+        argsList.addAll( Lists.newArrayList( "-" + CONSUME_UPDATES_ARG, Boolean.toString( consumeUpdates ) ) );
         if ( null != name )
         {
             argsList.addAll( Lists.newArrayList( "-" + NAME_ARG, name ) );
@@ -1153,9 +1184,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             argsList.add( "-" + IGNORE_SCHEDULED_START_TIMES_ARG );
         }
         // additional, workload/database-related params
-        Map<String,String> additionalParameters =
+        Map<String, String> additionalParameters =
                 MapUtils.copyExcludingKeys( paramsMap, coreConfigurationParameterKeys() );
-        for ( Entry<String,String> additionalParam : MapUtils.sortedEntrySet( additionalParameters ) )
+        for ( Entry<String, String> additionalParam : MapUtils.sortedEntrySet( additionalParameters ) )
         {
             argsList.addAll( Lists.newArrayList( "-p", additionalParam.getKey(), additionalParam.getValue() ) );
         }
@@ -1179,31 +1210,31 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         sb.append( "# status display interval (intermittently show status during benchmark execution)\n" );
         sb.append( "# INT-32 (seconds)\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( SHOW_STATUS_ARG ).append( "/--" )
-                .append( SHOW_STATUS_ARG_LONG ).append( "\n" );
+          .append( SHOW_STATUS_ARG_LONG ).append( "\n" );
         sb.append( SHOW_STATUS_ARG_LONG ).append( "=" ).append( statusDisplayIntervalAsSeconds ).append( "\n" );
         sb.append( "\n" );
         sb.append( "# thread pool size to use for executing operation handlers\n" );
         sb.append( "# INT-32\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( THREADS_ARG ).append( "/--" ).append( THREADS_ARG_LONG )
-                .append( "\n" );
+          .append( "\n" );
         sb.append( THREADS_ARG_LONG ).append( "=" ).append( threadCount ).append( "\n" );
         sb.append( "\n" );
         sb.append( "# number of operations to execute during warmup phase of workload\n" );
         sb.append( "# INT-64\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( WARMUP_COUNT_ARG ).append( "/--" )
-                .append( WARMUP_COUNT_ARG_LONG ).append( "\n" );
+          .append( WARMUP_COUNT_ARG_LONG ).append( "\n" );
         sb.append( WARMUP_COUNT_ARG_LONG ).append( "=" ).append( warmupCount ).append( "\n" );
         sb.append( "\n" );
         sb.append( "# number of operations to skip before beginning workload execution\n" );
         sb.append( "# INT-64\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( SKIP_COUNT_ARG ).append( "/--" )
-                .append( SKIP_COUNT_ARG_LONG ).append( "\n" );
+          .append( SKIP_COUNT_ARG_LONG ).append( "\n" );
         sb.append( SKIP_COUNT_ARG_LONG ).append( "=" ).append( skipCount ).append( "\n" );
         sb.append( "\n" );
         sb.append( "# name of the benchmark run\n" );
         sb.append( "# STRING\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( NAME_ARG ).append( "/--" ).append( NAME_ARG_LONG )
-                .append( "\n" );
+          .append( "\n" );
         if ( null == name )
         {
             sb.append( "# " ).append( NAME_ARG_LONG ).append( "=" ).append( "\n" );
@@ -1216,7 +1247,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         sb.append( "# path specifying where to write the benchmark results file\n" );
         sb.append( "# STRING\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( RESULT_DIR_PATH_ARG ).append( "/--" )
-                .append( RESULT_DIR_PATH_ARG_LONG ).append( "\n" );
+          .append( RESULT_DIR_PATH_ARG_LONG ).append( "\n" );
         if ( null == resultDirPath )
         {
             sb.append( "# " ).append( RESULT_DIR_PATH_ARG_LONG ).append( "=" ).append( "\n" );
@@ -1229,30 +1260,30 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         sb.append( "# time unit to use for measuring performance metrics (e.g., query response time)\n" );
         sb.append( "# ENUM (" ).append( Arrays.toString( VALID_TIME_UNITS ) ).append( ")\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( TIME_UNIT_ARG ).append( "/--" ).append( TIME_UNIT_ARG_LONG )
-                .append( "\n" );
+          .append( "\n" );
         sb.append( TIME_UNIT_ARG_LONG ).append( "=" ).append( timeUnit ).append( "\n" );
         sb.append( "\n" );
         sb.append(
                 "# used to 'compress'/'stretch' durations between operation start times to increase/decrease " +
-                "benchmark load\n" );
+                        "benchmark load\n" );
         sb.append( "# e.g. 2.0 = run benchmark 2x slower, 0.1 = run benchmark 10x faster\n" );
         sb.append( "# DOUBLE\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( TIME_COMPRESSION_RATIO_ARG ).append( "/--" )
-                .append( TIME_COMPRESSION_RATIO_ARG_LONG ).append( "\n" );
+          .append( TIME_COMPRESSION_RATIO_ARG_LONG ).append( "\n" );
         sb.append( TIME_COMPRESSION_RATIO_ARG_LONG ).append( "=" ).append( timeCompressionRatio ).append( "\n" );
         sb.append( "\n" );
         sb.append( "# NOT USED AT PRESENT - reserved for distributed driver mode\n" );
         sb.append( "# specifies the addresses of other driver processes, so they can find each other\n" );
         sb.append( "# LIST (e.g., peer1|peer2|peer3)\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( PEER_IDS_ARG ).append( "/--" ).append( PEER_IDS_ARG_LONG )
-                .append( "\n" );
+          .append( "\n" );
         sb.append( PEER_IDS_ARG_LONG ).append( "=" ).append( serializePeerIdsToCommandline( peerIds ) ).append( "\n" );
         sb.append( "\n" );
         sb.append( "# enable validation that will check if the provided database implementation is correct\n" );
         sb.append( "# parameter value specifies where to find the validation parameters file\n" );
         sb.append( "# STRING\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( DB_VALIDATION_FILE_PATH_ARG ).append( "/--" )
-                .append( DB_VALIDATION_FILE_PATH_ARG_LONG ).append( "\n" );
+          .append( DB_VALIDATION_FILE_PATH_ARG_LONG ).append( "\n" );
         if ( null == databaseValidationFilePath )
         {
             sb.append( "# " ).append( DB_VALIDATION_FILE_PATH_ARG_LONG ).append( "=" ).append( "\n" );
@@ -1260,18 +1291,18 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         else
         {
             sb.append( DB_VALIDATION_FILE_PATH_ARG_LONG ).append( "=" ).append( databaseValidationFilePath )
-                    .append( "\n" );
+              .append( "\n" );
         }
         sb.append( "\n" );
         sb.append( "# generate validation parameters file for validating correctness of database implementations\n" );
         sb.append(
                 "# parameter values specify: (1) where to create the validation parameters file (2) how many " +
-                "validation parameters to generate\n" );
+                        "validation parameters to generate\n" );
         sb.append( "# STRING|INT-32 (e.g., " ).append(
                 new ConsoleAndFileValidationParamOptions( "validation_parameters.csv", 1000 ).toCommandlineString() )
-                .append( ")\n" );
+          .append( ")\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( CREATE_VALIDATION_PARAMS_ARG ).append( "/--" )
-                .append( CREATE_VALIDATION_PARAMS_ARG_LONG ).append( "\n" );
+          .append( CREATE_VALIDATION_PARAMS_ARG_LONG ).append( "\n" );
         if ( null == validationCreationParams )
         {
             sb.append( "# " ).append( CREATE_VALIDATION_PARAMS_ARG_LONG ).append( "=" ).append( "\n" );
@@ -1279,20 +1310,20 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         else
         {
             sb.append( CREATE_VALIDATION_PARAMS_ARG_LONG ).append( "=" )
-                    .append( validationCreationParams.toCommandlineString() ).append( "\n" );
+              .append( validationCreationParams.toCommandlineString() ).append( "\n" );
         }
         sb.append( "\n" );
         sb.append( "# calculate & display workload statistics (operation mix, etc.)\n" );
         sb.append( "# BOOLEAN\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( CALCULATE_WORKLOAD_STATISTICS_ARG ).append( "/--" )
-                .append( CALCULATE_WORKLOAD_STATISTICS_ARG_LONG ).append( "\n" );
+          .append( CALCULATE_WORKLOAD_STATISTICS_ARG_LONG ).append( "\n" );
         sb.append( CALCULATE_WORKLOAD_STATISTICS_ARG_LONG ).append( "=" ).append( calculateWorkloadStatistics )
-                .append( "\n" );
+          .append( "\n" );
         sb.append( "\n" );
         sb.append( "# sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)\n" );
         sb.append( "# INT-64 (milliseconds)\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( SPINNER_SLEEP_DURATION_ARG ).append( "/--" )
-                .append( SPINNER_SLEEP_DURATION_ARG_LONG ).append( "\n" );
+          .append( SPINNER_SLEEP_DURATION_ARG_LONG ).append( "\n" );
         sb.append( SPINNER_SLEEP_DURATION_ARG_LONG ).append( "=" ).append( spinnerSleepDurationAsMilli ).append( "\n" );
         sb.append( "\n" );
         sb.append( "# print help string - usage instructions\n" );
@@ -1305,6 +1336,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         sb.append( "# COMMAND: " ).append( "-" ).append( IGNORE_SCHEDULED_START_TIMES_ARG ).append( "\n" );
         sb.append( IGNORE_SCHEDULED_START_TIMES_ARG ).append( "=" ).append( ignoreScheduledStartTimes ).append( "\n" );
         sb.append( "\n" );
+        sb.append( "# consumes updates and runs on SUT\n" );
+        sb.append( "# BOOLEAN\n" );
+        sb.append( "# COMMAND: " ).append( "-" ).append( CONSUME_UPDATES_ARG ).append( "\n" );
+        sb.append( CONSUME_UPDATES_ARG ).append( "=" ).append( consumeUpdates ).append( "\n" );
+        sb.append( "\n" );
         sb.append( "# ***************************************************************\n" );
         sb.append( "# *** the following should be set by workload implementations ***\n" );
         sb.append( "# ***************************************************************\n" );
@@ -1312,7 +1348,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         sb.append( "# fully qualified class name of the Workload (class) implementation to execute\n" );
         sb.append( "# STRING (e.g., " ).append( LdbcSnbInteractiveWorkload.class.getName() ).append( ")\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( WORKLOAD_ARG ).append( "/--" ).append( WORKLOAD_ARG_LONG )
-                .append( "\n" );
+          .append( "\n" );
         if ( null == workloadClassName )
         {
             sb.append( "# " ).append( WORKLOAD_ARG_LONG ).append( "=" ).append( "\n" );
@@ -1325,7 +1361,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         sb.append( "# number of operations to generate during benchmark execution\n" );
         sb.append( "# INT-64\n" );
         sb.append( "# COMMAND: " ).append( "-" ).append( OPERATION_COUNT_ARG ).append( "/--" )
-                .append( OPERATION_COUNT_ARG_LONG ).append( "\n" );
+          .append( OPERATION_COUNT_ARG_LONG ).append( "\n" );
         if ( 0 == operationCount )
         {
             sb.append( "# " ).append( OPERATION_COUNT_ARG_LONG ).append( "=" ).append( "\n" );
@@ -1351,7 +1387,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             sb.append( DB_ARG_LONG ).append( "=" ).append( dbClassName ).append( "\n" );
         }
         // Write additional, workload/database-related keys as well
-        Map<String,String> additionalConfigurationParameters =
+        Map<String, String> additionalConfigurationParameters =
                 MapUtils.copyExcludingKeys( paramsMap, coreConfigurationParameterKeys() );
         if ( !additionalConfigurationParameters.isEmpty() )
         {
@@ -1360,11 +1396,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             sb.append( "# *** non-core configuration parameters ***\n" );
             sb.append( "# ************************************************************************************\n" );
             sb.append( "\n" );
-            for ( Entry<String,String> configurationParameter : MapUtils
+            for ( Entry<String, String> configurationParameter : MapUtils
                     .sortedEntrySet( additionalConfigurationParameters ) )
             {
                 sb.append( configurationParameter.getKey() ).append( "=" ).append( configurationParameter.getValue() )
-                        .append( "\n" );
+                  .append( "\n" );
             }
         }
         return sb.toString();
@@ -1377,52 +1413,54 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         StringBuilder sb = new StringBuilder();
         sb.append( "Parameters:" ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Name:" ) ).append( name )
-                .append( "\n" );
+          .append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "DB:" ) ).append( dbClassName )
-                .append( "\n" );
+          .append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Workload:" ) )
-                .append( workloadClassName ).append( "\n" );
+          .append( workloadClassName ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Operation Count:" ) )
-                .append( INTEGRAL_FORMAT.format( operationCount ) ).append( "\n" );
+          .append( INTEGRAL_FORMAT.format( operationCount ) ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Warmup Count:" ) )
-                .append( INTEGRAL_FORMAT.format( warmupCount ) ).append( "\n" );
+          .append( INTEGRAL_FORMAT.format( warmupCount ) ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Skip Count:" ) )
-                .append( INTEGRAL_FORMAT.format( skipCount ) ).append( "\n" );
+          .append( INTEGRAL_FORMAT.format( skipCount ) ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Worker Threads:" ) )
-                .append( threadCount ).append( "\n" );
+          .append( threadCount ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Status Display Interval:" ) ).append(
                 TEMPORAL_UTIL.milliDurationToString( TimeUnit.SECONDS.toMillis( statusDisplayIntervalAsSeconds ) ) )
-                .append( "\n" );
+          .append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Time Unit:" ) ).append( timeUnit )
-                .append( "\n" );
+          .append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Results Directory:" ) )
-                .append( resultDirPath() ).append( "\n" );
+          .append( resultDirPath() ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Time Compression Ratio:" ) )
-                .append( FLOAT_FORMAT.format( timeCompressionRatio ) ).append( "\n" );
+          .append( FLOAT_FORMAT.format( timeCompressionRatio ) ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Peer IDs:" ) )
-                .append( peerIds.toString() ).append( "\n" );
+          .append( peerIds.toString() ).append( "\n" );
         String validationCreationParamsString = (null == validationCreationParams) ?
-                                                null :
-                                                format( "File (%s) Validation Set Size (%s)",
-                                                        validationCreationParams.filePath(),
-                                                        validationCreationParams.validationSetSize );
+                null :
+                format( "File (%s) Validation Set Size (%s)",
+                        validationCreationParams.filePath(),
+                        validationCreationParams.validationSetSize );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Validation Creation Params:" ) )
-                .append( validationCreationParamsString ).append( "\n" );
+          .append( validationCreationParamsString ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Database Validation File:" ) )
-                .append( databaseValidationFilePath ).append( "\n" );
+          .append( databaseValidationFilePath ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Calculate Workload Statistics:" ) )
-                .append( calculateWorkloadStatistics ).append( "\n" );
+          .append( calculateWorkloadStatistics ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Spinner Sleep Duration:" ) )
-                .append( TEMPORAL_UTIL.milliDurationToString( spinnerSleepDurationAsMilli ) ).append( " / " )
-                .append( spinnerSleepDurationAsMilli ).append( " (ms)\n" );
+          .append( TEMPORAL_UTIL.milliDurationToString( spinnerSleepDurationAsMilli ) ).append( " / " )
+          .append( spinnerSleepDurationAsMilli ).append( " (ms)\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Print Help:" ) ).append( printHelp )
-                .append( "\n" );
+          .append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Ignore Scheduled Start Times:" ) )
-                .append( ignoreScheduledStartTimes ).append( "\n" );
+          .append( ignoreScheduledStartTimes ).append( "\n" );
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Consume Updates:" ) )
+          .append( consumeUpdates ).append( "\n" );
 
         Set<String> excludedKeys = coreConfigurationParameterKeys();
 
-        Map<String,String> filteredParamsMap =
+        Map<String, String> filteredParamsMap =
                 MapUtils.copyExcludingKeys( convertLongKeysToShortKeys( paramsMap ), excludedKeys );
         if ( !filteredParamsMap.isEmpty() )
         {
@@ -1479,8 +1517,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         {
             return false;
         }
+        if ( consumeUpdates != that.consumeUpdates )
+        {
+            return false;
+        }
         if ( databaseValidationFilePath != null ? !databaseValidationFilePath.equals( that.databaseValidationFilePath )
-                                                : that.databaseValidationFilePath != null )
+                : that.databaseValidationFilePath != null )
         {
             return false;
         }
@@ -1513,12 +1555,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             return false;
         }
         if ( validationCreationParams != null ? !validationCreationParams.equals( that.validationCreationParams )
-                                              : that.validationCreationParams != null )
+                : that.validationCreationParams != null )
         {
             return false;
         }
         if ( workloadClassName != null ? !workloadClassName.equals( that.workloadClassName )
-                                       : that.workloadClassName != null )
+                : that.workloadClassName != null )
         {
             return false;
         }

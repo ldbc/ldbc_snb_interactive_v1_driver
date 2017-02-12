@@ -104,9 +104,9 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         if ( controlService.configuration().warmupCount() > 0 )
         {
             loggingService.info( "\n" +
-                                 " --------------------\n" +
-                                 " --- Warmup Phase ---\n" +
-                                 " --------------------" );
+                    " --------------------\n" +
+                    " --- Warmup Phase ---\n" +
+                    " --------------------" );
             doInit( true );
             doExecute( true );
             try
@@ -125,15 +125,15 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         else
         {
             loggingService.info( "\n" +
-                                 " ---------------------------------\n" +
-                                 " --- No Warmup Phase Requested ---\n" +
-                                 " ---------------------------------" );
+                    " ---------------------------------\n" +
+                    " --- No Warmup Phase Requested ---\n" +
+                    " ---------------------------------" );
         }
 
         loggingService.info( "\n" +
-                             " -----------------\n" +
-                             " --- Run Phase ---\n" +
-                             " -----------------" );
+                " -----------------\n" +
+                " --- Run Phase ---\n" +
+                " -----------------" );
         doInit( false );
         doExecute( false );
 
@@ -192,18 +192,18 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         loggingService.info( "Scanning workload streams to calculate their limits..." );
 
         long offset = (warmup)
-                      ? controlService.configuration().skipCount()
-                      : controlService.configuration().skipCount() + controlService.configuration().warmupCount();
+                ? controlService.configuration().skipCount()
+                : controlService.configuration().skipCount() + controlService.configuration().warmupCount();
         long limit = (warmup)
-                     ? controlService.configuration().warmupCount()
-                     : controlService.configuration().operationCount();
+                ? controlService.configuration().warmupCount()
+                : controlService.configuration().operationCount();
 
         WorkloadStreams workloadStreams;
         long minimumTimeStamp;
         try
         {
             boolean returnStreamsWithDbConnector = true;
-            Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkloadAndMinimumTimeStamp =
+            Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkloadAndMinimumTimeStamp =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
                             controlService.configuration(),
                             gf,
@@ -322,7 +322,8 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     controlService.configuration().statusDisplayIntervalAsSeconds(),
                     controlService.configuration().spinnerSleepDurationAsMilli(),
                     controlService.configuration().ignoreScheduledStartTimes(),
-                    operationHandlerExecutorsBoundedQueueSize );
+                    operationHandlerExecutorsBoundedQueueSize,
+                    controlService.configuration().consumeUpdates());
         }
         catch ( Exception e )
         {
@@ -371,7 +372,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     throw new ClientException(
                             format(
                                     "Timed out [%s] while waiting for global completion time to advance to workload " +
-                                    "start time\nCurrent GCT: %s\nWaiting For GCT: %s",
+                                            "start time\nCurrent GCT: %s\nWaiting For GCT: %s",
                                     globalCompletionTimeWaitTimeoutDurationAsMilli,
                                     completionTimeService.globalCompletionTimeAsMilli(),
                                     controlService.workloadStartTimeAsMilli() )
@@ -379,7 +380,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                 }
                 loggingService.info( "GCT: " + temporalUtil
                         .milliTimeToDateTimeString( completionTimeService.globalCompletionTimeAsMilli() ) + " / " +
-                                     completionTimeService.globalCompletionTimeAsMilli() );
+                        completionTimeService.globalCompletionTimeAsMilli() );
             }
         }
         catch ( CompletionTimeException e )
