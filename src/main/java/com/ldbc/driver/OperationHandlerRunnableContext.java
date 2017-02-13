@@ -118,7 +118,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
             return;
         }
 
-        if (operation.isUpdate() && dbConnectionState.getUpdateProducer() != null) {
+        if (dbConnectionState != null && operation.isUpdate() && dbConnectionState.getUpdateProducer() != null) {
             dbConnectionState.getUpdateProducer().send( operation );
         } else {
             try {
