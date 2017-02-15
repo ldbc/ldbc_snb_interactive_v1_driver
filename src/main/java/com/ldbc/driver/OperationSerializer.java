@@ -9,6 +9,7 @@ import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class OperationSerializer implements Closeable, AutoCloseable, Serializer
 
     @Override
     public byte[] serialize( String s, Operation operation ) {
-        ByteBufferOutput output = new ByteBufferOutput( 100 );
+        Output output = new Output(new ByteArrayOutputStream(100));
         kryos.get().writeObject( output, operation );
         return output.toBytes();
     }
@@ -57,7 +58,7 @@ public class OperationSerializer implements Closeable, AutoCloseable, Serializer
         @Override
         public Operation read( Kryo kryo, Input input, Class<Operation> aClass ) {
             Operation operation = null;
-            int type = input.read();
+            int type = input.readInt();
             switch (type) {
                 case 1001:
                     operation = LdbcUpdate1AddPerson.readKyro( input );
@@ -79,6 +80,9 @@ public class OperationSerializer implements Closeable, AutoCloseable, Serializer
                     break;
                 case 1007:
                     operation = LdbcUpdate7AddComment.readKyro( input );
+                    break;
+                case 1008:
+                    operation = LdbcUpdate8AddFriendship.readKyro( input );
                     break;
                 default:
                     throw new IllegalArgumentException( "unexpected type" );

@@ -19,13 +19,20 @@ public class ConsumerOperationStreamExecutorService {
 
     public ConsumerOperationStreamExecutorService(
         ConcurrentErrorReporter errorReporter,
-        OperationExecutor operationExecutor) {
+        OperationExecutor operationExecutor) throws OperationExecutorException {
         this.errorReporter = errorReporter;
-        this.operationStreamExecutorServiceThread = new ConsumerOperationStreamExecutorServiceThread(
-            operationExecutor,
-            errorReporter,
-            hasFinished,
-            forceThreadToTerminate );
+        try {
+            this.operationStreamExecutorServiceThread = new ConsumerOperationStreamExecutorServiceThread(
+                operationExecutor,
+                errorReporter,
+                hasFinished,
+                forceThreadToTerminate );
+        } catch (OperationExecutorException e) {
+            String errMsg = format( "Unexpected error encountered while creating ConsumerOperationStreamExecutorServiceThread\n%s",
+                    ConcurrentErrorReporter.stackTraceToString( e ) );
+            errorReporter.reportError( this, errMsg );
+            throw e;
+        }
     }
 
     synchronized public AtomicBoolean execute() {

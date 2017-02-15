@@ -15,5 +15,12 @@ public class UpdatesProducer {
 
     public void send( Operation operation ) {
         this.kafkaProducer.send( new ProducerRecord<String, Operation>( TOPIC, operation ) );
+        this.kafkaProducer.flush();
+    }
+
+    public void close() {
+        if(this.kafkaProducer != null ) {
+            this.kafkaProducer.close();
+        }
     }
 }

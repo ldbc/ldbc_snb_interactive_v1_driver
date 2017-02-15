@@ -37,7 +37,7 @@ public abstract class Operation<RESULT_TYPE> {
     public abstract int type();
 
     public boolean isUpdate() {
-        return 1001 <= type() && 1007 >= type();
+        return 1001 <= type() && 1008 >= type();
     }
 
     @Override
