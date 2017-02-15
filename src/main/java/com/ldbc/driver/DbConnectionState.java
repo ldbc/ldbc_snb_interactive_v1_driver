@@ -16,7 +16,7 @@ public abstract class DbConnectionState implements Closeable {
         return updateProducer;
     }
 
-    public void setUpKafka() {
+    public void setUpKafka() throws DbException {
         Properties prop = new Properties();
         InputStream input = null;
         try {
@@ -24,21 +24,16 @@ public abstract class DbConnectionState implements Closeable {
             input = classLoader.getResourceAsStream( KAFKA_PRODUCER_PROPERTIES );
             prop.load( input );
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new DbException("Kafka Producer could NOT be instantiated", ex);
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new DbException("Kafka Producer could NOT be instantiated", e);
                 }
             }
         }
-        try {
-            updateProducer = new UpdatesProducer( new KafkaProducer<String, Operation>( prop ) );
-        } catch (Exception e) {
-            e.printStackTrace();
-            updateProducer = null;
-        }
+        updateProducer = new UpdatesProducer( new KafkaProducer<String, Operation>( prop ) );
     }
 }

@@ -639,7 +639,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         options.addOption( skipCountOption );
 
         Option consumeUpdatesOption =
-                OptionBuilder.withDescription( CONSUME_UPDATES_DESCRIPTION )
+                OptionBuilder.hasArgs(1).withDescription( CONSUME_UPDATES_DESCRIPTION )
                              .withLongOpt( CONSUME_UPDATES_ARG_LONG ).create( CONSUME_UPDATES_ARG );
         options.addOption( consumeUpdatesOption );
 

@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime;
 
 import com.ldbc.driver.Db;
+import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.LoggingServiceFactory;
@@ -352,8 +353,12 @@ public class WorkloadRunner
                     localCompletionTimeWriterForAsynchronous
             );
             this.executorForConsumer = new ConsumerSameThreadOperationExecutor( db );
-            this.consumerOperationStreamExecutorService = new ConsumerOperationStreamExecutorService(
-                    errorReporter, executorForConsumer );
+            try {
+                this.consumerOperationStreamExecutorService = new ConsumerOperationStreamExecutorService(
+                        errorReporter, executorForConsumer );
+            } catch (OperationExecutorException e) {
+                throw new WorkloadException("Error while attempting to create operation executor service for Kafka Consumer", e);
+            }
 
             for ( WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions() )
             {
@@ -409,10 +414,15 @@ public class WorkloadRunner
                 workloadStatusThread.start();
             }
 
-            AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
+            // size has been increased to account for consumeroperationStreamExecutor
+            // AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
+            AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 2];
             executorFinishedFlags[0] = asynchronousStreamExecutorService.execute();
             if (consumeUpdates) {
-                consumerOperationStreamExecutorService.execute();
+                executorFinishedFlags[executorFinishedFlags.length - 1] = consumerOperationStreamExecutorService.execute();
+            } else {
+                // set consumer executor flag to completed
+                executorFinishedFlags[executorFinishedFlags.length - 1] = new AtomicBoolean(true);
             }
             for ( int i = 0; i < blockingStreamExecutorServices.size(); i++ )
             {
@@ -495,6 +505,19 @@ public class WorkloadRunner
                 );
             }
 
+            if(consumeUpdates) {
+                try {
+                    consumerOperationStreamExecutorService.shutdown(shutdownWait);
+                } catch (OperationExecutorException e) {
+                    errorReporter.reportError(
+                            this,
+                            format( "Encountered error while shutting down %s\n%s\n",
+                                    consumerOperationStreamExecutorService.getClass().getSimpleName(),
+                                    ConcurrentErrorReporter.stackTraceToString( e ) )
+                    );
+                }
+            }
+
             for ( OperationStreamExecutorService blockingStreamExecutorService : blockingStreamExecutorServices )
             {
                 try
@@ -529,6 +552,21 @@ public class WorkloadRunner
                                 executorForAsynchronous.uncompletedOperationHandlerCount(),
                                 ConcurrentErrorReporter.stackTraceToString( e ) )
                 );
+            }
+
+            if(consumeUpdates) {
+                try {
+                    this.executorForConsumer.shutdown(shutdownWait);
+                } catch (OperationExecutorException e) {
+                    errorReporter.reportError(
+                            this,
+                            format( "Encountered error while waiting for consumer executor to shutdown\n" +
+                                            "Handlers still running: %s\n" +
+                                            "%s",
+                                    executorForConsumer.uncompletedOperationHandlerCount(),
+                                    ConcurrentErrorReporter.stackTraceToString( e ) )
+                    );
+                }
             }
 
             try
