@@ -1,10 +1,8 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.ByteBufferInput;
-import com.esotericsoftware.kryo.io.ByteBufferOutput;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.OperationSerializer;
 import org.junit.Test;
 
 import java.util.Date;
@@ -16,13 +14,12 @@ import static org.junit.Assert.assertThat;
 
 public class InteractiveOperationSerializationTest
 {
-    private static Kryo kryo = new Kryo();
+    private static OperationSerializer serializer = new OperationSerializer();
 
-    private static ByteBufferInput serialize( Operation operation )
+    private static Operation roundTrip( Operation operation )
     {
-        ByteBufferOutput output = new ByteBufferOutput(10000);
-        operation.writeKyro( kryo, output );
-        return new ByteBufferInput( output.toBytes() );
+        byte[] serialized = serializer.serialize( "operation", operation );
+        return serializer.deserialize( "operation", serialized );
     }
 
     @Test
@@ -72,16 +69,6 @@ public class InteractiveOperationSerializationTest
                 locationIp1,
                 browserUsed1,
                 cityId1, languages1, emails1, tagIds1, studyAt1, workAt1 );
-        LdbcUpdate1AddPerson ldbcUpdate1b = new LdbcUpdate1AddPerson(
-                personId1,
-                personFirstName1,
-                personLastName1,
-                gender1,
-                birthday1,
-                creationDate1,
-                locationIp1,
-                browserUsed1,
-                cityId1, languages1, emails1, tagIds1, studyAt1, workAt1 );
         LdbcUpdate1AddPerson ldbcUpdate2a = new LdbcUpdate1AddPerson(
                 personId2,
                 personFirstName2,
@@ -92,33 +79,10 @@ public class InteractiveOperationSerializationTest
                 locationIp2,
                 browserUsed2,
                 cityId2, languages2, emails2, tagIds2, studyAt2, workAt2 );
-        LdbcUpdate1AddPerson ldbcUpdate2b = new LdbcUpdate1AddPerson(
-                personId2,
-                personFirstName2,
-                personLastName2,
-                gender2,
-                birthday2,
-                creationDate2,
-                locationIp2,
-                browserUsed2,
-                cityId2, languages2, emails2, tagIds2, studyAt2, workAt2 );
-        LdbcUpdate1AddPerson ldbcUpdate3a = new LdbcUpdate1AddPerson(
-                personId1,
-                personFirstName1,
-                personLastName1,
-                gender1,
-                birthday1,
-                creationDate1,
-                locationIp1,
-                browserUsed1,
-                cityId1, languages1, emails1, tagIds1, studyAt1, workAt2 );
 
         // Then
-        assertThat( ldbcUpdate1a, equalTo( LdbcUpdate1AddPerson.readKyro( serialize( ldbcUpdate1a ) ) ) );
-        assertThat( ldbcUpdate2a, equalTo( LdbcUpdate1AddPerson.readKyro( serialize( ldbcUpdate2a ) ) ) );
-        assertThat( ldbcUpdate3a, equalTo( LdbcUpdate1AddPerson.readKyro( serialize( ldbcUpdate3a ) ) ) );
-        assertThat( ldbcUpdate1a, not(equalTo( LdbcUpdate1AddPerson.readKyro( serialize( ldbcUpdate2a )) ) ) );
-        assertThat( ldbcUpdate2a, not(equalTo( LdbcUpdate1AddPerson.readKyro( serialize( ldbcUpdate1a )) ) ) );
+        assertThat( ldbcUpdate1a, equalTo( roundTrip( ldbcUpdate1a ) ) );
+        assertThat( ldbcUpdate1a, not( equalTo( roundTrip( ldbcUpdate2a ) ) ) );
     }
 
     @Test
@@ -135,15 +99,11 @@ public class InteractiveOperationSerializationTest
 
         // When
         LdbcUpdate2AddPostLike ldbcUpdate1a = new LdbcUpdate2AddPostLike( personId1, postId1, creationDate1 );
-        LdbcUpdate2AddPostLike ldbcUpdate1b = new LdbcUpdate2AddPostLike( personId1, postId1, creationDate1 );
         LdbcUpdate2AddPostLike ldbcUpdate2a = new LdbcUpdate2AddPostLike( personId2, postId2, creationDate2 );
-        LdbcUpdate2AddPostLike ldbcUpdate3a = new LdbcUpdate2AddPostLike( personId1, postId1, creationDate2 );
 
         // Then
-        assertThat( ldbcUpdate1a, equalTo( ldbcUpdate1b ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate2a ) ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate3a ) ) );
-        assertThat( ldbcUpdate2a, not( equalTo( ldbcUpdate3a ) ) );
+        assertThat( ldbcUpdate1a, equalTo( roundTrip( ldbcUpdate1a ) ) );
+        assertThat( ldbcUpdate1a, not( equalTo( roundTrip( ldbcUpdate2a ) ) ) );
     }
 
     @Test
@@ -160,15 +120,11 @@ public class InteractiveOperationSerializationTest
 
         // When
         LdbcUpdate3AddCommentLike ldbcUpdate1a = new LdbcUpdate3AddCommentLike( personId1, commentId1, creationDate1 );
-        LdbcUpdate3AddCommentLike ldbcUpdate1b = new LdbcUpdate3AddCommentLike( personId1, commentId1, creationDate1 );
         LdbcUpdate3AddCommentLike ldbcUpdate2a = new LdbcUpdate3AddCommentLike( personId2, commentId2, creationDate2 );
-        LdbcUpdate3AddCommentLike ldbcUpdate3a = new LdbcUpdate3AddCommentLike( personId1, commentId1, creationDate2 );
 
         // Then
-        assertThat( ldbcUpdate1a, equalTo( ldbcUpdate1b ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate2a ) ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate3a ) ) );
-        assertThat( ldbcUpdate2a, not( equalTo( ldbcUpdate3a ) ) );
+        assertThat( ldbcUpdate1a, equalTo( roundTrip( ldbcUpdate1a ) ) );
+        assertThat( ldbcUpdate1a, not( equalTo( roundTrip( ldbcUpdate2a ) ) ) );
     }
 
     @Test
@@ -189,15 +145,11 @@ public class InteractiveOperationSerializationTest
 
         // When
         LdbcUpdate4AddForum ldbcUpdate1a = new LdbcUpdate4AddForum( forumId1, forumTitle1, creationDate1, moderatorPersonId1, tagIds1 );
-        LdbcUpdate4AddForum ldbcUpdate1b = new LdbcUpdate4AddForum( forumId1, forumTitle1, creationDate1, moderatorPersonId1, tagIds1 );
         LdbcUpdate4AddForum ldbcUpdate2a = new LdbcUpdate4AddForum( forumId2, forumTitle2, creationDate2, moderatorPersonId2, tagIds2 );
-        LdbcUpdate4AddForum ldbcUpdate3a = new LdbcUpdate4AddForum( forumId1, forumTitle1, creationDate1, moderatorPersonId1, tagIds2 );
 
         // Then
-        assertThat( ldbcUpdate1a, equalTo( ldbcUpdate1b ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate2a ) ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate3a ) ) );
-        assertThat( ldbcUpdate2a, not( equalTo( ldbcUpdate3a ) ) );
+        assertThat( ldbcUpdate1a, equalTo( roundTrip( ldbcUpdate1a ) ) );
+        assertThat( ldbcUpdate1a, not( equalTo( roundTrip( ldbcUpdate2a ) ) ) );
     }
 
     @Test
@@ -214,15 +166,11 @@ public class InteractiveOperationSerializationTest
 
         // When
         LdbcUpdate5AddForumMembership ldbcUpdate1a = new LdbcUpdate5AddForumMembership( forumId1, personId1, creationDate1 );
-        LdbcUpdate5AddForumMembership ldbcUpdate1b = new LdbcUpdate5AddForumMembership( forumId1, personId1, creationDate1 );
         LdbcUpdate5AddForumMembership ldbcUpdate2a = new LdbcUpdate5AddForumMembership( forumId2, personId2, creationDate2 );
-        LdbcUpdate5AddForumMembership ldbcUpdate3a = new LdbcUpdate5AddForumMembership( forumId1, personId1, creationDate2 );
 
         // Then
-        assertThat( ldbcUpdate1a, equalTo( ldbcUpdate1b ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate2a ) ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate3a ) ) );
-        assertThat( ldbcUpdate2a, not( equalTo( ldbcUpdate3a ) ) );
+        assertThat( ldbcUpdate1a, equalTo( roundTrip( ldbcUpdate1a ) ) );
+        assertThat( ldbcUpdate1a, not( equalTo( roundTrip( ldbcUpdate2a ) ) ) );
     }
 
     @Test
@@ -269,21 +217,6 @@ public class InteractiveOperationSerializationTest
                 forumId1,
                 countryId1,
                 tagIds1 );
-
-        LdbcUpdate6AddPost ldbcUpdate1b = new LdbcUpdate6AddPost(
-                postId1,
-                imageFile1,
-                creationDate1,
-                locationIp1,
-                browserUsed1,
-                language1,
-                content1,
-                length1,
-                authorPersonId1,
-                forumId1,
-                countryId1,
-                tagIds1 );
-
         LdbcUpdate6AddPost ldbcUpdate2a = new LdbcUpdate6AddPost(
                 postId2,
                 imageFile2,
@@ -298,26 +231,9 @@ public class InteractiveOperationSerializationTest
                 countryId2,
                 tagIds2 );
 
-        LdbcUpdate6AddPost ldbcUpdate3a = new LdbcUpdate6AddPost(
-                postId1,
-                imageFile1,
-                creationDate1,
-                locationIp1,
-                browserUsed1,
-                language1,
-                content1,
-                length1,
-                authorPersonId1,
-                forumId1,
-                countryId1,
-                tagIds2 );
-
-
         // Then
-        assertThat( ldbcUpdate1a, equalTo( ldbcUpdate1b ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate2a ) ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate3a ) ) );
-        assertThat( ldbcUpdate2a, not( equalTo( ldbcUpdate3a ) ) );
+        assertThat( ldbcUpdate1a, equalTo( roundTrip( ldbcUpdate1a ) ) );
+        assertThat( ldbcUpdate1a, not( equalTo( roundTrip( ldbcUpdate2a ) ) ) );
     }
 
     @Test
@@ -362,19 +278,6 @@ public class InteractiveOperationSerializationTest
                 replyToCommentId1,
                 tagIds1 );
 
-        LdbcUpdate7AddComment ldbcUpdate1b = new LdbcUpdate7AddComment(
-                commentId1,
-                creationDate1,
-                locationIp1,
-                browserUsed1,
-                content1,
-                length1,
-                authorPersonId1,
-                countryId1,
-                replyToPostId1,
-                replyToCommentId1,
-                tagIds1 );
-
         LdbcUpdate7AddComment ldbcUpdate2a = new LdbcUpdate7AddComment(
                 commentId2,
                 creationDate2,
@@ -388,24 +291,9 @@ public class InteractiveOperationSerializationTest
                 replyToCommentId2,
                 tagIds2 );
 
-        LdbcUpdate7AddComment ldbcUpdate3a = new LdbcUpdate7AddComment(
-                commentId1,
-                creationDate1,
-                locationIp1,
-                browserUsed1,
-                content1,
-                length1,
-                authorPersonId1,
-                countryId1,
-                replyToPostId1,
-                replyToCommentId1,
-                tagIds2 );
-
         // Then
-        assertThat( ldbcUpdate1a, equalTo( ldbcUpdate1b ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate2a ) ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate3a ) ) );
-        assertThat( ldbcUpdate2a, not( equalTo( ldbcUpdate3a ) ) );
+        assertThat( ldbcUpdate1a, equalTo( roundTrip( ldbcUpdate1a ) ) );
+        assertThat( ldbcUpdate1a, not( equalTo( roundTrip( ldbcUpdate2a ) ) ) );
     }
 
     @Test
@@ -422,14 +310,10 @@ public class InteractiveOperationSerializationTest
 
         // When
         LdbcUpdate8AddFriendship ldbcUpdate1a = new LdbcUpdate8AddFriendship( person1Id1, person2Id1, creationDate1 );
-        LdbcUpdate8AddFriendship ldbcUpdate1b = new LdbcUpdate8AddFriendship( person1Id1, person2Id1, creationDate1 );
         LdbcUpdate8AddFriendship ldbcUpdate2a = new LdbcUpdate8AddFriendship( person1Id2, person2Id2, creationDate2 );
-        LdbcUpdate8AddFriendship ldbcUpdate3a = new LdbcUpdate8AddFriendship( person1Id1, person2Id1, creationDate2 );
 
         // Then
-        assertThat( ldbcUpdate1a, equalTo( ldbcUpdate1b ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate2a ) ) );
-        assertThat( ldbcUpdate1a, not( equalTo( ldbcUpdate3a ) ) );
-        assertThat( ldbcUpdate2a, not( equalTo( ldbcUpdate3a ) ) );
+        assertThat( ldbcUpdate1a, equalTo( roundTrip( ldbcUpdate1a ) ) );
+        assertThat( ldbcUpdate1a, not( equalTo( roundTrip( ldbcUpdate2a ) ) ) );
     }
 }

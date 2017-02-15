@@ -262,10 +262,6 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult> {
         for (Long tagid : tagIds) {
             output.writeLong( tagid );
         }
-        output.writeInt( tagIds.size() );
-        for (Long tagid : tagIds) {
-            output.writeLong( tagid );
-        }
         output.writeInt( studyAt.size() );
         for (Organization study : studyAt) {
             output.writeLong( study.organizationId() );

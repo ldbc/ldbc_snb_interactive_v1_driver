@@ -90,7 +90,7 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult> {
         Long person1Id = input.readLong();
         Long person2Id = input.readLong();
         Date creationDate = new Date( input.readLong() );
-        return new LdbcUpdate2AddPostLike( person1Id, person2Id, creationDate );
+        return new LdbcUpdate8AddFriendship( person1Id, person2Id, creationDate );
     }
 
     @Override
