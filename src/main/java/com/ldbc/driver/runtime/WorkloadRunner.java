@@ -352,7 +352,15 @@ public class WorkloadRunner
                     executorForAsynchronous,
                     localCompletionTimeWriterForAsynchronous
             );
-            this.executorForConsumer = new ConsumerSameThreadOperationExecutor( db );
+            this.executorForConsumer = new ConsumerSameThreadOperationExecutor(
+                    db,
+                    localCompletionTimeWriterForAsynchronous,
+                    completionTimeService,
+                    spinner,
+                    timeSource,
+                    errorReporter,
+                    metricsService
+            );
             try {
                 this.consumerOperationStreamExecutorService = new ConsumerOperationStreamExecutorService(
                         errorReporter, executorForConsumer );

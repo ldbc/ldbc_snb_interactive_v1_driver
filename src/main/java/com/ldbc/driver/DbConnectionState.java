@@ -12,6 +12,10 @@ public abstract class DbConnectionState implements Closeable {
     private UpdatesProducer updateProducer = null;
     private static final String KAFKA_PRODUCER_PROPERTIES = "producer.properties";
 
+    /**
+     * Builds KafkaProducer using producer.properties
+     * @return <code>null</code> if workload is in consume mode, since no producer is built
+     */
     public UpdatesProducer getUpdateProducer() {
         return updateProducer;
     }

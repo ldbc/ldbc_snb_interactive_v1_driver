@@ -120,7 +120,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
         }
 
         // if set true, updates will go through Kafka rather than SUT
-        boolean consumerMode = dbConnectionState != null && operation.isUpdate() && dbConnectionState.getUpdateProducer() != null;
+        boolean produceMode = dbConnectionState != null && operation.isUpdate() && dbConnectionState.getUpdateProducer() != null;
 
         try {
             if (!spinner.waitForScheduledStartTime(operation, beforeExecuteCheck)) {
@@ -132,7 +132,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
             resultReporter.setActualStartTimeAsMilli(timeSource.nowAsMilli());
             long startOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
 
-            if (consumerMode) {
+            if (produceMode) {
                 dbConnectionState.getUpdateProducer().send(operation);
             } else {
                 operationHandler.executeOperation(operation, dbConnectionState, resultReporter);
@@ -142,7 +142,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
             resultReporter.setRunDurationAsNano(endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano);
             localCompletionTimeWriter.submitLocalCompletedTime(operation.timeStamp());
 
-            if (consumerMode) {
+            if (produceMode) {
                 metricsServiceWriter.submitOperationResult(
                         operation.type(),
                         operation.scheduledStartTimeAsMilli(),

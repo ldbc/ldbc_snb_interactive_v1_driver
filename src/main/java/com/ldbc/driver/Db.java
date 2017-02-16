@@ -1,6 +1,9 @@
 package com.ldbc.driver;
 
 import com.google.common.collect.Ordering;
+import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
+import com.ldbc.driver.control.DriverConfiguration;
+import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -31,8 +34,19 @@ public abstract class Db implements Closeable {
             throw new DbException( "DB may be initialized only once" );
         }
         onInit( params, loggingService );
+
+        boolean consumeMode = false;
+        try {
+            DriverConfiguration driverConfiguration = ConsoleAndFileDriverConfiguration.fromParamsMap(params);
+            consumeMode = driverConfiguration.consumeUpdates();
+            if(consumeMode) {
+                loggingService.info("Consume mode: ON");
+            }
+        } catch (DriverConfigurationException e) {
+            loggingService.info("Configuration could not be parsed, default to producer mode");
+        }
         dbConnectionState = getConnectionState();
-        if (dbConnectionState != null) dbConnectionState.setUpKafka();
+        if (dbConnectionState != null && !consumeMode) dbConnectionState.setUpKafka();
         operationHandlerRunnableContextFactory = new PoolingOperationHandlerRunnerFactory(
             new InstantiatingOperationHandlerRunnerFactory()
         );
