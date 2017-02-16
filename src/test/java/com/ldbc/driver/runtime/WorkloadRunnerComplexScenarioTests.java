@@ -1778,7 +1778,8 @@ public class WorkloadRunnerComplexScenarioTests
                 statusDisplayIntervalAsMilli,
                 spinnerSleepDurationAsMilli,
                 ignoreScheduledStartTime,
-                operationHandlerExecutorsBoundedQueueSize
+                operationHandlerExecutorsBoundedQueueSize,
+                true
         );
         return new WorkloadRunnerThread( runner, errorReporter );
     }

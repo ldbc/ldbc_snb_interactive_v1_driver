@@ -1,5 +1,8 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -76,6 +79,21 @@ public class LdbcUpdate3AddCommentLike extends Operation<LdbcNoResult>
                ", commentId=" + commentId +
                ", creationDate=" + creationDate +
                '}';
+    }
+
+    @Override
+    public void writeKyro( Kryo kryo, Output output ) {
+        output.writeInt( type() );
+        output.writeLong( personId );
+        output.writeLong( commentId );
+        output.writeLong( creationDate.getTime() );
+    }
+
+    public static Operation readKyro( Input input ) {
+        Long personId = input.readLong();
+        Long commentId = input.readLong();
+        Date creationDate = new Date( input.readLong() );
+        return new LdbcUpdate3AddCommentLike( personId, commentId, creationDate );
     }
 
     @Override

@@ -46,7 +46,7 @@ public class SingleThreadOperationExecutorThread extends Thread
         {
             operation = operationQueueEventFetcher.fetchNextEvent();
             while ( operation != SingleThreadOperationExecutor.TERMINATE_OPERATION &&
-                    false == forcedShutdownRequested.get() )
+                !forcedShutdownRequested.get())
             {
                 operationHandlerRunnableContext =
                         operationHandlerRunnableContextRetriever.getInitializedHandlerFor( operation );

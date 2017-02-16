@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime;
 
 import com.ldbc.driver.Db;
+import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.LoggingServiceFactory;
@@ -8,11 +9,7 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeService;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.executor.OperationExecutor;
-import com.ldbc.driver.runtime.executor.OperationExecutorException;
-import com.ldbc.driver.runtime.executor.OperationStreamExecutorService;
-import com.ldbc.driver.runtime.executor.SameThreadOperationExecutor;
-import com.ldbc.driver.runtime.executor.ThreadPoolOperationExecutor;
+import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
@@ -50,7 +47,8 @@ public class WorkloadRunner
             long statusDisplayIntervalAsSeconds,
             long spinnerSleepDurationAsMilli,
             boolean ignoreScheduleStartTimes,
-            int operationHandlerExecutorsBoundedQueueSize ) throws WorkloadException, MetricsCollectionException
+            int operationHandlerExecutorsBoundedQueueSize,
+            boolean consumeUpdates ) throws WorkloadException, MetricsCollectionException
     {
         this.workloadRunnerFuture = new WorkloadRunnerFuture(
                 timeSource,
@@ -64,8 +62,8 @@ public class WorkloadRunner
                 statusDisplayIntervalAsSeconds,
                 spinnerSleepDurationAsMilli,
                 ignoreScheduleStartTimes,
-                operationHandlerExecutorsBoundedQueueSize
-        );
+                operationHandlerExecutorsBoundedQueueSize,
+                consumeUpdates );
     }
 
     public Future<ConcurrentErrorReporter> getFuture()
@@ -94,7 +92,8 @@ public class WorkloadRunner
                 long statusDisplayIntervalAsSeconds,
                 long spinnerSleepDurationAsMilli,
                 boolean ignoreScheduleStartTimes,
-                int operationHandlerExecutorsBoundedQueueSize ) throws MetricsCollectionException, WorkloadException
+                int operationHandlerExecutorsBoundedQueueSize,
+                boolean consumeUpdates ) throws MetricsCollectionException, WorkloadException
         {
             this.workloadRunnerThread = new WorkloadRunnerThread(
                     timeSource,
@@ -108,8 +107,8 @@ public class WorkloadRunner
                     statusDisplayIntervalAsSeconds,
                     spinnerSleepDurationAsMilli,
                     ignoreScheduleStartTimes,
-                    operationHandlerExecutorsBoundedQueueSize
-            );
+                    operationHandlerExecutorsBoundedQueueSize,
+                    consumeUpdates );
             this.timeSource = timeSource;
             this.errorReporter = errorReporter;
         }
@@ -134,45 +133,45 @@ public class WorkloadRunner
 
             switch ( workloadRunnerThread.state() )
             {
-            case NOT_STARTED:
-                // Does not make sense to terminate a task that has not yet started
-                // This task should never run
-                isDone = true;
-                return false;
-            case RUNNING:
-                if ( isCancelled )
-                {
-                    // Fail because task has already been cancelled
-                    return false;
-                }
-                else
-                {
-                    isCancelled = true;
-                    errorReporter.reportError( this, "Workload execution was manually terminated" );
-                    try
-                    {
-                        waitForCompletion( Long.MAX_VALUE );
-                    }
-                    catch ( TimeoutException e )
-                    {
-                        // do nothing
-                    }
+                case NOT_STARTED:
+                    // Does not make sense to terminate a task that has not yet started
+                    // This task should never run
                     isDone = true;
-                    return isCancelled;
-                }
-            case COMPLETED_SUCCEEDED:
-                // Fail because task has already completed
-                return false;
-            case COMPLETED_FAILED:
-                // Fail because task has already completed
-                return false;
-            default:
-                // Fail because task has already completed
-                throw new IllegalStateException(
-                        format( "Unrecognized %s: %s",
-                                workloadRunnerThread.state().getClass().getSimpleName(),
-                                workloadRunnerThread.state() )
-                );
+                    return false;
+                case RUNNING:
+                    if ( isCancelled )
+                    {
+                        // Fail because task has already been cancelled
+                        return false;
+                    }
+                    else
+                    {
+                        isCancelled = true;
+                        errorReporter.reportError( this, "Workload execution was manually terminated" );
+                        try
+                        {
+                            waitForCompletion( Long.MAX_VALUE );
+                        }
+                        catch ( TimeoutException e )
+                        {
+                            // do nothing
+                        }
+                        isDone = true;
+                        return isCancelled;
+                    }
+                case COMPLETED_SUCCEEDED:
+                    // Fail because task has already completed
+                    return false;
+                case COMPLETED_FAILED:
+                    // Fail because task has already completed
+                    return false;
+                default:
+                    // Fail because task has already completed
+                    throw new IllegalStateException(
+                            format( "Unrecognized %s: %s",
+                                    workloadRunnerThread.state().getClass().getSimpleName(),
+                                    workloadRunnerThread.state() )
+                    );
             }
         }
 
@@ -188,7 +187,7 @@ public class WorkloadRunner
             if ( !isDone )
             {
                 if ( workloadRunnerThread.state().equals( WorkloadRunnerThreadState.COMPLETED_FAILED ) ||
-                     workloadRunnerThread.state().equals( WorkloadRunnerThreadState.COMPLETED_SUCCEEDED ) )
+                        workloadRunnerThread.state().equals( WorkloadRunnerThreadState.COMPLETED_SUCCEEDED ) )
                 {
                     isDone = true;
                 }
@@ -235,25 +234,25 @@ public class WorkloadRunner
             {
                 switch ( workloadRunnerThread.state() )
                 {
-                case NOT_STARTED:
-                    throw new IllegalStateException( format(
-                            "%s is in %s state, but should have already started",
-                            WorkloadRunnerThread.class.getSimpleName(),
-                            WorkloadRunnerThreadState.NOT_STARTED.name()
-                    ) );
-                case RUNNING:
-                    Spinner.powerNap( RUNNER_POLLING_INTERVAL_AS_MILLI );
-                    continue;
-                case COMPLETED_SUCCEEDED:
-                    return;
-                case COMPLETED_FAILED:
-                    return;
-                default:
-                    throw new IllegalStateException( format(
-                            "Unknown %s: %s",
-                            WorkloadRunnerThreadState.class.getSimpleName(),
-                            WorkloadRunnerThreadState.NOT_STARTED.name()
-                    ) );
+                    case NOT_STARTED:
+                        throw new IllegalStateException( format(
+                                "%s is in %s state, but should have already started",
+                                WorkloadRunnerThread.class.getSimpleName(),
+                                WorkloadRunnerThreadState.NOT_STARTED.name()
+                        ) );
+                    case RUNNING:
+                        Spinner.powerNap( RUNNER_POLLING_INTERVAL_AS_MILLI );
+                        continue;
+                    case COMPLETED_SUCCEEDED:
+                        return;
+                    case COMPLETED_FAILED:
+                        return;
+                    default:
+                        throw new IllegalStateException( format(
+                                "Unknown %s: %s",
+                                WorkloadRunnerThreadState.class.getSimpleName(),
+                                WorkloadRunnerThreadState.NOT_STARTED.name()
+                        ) );
                 }
             }
             throw new TimeoutException( "Workload execution did not complete in time" );
@@ -275,10 +274,13 @@ public class WorkloadRunner
         private final ConcurrentErrorReporter errorReporter;
         private final OperationExecutor executorForAsynchronous;
         private final List<OperationExecutor> executorsForBlocking = new ArrayList<>();
+        private final OperationExecutor executorForConsumer;
         private final OperationStreamExecutorService asynchronousStreamExecutorService;
+        private final ConsumerOperationStreamExecutorService consumerOperationStreamExecutorService;
         private final List<OperationStreamExecutorService> blockingStreamExecutorServices = new ArrayList<>();
         private final long statusDisplayIntervalAsMilli;
         private final AtomicReference<WorkloadRunnerThreadState> stateRef;
+        private final boolean consumeUpdates;
 
         private enum ShutdownType
         {
@@ -286,7 +288,8 @@ public class WorkloadRunner
             FORCED
         }
 
-        public WorkloadRunnerThread( TimeSource timeSource,
+        public WorkloadRunnerThread(
+                TimeSource timeSource,
                 Db db,
                 WorkloadStreams workloadStreams,
                 MetricsService metricsService,
@@ -297,7 +300,8 @@ public class WorkloadRunner
                 long statusDisplayIntervalAsSeconds,
                 long spinnerSleepDurationAsMilli,
                 boolean ignoreScheduleStartTimes,
-                int operationHandlerExecutorsBoundedQueueSize ) throws WorkloadException, MetricsCollectionException
+                int operationHandlerExecutorsBoundedQueueSize,
+                boolean consumeUpdates ) throws WorkloadException, MetricsCollectionException
         {
             this.errorReporter = errorReporter;
             this.statusDisplayIntervalAsMilli = statusDisplayIntervalAsSeconds;
@@ -322,8 +326,8 @@ public class WorkloadRunner
             try
             {
                 localCompletionTimeWriterForAsynchronous = (asynchronousStream.dependencyOperations().hasNext())
-                                                           ? completionTimeService.newLocalCompletionTimeWriter()
-                                                           : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+                        ? completionTimeService.newLocalCompletionTimeWriter()
+                        : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
             }
             catch ( CompletionTimeException e )
             {
@@ -348,6 +352,21 @@ public class WorkloadRunner
                     executorForAsynchronous,
                     localCompletionTimeWriterForAsynchronous
             );
+            this.executorForConsumer = new ConsumerSameThreadOperationExecutor(
+                    db,
+                    localCompletionTimeWriterForAsynchronous,
+                    completionTimeService,
+                    spinner,
+                    timeSource,
+                    errorReporter,
+                    metricsService
+            );
+            try {
+                this.consumerOperationStreamExecutorService = new ConsumerOperationStreamExecutorService(
+                        errorReporter, executorForConsumer );
+            } catch (OperationExecutorException e) {
+                throw new WorkloadException("Error while attempting to create operation executor service for Kafka Consumer", e);
+            }
 
             for ( WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions() )
             {
@@ -358,8 +377,8 @@ public class WorkloadRunner
                 try
                 {
                     localCompletionTimeWriterForBlocking = (blockingStream.dependencyOperations().hasNext())
-                                                           ? completionTimeService.newLocalCompletionTimeWriter()
-                                                           : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+                            ? completionTimeService.newLocalCompletionTimeWriter()
+                            : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
                 }
                 catch ( CompletionTimeException e )
                 {
@@ -386,6 +405,7 @@ public class WorkloadRunner
                         )
                 );
             }
+            this.consumeUpdates = consumeUpdates;
             this.stateRef = new AtomicReference<>( WorkloadRunnerThreadState.NOT_STARTED );
         }
 
@@ -402,8 +422,16 @@ public class WorkloadRunner
                 workloadStatusThread.start();
             }
 
-            AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
+            // size has been increased to account for consumeroperationStreamExecutor
+            // AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
+            AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 2];
             executorFinishedFlags[0] = asynchronousStreamExecutorService.execute();
+            if (consumeUpdates) {
+                executorFinishedFlags[executorFinishedFlags.length - 1] = consumerOperationStreamExecutorService.execute();
+            } else {
+                // set consumer executor flag to completed
+                executorFinishedFlags[executorFinishedFlags.length - 1] = new AtomicBoolean(true);
+            }
             for ( int i = 0; i < blockingStreamExecutorServices.size(); i++ )
             {
                 executorFinishedFlags[i + 1] = blockingStreamExecutorServices.get( i ).execute();
@@ -468,8 +496,8 @@ public class WorkloadRunner
             //
             // if normal shutdown all executors have completed by this stage
             long shutdownWait = (shutdownType.equals( ShutdownType.FORCED ))
-                                ? 1
-                                : OperationStreamExecutorService.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
+                    ? 1
+                    : OperationStreamExecutorService.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
 
             try
             {
@@ -483,6 +511,19 @@ public class WorkloadRunner
                                 asynchronousStreamExecutorService.getClass().getSimpleName(),
                                 ConcurrentErrorReporter.stackTraceToString( e ) )
                 );
+            }
+
+            if(consumeUpdates) {
+                try {
+                    consumerOperationStreamExecutorService.shutdown(shutdownWait);
+                } catch (OperationExecutorException e) {
+                    errorReporter.reportError(
+                            this,
+                            format( "Encountered error while shutting down %s\n%s\n",
+                                    consumerOperationStreamExecutorService.getClass().getSimpleName(),
+                                    ConcurrentErrorReporter.stackTraceToString( e ) )
+                    );
+                }
             }
 
             for ( OperationStreamExecutorService blockingStreamExecutorService : blockingStreamExecutorServices )
@@ -514,11 +555,26 @@ public class WorkloadRunner
                 errorReporter.reportError(
                         this,
                         format( "Encountered error while waiting for asynchronous executor to shutdown\n" +
-                                "Handlers still running: %s\n" +
-                                "%s",
+                                        "Handlers still running: %s\n" +
+                                        "%s",
                                 executorForAsynchronous.uncompletedOperationHandlerCount(),
                                 ConcurrentErrorReporter.stackTraceToString( e ) )
                 );
+            }
+
+            if(consumeUpdates) {
+                try {
+                    this.executorForConsumer.shutdown(shutdownWait);
+                } catch (OperationExecutorException e) {
+                    errorReporter.reportError(
+                            this,
+                            format( "Encountered error while waiting for consumer executor to shutdown\n" +
+                                            "Handlers still running: %s\n" +
+                                            "%s",
+                                    executorForConsumer.uncompletedOperationHandlerCount(),
+                                    ConcurrentErrorReporter.stackTraceToString( e ) )
+                    );
+                }
             }
 
             try
@@ -541,8 +597,8 @@ public class WorkloadRunner
                 errorReporter.reportError(
                         this,
                         format( "Encountered error while waiting for a synchronous executor to shutdown\n" +
-                                "Handlers still running: %s\n" +
-                                "%s",
+                                        "Handlers still running: %s\n" +
+                                        "%s",
                                 uncompletedOperationHandlerCount,
                                 ConcurrentErrorReporter.stackTraceToString( e ) )
                 );
