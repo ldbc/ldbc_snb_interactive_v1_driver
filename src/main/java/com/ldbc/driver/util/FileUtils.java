@@ -43,4 +43,59 @@ public class FileUtils
                 )
         );
     }
+
+    public static void assertDirectoryExists( File dir )
+    {
+        if ( !dir.exists() )
+        {
+            throw new RuntimeException( "Directory does not exist: " + dir.getAbsolutePath() );
+        }
+        else if ( !dir.isDirectory() )
+        {
+            throw new RuntimeException( "Is not a directory: " + dir.getAbsolutePath() );
+        }
+    }
+
+    public static void assertFileExists( File file )
+    {
+        if ( !file.exists() )
+        {
+            throw new RuntimeException( "File does not exist: " + file.getAbsolutePath() );
+        }
+        else if ( file.isDirectory() )
+        {
+            throw new RuntimeException( "Is a directory, not a file: " + file.getAbsolutePath() );
+        }
+    }
+
+    public static void forceRecreateFile( File file )
+    {
+        try
+        {
+            if ( file.exists() )
+            {
+                org.apache.commons.io.FileUtils.deleteQuietly( file );
+            }
+            if ( !file.createNewFile() )
+            {
+                throw new RuntimeException( "File already existed: " + file.getAbsolutePath() );
+            }
+        }
+        catch ( IOException e )
+        {
+            throw new RuntimeException( "Unable to create file: " + file.getAbsolutePath(), e );
+        }
+    }
+
+    public static void tryCreateDir( File dir, boolean failIfExists )
+    {
+        if ( dir.exists() && failIfExists )
+        {
+            throw new RuntimeException( "Directory already exists: " + dir.getAbsolutePath() );
+        }
+        else if ( !dir.exists() && !dir.mkdir() )
+        {
+            throw new RuntimeException( "Unable to create directory: " + dir.getAbsolutePath() );
+        }
+    }
 }

@@ -20,7 +20,7 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-public class LdbcSnbInteractiveWorkloadConfiguration
+public abstract class LdbcSnbInteractiveWorkloadConfiguration
 {
     public static final int WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT = -1;
     public final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";

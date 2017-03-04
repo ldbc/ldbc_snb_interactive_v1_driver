@@ -3,15 +3,20 @@ package com.ldbc.driver.client;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import com.ldbc.driver.ClientException;
+import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfiguration;
+import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
+import com.ldbc.driver.util.MapUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -28,6 +33,29 @@ public class ResultsDirectory
 
     private final DriverConfiguration configuration;
     private final File resultsDir;
+
+    public static ResultsDirectory fromDirectory( File resultsDir )
+            throws IOException, DriverConfigurationException, ClientException
+    {
+        FileFilter configurationFileFilter = new FileFilter()
+        {
+            @Override
+            public boolean accept( File file )
+            {
+                return !file.getName().contains( WARMUP_IDENTIFIER ) &&
+                       file.getName().endsWith( RESULTS_CONFIGURATION_FILENAME_SUFFIX );
+            }
+        };
+        File[] resultFiles = resultsDir.listFiles( configurationFileFilter );
+        if ( null == resultFiles || resultFiles.length != 1 )
+        {
+            throw new RuntimeException( "Could not find configuration file in: " + resultsDir.getAbsolutePath() );
+        }
+        File configurationFile = resultFiles[0];
+        Map<String,String> configurationMap = MapUtils.loadPropertiesToMap( configurationFile );
+        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromParamsMap( configurationMap );
+        return new ResultsDirectory( configuration );
+    }
 
     public ResultsDirectory( DriverConfiguration configuration ) throws ClientException
     {
