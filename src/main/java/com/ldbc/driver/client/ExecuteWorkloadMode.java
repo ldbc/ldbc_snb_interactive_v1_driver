@@ -9,7 +9,6 @@ import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.LoggingService;
-import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
@@ -24,6 +23,9 @@ import com.ldbc.driver.runtime.metrics.JsonWorkloadMetricsFormatter;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsManager;
 import com.ldbc.driver.runtime.metrics.MetricsService;
+import com.ldbc.driver.runtime.metrics.NullResultsLogWriter;
+import com.ldbc.driver.runtime.metrics.ResultsLogWriter;
+import com.ldbc.driver.runtime.metrics.SimpleResultsLogWriter;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 import com.ldbc.driver.temporal.TemporalUtil;
@@ -40,14 +42,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.text.DecimalFormat;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
 public class ExecuteWorkloadMode implements ClientMode<Object>
 {
-    private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat( "###,###,###,###,###" );
     private final ControlService controlService;
     private final TimeSource timeSource;
     private final LoggingService loggingService;
@@ -60,7 +60,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     private MetricsService metricsService = null;
     private CompletionTimeService completionTimeService = null;
     private WorkloadRunner workloadRunner = null;
-    private SimpleCsvFileWriter csvResultsLogFileWriter = null;
+    private ResultsLogWriter resultsLogWriter = null;
 
     public ExecuteWorkloadMode(
             ControlService controlService,
@@ -152,30 +152,16 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         //  ===  Results Log CSV Writer  ===
         //  ================================
         File resultsLog = resultsDirectory.getOrCreateResultsLogFile( warmup );
-        if ( null != resultsLog )
+        try
         {
-            try
-            {
-                csvResultsLogFileWriter = new SimpleCsvFileWriter(
-                        resultsLog,
-                        SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR
-                );
-
-                csvResultsLogFileWriter.writeRow(
-                        "operation_type",
-                        "scheduled_start_time_" + TimeUnit.MILLISECONDS.name(),
-                        "actual_start_time_" + TimeUnit.MILLISECONDS.name(),
-                        "execution_duration_" + controlService.configuration().timeUnit().name(),
-                        "result_code",
-                        "original_start_time"
-                );
-            }
-            catch ( IOException e )
-            {
-                throw new ClientException(
-                        format( "Error while creating results log file: %s", resultsLog.getAbsolutePath() ), e
-                );
-            }
+            resultsLogWriter = (null == resultsLog)
+                               ? new NullResultsLogWriter()
+                               : new SimpleResultsLogWriter( resultsLog, controlService.configuration().timeUnit() );
+        }
+        catch ( IOException e )
+        {
+            throw new ClientException(
+                    format( "Error creating results log writer for: %s", resultsLog.getAbsolutePath() ), e );
         }
 
         //  ==================
@@ -265,7 +251,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     errorReporter,
                     controlService.configuration().timeUnit(),
                     DisruptorSbeMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                    csvResultsLogFileWriter,
+                    resultsLogWriter,
                     workload.operationTypeToClassMapping(),
                     controlService.loggingServiceFactory()
             );
@@ -442,7 +428,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                         configurationFile.toPath(),
                         controlService.configuration().toPropertiesString().getBytes( StandardCharsets.UTF_8 )
                 );
-                csvResultsLogFileWriter.close();
+                resultsLogWriter.close();
                 if ( !controlService.configuration().ignoreScheduledStartTimes() )
                 {
                     loggingService.info( "Validating workload results..." );

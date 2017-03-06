@@ -4,7 +4,6 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.Log4jLoggingServiceFactory;
 import com.ldbc.driver.control.LoggingServiceFactory;
-import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
@@ -30,7 +29,7 @@ public class DisruptorSbeMetricsServiceTest
     public void shouldNotAcceptOperationResultsAfterShutdown() throws WorkloadException, MetricsCollectionException
     {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        SimpleCsvFileWriter csvResultsLogWriter = null;
+        ResultsLogWriter resultsLogWriter = new NullResultsLogWriter();
         Map<Integer,Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put( LdbcQuery1.TYPE, LdbcQuery1.class );
         operationTypeToClassMapping.put( LdbcQuery2.TYPE, LdbcQuery2.class );
@@ -39,7 +38,7 @@ public class DisruptorSbeMetricsServiceTest
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 DisruptorSbeMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                csvResultsLogWriter,
+                resultsLogWriter,
                 operationTypeToClassMapping,
                 loggingServiceFactory
         );
@@ -60,7 +59,7 @@ public class DisruptorSbeMetricsServiceTest
     public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException
     {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        SimpleCsvFileWriter csvResultsLogWriter = null;
+        ResultsLogWriter resultsLogWriter = new NullResultsLogWriter();
         Map<Integer,Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put( LdbcQuery1.TYPE, LdbcQuery1.class );
         operationTypeToClassMapping.put( LdbcQuery2.TYPE, LdbcQuery2.class );
@@ -69,7 +68,7 @@ public class DisruptorSbeMetricsServiceTest
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 DisruptorSbeMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                csvResultsLogWriter,
+                resultsLogWriter,
                 operationTypeToClassMapping,
                 loggingServiceFactory
         );
