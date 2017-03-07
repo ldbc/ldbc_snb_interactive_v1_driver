@@ -6,9 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-// TODO add tests for writer
-// TODO add reader
-// TODO add tests for reader
 public class SimpleResultsLogWriter implements ResultsLogWriter
 {
     private final SimpleCsvFileWriter writer;
@@ -20,12 +17,12 @@ public class SimpleResultsLogWriter implements ResultsLogWriter
         this.unit = unit;
         resultsLog.createNewFile();
         writer.writeRow(
-                "operation_type",
-                "scheduled_start_time_" + TimeUnit.MILLISECONDS.name(),
-                "actual_start_time_" + TimeUnit.MILLISECONDS.name(),
-                "execution_duration_" + unit.name(),
-                "result_code",
-                "original_start_time"
+                HEADER_OPERATION_TYPE,
+                HEADER_SCHEDULED_START_TIME,
+                HEADER_ACTUAL_START_TIME,
+                HEADER_EXECUTION_DURATION_PREFIX + unit.name(),
+                HEADER_RESULT_CODE,
+                HEADER_ORIGINAL_START_TIME
         );
     }
 

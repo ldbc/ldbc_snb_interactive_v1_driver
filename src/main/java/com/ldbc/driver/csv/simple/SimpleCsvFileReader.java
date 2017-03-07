@@ -52,10 +52,6 @@ public class SimpleCsvFileReader implements Iterator<String[]>, Closeable
         if ( closed )
         { return false; }
         next = (next == null) ? nextLine() : next;
-        if ( null == next )
-        {
-            return false;
-        }
         return (null != next);
     }
 

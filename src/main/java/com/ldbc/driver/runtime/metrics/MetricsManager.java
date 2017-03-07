@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toMap;
 
 public class MetricsManager
 {
@@ -20,6 +21,7 @@ public class MetricsManager
     private long startTimeAsMilli;
     private long latestFinishTimeAsMilli;
     private final OperationTypeMetricsManager[] operationTypeMetricsManagers;
+    private final Map<Integer,Class<? extends Operation>> operationTypeToClassMapping;
 
     public static void export(
             WorkloadResultsSnapshot workloadResults,
@@ -115,7 +117,7 @@ public class MetricsManager
         }
     }
 
-    MetricsManager( TimeSource timeSource,
+    public MetricsManager( TimeSource timeSource,
             TimeUnit unit,
             long highestExpectedRuntimeDurationAsNano,
             Map<Integer,Class<? extends Operation>> operationTypeToClassMapping,
@@ -127,7 +129,7 @@ public class MetricsManager
                 highestExpectedRuntimeDurationAsNano,
                 loggingServiceFactory
         );
-
+        this.operationTypeToClassMapping = operationTypeToClassMapping;
         this.startTimeAsMilli = Long.MAX_VALUE;
         this.latestFinishTimeAsMilli = Long.MIN_VALUE;
         this.timeSource = timeSource;
@@ -136,7 +138,7 @@ public class MetricsManager
 
     final static long ONE_MS_AS_NS = TimeUnit.MILLISECONDS.toNanos( 1 );
 
-    void measure( long actualStartTimeAsMilli, long runDurationAsNano, int operationType )
+    public void measure( long actualStartTimeAsMilli, long runDurationAsNano, int operationType )
             throws MetricsCollectionException
     {
         if ( actualStartTimeAsMilli < startTimeAsMilli )
@@ -153,6 +155,23 @@ public class MetricsManager
         operationTypeMetricsManagers[operationType].measure( runDurationAsNano );
     }
 
+    public void applyResultsLog( ResultsLogReader reader ) throws MetricsCollectionException
+    {
+        Map<String,Integer> simpleNameToTypeMapping = simpleNameToTypeMapping( operationTypeToClassMapping );
+        while ( reader.next() )
+        {
+            int operationType = simpleNameToTypeMapping.get( reader.getOperationName() );
+            measure( reader.getActualStartTimeAsMilli(), reader.getRunDurationAsNano(), operationType );
+        }
+    }
+
+    private static Map<String,Integer> simpleNameToTypeMapping(
+            Map<Integer,Class<? extends Operation>> operationTypeToClassMapping )
+    {
+        return operationTypeToClassMapping.entrySet().stream()
+                .collect( toMap( entry -> entry.getValue().getSimpleName(), Map.Entry::getKey ) );
+    }
+
     private long totalOperationCount()
     {
         long count = 0;
@@ -166,7 +185,7 @@ public class MetricsManager
         return count;
     }
 
-    WorkloadResultsSnapshot snapshot()
+    public WorkloadResultsSnapshot snapshot()
     {
         Map<String,OperationMetricsSnapshot> operationMetricsMap = new HashMap<>();
         for ( OperationTypeMetricsManager operationTypeMetricsManager : operationTypeMetricsManagers )
