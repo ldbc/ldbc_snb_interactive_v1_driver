@@ -1,11 +1,15 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.util.ListUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -185,6 +189,54 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
                '}';
     }
 
+    @Override
+    public void writeKyro( Kryo kryo, Output output ) {
+        output.writeInt( type() );
+        output.writeLong( commentId );
+        output.writeLong( creationDate.getTime() );
+        output.writeString( locationIp );
+        output.writeString( browserUsed );
+        output.writeString( content );
+        output.writeInt( length );
+        output.writeLong( authorPersonId );
+        output.writeLong( countryId );
+        output.writeLong( replyToPostId );
+        output.writeLong( replyToCommentId);
+        output.writeInt( tagIds.size() );
+        for (Long tagId : tagIds) {
+            output.writeLong( tagId );
+        }
+    }
+
+    public static Operation readKyro( Input input ) {
+        List<Long> tagIds = new ArrayList<>();
+        Long commentId = input.readLong();
+        Date creationDate = new Date( input.readLong() );
+        String locationIp = input.readString();
+        String browserUsed = input.readString();
+        String content = input.readString();
+        int length = input.readInt();
+        Long authorPersonId = input.readLong();
+        Long countryId = input.readLong();
+        Long replyToPostId = input.readLong();
+        Long replyToCommentId = input.readLong();
+        int n = input.readInt();
+        for (int i = 0; i < n; ++i) {
+            tagIds.add( input.readLong() );
+        }
+        return new LdbcUpdate7AddComment(
+            commentId,
+            creationDate,
+            locationIp,
+            browserUsed,
+            content,
+            length,
+            authorPersonId,
+            countryId,
+            replyToPostId,
+            replyToCommentId,
+            tagIds );
+    }
     @Override
     public LdbcNoResult marshalResult( String serializedOperationResult )
     {

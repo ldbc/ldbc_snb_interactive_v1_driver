@@ -131,8 +131,8 @@ public class ConsoleAndFileDriverConfigurationTest
                 printHelp,
                 ignoreScheduledStartTimes,
                 warmupCount,
-                skipCount
-        );
+                skipCount,
+                true, 1 );
 
         DriverConfiguration configurationAfter =
                 ConsoleAndFileDriverConfiguration.fromParamsMap( configurationBefore.asMap() );
@@ -605,8 +605,8 @@ public class ConsoleAndFileDriverConfigurationTest
                 printHelp,
                 ignoreScheduledStartTimes,
                 warmupCount,
-                skipCount
-        );
+                skipCount,
+                true, 1 );
 
         assertThat( params.asMap(), equalTo( paramsMap ) );
         assertThat( params.name(), equalTo( name ) );

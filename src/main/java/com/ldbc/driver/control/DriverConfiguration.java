@@ -16,6 +16,8 @@ public interface DriverConfiguration
 
     int threadCount();
 
+    int consumerThreadCount();
+
     int statusDisplayIntervalAsSeconds();
 
     TimeUnit timeUnit();
@@ -43,6 +45,8 @@ public interface DriverConfiguration
     long warmupCount();
 
     long skipCount();
+
+    boolean consumeUpdates();
 
     String toPropertiesString() throws DriverConfigurationException;
 
