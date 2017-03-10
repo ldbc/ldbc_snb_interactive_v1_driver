@@ -99,6 +99,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private static final String THREADS_DESCRIPTION =
             format( "number of worker threads to execute with (default: %s)", THREADS_DEFAULT_STRING );
 
+    public static final String CONSUMER_THREADS_ARG = "ctc";
+    private static final String CONSUMER_THREADS_ARG_LONG = "consumer_thread_count";
+    public static final int CONSUMER_THREADS_DEFAULT = 1;
+    public static final String CONSUMER_THREADS_DEFAULT_STRING = Integer.toString( CONSUMER_THREADS_DEFAULT );
+    private static final String CONSUMER_THREADS_DESCRIPTION =
+            format( "number of worker threads to execute consumer updates with (default: %s)",
+                    CONSUMER_THREADS_DEFAULT_STRING );
+
     public static final String SHOW_STATUS_ARG = "s";
     private static final String SHOW_STATUS_ARG_LONG = "status";
     public static final int SHOW_STATUS_DEFAULT = 2;
@@ -203,6 +211,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         defaultParamsMap.put( DB_ARG, DB_DEFAULT_STRING );
         defaultParamsMap.put( RESULT_DIR_PATH_ARG, RESULT_DIR_PATH_DEFAULT_STRING );
         defaultParamsMap.put( THREADS_ARG, THREADS_DEFAULT_STRING );
+        defaultParamsMap.put( CONSUMER_THREADS_ARG, CONSUMER_THREADS_DEFAULT_STRING );
         defaultParamsMap.put( SHOW_STATUS_ARG, SHOW_STATUS_DEFAULT_STRING );
         if ( null != DB_VALIDATION_FILE_PATH_DEFAULT_STRING )
         {
@@ -275,6 +284,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             String workloadClassName = paramsMap.get( WORKLOAD_ARG );
             long operationCount = Long.parseLong( paramsMap.get( OPERATION_COUNT_ARG ) );
             int threadCount = Integer.parseInt( paramsMap.get( THREADS_ARG ) );
+            int consumerThreadCount = Integer.parseInt( paramsMap.get( CONSUMER_THREADS_ARG ) );
             int statusDisplayIntervalAsSeconds = Integer.parseInt( paramsMap.get( SHOW_STATUS_ARG ) );
             TimeUnit timeUnit = TimeUnit.valueOf( paramsMap.get( TIME_UNIT_ARG ) );
             String resultDirPath = paramsMap.get( RESULT_DIR_PATH_ARG );
@@ -316,7 +326,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     ignoreScheduledStartTimes,
                     warmupCount,
                     skipCount,
-                    consumeUpdates );
+                    consumeUpdates,
+                    consumerThreadCount );
         }
         catch ( DriverConfigurationException e )
         {
@@ -584,6 +595,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                         THREADS_ARG_LONG ).create( THREADS_ARG );
         options.addOption( threadsOption );
 
+        Option consumerThreadsOption =
+                OptionBuilder.hasArgs( 1 ).withArgName( "count" ).withDescription( CONSUMER_THREADS_DESCRIPTION ).withLongOpt(
+                        CONSUMER_THREADS_ARG_LONG ).create( CONSUMER_THREADS_ARG );
+        options.addOption( consumerThreadsOption );
+
         Option statusOption =
                 OptionBuilder.hasArgs( 1 ).withArgName( "seconds" ).withDescription( SHOW_STATUS_DESCRIPTION )
                              .withLongOpt(
@@ -639,7 +655,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         options.addOption( skipCountOption );
 
         Option consumeUpdatesOption =
-                OptionBuilder.hasArgs(1).withDescription( CONSUME_UPDATES_DESCRIPTION )
+                OptionBuilder.hasArgs( 1 ).withDescription( CONSUME_UPDATES_DESCRIPTION )
                              .withLongOpt( CONSUME_UPDATES_ARG_LONG ).create( CONSUME_UPDATES_ARG );
         options.addOption( consumeUpdatesOption );
 
@@ -766,6 +782,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private final long warmupCount;
     private final long skipCount;
     private final boolean consumeUpdates;
+    private final int consumerThreadCount;
 
     public ConsoleAndFileDriverConfiguration(
             Map<String, String> paramsMap,
@@ -787,7 +804,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             boolean ignoreScheduledStartTimes,
             long warmupCount,
             long skipCount,
-            boolean consumeUpdates )
+            boolean consumeUpdates,
+            int consumerThreadCount )
     {
         if ( null == paramsMap )
         {
@@ -813,6 +831,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         this.warmupCount = warmupCount;
         this.skipCount = skipCount;
         this.consumeUpdates = consumeUpdates;
+        this.consumerThreadCount = consumerThreadCount;
 
         if ( null != name )
         {
@@ -828,6 +847,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             paramsMap.put( WORKLOAD_ARG, workloadClassName );
         }
         paramsMap.put( THREADS_ARG, Integer.toString( threadCount ) );
+        paramsMap.put( CONSUMER_THREADS_ARG, Integer.toString( consumerThreadCount ) );
         paramsMap.put( SHOW_STATUS_ARG, Integer.toString( statusDisplayIntervalAsSeconds ) );
         paramsMap.put( TIME_UNIT_ARG, timeUnit.name() );
         if ( null != resultDirPath )
@@ -882,6 +902,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     {
         return threadCount;
     }
+
+    @Override
+    public int consumerThreadCount() { return consumerThreadCount; }
 
     @Override
     public int statusDisplayIntervalAsSeconds()
@@ -1123,7 +1146,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 newIgnoreScheduledStartTimes,
                 newWarmupCount,
                 newSkipCount,
-                newConsumeUpdates );
+                newConsumeUpdates, 1 );
     }
 
     public String[] toArgs() throws DriverConfigurationException
@@ -1142,6 +1165,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         // optional core parameters
         argsList.addAll( Lists.newArrayList( "-" + SHOW_STATUS_ARG, Long.toString( statusDisplayIntervalAsSeconds ) ) );
         argsList.addAll( Lists.newArrayList( "-" + THREADS_ARG, Integer.toString( threadCount ) ) );
+        argsList.addAll( Lists.newArrayList( "-" + CONSUMER_THREADS_ARG, Integer.toString( consumerThreadCount ) ) );
         argsList.addAll( Lists.newArrayList( "-" + WARMUP_COUNT_ARG, Long.toString( warmupCount ) ) );
         argsList.addAll( Lists.newArrayList( "-" + SKIP_COUNT_ARG, Long.toString( skipCount ) ) );
         argsList.addAll( Lists.newArrayList( "-" + CONSUME_UPDATES_ARG, Boolean.toString( consumeUpdates ) ) );
@@ -1218,6 +1242,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         sb.append( "# COMMAND: " ).append( "-" ).append( THREADS_ARG ).append( "/--" ).append( THREADS_ARG_LONG )
           .append( "\n" );
         sb.append( THREADS_ARG_LONG ).append( "=" ).append( threadCount ).append( "\n" );
+        sb.append( "\n" );
+        sb.append( "# thread pool size to use for executing consumer operation handlers\n" );
+        sb.append( "# INT-32\n" );
+        sb.append( "# COMMAND: " ).append( "-" ).append( CONSUMER_THREADS_ARG ).append( "/--" ).append( CONSUMER_THREADS_ARG_LONG )
+          .append( "\n" );
+        sb.append( CONSUMER_THREADS_ARG_LONG ).append( "=" ).append( consumerThreadCount ).append( "\n" );
         sb.append( "\n" );
         sb.append( "# number of operations to execute during warmup phase of workload\n" );
         sb.append( "# INT-64\n" );
@@ -1426,6 +1456,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
           .append( INTEGRAL_FORMAT.format( skipCount ) ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Worker Threads:" ) )
           .append( threadCount ).append( "\n" );
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Consumer Worker Threads:" ) )
+          .append( consumerThreadCount ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Status Display Interval:" ) ).append(
                 TEMPORAL_UTIL.milliDurationToString( TimeUnit.SECONDS.toMillis( statusDisplayIntervalAsSeconds ) ) )
           .append( "\n" );
@@ -1513,6 +1545,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         {
             return false;
         }
+        if ( consumerThreadCount != that.consumerThreadCount)
+        {
+            return false;
+        }
         if ( Double.compare( that.timeCompressionRatio, timeCompressionRatio ) != 0 )
         {
             return false;
@@ -1580,6 +1616,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         result = 31 * result + (int) (warmupCount ^ (warmupCount >>> 32));
         result = 31 * result + (int) (skipCount ^ (skipCount >>> 32));
         result = 31 * result + threadCount;
+        result = 31 * result + consumerThreadCount;
         result = 31 * result + statusDisplayIntervalAsSeconds;
         result = 31 * result + (timeUnit != null ? timeUnit.hashCode() : 0);
         result = 31 * result + (resultDirPath != null ? resultDirPath.hashCode() : 0);

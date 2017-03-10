@@ -386,7 +386,7 @@ public class TimeMappingOperationGeneratorTest
                 ignoreScheduledStartTimes,
                 warmupCount,
                 skipCount,
-                true );
+                true, 1 );
 
         Map<String,String> updateStreamParams = MapUtils.loadPropertiesToMap(
                 TestUtils.getResource( "/snb/interactive/updateStream.properties" )

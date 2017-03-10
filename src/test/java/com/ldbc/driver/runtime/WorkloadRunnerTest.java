@@ -137,7 +137,7 @@ public class WorkloadRunnerTest
                     ignoreScheduledStartTimes,
                     warmupCount,
                     skipCount,
-                    false);
+                    false, 1 );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
                     .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
@@ -212,7 +212,7 @@ public class WorkloadRunnerTest
                     controlService.configuration().spinnerSleepDurationAsMilli(),
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize,
-                    true);
+                    true, 1 );
 
             runner.getFuture().get();
             csvResultsLogWriter.close();
@@ -343,7 +343,7 @@ public class WorkloadRunnerTest
                     ignoreScheduledStartTimes,
                     warmupCount,
                     skipCount,
-                    false);
+                    false, 1 );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
                     .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
@@ -416,7 +416,7 @@ public class WorkloadRunnerTest
                     controlService.configuration().spinnerSleepDurationAsMilli(),
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize,
-                    controlService.configuration().consumeUpdates());
+                    controlService.configuration().consumeUpdates(), 1 );
 
             runner.getFuture().get();
 
@@ -567,7 +567,7 @@ public class WorkloadRunnerTest
                     ignoreScheduledStartTimes,
                     warmupCount,
                     skipCount,
-                    false);
+                    false, 1 );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
                     .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
@@ -640,7 +640,7 @@ public class WorkloadRunnerTest
                     controlService.configuration().spinnerSleepDurationAsMilli(),
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize,
-                    controlService.configuration().consumeUpdates());
+                    controlService.configuration().consumeUpdates(), 1 );
 
             runner.getFuture().get();
 
@@ -838,7 +838,7 @@ public class WorkloadRunnerTest
                     ignoreScheduledStartTimes,
                     warmupCount,
                     skipCount,
-                    false);
+                    false, 1 );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
                     .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
@@ -903,7 +903,7 @@ public class WorkloadRunnerTest
                     controlService.configuration().spinnerSleepDurationAsMilli(),
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize,
-                    controlService.configuration().consumeUpdates());
+                    controlService.configuration().consumeUpdates(), 1 );
 
             runner.getFuture().get();
 

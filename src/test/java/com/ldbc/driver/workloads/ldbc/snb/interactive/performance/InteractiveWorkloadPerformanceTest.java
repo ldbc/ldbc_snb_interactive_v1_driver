@@ -145,7 +145,7 @@ public class InteractiveWorkloadPerformanceTest
                     ignoreScheduledStartTimes,
                     warmupCount,
                     skipCount,
-                    true );
+                    true, 1 );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
                     .applyArgs( MapUtils.loadPropertiesToMap( new File( updateStreamPropertiesPath ) ) );
@@ -311,7 +311,7 @@ public class InteractiveWorkloadPerformanceTest
                     ignoreScheduledStartTimes,
                     warmupCount,
                     skipCount,
-                    true );
+                    true, 1 );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
                     .applyArgs( MapUtils.loadPropertiesToMap( new File( updateStreamPropertiesPath ) ) );

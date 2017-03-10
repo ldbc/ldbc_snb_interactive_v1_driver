@@ -323,7 +323,8 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     controlService.configuration().spinnerSleepDurationAsMilli(),
                     controlService.configuration().ignoreScheduledStartTimes(),
                     operationHandlerExecutorsBoundedQueueSize,
-                    controlService.configuration().consumeUpdates());
+                    controlService.configuration().consumeUpdates(),
+                    controlService.configuration().consumerThreadCount());
         }
         catch ( Exception e )
         {
