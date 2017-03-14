@@ -82,6 +82,11 @@ public class WorkloadResultsSnapshot
         Collections.sort( metrics, new OperationTypeMetricsManager.OperationMetricsNameComparator() );
     }
 
+    public TimeUnit unit()
+    {
+        return unit;
+    }
+
     public long startTimeAsMilli()
     {
         return unit.toMillis( startTimeAsUnit );
