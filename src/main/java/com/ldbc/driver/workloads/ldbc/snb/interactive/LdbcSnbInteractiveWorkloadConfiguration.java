@@ -390,39 +390,41 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
 
     public static boolean hasReads( Map<String,String> params )
     {
-        return params.containsKey( LONG_READ_OPERATION_1_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_2_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_3_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_4_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_5_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_6_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_7_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_8_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_9_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_10_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_11_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_12_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_13_ENABLE_KEY ) ||
-               params.containsKey( LONG_READ_OPERATION_14_ENABLE_KEY ) ||
-               params.containsKey( SHORT_READ_OPERATION_1_ENABLE_KEY ) ||
-               params.containsKey( SHORT_READ_OPERATION_2_ENABLE_KEY ) ||
-               params.containsKey( SHORT_READ_OPERATION_3_ENABLE_KEY ) ||
-               params.containsKey( SHORT_READ_OPERATION_4_ENABLE_KEY ) ||
-               params.containsKey( SHORT_READ_OPERATION_5_ENABLE_KEY ) ||
-               params.containsKey( SHORT_READ_OPERATION_6_ENABLE_KEY ) ||
-               params.containsKey( SHORT_READ_OPERATION_7_ENABLE_KEY );
+        return Lists.newArrayList(
+                LONG_READ_OPERATION_1_ENABLE_KEY,
+                LONG_READ_OPERATION_2_ENABLE_KEY,
+                LONG_READ_OPERATION_3_ENABLE_KEY,
+                LONG_READ_OPERATION_4_ENABLE_KEY,
+                LONG_READ_OPERATION_5_ENABLE_KEY,
+                LONG_READ_OPERATION_6_ENABLE_KEY,
+                LONG_READ_OPERATION_7_ENABLE_KEY,
+                LONG_READ_OPERATION_8_ENABLE_KEY,
+                LONG_READ_OPERATION_9_ENABLE_KEY,
+                LONG_READ_OPERATION_10_ENABLE_KEY,
+                LONG_READ_OPERATION_11_ENABLE_KEY,
+                LONG_READ_OPERATION_12_ENABLE_KEY,
+                LONG_READ_OPERATION_13_ENABLE_KEY,
+                LONG_READ_OPERATION_14_ENABLE_KEY ).stream().anyMatch( key -> isSet( params, key ) );
     }
 
     public static boolean hasWrites( Map<String,String> params )
     {
-        return params.containsKey( WRITE_OPERATION_1_ENABLE_KEY ) ||
-               params.containsKey( WRITE_OPERATION_2_ENABLE_KEY ) ||
-               params.containsKey( WRITE_OPERATION_3_ENABLE_KEY ) ||
-               params.containsKey( WRITE_OPERATION_4_ENABLE_KEY ) ||
-               params.containsKey( WRITE_OPERATION_5_ENABLE_KEY ) ||
-               params.containsKey( WRITE_OPERATION_6_ENABLE_KEY ) ||
-               params.containsKey( WRITE_OPERATION_7_ENABLE_KEY ) ||
-               params.containsKey( WRITE_OPERATION_8_ENABLE_KEY );
+        return Lists.newArrayList(
+                WRITE_OPERATION_1_ENABLE_KEY,
+                WRITE_OPERATION_2_ENABLE_KEY,
+                WRITE_OPERATION_3_ENABLE_KEY,
+                WRITE_OPERATION_4_ENABLE_KEY,
+                WRITE_OPERATION_5_ENABLE_KEY,
+                WRITE_OPERATION_6_ENABLE_KEY,
+                WRITE_OPERATION_7_ENABLE_KEY,
+                WRITE_OPERATION_8_ENABLE_KEY ).stream().anyMatch( key -> isSet( params, key ) );
+    }
+
+    private static boolean isSet( Map<String,String> params, String key )
+    {
+        return params.containsKey( key ) &&
+               null != params.get( key ) &&
+               Boolean.parseBoolean( params.get( key ) );
     }
 
     public static Map<String,String> withoutShortReads( Map<String,String> originalParams )
