@@ -42,7 +42,7 @@ class ConsumerOperationStreamExecutorServiceThread extends Thread
         }
         catch ( OperationExecutorException e )
         {
-            throw new OperationExecutorException("Kafka Consumer could NOT be instantiated", e);
+            throw new OperationExecutorException( "Kafka Consumer could NOT be instantiated", e );
         }
     }
 
@@ -58,7 +58,7 @@ class ConsumerOperationStreamExecutorServiceThread extends Thread
         }
         catch ( IOException ex )
         {
-            throw new OperationExecutorException("Kafka consumer configuration could not be retrieved", ex);
+            throw new OperationExecutorException( "Kafka consumer configuration could not be retrieved", ex );
         }
         finally
         {
@@ -70,19 +70,19 @@ class ConsumerOperationStreamExecutorServiceThread extends Thread
                 }
                 catch ( IOException e )
                 {
-                    throw new OperationExecutorException("Kafka consumer configuration could not be retrieved", e);
+                    throw new OperationExecutorException( "Kafka consumer configuration could not be retrieved", e );
                 }
             }
         }
         try
         {
             consumer = new KafkaConsumer<>( prop );
-            consumer.subscribe(Collections.singletonList(TOPIC));
+            consumer.subscribe( Collections.singletonList( TOPIC ) );
         }
         catch ( Exception e )
         {
             consumer = null;
-            throw new OperationExecutorException("KafkaConsumer could NOT be instantiated", e);
+            throw new OperationExecutorException( "KafkaConsumer could NOT be instantiated", e );
         }
     }
 
@@ -94,9 +94,9 @@ class ConsumerOperationStreamExecutorServiceThread extends Thread
             while ( !forcedTerminate.get() )
             {
                 ConsumerRecords<String, Operation> records = consumer.poll( 100 );
-                if(records.count() == 0) {
-                    // kafka queue is entirely consumed
-                    //break;
+                if ( records.count() == 0 )
+                {
+                    this.hasFinished.set( true );
                 }
                 for ( ConsumerRecord<String, Operation> record : records )
                 {
@@ -109,8 +109,9 @@ class ConsumerOperationStreamExecutorServiceThread extends Thread
         {
             errorReporter.reportError( this, ConcurrentErrorReporter.stackTraceToString( e ) );
         }
-        finally {
-             this.hasFinished.set( true );
+        finally
+        {
+            this.hasFinished.set( true );
         }
     }
 }
