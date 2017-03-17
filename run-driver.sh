@@ -1,11 +1,11 @@
 #!/bin/bash
 
-operation_count=1000
+operation_count=1000000
 thread_count=1
 time_compression_ratio=0.0001
 
 # used to determine workload mode, if false just produces updates for kafka queue, if yes then runs on actual SUT
-consume_mode=true
+consume_mode=false
 
 graph_name=sf3updates
 
@@ -13,10 +13,10 @@ graph_name=sf3updates
 locator=/hdd1/ldbc/utilities/apache-tinkerpop-gremlin-console/conf/remote-objects.yaml
 
 # configuration params for benchmark run
-conf_path=configuration/consumer-ldbc.properties
+conf_path=configuration/producer-ldbc.properties
 
 # dataset location
-dataset_location=/hdd1/ldbc/datasets/neo4j/sf3updates
+dataset_location=/home/r32zhou/ldbc/dataset/datagen/sf3_updates
 parameters_dir=$dataset_location/substitution_parameters
 updates_dir=$dataset_location/social_network
 
