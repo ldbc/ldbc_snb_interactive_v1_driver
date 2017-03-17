@@ -1,0 +1,19 @@
+{
+  "excessive_delay_threshold_as_milli" : 1000,
+  "excessive_delay_count" : 0,
+  "excessive_delay_count_per_type" : {
+    "LdbcQuery13" : 0
+  },
+  "min_delay_as_milli" : 0,
+  "max_delay_as_milli" : 2,
+  "mean_delay_as_milli" : 0,
+  "min_delay_as_milli_per_type" : {
+    "LdbcQuery13" : 0
+  },
+  "max_delay_as_milli_per_type" : {
+    "LdbcQuery13" : 2
+  },
+  "mean_delay_as_milli_per_type" : {
+    "LdbcQuery13" : 1
+  }
+}
