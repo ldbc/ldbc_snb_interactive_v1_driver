@@ -39,14 +39,14 @@ public class OperationHandlerRunnableContextFactoryTest
         }
     }
 
-    public long doOperationHandlerTest( int count, OperationHandlerRunnerFactory operationHandlerRunnerFactory,
+    public long doOperationHandlerTest(
+            int count, OperationHandlerRunnerFactory operationHandlerRunnerFactory,
             Operation operation ) throws OperationException
     {
-        boolean ignoreScheduledStartTime = false;
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         long spinnerSleepDuration = 0;
-        Spinner spinner = new Spinner( timeSource, spinnerSleepDuration, ignoreScheduledStartTime );
+        Spinner spinner = new Spinner( timeSource, spinnerSleepDuration, false );
         LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         MetricsService metricsService = new DummyCountingMetricsService();
         long startTime = timeSource.nowAsMilli();

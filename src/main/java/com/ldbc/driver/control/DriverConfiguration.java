@@ -44,6 +44,8 @@ public interface DriverConfiguration
 
     long skipCount();
 
+    boolean consumeUpdates();
+
     String toPropertiesString() throws DriverConfigurationException;
 
     Map<String,String> asMap();
