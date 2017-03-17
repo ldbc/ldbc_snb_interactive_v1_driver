@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class ConsumerOperationStreamExecutorServiceThread extends Thread
@@ -55,6 +56,7 @@ class ConsumerOperationStreamExecutorServiceThread extends Thread
             ClassLoader classLoader = getClass().getClassLoader();
             input = classLoader.getResourceAsStream( KAFKA_CONSUMER_PROPERTIES );
             prop.load( input );
+            prop.setProperty( "group.id", UUID.randomUUID().toString() );
         }
         catch ( IOException ex )
         {
