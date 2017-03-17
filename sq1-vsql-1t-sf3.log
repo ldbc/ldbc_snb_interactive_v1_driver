@@ -1,0 +1,146 @@
+ExecuteWorkloadMode  Driver Configuration
+ExecuteWorkloadMode  Workload Start Time:	2017-03-16 - 22:51:07.328
+Parameters:
+	Name:                           LDBC
+	DB:                             com.ldbc.driver.workloads.ldbc.snb.interactive.db.VirtuosoDb
+	Workload:                       com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload
+	Operation Count:                1,000
+	Warmup Count:                   0
+	Skip Count:                     0
+	Worker Threads:                 1
+	Status Display Interval:        00:02.000 (m:s.ms)
+	Time Unit:                      MILLISECONDS
+	Results Directory:              /home/r32zhou/ldbc/ldbc_driver/results
+	Time Compression Ratio:         0.0001000
+	Peer IDs:                       []
+	Validation Creation Params:     null
+	Database Validation File:       null
+	Calculate Workload Statistics:  false
+	Spinner Sleep Duration:         00:00.001 (m:s.ms) / 1 (ms)
+	Print Help:                     false
+	Ignore Scheduled Start Times:   false
+	Consume Updates:                true
+	User-defined parameters:
+		cu = true
+		endpoint = localhost:1111
+		ldbc.snb.interactive.LdbcQuery10_enable = false
+		ldbc.snb.interactive.LdbcQuery10_freq = 37
+		ldbc.snb.interactive.LdbcQuery11_enable = true
+		ldbc.snb.interactive.LdbcQuery11_freq = 20
+		ldbc.snb.interactive.LdbcQuery12_enable = false
+		ldbc.snb.interactive.LdbcQuery12_freq = 44
+		ldbc.snb.interactive.LdbcQuery13_enable = false
+		ldbc.snb.interactive.LdbcQuery13_freq = 19
+		ldbc.snb.interactive.LdbcQuery14_enable = false
+		ldbc.snb.interactive.LdbcQuery14_freq = 49
+		ldbc.snb.interactive.LdbcQuery1_enable = false
+		ldbc.snb.interactive.LdbcQuery1_freq = 26
+		ldbc.snb.interactive.LdbcQuery2_enable = false
+		ldbc.snb.interactive.LdbcQuery2_freq = 37
+		ldbc.snb.interactive.LdbcQuery3_enable = false
+		ldbc.snb.interactive.LdbcQuery3_freq = 106
+		ldbc.snb.interactive.LdbcQuery4_enable = false
+		ldbc.snb.interactive.LdbcQuery4_freq = 36
+		ldbc.snb.interactive.LdbcQuery5_enable = false
+		ldbc.snb.interactive.LdbcQuery5_freq = 72
+		ldbc.snb.interactive.LdbcQuery6_enable = false
+		ldbc.snb.interactive.LdbcQuery6_freq = 316
+		ldbc.snb.interactive.LdbcQuery7_enable = false
+		ldbc.snb.interactive.LdbcQuery7_freq = 48
+		ldbc.snb.interactive.LdbcQuery8_enable = false
+		ldbc.snb.interactive.LdbcQuery8_freq = 9
+		ldbc.snb.interactive.LdbcQuery9_enable = false
+		ldbc.snb.interactive.LdbcQuery9_freq = 384
+		ldbc.snb.interactive.LdbcShortQuery1PersonProfile_enable = true
+		ldbc.snb.interactive.LdbcShortQuery2PersonPosts_enable = false
+		ldbc.snb.interactive.LdbcShortQuery3PersonFriends_enable = false
+		ldbc.snb.interactive.LdbcShortQuery4MessageContent_enable = false
+		ldbc.snb.interactive.LdbcShortQuery5MessageCreator_enable = false
+		ldbc.snb.interactive.LdbcShortQuery6MessageForum_enable = false
+		ldbc.snb.interactive.LdbcShortQuery7MessageReplies_enable = false
+		ldbc.snb.interactive.LdbcUpdate1AddPerson_enable = false
+		ldbc.snb.interactive.LdbcUpdate2AddPostLike_enable = false
+		ldbc.snb.interactive.LdbcUpdate3AddCommentLike_enable = false
+		ldbc.snb.interactive.LdbcUpdate4AddForum_enable = false
+		ldbc.snb.interactive.LdbcUpdate5AddForumMembership_enable = false
+		ldbc.snb.interactive.LdbcUpdate6AddPost_enable = false
+		ldbc.snb.interactive.LdbcUpdate7AddComment_enable = false
+		ldbc.snb.interactive.LdbcUpdate8AddFriendship_enable = false
+		ldbc.snb.interactive.parameters_dir = /home/r32zhou/ldbc/dataset/datagen/sf3_updates/substitution_parameters
+		ldbc.snb.interactive.short_read_dissipation = 0.0002
+		ldbc.snb.interactive.update_interleave = 29669
+		ldbc.snb.interactive.updates_dir = /home/r32zhou/ldbc/dataset/datagen/sf3_updates/social_network
+		password = dba
+		printQueryNames = false
+		printQueryResults = false
+		printQueryStrings = false
+		queryDir = /home/r32zhou/ldbc/ldbc_snb_implementations/interactive/virtuoso/queries/sql
+		run_cluster = false
+		run_sql = true
+		user = dba
+
+ExecuteWorkloadMode  
+ ---------------------------------
+ --- No Warmup Phase Requested ---
+ ---------------------------------
+ExecuteWorkloadMode  
+ -----------------
+ --- Run Phase ---
+ -----------------
+ExecuteWorkloadMode  Scanning workload streams to calculate their limits...
+WorkloadStreams  Scanned 0 of 0 - OFFSET
+WorkloadStreams  Scanned 1,077 of 1,000 - RUN
+ExecuteWorkloadMode  Loaded workload: com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload
+ExecuteWorkloadMode  Retrieving workload stream: LdbcSnbInteractiveWorkload
+VirtuosoDb  Consume mode: ON
+ExecuteWorkloadMode  Loaded DB: com.ldbc.driver.workloads.ldbc.snb.interactive.db.VirtuosoDb
+ExecuteWorkloadMode  Instantiating WorkloadRunner
+WorkloadStatusThread  Runtime [00:00.000 (m:s.ms)], Operations [0], Last [00:00.000 (m:s.ms)], Throughput (Total) [0.00] (Last 0s) [0.00]
+WorkloadStatusThread  Runtime [00:00.000 (m:s.ms)], Operations [0], Last [00:00.000 (m:s.ms)], Throughput (Total) [0.00] (Last 0s) [0.00]
+WorkloadStatusThread  Runtime [00:00.000 (m:s.ms)], Operations [0], Last [00:00.000 (m:s.ms)], Throughput (Total) [0.00] (Last 0s) [0.00]
+Shutting down status thread...
+ExecuteWorkloadMode  Shutting down workload...
+Client  Client terminated unexpectedly
+com.ldbc.driver.ClientException: Error running workload
+	at com.ldbc.driver.client.ExecuteWorkloadMode.doExecute(ExecuteWorkloadMode.java:407)
+	at com.ldbc.driver.client.ExecuteWorkloadMode.startExecutionAndAwaitCompletion(ExecuteWorkloadMode.java:138)
+	at com.ldbc.driver.Client.main(Client.java:53)
+Caused by: com.ldbc.driver.ClientException: Error running workload
+
+- Start Error Log -
+	SOURCE:	OperationHandlerRunnableContext [156] (Thread: ID=29, Name=ThreadPoolOperationExecutor-id(1489704662812)-thread(0), Priority=5)
+	ERROR:	Operation result is null
+Operation: LdbcShortQuery1PersonProfile{personId=4398046514484}
+	SOURCE:	OperationHandlerRunnableContext [156] (Thread: ID=29, Name=ThreadPoolOperationExecutor-id(1489704662812)-thread(0), Priority=5)
+	ERROR:	Operation result is null
+Operation: LdbcShortQuery1PersonProfile{personId=10995116291291}
+	SOURCE:	OperationHandlerRunnableContext [156] (Thread: ID=29, Name=ThreadPoolOperationExecutor-id(1489704662812)-thread(0), Priority=5)
+	ERROR:	Operation result is null
+Operation: LdbcShortQuery1PersonProfile{personId=28587302342045}
+	SOURCE:	OperationHandlerRunnableContext [156] (Thread: ID=29, Name=ThreadPoolOperationExecutor-id(1489704662812)-thread(0), Priority=5)
+	ERROR:	Operation result is null
+Operation: LdbcShortQuery1PersonProfile{personId=24529}
+	SOURCE:	OperationHandlerRunnableContext [156] (Thread: ID=29, Name=ThreadPoolOperationExecutor-id(1489704662812)-thread(0), Priority=5)
+	ERROR:	Operation result is null
+Operation: LdbcShortQuery1PersonProfile{personId=24529}
+	SOURCE:	OperationHandlerRunnableContext [156] (Thread: ID=29, Name=ThreadPoolOperationExecutor-id(1489704662812)-thread(0), Priority=5)
+	ERROR:	Operation result is null
+Operation: LdbcShortQuery1PersonProfile{personId=21990232568261}
+	SOURCE:	WorkloadRunnerThread [555] (Thread: ID=25, Name=Thread-2, Priority=5)
+	ERROR:	Encountered error while waiting for asynchronous executor to shutdown
+Handlers still running: 8
+com.ldbc.driver.runtime.executor.OperationExecutorException: Error encountered while trying to shutdown
+	at com.ldbc.driver.runtime.executor.ThreadPoolOperationExecutor.shutdown(ThreadPoolOperationExecutor.java:133)
+	at com.ldbc.driver.runtime.WorkloadRunner$WorkloadRunnerThread.shutdownEverything(WorkloadRunner.java:551)
+	at com.ldbc.driver.runtime.WorkloadRunner$WorkloadRunnerThread.run(WorkloadRunner.java:447)
+Caused by: com.ldbc.driver.runtime.executor.OperationExecutorException: ThreadPoolOperationExecutor shutdown before all handlers could complete
+7 handlers were queued for execution but not yet started
+1 handlers were mid-execution
+	at com.ldbc.driver.runtime.executor.ThreadPoolOperationExecutor.shutdown(ThreadPoolOperationExecutor.java:127)
+	... 2 more
+
+- End Error Log -
+
+	at com.ldbc.driver.client.ExecuteWorkloadMode.doExecute(ExecuteWorkloadMode.java:402)
+	... 2 more
+

@@ -1,0 +1,87 @@
+ExecuteWorkloadMode  Driver Configuration
+ExecuteWorkloadMode  Workload Start Time:	2017-03-17 - 02:16:04.373
+Parameters:
+	Name:                           LDBC
+	DB:                             com.ldbc.driver.workloads.ldbc.snb.interactive.db.VirtuosoDb
+	Workload:                       com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload
+	Operation Count:                1,000
+	Warmup Count:                   0
+	Skip Count:                     0
+	Worker Threads:                 1
+	Status Display Interval:        00:02.000 (m:s.ms)
+	Time Unit:                      MILLISECONDS
+	Results Directory:              /home/r32zhou/ldbc/ldbc_driver/results
+	Time Compression Ratio:         0.0001000
+	Peer IDs:                       []
+	Validation Creation Params:     null
+	Database Validation File:       null
+	Calculate Workload Statistics:  false
+	Spinner Sleep Duration:         00:00.001 (m:s.ms) / 1 (ms)
+	Print Help:                     false
+	Ignore Scheduled Start Times:   false
+	Consume Updates:                true
+	User-defined parameters:
+		cu = true
+		endpoint = localhost:1111
+		ldbc.snb.interactive.LdbcQuery10_enable = false
+		ldbc.snb.interactive.LdbcQuery10_freq = 37
+		ldbc.snb.interactive.LdbcQuery11_enable = true
+		ldbc.snb.interactive.LdbcQuery11_freq = 20
+		ldbc.snb.interactive.LdbcQuery12_enable = false
+		ldbc.snb.interactive.LdbcQuery12_freq = 44
+		ldbc.snb.interactive.LdbcQuery13_enable = false
+		ldbc.snb.interactive.LdbcQuery13_freq = 19
+		ldbc.snb.interactive.LdbcQuery14_enable = false
+		ldbc.snb.interactive.LdbcQuery14_freq = 49
+		ldbc.snb.interactive.LdbcQuery1_enable = false
+		ldbc.snb.interactive.LdbcQuery1_freq = 26
+		ldbc.snb.interactive.LdbcQuery2_enable = false
+		ldbc.snb.interactive.LdbcQuery2_freq = 37
+		ldbc.snb.interactive.LdbcQuery3_enable = false
+		ldbc.snb.interactive.LdbcQuery3_freq = 106
+		ldbc.snb.interactive.LdbcQuery4_enable = false
+		ldbc.snb.interactive.LdbcQuery4_freq = 36
+		ldbc.snb.interactive.LdbcQuery5_enable = false
+		ldbc.snb.interactive.LdbcQuery5_freq = 72
+		ldbc.snb.interactive.LdbcQuery6_enable = false
+		ldbc.snb.interactive.LdbcQuery6_freq = 316
+		ldbc.snb.interactive.LdbcQuery7_enable = false
+		ldbc.snb.interactive.LdbcQuery7_freq = 48
+		ldbc.snb.interactive.LdbcQuery8_enable = false
+		ldbc.snb.interactive.LdbcQuery8_freq = 9
+		ldbc.snb.interactive.LdbcQuery9_enable = false
+		ldbc.snb.interactive.LdbcQuery9_freq = 384
+		ldbc.snb.interactive.LdbcShortQuery1PersonProfile_enable = false
+		ldbc.snb.interactive.LdbcShortQuery2PersonPosts_enable = false
+		ldbc.snb.interactive.LdbcShortQuery3PersonFriends_enable = false
+		ldbc.snb.interactive.LdbcShortQuery4MessageContent_enable = false
+		ldbc.snb.interactive.LdbcShortQuery5MessageCreator_enable = false
+		ldbc.snb.interactive.LdbcShortQuery6MessageForum_enable = false
+		ldbc.snb.interactive.LdbcShortQuery7MessageReplies_enable = false
+		ldbc.snb.interactive.LdbcUpdate1AddPerson_enable = false
+		ldbc.snb.interactive.LdbcUpdate2AddPostLike_enable = false
+		ldbc.snb.interactive.LdbcUpdate3AddCommentLike_enable = false
+		ldbc.snb.interactive.LdbcUpdate4AddForum_enable = false
+		ldbc.snb.interactive.LdbcUpdate5AddForumMembership_enable = false
+		ldbc.snb.interactive.LdbcUpdate6AddPost_enable = false
+		ldbc.snb.interactive.LdbcUpdate7AddComment_enable = false
+		ldbc.snb.interactive.LdbcUpdate8AddFriendship_enable = false
+		ldbc.snb.interactive.parameters_dir = /home/r32zhou/ldbc/dataset/datagen/sf3_updates/substitution_parameters
+		ldbc.snb.interactive.short_read_dissipation = 0.2
+		ldbc.snb.interactive.update_interleave = 29669
+		ldbc.snb.interactive.updates_dir = /home/r32zhou/ldbc/dataset/datagen/sf3_updates/social_network
+		password = dba
+		printQueryNames = false
+		printQueryResults = false
+		printQueryStrings = false
+		queryDir = /home/r32zhou/ldbc/ldbc_snb_implementations/interactive/virtuoso/queries/sparql
+		run_cluster = false
+		run_sql = false
+		user = dba
+
+ExecuteWorkloadMode  
+ ---------------------------------
+ --- No Warmup Phase Requested ---
+ ---------------------------------
+ExecuteWorkloadMode  
+ -----
