@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime;
 
 import com.ldbc.driver.Db;
-import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.LoggingServiceFactory;
@@ -422,16 +421,10 @@ public class WorkloadRunner
                 workloadStatusThread.start();
             }
 
-            // size has been increased to account for consumeroperationStreamExecutor
-            // AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
-            AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 2];
+            // consumer operation executor finish state does not need to be accounted for
+            // shutdown consumer when all other executors are finished
+            AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
             executorFinishedFlags[0] = asynchronousStreamExecutorService.execute();
-            if (consumeUpdates) {
-                executorFinishedFlags[executorFinishedFlags.length - 1] = consumerOperationStreamExecutorService.execute();
-            } else {
-                // set consumer executor flag to completed
-                executorFinishedFlags[executorFinishedFlags.length - 1] = new AtomicBoolean(true);
-            }
             for ( int i = 0; i < blockingStreamExecutorServices.size(); i++ )
             {
                 executorFinishedFlags[i + 1] = blockingStreamExecutorServices.get( i ).execute();

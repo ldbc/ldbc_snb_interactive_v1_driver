@@ -96,10 +96,6 @@ class ConsumerOperationStreamExecutorServiceThread extends Thread
             while ( !forcedTerminate.get() )
             {
                 ConsumerRecords<String, Operation> records = consumer.poll( 100 );
-                if ( records.count() == 0 )
-                {
-                    this.hasFinished.set( true );
-                }
                 for ( ConsumerRecord<String, Operation> record : records )
                 {
                     Operation operation = record.value();
