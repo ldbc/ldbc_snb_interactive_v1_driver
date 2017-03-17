@@ -425,6 +425,7 @@ public class WorkloadRunner
             // shutdown consumer when all other executors are finished
             AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
             executorFinishedFlags[0] = asynchronousStreamExecutorService.execute();
+            consumerOperationStreamExecutorService.execute();
             for ( int i = 0; i < blockingStreamExecutorServices.size(); i++ )
             {
                 executorFinishedFlags[i + 1] = blockingStreamExecutorServices.get( i ).execute();
