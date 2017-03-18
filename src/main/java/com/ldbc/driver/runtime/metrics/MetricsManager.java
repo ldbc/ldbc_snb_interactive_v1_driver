@@ -197,7 +197,7 @@ public class MetricsManager
             }
         }
         return new WorkloadResultsSnapshot(
-                operationMetricsMap,
+                operationMetricsMap.values(),
                 (startTimeAsMilli == Long.MAX_VALUE) ? -1 : startTimeAsMilli,
                 (latestFinishTimeAsMilli == Long.MIN_VALUE) ? -1 : latestFinishTimeAsMilli,
                 totalOperationCount(),

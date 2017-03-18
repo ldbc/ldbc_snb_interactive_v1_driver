@@ -53,14 +53,15 @@ public class WorkloadResultsSnapshot
     {
     }
 
-    public WorkloadResultsSnapshot( Map<String,OperationMetricsSnapshot> metrics,
+    public WorkloadResultsSnapshot(
+            Iterable<OperationMetricsSnapshot> metrics,
             long startTimeAsMilli,
             long latestFinishTimeAsMilli,
             long operationCount,
             TimeUnit unit )
     {
-        this.metrics = Lists.newArrayList( metrics.values() );
-        Collections.sort( this.metrics, new OperationTypeMetricsManager.OperationMetricsNameComparator() );
+        this.metrics = Lists.newArrayList( metrics );
+        this.metrics.sort( new OperationTypeMetricsManager.OperationMetricsNameComparator() );
         this.startTimeAsUnit = unit.convert( startTimeAsMilli, TimeUnit.MILLISECONDS );
         this.latestFinishTimeAsUnit = unit.convert( latestFinishTimeAsMilli, TimeUnit.MILLISECONDS );
         this.totalRunDurationAsUnit = unit.convert( latestFinishTimeAsMilli - startTimeAsMilli, TimeUnit.MILLISECONDS );

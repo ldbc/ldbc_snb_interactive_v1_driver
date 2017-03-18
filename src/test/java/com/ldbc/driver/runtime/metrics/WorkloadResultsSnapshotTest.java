@@ -98,6 +98,6 @@ public class WorkloadResultsSnapshotTest
         long operationLatestFinishTime = seed++;
         long count = seed++;
         TimeUnit unit = timeUnit4;
-        return new WorkloadResultsSnapshot( metrics, operationStartTime, operationLatestFinishTime, count, unit );
+        return new WorkloadResultsSnapshot( metrics.values(), operationStartTime, operationLatestFinishTime, count, unit );
     }
 }
