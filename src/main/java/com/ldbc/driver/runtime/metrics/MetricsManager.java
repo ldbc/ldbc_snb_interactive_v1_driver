@@ -158,7 +158,22 @@ public class MetricsManager
         long count = 0;
         for ( OperationTypeMetricsManager operationTypeMetricsManager : operationTypeMetricsManagers )
         {
-            if ( null != operationTypeMetricsManager && operationTypeMetricsManager.count() > 0 )
+            //WARN only report non-update operations
+            if ( null != operationTypeMetricsManager && !operationTypeMetricsManager.name().contains("Update") && operationTypeMetricsManager.count() > 0 )
+            {
+                count += operationTypeMetricsManager.count();
+            }
+        }
+        return count;
+    }
+
+    private long totalUpdateCount()
+    {
+        long count = 0;
+        for ( OperationTypeMetricsManager operationTypeMetricsManager : operationTypeMetricsManagers )
+        {
+            // WARN: only report the non-update operations
+            if ( null != operationTypeMetricsManager && operationTypeMetricsManager.name().contains("Update") && operationTypeMetricsManager.count() > 0 )
             {
                 count += operationTypeMetricsManager.count();
             }
@@ -181,7 +196,7 @@ public class MetricsManager
                 operationMetricsMap,
                 (startTimeAsMilli == Long.MAX_VALUE) ? -1 : startTimeAsMilli,
                 (latestFinishTimeAsMilli == Long.MIN_VALUE) ? -1 : latestFinishTimeAsMilli,
-                totalOperationCount(),
+                totalOperationCount(), totalUpdateCount(),
                 unit );
     }
 
@@ -192,28 +207,38 @@ public class MetricsManager
         {
             long runDurationAsMilli = 0;
             long operationCount = 0;
+            long updateCount = 0;
             long durationSinceLastMeasurementAsMilli = 0;
             double operationsPerSecond = 0;
+            double updatesPerSecond = 0;
             return new WorkloadStatusSnapshot(
                     runDurationAsMilli,
                     operationCount,
                     durationSinceLastMeasurementAsMilli,
-                    operationsPerSecond );
+                    operationsPerSecond ,
+                    updateCount,
+                    updatesPerSecond);
         }
         else
         {
             long runDurationAsMilli = nowAsMilli - startTimeAsMilli;
             long operationCount = totalOperationCount();
+            long updateCount = totalUpdateCount();
             long durationSinceLastMeasurementAsMilli =
                     (-1 == latestFinishTimeAsMilli) ? -1 : nowAsMilli - latestFinishTimeAsMilli;
             double operationsPerSecond =
                     ((double) operationCount / TimeUnit.MILLISECONDS.toNanos( runDurationAsMilli )) *
                     TimeUnit.SECONDS.toNanos( 1 );
+            double updatesPerSecond =
+                    ((double) updateCount / TimeUnit.MILLISECONDS.toNanos( runDurationAsMilli )) *
+                            TimeUnit.SECONDS.toNanos( 1 );
             return new WorkloadStatusSnapshot(
                     runDurationAsMilli,
                     operationCount,
                     durationSinceLastMeasurementAsMilli,
-                    operationsPerSecond );
+                    operationsPerSecond ,
+                    updateCount,
+                    updatesPerSecond);
         }
     }
 }

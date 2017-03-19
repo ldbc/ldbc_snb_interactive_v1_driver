@@ -42,11 +42,12 @@ class WorkloadStatusThread extends Thread
         final SettableRecentThroughputAndDuration
                 settableRecentThroughputAndDuration = new SettableRecentThroughputAndDuration();
         final int statusRecency = 4;
-        final long[][] operationCountsAtDurations = new long[statusRecency][2];
+        final long[][] operationCountsAtDurations = new long[statusRecency][3];
         for ( int i = 0; i < operationCountsAtDurations.length; i++ )
         {
             operationCountsAtDurations[i][0] = -1;
             operationCountsAtDurations[i][1] = -1;
+            operationCountsAtDurations[i][2] = -1;
         }
         int statusRecencyIndex = 0;
 
@@ -57,6 +58,7 @@ class WorkloadStatusThread extends Thread
                 WorkloadStatusSnapshot status = metricsServiceWriter.status();
                 operationCountsAtDurations[statusRecencyIndex][0] = status.operationCount();
                 operationCountsAtDurations[statusRecencyIndex][1] = status.runDurationAsMilli();
+                operationCountsAtDurations[statusRecencyIndex][2] = status.getUpdateCount();
                 statusRecencyIndex = (statusRecencyIndex + 1) % statusRecency;
                 updateRecentThroughput( operationCountsAtDurations, settableRecentThroughputAndDuration );
 
@@ -98,10 +100,13 @@ class WorkloadStatusThread extends Thread
         long maxOperationCount = Long.MIN_VALUE;
         long minDurationAsMilli = Long.MAX_VALUE;
         long maxDurationAsMilli = Long.MIN_VALUE;
+        long minUpdateCount = Long.MAX_VALUE;
+        long maxUpdateCount = Long.MIN_VALUE;
         for ( int i = 0; i < recentOperationCountsAtDurations.length; i++ )
         {
             long operationCount = recentOperationCountsAtDurations[i][0];
             long durationAsMilli = recentOperationCountsAtDurations[i][1];
+            long updateCount = recentOperationCountsAtDurations[i][2];
             if ( -1 == operationCount )
             {
                 continue;
@@ -110,20 +115,38 @@ class WorkloadStatusThread extends Thread
             maxOperationCount = Math.max( maxOperationCount, operationCount );
             minDurationAsMilli = Math.min( minDurationAsMilli, durationAsMilli );
             maxDurationAsMilli = Math.max( maxDurationAsMilli, durationAsMilli );
+            minUpdateCount = Math.min( minUpdateCount, updateCount );
+            maxUpdateCount = Math.max( maxUpdateCount, updateCount );
         }
         long recentRunDurationAsMilli = maxDurationAsMilli - minDurationAsMilli;
         long recentOperationCount = maxOperationCount - minOperationCount;
+        long recentUpdateOperationCount = maxUpdateCount - minUpdateCount;
         double recentThroughput = (0 == recentRunDurationAsMilli)
                                   ? 0
                                   : (double) recentOperationCount / recentRunDurationAsMilli * 1000;
+        double recentUpdateThroughput = (0 == recentRunDurationAsMilli)
+                ? 0
+                : (double) recentUpdateOperationCount / recentRunDurationAsMilli * 1000;
         settableRecentThroughputAndDuration.setThroughput( recentThroughput );
         settableRecentThroughputAndDuration.setDuration( recentRunDurationAsMilli );
+        settableRecentThroughputAndDuration.setUpdateThroughput( recentUpdateThroughput );
+
     }
 
     private class SettableRecentThroughputAndDuration implements RecentThroughputAndDuration
     {
         private double throughput = 0.0;
         private long duration = 0;
+
+        public double updateThroughput() {
+            return updateThroughput;
+        }
+
+        public void setUpdateThroughput(double updateThroughput) {
+            this.updateThroughput = updateThroughput;
+        }
+
+        private double updateThroughput;
 
         private void setThroughput( double throughput )
         {
@@ -144,5 +167,7 @@ class WorkloadStatusThread extends Thread
         {
             return duration;
         }
+
+
     }
 }

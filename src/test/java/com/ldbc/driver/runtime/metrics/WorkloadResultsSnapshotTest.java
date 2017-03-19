@@ -73,7 +73,8 @@ public class WorkloadResultsSnapshotTest {
         long operationStartTime = seed++;
         long operationLatestFinishTime = seed++;
         long count = seed++;
+        long updateCount = seed;
         TimeUnit unit = timeUnit4;
-        return new WorkloadResultsSnapshot(metrics, operationStartTime, operationLatestFinishTime, count, unit);
+        return new WorkloadResultsSnapshot(metrics, operationStartTime, operationLatestFinishTime, count, updateCount, unit);
     }
 }
