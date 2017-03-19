@@ -50,6 +50,7 @@ public class ContinuousMetricSnapshot
             long percentile90,
             long percentile95,
             long percentile99,
+            long percentile99_9,
             double stdDev )
     {
         this.name = name;
@@ -62,6 +63,7 @@ public class ContinuousMetricSnapshot
         this.percentile90 = percentile90;
         this.percentile95 = percentile95;
         this.percentile99 = percentile99;
+        this.percentile99_9 = percentile99_9;
         this.stdDev = stdDev;
     }
 

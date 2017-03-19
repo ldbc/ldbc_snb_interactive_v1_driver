@@ -36,7 +36,7 @@ public class ContinuousMetricManager
     public ContinuousMetricSnapshot snapshot()
     {
         return new ContinuousMetricSnapshot( name, unit, count(), mean(), min(), max(), percentile50(), percentile90(),
-                percentile95(), percentile99(), stdDev() );
+                percentile95(), percentile99(),percentile99_9(), stdDev() );
     }
 
     private long count()

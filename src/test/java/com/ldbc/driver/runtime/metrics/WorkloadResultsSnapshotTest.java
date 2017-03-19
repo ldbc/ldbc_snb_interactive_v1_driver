@@ -76,6 +76,7 @@ public class WorkloadResultsSnapshotTest
         long runTimePercentile90 = seed++;
         long runTimePercentile95 = seed++;
         long runTimePercentile99 = seed++;
+        long runTimePercentile99_9 = seed++;
         double runTimeStdDev = seed++;
         ContinuousMetricSnapshot runTimeMetric = new ContinuousMetricSnapshot(
                 runTimeName,
@@ -88,6 +89,7 @@ public class WorkloadResultsSnapshotTest
                 runTimePercentile90,
                 runTimePercentile95,
                 runTimePercentile99,
+                runTimePercentile99_9,
                 runTimeStdDev );
 
         Map<String,OperationMetricsSnapshot> metrics = new HashMap<>();
