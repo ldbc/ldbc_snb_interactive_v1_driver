@@ -5,4 +5,6 @@ public interface RecentThroughputAndDuration
     double throughput();
 
     long duration();
+
+    double updateThroughput();
 }
