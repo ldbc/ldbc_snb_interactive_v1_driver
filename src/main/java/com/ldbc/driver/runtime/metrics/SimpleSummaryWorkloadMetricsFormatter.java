@@ -27,6 +27,8 @@ public class SimpleSummaryWorkloadMetricsFormatter implements WorkloadMetricsFor
         sb.append( "------------------------------------------------------------------------------\n" );
         sb.append( String.format( "%1$-" + padRightDistance + "s", "Operation Count:" ) ).append(
                 INTEGER_FORMATTER.format( workloadResultsSnapshot.totalOperationCount() ) ).append( "\n" );
+        sb.append( String.format( "%1$-" + padRightDistance + "s", "Update Operation Count:" ) ).append(
+                INTEGER_FORMATTER.format( workloadResultsSnapshot.getUpdateCount() ) ).append( "\n" );
         sb.append( String.format( "%1$-" + padRightDistance + "s", "Duration:" ) ).append(
                 TEMPORAL_UTIL.nanoDurationToString( workloadResultsSnapshot.totalRunDurationAsNano() ) ).append( "\n" );
         double opsPerNs = (workloadResultsSnapshot.totalOperationCount() /
@@ -34,6 +36,11 @@ public class SimpleSummaryWorkloadMetricsFormatter implements WorkloadMetricsFor
         double opsPerS = opsPerNs * TimeUnit.SECONDS.toNanos( 1 );
         sb.append( String.format( "%1$-" + padRightDistance + "s", "Throughput:" ) ).append(
                 FLOAT_FORMATTER.format( opsPerS ) ).append( " (op/s)\n" );
+        double upOpsPerNs = (workloadResultsSnapshot.getUpdateCount() /
+                (double) workloadResultsSnapshot.totalRunDurationAsNano());
+        double upOpsPerS = upOpsPerNs * TimeUnit.SECONDS.toNanos( 1 );
+        sb.append( String.format( "%1$-" + padRightDistance + "s", "Throughput:" ) ).append(
+                FLOAT_FORMATTER.format( upOpsPerS ) ).append( " (op/s)\n" );
         sb.append( "------------------------------------------------------------------------------\n" );
         int namePadRightDistance = 0;
         int countPadRightDistance = 0;
