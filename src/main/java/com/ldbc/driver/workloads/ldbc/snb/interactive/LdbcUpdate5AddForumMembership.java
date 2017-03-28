@@ -12,49 +12,60 @@ import java.util.Date;
 
 import static java.lang.String.format;
 
-public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult> {
+public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
+{
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1005;
     private final long forumId;
     private final long personId;
     private final Date joinDate;
 
-    public LdbcUpdate5AddForumMembership( long forumId, long personId, Date joinDate ) {
+    public LdbcUpdate5AddForumMembership( long forumId, long personId, Date joinDate )
+    {
         this.forumId = forumId;
         this.personId = personId;
         this.joinDate = joinDate;
     }
 
-    public long forumId() {
+    public long forumId()
+    {
         return forumId;
     }
 
-    public long personId() {
+    public long personId()
+    {
         return personId;
     }
 
-    public Date joinDate() {
+    public Date joinDate()
+    {
         return joinDate;
     }
 
     @Override
-    public boolean equals( Object o ) {
-        if (this == o) {
+    public boolean equals( Object o )
+    {
+        if ( this == o )
+        {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if ( o == null || getClass() != o.getClass() )
+        {
             return false;
         }
 
         LdbcUpdate5AddForumMembership that = (LdbcUpdate5AddForumMembership) o;
 
-        if (forumId != that.forumId) {
+        if ( forumId != that.forumId )
+        {
             return false;
         }
-        if (personId != that.personId) {
+        if ( personId != that.personId )
+        {
             return false;
         }
-        if (joinDate != null ? !joinDate.equals( that.joinDate ) : that.joinDate != null) {
+        if ( joinDate != null ? !joinDate.equals( that.joinDate ) : that.joinDate != null )
+        {
             return false;
         }
 
@@ -62,7 +73,8 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult> {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int result = (int) (forumId ^ (forumId >>> 32));
         result = 31 * result + (int) (personId ^ (personId >>> 32));
         result = 31 * result + (joinDate != null ? joinDate.hashCode() : 0);
@@ -70,23 +82,26 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult> {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "LdbcUpdate5AddForumMembership{" +
-            "forumId=" + forumId +
-            ", personId=" + personId +
-            ", joinDate=" + joinDate +
-            '}';
+                "forumId=" + forumId +
+                ", personId=" + personId +
+                ", joinDate=" + joinDate +
+                '}';
     }
 
     @Override
-    public void writeKyro( Kryo kryo, Output output ) {
+    public void writeKyro( Kryo kryo, Output output )
+    {
         output.writeInt( type() );
         output.writeLong( forumId );
         output.writeLong( personId );
         output.writeLong( joinDate.getTime() );
     }
 
-    public static Operation readKyro( Input input ) {
+    public static Operation readKyro( Input input )
+    {
         Long forumId = input.readLong();
         Long personId = input.readLong();
         Date joinDate = new Date( input.readLong() );
@@ -94,23 +109,29 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult> {
     }
 
     @Override
-    public LdbcNoResult marshalResult( String serializedOperationResult ) {
+    public LdbcNoResult marshalResult( String serializedOperationResult )
+    {
         return LdbcNoResult.INSTANCE;
     }
 
     @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException {
-        try {
+    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
+    {
+        try
+        {
             return objectMapper.writeValueAsString(
-                LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT );
-        } catch (IOException e) {
+                    LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT );
+        }
+        catch ( IOException e )
+        {
             throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                operationResultInstance ), e );
+                                                               operationResultInstance ), e );
         }
     }
 
     @Override
-    public int type() {
+    public int type()
+    {
         return TYPE;
     }
 }

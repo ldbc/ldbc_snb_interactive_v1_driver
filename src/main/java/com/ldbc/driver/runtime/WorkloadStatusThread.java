@@ -26,7 +26,7 @@ class WorkloadStatusThread extends Thread
             MetricsServiceWriter metricsServiceWriter,
             ConcurrentErrorReporter errorReporter,
             CompletionTimeService completionTimeService,
-            LoggingServiceFactory loggingServiceFactory)
+            LoggingServiceFactory loggingServiceFactory )
     {
         super( WorkloadStatusThread.class.getSimpleName() + "-" + System.currentTimeMillis() );
         this.statusUpdateIntervalAsMilli = statusUpdateIntervalAsMilli;
@@ -95,7 +95,7 @@ class WorkloadStatusThread extends Thread
 
     private void updateRecentThroughput(
             final long[][] recentOperationCountsAtDurations,
-            final SettableRecentThroughputAndDuration settableRecentThroughputAndDuration)
+            final SettableRecentThroughputAndDuration settableRecentThroughputAndDuration )
     {
         long minOperationCount = Long.MAX_VALUE;
         long maxOperationCount = Long.MIN_VALUE;
@@ -144,19 +144,19 @@ class WorkloadStatusThread extends Thread
             return updateThroughput;
         }
 
-        public void setUpdateThroughput(double updateThroughput)
+        public void setUpdateThroughput( double updateThroughput )
         {
             this.updateThroughput = updateThroughput;
         }
 
         private double updateThroughput;
 
-        private void setThroughput(double throughput)
+        private void setThroughput( double throughput )
         {
             this.throughput = throughput;
         }
 
-        private void setDuration(long duration)
+        private void setDuration( long duration )
         {
             this.duration = duration;
         }

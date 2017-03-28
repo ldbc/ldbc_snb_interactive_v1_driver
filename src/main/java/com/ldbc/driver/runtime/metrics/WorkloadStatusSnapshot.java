@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime.metrics;
 
-public class WorkloadStatusSnapshot {
+public class WorkloadStatusSnapshot
+{
     private final long runDurationAsMilli;
     private final long operationCount;
     private final long durationSinceLastMeasurementAsMilli;
@@ -8,7 +9,13 @@ public class WorkloadStatusSnapshot {
     private final long updateCount;
     private final double updateThroughput;
 
-    public WorkloadStatusSnapshot(long runDurationAsMilli, long operationCount, long durationSinceLastMeasurementAsMilli, double throughput, long updateCount, double updateThroughput) {
+    public WorkloadStatusSnapshot( long runDurationAsMilli,
+                                   long operationCount,
+                                   long durationSinceLastMeasurementAsMilli,
+                                   double throughput,
+                                   long updateCount,
+                                   double updateThroughput )
+    {
         this.runDurationAsMilli = runDurationAsMilli;
         this.operationCount = operationCount;
         this.durationSinceLastMeasurementAsMilli = durationSinceLastMeasurementAsMilli;
@@ -17,27 +24,33 @@ public class WorkloadStatusSnapshot {
         this.updateThroughput = updateThroughput;
     }
 
-    public long runDurationAsMilli() {
+    public long runDurationAsMilli()
+    {
         return runDurationAsMilli;
     }
 
-    public long operationCount() {
+    public long operationCount()
+    {
         return operationCount;
     }
 
-    public long durationSinceLastMeasurementAsMilli() {
+    public long durationSinceLastMeasurementAsMilli()
+    {
         return durationSinceLastMeasurementAsMilli;
     }
 
-    public double throughput() {
+    public double throughput()
+    {
         return throughput;
     }
 
-    public long getUpdateCount() {
+    public long getUpdateCount()
+    {
         return updateCount;
     }
 
-    public double getUpdateThroughput() {
+    public double getUpdateThroughput()
+    {
         return updateThroughput;
     }
 }

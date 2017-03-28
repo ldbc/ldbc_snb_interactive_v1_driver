@@ -1,7 +1,6 @@
 package com.ldbc.driver;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsService;
@@ -39,7 +38,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
 
     private static final String TOPIC = "ldbc_updates";
 
-    public final void setSlot(Slot slot)
+    public final void setSlot( Slot slot )
     {
         this.slot = slot;
     }
@@ -50,7 +49,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
             Operation operation,
             LocalCompletionTimeWriter localCompletionTimeWriter,
             ConcurrentErrorReporter errorReporter,
-            MetricsService metricsService) throws OperationException
+            MetricsService metricsService ) throws OperationException
     {
         if ( initialized )
         {
@@ -80,17 +79,17 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
         this.initialized = true;
     }
 
-    public final void setOperationHandler(OperationHandler operationHandler)
+    public final void setOperationHandler( OperationHandler operationHandler )
     {
         this.operationHandler = operationHandler;
     }
 
-    public final void setDbConnectionState(DbConnectionState dbConnectionState)
+    public final void setDbConnectionState( DbConnectionState dbConnectionState )
     {
         this.dbConnectionState = dbConnectionState;
     }
 
-    public final void setBeforeExecuteCheck(SpinnerCheck check)
+    public final void setBeforeExecuteCheck( SpinnerCheck check )
     {
         beforeExecuteCheck = check;
     }
@@ -210,12 +209,12 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
     public String toString()
     {
         return "OperationHandlerRunner\n" +
-                "    -> resultReporter=" + resultReporter + "\n" +
-                "    -> slot=" + slot + "\n" +
-                "    -> operation=" + operation + "\n" +
-                "    -> beforeExecuteCheck=" + beforeExecuteCheck + "\n" +
-                "    -> operationHandler=" + operationHandler + "\n" +
-                "    -> initialized=" + initialized;
+               "    -> resultReporter=" + resultReporter + "\n" +
+               "    -> slot=" + slot + "\n" +
+               "    -> operation=" + operation + "\n" +
+               "    -> beforeExecuteCheck=" + beforeExecuteCheck + "\n" +
+               "    -> operationHandler=" + operationHandler + "\n" +
+               "    -> initialized=" + initialized;
     }
 
     public final void cleanup()

@@ -11,12 +11,12 @@ public abstract class Operation<RESULT_TYPE>
     private long timeStamp = -1;
     private long dependencyTimeStamp = -1;
 
-    public final void setScheduledStartTimeAsMilli(long scheduledStartTimeAsMilli)
+    public final void setScheduledStartTimeAsMilli( long scheduledStartTimeAsMilli )
     {
         this.scheduledStartTimeAsMilli = scheduledStartTimeAsMilli;
     }
 
-    public final void setDependencyTimeStamp(long dependencyTimeStamp)
+    public final void setDependencyTimeStamp( long dependencyTimeStamp )
     {
         this.dependencyTimeStamp = dependencyTimeStamp;
     }
@@ -36,7 +36,7 @@ public abstract class Operation<RESULT_TYPE>
         return timeStamp;
     }
 
-    public void setTimeStamp(long timeStamp)
+    public void setTimeStamp( long timeStamp )
     {
         this.timeStamp = timeStamp;
     }
@@ -58,12 +58,12 @@ public abstract class Operation<RESULT_TYPE>
                 '}';
     }
 
-    public abstract RESULT_TYPE marshalResult(String serializedOperationResult)
+    public abstract RESULT_TYPE marshalResult( String serializedOperationResult )
             throws SerializingMarshallingException;
 
-    public abstract String serializeResult(Object operationResultInstance) throws SerializingMarshallingException;
+    public abstract String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException;
 
-    public void writeKyro(Kryo kryo, Output output)
+    public void writeKyro( Kryo kryo, Output output )
     {
     }
 }

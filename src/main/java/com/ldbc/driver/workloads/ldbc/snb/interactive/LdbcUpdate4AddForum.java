@@ -16,7 +16,8 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public class LdbcUpdate4AddForum extends Operation<LdbcNoResult> {
+public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
+{
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1004;
     private final long forumId;
@@ -26,8 +27,9 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult> {
     private final List<Long> tagIds;
 
     public LdbcUpdate4AddForum(
-        long forumId, String forumTitle, Date creationDate, long moderatorPersonId,
-        List<Long> tagIds ) {
+            long forumId, String forumTitle, Date creationDate, long moderatorPersonId,
+            List<Long> tagIds )
+    {
         this.forumId = forumId;
         this.forumTitle = forumTitle;
         this.creationDate = creationDate;
@@ -35,89 +37,108 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult> {
         this.tagIds = tagIds;
     }
 
-    public long forumId() {
+    public long forumId()
+    {
         return forumId;
     }
 
-    public String forumTitle() {
+    public String forumTitle()
+    {
         return forumTitle;
     }
 
-    public Date creationDate() {
+    public Date creationDate()
+    {
         return creationDate;
     }
 
-    public long moderatorPersonId() {
+    public long moderatorPersonId()
+    {
         return moderatorPersonId;
     }
 
-    public List<Long> tagIds() {
+    public List<Long> tagIds()
+    {
         return tagIds;
     }
 
     @Override
-    public void writeKyro( Kryo kryo, Output output ) {
+    public void writeKyro( Kryo kryo, Output output )
+    {
         output.writeInt( type() );
         output.writeLong( forumId );
         output.writeString( forumTitle );
         output.writeLong( creationDate.getTime() );
         output.writeLong( moderatorPersonId );
         output.writeInt( tagIds.size() );
-        for (Long tagId : tagIds) {
+        for ( Long tagId : tagIds )
+        {
             output.writeLong( tagId );
         }
     }
 
-    public static Operation readKyro( Input input ) {
+    public static Operation readKyro( Input input )
+    {
         Long forumId = input.readLong();
         String forumTitle = input.readString();
         Date creationDate = new Date( input.readLong() );
         Long moderatorPersonId = input.readLong();
         int n = input.readInt();
         List<Long> tagIds = new ArrayList<>( n );
-        for (int i = 0; i < n; ++i) {
+        for ( int i = 0; i < n; ++i )
+        {
             tagIds.add( i, input.readLong() );
         }
         return new LdbcUpdate4AddForum( forumId, forumTitle, creationDate, moderatorPersonId, tagIds );
     }
 
     @Override
-    public boolean equals( Object o ) {
-        if (this == o) {
+    public boolean equals( Object o )
+    {
+        if ( this == o )
+        {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if ( o == null || getClass() != o.getClass() )
+        {
             return false;
         }
 
         LdbcUpdate4AddForum that = (LdbcUpdate4AddForum) o;
 
-        if (forumId != that.forumId) {
+        if ( forumId != that.forumId )
+        {
             return false;
         }
-        if (moderatorPersonId != that.moderatorPersonId) {
+        if ( moderatorPersonId != that.moderatorPersonId )
+        {
             return false;
         }
-        if (creationDate != null ? !creationDate.equals( that.creationDate ) : that.creationDate != null) {
+        if ( creationDate != null ? !creationDate.equals( that.creationDate ) : that.creationDate != null )
+        {
             return false;
         }
-        if (forumTitle != null ? !forumTitle.equals( that.forumTitle ) : that.forumTitle != null) {
+        if ( forumTitle != null ? !forumTitle.equals( that.forumTitle ) : that.forumTitle != null )
+        {
             return false;
         }
-        if (tagIds != null ? !ListUtils.listsEqual( sort( tagIds ), sort( that.tagIds ) ) : that.tagIds != null) {
+        if ( tagIds != null ? !ListUtils.listsEqual( sort( tagIds ), sort( that.tagIds ) ) : that.tagIds != null )
+        {
             return false;
         }
 
         return true;
     }
 
-    private <T extends Comparable> List<T> sort( List<T> list ) {
+    private <T extends Comparable> List<T> sort( List<T> list )
+    {
         Collections.sort( list );
         return list;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int result = (int) (forumId ^ (forumId >>> 32));
         result = 31 * result + (forumTitle != null ? forumTitle.hashCode() : 0);
         result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);
@@ -127,34 +148,41 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult> {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "LdbcUpdate4AddForum{" +
-            "forumId=" + forumId +
-            ", forumTitle='" + forumTitle + '\'' +
-            ", creationDate=" + creationDate +
-            ", moderatorPersonId=" + moderatorPersonId +
-            ", tagIds=" + tagIds +
-            '}';
+                "forumId=" + forumId +
+                ", forumTitle='" + forumTitle + '\'' +
+                ", creationDate=" + creationDate +
+                ", moderatorPersonId=" + moderatorPersonId +
+                ", tagIds=" + tagIds +
+                '}';
     }
 
     @Override
-    public LdbcNoResult marshalResult( String serializedOperationResult ) {
+    public LdbcNoResult marshalResult( String serializedOperationResult )
+    {
         return LdbcNoResult.INSTANCE;
     }
 
     @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException {
-        try {
+    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
+    {
+        try
+        {
             return objectMapper.writeValueAsString(
-                LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT );
-        } catch (IOException e) {
+                    LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT );
+        }
+        catch ( IOException e )
+        {
             throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                operationResultInstance ), e );
+                                                               operationResultInstance ), e );
         }
     }
 
     @Override
-    public int type() {
+    public int type()
+    {
         return TYPE;
     }
 }

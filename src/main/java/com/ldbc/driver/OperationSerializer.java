@@ -30,12 +30,12 @@ public class OperationSerializer implements Closeable, AutoCloseable, Serializer
     };
 
     @Override
-    public void configure(Map<String,?> map, boolean b)
+    public void configure( Map<String,?> map, boolean b )
     {
     }
 
     @Override
-    public byte[] serialize(String s, Operation operation)
+    public byte[] serialize( String s, Operation operation )
     {
         Output output = new Output( new ByteArrayOutputStream( 100 ) );
         kryos.get().writeObject( output, operation );
@@ -43,7 +43,7 @@ public class OperationSerializer implements Closeable, AutoCloseable, Serializer
     }
 
     @Override
-    public Operation deserialize(String s, byte[] bytes)
+    public Operation deserialize( String s, byte[] bytes )
     {
         try
         {
@@ -63,13 +63,13 @@ public class OperationSerializer implements Closeable, AutoCloseable, Serializer
     {
 
         @Override
-        public void write(Kryo kryo, Output output, Operation operation)
+        public void write( Kryo kryo, Output output, Operation operation )
         {
             operation.writeKyro( kryo, output );
         }
 
         @Override
-        public Operation read(Kryo kryo, Input input, Class<Operation> aClass)
+        public Operation read( Kryo kryo, Input input, Class<Operation> aClass )
         {
             Operation operation = null;
             int type = input.readInt();

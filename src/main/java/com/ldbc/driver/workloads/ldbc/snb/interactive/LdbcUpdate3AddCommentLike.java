@@ -46,18 +46,28 @@ public class LdbcUpdate3AddCommentLike extends Operation<LdbcNoResult>
     public boolean equals( Object o )
     {
         if ( this == o )
-        { return true; }
+        {
+            return true;
+        }
         if ( o == null || getClass() != o.getClass() )
-        { return false; }
+        {
+            return false;
+        }
 
         LdbcUpdate3AddCommentLike that = (LdbcUpdate3AddCommentLike) o;
 
         if ( commentId != that.commentId )
-        { return false; }
+        {
+            return false;
+        }
         if ( personId != that.personId )
-        { return false; }
+        {
+            return false;
+        }
         if ( creationDate != null ? !creationDate.equals( that.creationDate ) : that.creationDate != null )
-        { return false; }
+        {
+            return false;
+        }
 
         return true;
     }
@@ -75,21 +85,23 @@ public class LdbcUpdate3AddCommentLike extends Operation<LdbcNoResult>
     public String toString()
     {
         return "LdbcUpdate3AddCommentLike{" +
-               "personId=" + personId +
-               ", commentId=" + commentId +
-               ", creationDate=" + creationDate +
-               '}';
+                "personId=" + personId +
+                ", commentId=" + commentId +
+                ", creationDate=" + creationDate +
+                '}';
     }
 
     @Override
-    public void writeKyro( Kryo kryo, Output output ) {
+    public void writeKyro( Kryo kryo, Output output )
+    {
         output.writeInt( type() );
         output.writeLong( personId );
         output.writeLong( commentId );
         output.writeLong( creationDate.getTime() );
     }
 
-    public static Operation readKyro( Input input ) {
+    public static Operation readKyro( Input input )
+    {
         Long personId = input.readLong();
         Long commentId = input.readLong();
         Date creationDate = new Date( input.readLong() );
@@ -113,7 +125,7 @@ public class LdbcUpdate3AddCommentLike extends Operation<LdbcNoResult>
         catch ( IOException e )
         {
             throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    operationResultInstance ), e );
+                                                               operationResultInstance ), e );
         }
     }
 

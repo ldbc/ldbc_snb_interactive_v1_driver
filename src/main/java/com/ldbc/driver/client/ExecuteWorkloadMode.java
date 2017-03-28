@@ -104,9 +104,9 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         if ( controlService.configuration().warmupCount() > 0 )
         {
             loggingService.info( "\n" +
-                                         " --------------------\n" +
-                                         " --- Warmup Phase ---\n" +
-                                         " --------------------" );
+                                 " --------------------\n" +
+                                 " --- Warmup Phase ---\n" +
+                                 " --------------------" );
             doInit( true );
             doExecute( true );
             try
@@ -125,15 +125,15 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         else
         {
             loggingService.info( "\n" +
-                                         " ---------------------------------\n" +
-                                         " --- No Warmup Phase Requested ---\n" +
-                                         " ---------------------------------" );
+                                 " ---------------------------------\n" +
+                                 " --- No Warmup Phase Requested ---\n" +
+                                 " ---------------------------------" );
         }
 
         loggingService.info( "\n" +
-                                     " -----------------\n" +
-                                     " --- Run Phase ---\n" +
-                                     " -----------------" );
+                             " -----------------\n" +
+                             " --- Run Phase ---\n" +
+                             " -----------------" );
         doInit( false );
         doExecute( false );
 

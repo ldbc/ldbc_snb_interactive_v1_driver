@@ -29,7 +29,7 @@ public abstract class Db implements Closeable
     synchronized public final void init(
             Map<String,String> params,
             LoggingService loggingService,
-            Map<Integer,Class<? extends Operation>> operationTypeToClassMapping)
+            Map<Integer,Class<? extends Operation>> operationTypeToClassMapping )
             throws DbException
     {
         if ( true == isInitialized )
@@ -65,7 +65,7 @@ public abstract class Db implements Closeable
     /**
      * Called once to initialize state for DB client
      */
-    protected abstract void onInit(Map<String,String> properties, LoggingService loggingService) throws DbException;
+    protected abstract void onInit( Map<String,String> properties, LoggingService loggingService ) throws DbException;
 
     @Override
     synchronized public final void close() throws IOException
@@ -109,7 +109,7 @@ public abstract class Db implements Closeable
     protected abstract void onClose() throws IOException;
 
     public final <A extends Operation, H extends OperationHandler<A,?>> void registerOperationHandler(
-            Class<A> operationType, Class<H> operationHandlerType) throws DbException
+            Class<A> operationType, Class<H> operationHandlerType ) throws DbException
     {
         if ( operationHandlers.containsKey( operationType ) )
         {
@@ -136,7 +136,7 @@ public abstract class Db implements Closeable
         return updateProducer;
     }
 
-    public final OperationHandlerRunnableContext getOperationHandlerRunnableContext(Operation operation)
+    public final OperationHandlerRunnableContext getOperationHandlerRunnableContext( Operation operation )
             throws DbException
     {
         OperationHandler operationHandler = operationHandlersArray[operation.type()];
@@ -160,7 +160,7 @@ public abstract class Db implements Closeable
 
     private static OperationHandler[] toOperationHandlerArray(
             Map<Integer,Class<? extends Operation>> operationTypeToClassMapping,
-            Map<Class<? extends Operation>,OperationHandler> operationHandlers) throws DbException
+            Map<Class<? extends Operation>,OperationHandler> operationHandlers ) throws DbException
     {
         if ( operationTypeToClassMapping.isEmpty() )
         {
