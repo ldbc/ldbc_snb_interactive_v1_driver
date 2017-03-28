@@ -47,7 +47,7 @@ public class WorkloadRunner
             long spinnerSleepDurationAsMilli,
             boolean ignoreScheduleStartTimes,
             int operationHandlerExecutorsBoundedQueueSize,
-            boolean consumeUpdates ) throws WorkloadException, MetricsCollectionException
+            boolean consumeUpdates) throws WorkloadException, MetricsCollectionException
     {
         this.workloadRunnerFuture = new WorkloadRunnerFuture(
                 timeSource,
@@ -92,7 +92,7 @@ public class WorkloadRunner
                 long spinnerSleepDurationAsMilli,
                 boolean ignoreScheduleStartTimes,
                 int operationHandlerExecutorsBoundedQueueSize,
-                boolean consumeUpdates ) throws MetricsCollectionException, WorkloadException
+                boolean consumeUpdates) throws MetricsCollectionException, WorkloadException
         {
             this.workloadRunnerThread = new WorkloadRunnerThread(
                     timeSource,
@@ -125,7 +125,7 @@ public class WorkloadRunner
         }
 
         @Override
-        public boolean cancel( boolean mayInterruptIfRunning )
+        public boolean cancel(boolean mayInterruptIfRunning)
         {
             // After this method returns, subsequent calls to isDone will always return true
             // Subsequent calls to isCancelled will always return true if this method returned true
@@ -214,7 +214,7 @@ public class WorkloadRunner
         }
 
         @Override
-        public ConcurrentErrorReporter get( long timeout, TimeUnit unit )
+        public ConcurrentErrorReporter get(long timeout, TimeUnit unit)
                 throws InterruptedException, ExecutionException, TimeoutException
         {
             if ( isCancelled || isDone )
@@ -226,7 +226,7 @@ public class WorkloadRunner
             return errorReporter;
         }
 
-        private void waitForCompletion( long waitDurationMs ) throws TimeoutException
+        private void waitForCompletion(long waitDurationMs) throws TimeoutException
         {
             long startTimeMs = timeSource.nowAsMilli();
             while ( timeSource.nowAsMilli() - startTimeMs < waitDurationMs )
@@ -300,7 +300,7 @@ public class WorkloadRunner
                 long spinnerSleepDurationAsMilli,
                 boolean ignoreScheduleStartTimes,
                 int operationHandlerExecutorsBoundedQueueSize,
-                boolean consumeUpdates ) throws WorkloadException, MetricsCollectionException
+                boolean consumeUpdates) throws WorkloadException, MetricsCollectionException
         {
             this.errorReporter = errorReporter;
             this.statusDisplayIntervalAsMilli = statusDisplayIntervalAsSeconds;
@@ -325,8 +325,8 @@ public class WorkloadRunner
             try
             {
                 localCompletionTimeWriterForAsynchronous = (asynchronousStream.dependencyOperations().hasNext())
-                        ? completionTimeService.newLocalCompletionTimeWriter()
-                        : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+                                                           ? completionTimeService.newLocalCompletionTimeWriter()
+                                                           : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
             }
             catch ( CompletionTimeException e )
             {
@@ -360,11 +360,14 @@ public class WorkloadRunner
                     errorReporter,
                     metricsService
             );
-            try {
+            try
+            {
                 this.consumerOperationStreamExecutorService = new ConsumerOperationStreamExecutorService(
                         errorReporter, executorForConsumer );
-            } catch (OperationExecutorException e) {
-                throw new WorkloadException("Error while attempting to create operation executor service for Kafka Consumer", e);
+            }
+            catch ( OperationExecutorException e )
+            {
+                throw new WorkloadException( "Error while attempting to create operation executor service for Kafka Consumer", e );
             }
 
             for ( WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions() )
@@ -376,8 +379,8 @@ public class WorkloadRunner
                 try
                 {
                     localCompletionTimeWriterForBlocking = (blockingStream.dependencyOperations().hasNext())
-                            ? completionTimeService.newLocalCompletionTimeWriter()
-                            : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+                                                           ? completionTimeService.newLocalCompletionTimeWriter()
+                                                           : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
                 }
                 catch ( CompletionTimeException e )
                 {
@@ -425,7 +428,8 @@ public class WorkloadRunner
             // shutdown consumer when all other executors are finished
             AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
             executorFinishedFlags[0] = asynchronousStreamExecutorService.execute();
-            if(consumeUpdates) {
+            if ( consumeUpdates )
+            {
                 consumerOperationStreamExecutorService.execute();
             }
 
@@ -485,7 +489,7 @@ public class WorkloadRunner
             }
         }
 
-        private void shutdownEverything( ShutdownType shutdownType, ConcurrentErrorReporter errorReporter )
+        private void shutdownEverything(ShutdownType shutdownType, ConcurrentErrorReporter errorReporter)
         {
             // if forced shutdown (error) some handlers likely still running,
             // but for now it does not matter as the process will terminate anyway
@@ -493,8 +497,8 @@ public class WorkloadRunner
             //
             // if normal shutdown all executors have completed by this stage
             long shutdownWait = (shutdownType.equals( ShutdownType.FORCED ))
-                    ? 1
-                    : OperationStreamExecutorService.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
+                                ? 1
+                                : OperationStreamExecutorService.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
 
             try
             {
@@ -510,10 +514,14 @@ public class WorkloadRunner
                 );
             }
 
-            if(consumeUpdates) {
-                try {
-                    consumerOperationStreamExecutorService.shutdown(shutdownWait);
-                } catch (OperationExecutorException e) {
+            if ( consumeUpdates )
+            {
+                try
+                {
+                    consumerOperationStreamExecutorService.shutdown( shutdownWait );
+                }
+                catch ( OperationExecutorException e )
+                {
                     errorReporter.reportError(
                             this,
                             format( "Encountered error while shutting down %s\n%s\n",
@@ -559,10 +567,14 @@ public class WorkloadRunner
                 );
             }
 
-            if(consumeUpdates) {
-                try {
-                    this.executorForConsumer.shutdown(shutdownWait);
-                } catch (OperationExecutorException e) {
+            if ( consumeUpdates )
+            {
+                try
+                {
+                    this.executorForConsumer.shutdown( shutdownWait );
+                }
+                catch ( OperationExecutorException e )
+                {
                     errorReporter.reportError(
                             this,
                             format( "Encountered error while waiting for consumer executor to shutdown\n" +

@@ -365,6 +365,7 @@ public class TimeMappingOperationGeneratorTest
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 0;
         long skipCount = 0;
+        boolean consumeUpdates = true;
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -386,7 +387,7 @@ public class TimeMappingOperationGeneratorTest
                 ignoreScheduledStartTimes,
                 warmupCount,
                 skipCount,
-                true );
+                consumeUpdates );
 
         Map<String,String> updateStreamParams = MapUtils.loadPropertiesToMap(
                 TestUtils.getResource( "/snb/interactive/updateStream.properties" )

@@ -32,15 +32,14 @@ public class OperationHandlerRunnableContextFactoryTest
                     doOperationHandlerTest( count, pooledInstantiatingOperationHandlerRunnerFactory, operation );
             count = count * 4;
             System.out.println( format( "Count: %s, Instantiating: %s, PooledInstantiating: %s, Speedup: %s", count,
-                    instantiatingDuration, pooledInstantiatingDuration,
-                    instantiatingDuration / (double) pooledInstantiatingDuration ) );
+                                        instantiatingDuration, pooledInstantiatingDuration,
+                                        instantiatingDuration / (double) pooledInstantiatingDuration ) );
             instantiatingOperationHandlerRunnerFactory.shutdown();
             pooledInstantiatingOperationHandlerRunnerFactory.shutdown();
         }
     }
 
-    public long doOperationHandlerTest(
-            int count, OperationHandlerRunnerFactory operationHandlerRunnerFactory,
+    public long doOperationHandlerTest( int count, OperationHandlerRunnerFactory operationHandlerRunnerFactory,
             Operation operation ) throws OperationException
     {
         TimeSource timeSource = new SystemTimeSource();

@@ -116,6 +116,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
+            boolean consumeUpdates = true;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -137,7 +138,8 @@ public class WorkloadRunnerTest
                     ignoreScheduledStartTimes,
                     warmupCount,
                     skipCount,
-                    false);
+                    consumeUpdates
+            );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
                     .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
@@ -322,6 +324,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
+            boolean consumeUpdates = true;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -343,7 +346,7 @@ public class WorkloadRunnerTest
                     ignoreScheduledStartTimes,
                     warmupCount,
                     skipCount,
-                    false);
+                    consumeUpdates);
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
                     .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
@@ -546,6 +549,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
+            boolean consumeUpdates = true;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -567,7 +571,8 @@ public class WorkloadRunnerTest
                     ignoreScheduledStartTimes,
                     warmupCount,
                     skipCount,
-                    false);
+                    consumeUpdates
+            );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
                     .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
@@ -817,6 +822,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = true;
             long warmupCount = 100;
             long skipCount = 10;
+            boolean consumeUpdates = true;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -838,7 +844,8 @@ public class WorkloadRunnerTest
                     ignoreScheduledStartTimes,
                     warmupCount,
                     skipCount,
-                    false);
+                    consumeUpdates
+            );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
                     .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
