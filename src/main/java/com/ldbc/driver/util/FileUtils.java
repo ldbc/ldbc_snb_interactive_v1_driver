@@ -5,9 +5,14 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 public class FileUtils
 {
@@ -158,6 +163,30 @@ public class FileUtils
         catch ( Exception e )
         {
             throw new RuntimeException( "Error renaming directory", e );
+        }
+    }
+
+    public static long bytes( Path dir )
+    {
+        if ( !Files.exists( dir ) )
+        {
+            return 0;
+        }
+        try ( Stream<Path> paths = Files.list( dir ) )
+        {
+            long bytes = 0;
+            for ( Path path : paths.collect( toList() ) )
+            {
+                if ( path.toFile().isFile() )
+                { bytes += path.toFile().length(); }
+                else
+                { bytes += bytes( path ); }
+            }
+            return bytes;
+        }
+        catch ( IOException e )
+        {
+            throw new UncheckedIOException( e );
         }
     }
 }
