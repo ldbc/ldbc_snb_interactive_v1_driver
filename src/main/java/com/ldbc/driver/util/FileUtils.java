@@ -114,37 +114,11 @@ public class FileUtils
         }
     }
 
-    public static void copyDir( File sourceDir, File destinationDir )
+    public static void copyDir( File from, File to )
     {
         try
         {
             System.out.println( format( "Copying directory...\n" +
-                                        "From:     %s\n" +
-                                        "To:       %s",
-                    sourceDir.getAbsolutePath(),
-                    destinationDir.getAbsolutePath() ) );
-            FileUtils.assertDirectoryExists( sourceDir );
-            FileUtils.assertDirectoryDoesNotExist( destinationDir );
-            // Alternative method of copying database into working directory
-            // org.apache.commons.io.FileUtils.copyDirectory( sourceDir, destinationDir );
-            new ProcessBuilder( "cp", "-r", sourceDir.getAbsolutePath(), destinationDir.getAbsolutePath() )
-                    .inheritIO()
-                    .start()
-                    .waitFor();
-            FileUtils.assertDirectoryExists( sourceDir );
-            FileUtils.assertDirectoryExists( destinationDir );
-        }
-        catch ( Exception e )
-        {
-            throw new RuntimeException( "Error copying directory", e );
-        }
-    }
-
-    public static void renameDir( File from, File to )
-    {
-        try
-        {
-            System.out.println( format( "Renaming directory...\n" +
                                         "From:     %s\n" +
                                         "To:       %s",
                     from.getAbsolutePath(),
@@ -152,17 +126,13 @@ public class FileUtils
             FileUtils.assertDirectoryExists( from );
             FileUtils.assertDirectoryDoesNotExist( to );
             // Alternative method of copying database into working directory
-            // org.apache.commons.io.FileUtils.copyDirectory( sourceDir, destinationDir );
-            new ProcessBuilder( "mv", from.getAbsolutePath(), to.getAbsolutePath() )
-                    .inheritIO()
-                    .start()
-                    .waitFor();
+            org.apache.commons.io.FileUtils.copyDirectory( from, to );
+            FileUtils.assertDirectoryExists( from );
             FileUtils.assertDirectoryExists( to );
-            FileUtils.assertDirectoryDoesNotExist( from );
         }
         catch ( Exception e )
         {
-            throw new RuntimeException( "Error renaming directory", e );
+            throw new RuntimeException( "Error copying directory", e );
         }
     }
 
