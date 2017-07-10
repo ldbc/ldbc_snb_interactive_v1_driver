@@ -17,7 +17,7 @@ public class Log4jLoggingService implements LoggingService
 {
     private static final DecimalFormat OPERATION_COUNT_FORMATTER = new DecimalFormat( "###,###,###,###" );
     private static final DecimalFormat THROUGHPUT_FORMATTER = new DecimalFormat( "###,###,###,##0.00" );
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat( "YYYY/MM/dd HH:mm:ssT" );
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat( "YYYY/MM/dd HH:mm:ss Z" );
 
     private final Logger logger;
     private final TemporalUtil temporalUtil;
