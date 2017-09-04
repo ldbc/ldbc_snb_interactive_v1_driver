@@ -8,3 +8,5 @@ lib/
 *.iml
 sample_data/
 plotting/*.pdf
+.idea/
+*.swp
