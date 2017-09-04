@@ -4,3 +4,5 @@ language: java
 install: true
 script:
   - mvn test | grep "^\\["
+notifications:
+  slack: ldbcouncil:0FIBC03v0bz1jQqtoYsLRE1h
