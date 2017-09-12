@@ -10,3 +10,4 @@ sample_data/
 plotting/*.pdf
 .idea/
 *.swp
+results/
