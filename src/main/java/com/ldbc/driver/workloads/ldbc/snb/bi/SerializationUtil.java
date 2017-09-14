@@ -22,7 +22,12 @@ public class SerializationUtil
     {
         try
         {
-            return OBJECT_MAPPER.readValue( serializedJson, LIST_OF_LISTS_TYPE_REFERENCE );
+            List<List<Object>> value = OBJECT_MAPPER.readValue(serializedJson, LIST_OF_LISTS_TYPE_REFERENCE);
+            // we presume a list is non-empty
+            if (value.get(0).get(0) instanceof Integer) {
+                //value = OBJECT_MAPPER.readValue(serializedJson, new TypeReference<List<List<Long>>>() {});
+            }
+            return value;
         }
         catch ( IOException e )
         {

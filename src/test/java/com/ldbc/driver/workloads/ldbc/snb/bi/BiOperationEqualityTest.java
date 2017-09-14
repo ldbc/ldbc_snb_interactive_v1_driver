@@ -695,4 +695,31 @@ public class BiOperationEqualityTest
         assertThat( query1a, not( equalTo( query3a ) ) );
         assertThat( query2a, not( equalTo( query3a ) ) );
     }
+
+    @Test
+    public void ldbcQuery25ShouldDoEqualsCorrectly()
+    {
+        // Given
+        long person1Id1 = 1;
+        long person2Id1 = 2;
+        long startDate1 = 1;
+        long endDate1 = 2;
+
+        long person1Id2 = 3;
+        long person2Id2 = 4;
+        long startDate2 = 3;
+        long endDate2 = 4;
+
+        // When
+        LdbcSnbBiQuery25WeightedPaths query1a = new LdbcSnbBiQuery25WeightedPaths( person1Id1, person2Id1, startDate1, endDate1 );
+        LdbcSnbBiQuery25WeightedPaths query1b = new LdbcSnbBiQuery25WeightedPaths( person1Id1, person2Id1, startDate1, endDate1 );
+        LdbcSnbBiQuery25WeightedPaths query2a = new LdbcSnbBiQuery25WeightedPaths( person1Id1, person2Id2, startDate1, endDate2 );
+        LdbcSnbBiQuery25WeightedPaths query3a = new LdbcSnbBiQuery25WeightedPaths( person1Id2, person2Id1, startDate2, endDate1 );
+
+        // Then
+        assertThat( query1a, equalTo( query1b ) );
+        assertThat( query1a, not( equalTo( query2a ) ) );
+        assertThat( query1a, not( equalTo( query3a ) ) );
+        assertThat( query2a, not( equalTo( query3a ) ) );
+    }
 }

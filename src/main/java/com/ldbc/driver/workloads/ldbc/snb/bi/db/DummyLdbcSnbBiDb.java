@@ -38,6 +38,8 @@ import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery23HolidayDestinations
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery23HolidayDestinationsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopic;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopicResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery25WeightedPaths;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery25WeightedPathsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTags;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTagsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3TagEvolution;
@@ -205,6 +207,7 @@ public class DummyLdbcSnbBiDb extends Db
         registerOperationHandler( LdbcSnbBiQuery22InternationalDialog.class, LdbcQuery22Handler.class );
         registerOperationHandler( LdbcSnbBiQuery23HolidayDestinations.class, LdbcQuery23Handler.class );
         registerOperationHandler( LdbcSnbBiQuery24MessagesByTopic.class, LdbcQuery24Handler.class );
+        registerOperationHandler( LdbcSnbBiQuery25WeightedPaths.class, LdbcQuery25Handler.class );
     }
 
     @Override
@@ -615,6 +618,23 @@ public class DummyLdbcSnbBiDb extends Db
         {
             sleep( sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_24_RESULTS, operation );
+        }
+    }
+
+    private static final List<LdbcSnbBiQuery25WeightedPathsResult> LDBC_QUERY_25_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read25Results();
+
+    public static class LdbcQuery25Handler
+            implements OperationHandler<LdbcSnbBiQuery25WeightedPaths,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcSnbBiQuery25WeightedPaths operation,
+                                      DummyDbConnectionState dbConnectionState,
+                                      ResultReporter resultReporter ) throws DbException
+        {
+            sleep( sleepDurationAsNano );
+            resultReporter.report( 0, LDBC_QUERY_25_RESULTS, operation );
         }
     }
 }

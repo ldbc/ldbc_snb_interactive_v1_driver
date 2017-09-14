@@ -218,4 +218,11 @@ public class BiReadEventStreamReadersTestData
                + "Writer\n"
                + "Single\n";
     }
+
+    public static final String QUERY_25_CSV_ROWS()
+    {
+        return "person1Id|person2Id|startDate|endDate\n"
+                + "1|2|1|2\n"
+                + "3|4|3|4\n";
+    }
 }

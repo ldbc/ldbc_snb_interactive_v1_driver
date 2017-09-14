@@ -1014,4 +1014,20 @@ public class BiOperationResultEqualityTest
         assertThat( result1a, not( equalTo( result3a ) ) );
         assertThat( result2a, not( equalTo( result3a ) ) );
     }
+
+    @Test
+    public void ldbcQuery25ResultShouldDoEqualsCorrectly()
+    {
+        List<Long> personIds1 = Lists.newArrayList(1L, 2L, 3L);
+        List<Long> personIds2 = Lists.newArrayList(1L, 2L, 3L);
+        List<Long> personIds3 = Lists.newArrayList(1L, 2L);
+
+        LdbcSnbBiQuery25WeightedPathsResult result1a = new LdbcSnbBiQuery25WeightedPathsResult( personIds1 );
+        LdbcSnbBiQuery25WeightedPathsResult result2a = new LdbcSnbBiQuery25WeightedPathsResult( personIds2 );
+        LdbcSnbBiQuery25WeightedPathsResult result3a = new LdbcSnbBiQuery25WeightedPathsResult( personIds3 );
+
+        assertThat( result1a, equalTo( result2a ) );
+        assertThat( result1a, not( equalTo( result3a ) ) );
+        assertThat( result2a, not( equalTo( result3a ) ) );
+    }
 }
