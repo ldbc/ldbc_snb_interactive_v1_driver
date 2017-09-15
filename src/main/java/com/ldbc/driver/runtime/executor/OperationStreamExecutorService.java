@@ -2,7 +2,7 @@ package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,7 +24,7 @@ public class OperationStreamExecutorService
             ConcurrentErrorReporter errorReporter,
             WorkloadStreamDefinition streamDefinition,
             OperationExecutor operationExecutor,
-            LocalCompletionTimeWriter localCompletionTimeWriter )
+            CompletionTimeWriter completionTimeWriter )
     {
         this.errorReporter = errorReporter;
         if ( streamDefinition.dependencyOperations().hasNext() || streamDefinition.nonDependencyOperations().hasNext() )
@@ -35,7 +35,7 @@ public class OperationStreamExecutorService
                     streamDefinition,
                     hasFinished,
                     forceThreadToTerminate,
-                    localCompletionTimeWriter );
+                    completionTimeWriter );
         }
         else
         {

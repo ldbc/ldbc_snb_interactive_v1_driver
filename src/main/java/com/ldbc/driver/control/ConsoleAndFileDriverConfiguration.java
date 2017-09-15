@@ -25,7 +25,6 @@ import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -144,13 +143,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             Double.toString( TIME_COMPRESSION_RATIO_DEFAULT );
     private static final String TIME_COMPRESSION_RATIO_DESCRIPTION = "change duration between operations of workload";
 
-    public static final String PEER_IDS_ARG = "pids";
-    private static final String PEER_IDS_ARG_LONG = "peer_identifiers";
-    public static final Set<String> PEER_IDS_DEFAULT = Sets.newHashSet();
-    public static final String PEER_IDS_DEFAULT_STRING = serializePeerIdsToCommandline( PEER_IDS_DEFAULT );
-    private static final String PEER_IDS_DESCRIPTION =
-            "identifiers/addresses of other driver workers (for distributed mode)";
-
     public static final String SPINNER_SLEEP_DURATION_ARG = "sw";
     private static final String SPINNER_SLEEP_DURATION_ARG_LONG = "spinner_wait_duration";
     public static final long SPINNER_SLEEP_DURATION_DEFAULT = 1;
@@ -212,7 +204,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         defaultParamsMap.put( CALCULATE_WORKLOAD_STATISTICS_ARG, CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING );
         defaultParamsMap.put( TIME_UNIT_ARG, TIME_UNIT_DEFAULT_STRING );
         defaultParamsMap.put( TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT_STRING );
-        defaultParamsMap.put( PEER_IDS_ARG, PEER_IDS_DEFAULT_STRING );
         defaultParamsMap.put( SPINNER_SLEEP_DURATION_ARG, SPINNER_SLEEP_DURATION_DEFAULT_STRING );
         defaultParamsMap.put( WARMUP_COUNT_ARG, WARMUP_COUNT_DEFAULT_STRING );
         defaultParamsMap.put( SKIP_COUNT_ARG, SKIP_COUNT_DEFAULT_STRING );
@@ -275,7 +266,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             TimeUnit timeUnit = TimeUnit.valueOf( paramsMap.get( TIME_UNIT_ARG ) );
             String resultDirPath = paramsMap.get( RESULT_DIR_PATH_ARG );
             double timeCompressionRatio = Double.parseDouble( paramsMap.get( TIME_COMPRESSION_RATIO_ARG ) );
-            Set<String> peerIds = parsePeerIdsFromCommandline( paramsMap.get( PEER_IDS_ARG ) );
             ConsoleAndFileValidationParamOptions databaseConsoleAndFileValidationParams =
                     (null == paramsMap.get( CREATE_VALIDATION_PARAMS_ARG )) ?
                     null :
@@ -301,7 +291,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    peerIds,
                     databaseConsoleAndFileValidationParams,
                     databaseValidationFilePath,
                     calculateWorkloadStatistics,
@@ -452,13 +441,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     new ConsoleAndFileValidationParamOptions( filePath, validationSetSize ).toCommandlineString() );
         }
 
-        if ( cmd.hasOption( PEER_IDS_ARG ) )
-        {
-            Set<String> peerIds = new HashSet<>();
-            Collections.addAll( peerIds, cmd.getOptionValues( PEER_IDS_ARG ) );
-            cmdParams.put( PEER_IDS_ARG, serializePeerIdsToCommandline( peerIds ) );
-        }
-
         if ( cmd.hasOption( PROPERTY_FILE_ARG ) )
         {
             for ( String propertyFilePath : cmd.getOptionValues( PROPERTY_FILE_ARG ) )
@@ -509,7 +491,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         paramsMap = replaceKey( paramsMap, TIME_UNIT_ARG_LONG, TIME_UNIT_ARG );
         paramsMap = replaceKey( paramsMap, RESULT_DIR_PATH_ARG_LONG, RESULT_DIR_PATH_ARG );
         paramsMap = replaceKey( paramsMap, TIME_COMPRESSION_RATIO_ARG_LONG, TIME_COMPRESSION_RATIO_ARG );
-        paramsMap = replaceKey( paramsMap, PEER_IDS_ARG_LONG, PEER_IDS_ARG );
         paramsMap = replaceKey( paramsMap, CREATE_VALIDATION_PARAMS_ARG_LONG, CREATE_VALIDATION_PARAMS_ARG );
         paramsMap = replaceKey( paramsMap, DB_VALIDATION_FILE_PATH_ARG_LONG, DB_VALIDATION_FILE_PATH_ARG );
         paramsMap = replaceKey( paramsMap, CALCULATE_WORKLOAD_STATISTICS_ARG_LONG, CALCULATE_WORKLOAD_STATISTICS_ARG );
@@ -589,11 +570,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                                 TIME_COMPRESSION_RATIO_ARG_LONG ).create( TIME_COMPRESSION_RATIO_ARG );
         options.addOption( timeCompressionRatioOption );
 
-        Option peerIdsOption = OptionBuilder.hasArgs().withValueSeparator( COMMANDLINE_SEPARATOR_CHAR )
-                .withArgName( "peerId1" + COMMANDLINE_SEPARATOR_CHAR + "peerId2" ).withDescription(
-                        PEER_IDS_DESCRIPTION ).withLongOpt( PEER_IDS_ARG_LONG ).create( PEER_IDS_ARG );
-        options.addOption( peerIdsOption );
-
         Option dbValidationParamsOption = OptionBuilder.hasArgs( 2 ).withValueSeparator( COMMANDLINE_SEPARATOR_CHAR )
                 .withArgName( "path" + COMMANDLINE_SEPARATOR_CHAR + "count" )
                 .withDescription( CREATE_VALIDATION_PARAMS_DESCRIPTION ).withLongOpt(
@@ -647,44 +623,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         return options;
     }
 
-    static Set<String> parsePeerIdsFromCommandline( String peerIdsString )
-    {
-        Set<String> peerIds = new HashSet<>();
-        String[] peerIdsArray = peerIdsString.split( COMMANDLINE_SEPARATOR_REGEX_STRING );
-        for ( String peerId : peerIdsArray )
-        {
-            if ( !peerId.isEmpty() )
-            {
-                peerIds.add( peerId );
-            }
-        }
-        return peerIds;
-    }
-
-    static String serializePeerIdsToCommandline( Set<String> peerIds )
-    {
-        List<String> peerIdsList = Lists.newArrayList( peerIds );
-
-        if ( 0 == peerIdsList.size() )
-        {
-            return "";
-        }
-
-        if ( 1 == peerIdsList.size() )
-        {
-            return peerIdsList.get( 0 );
-        }
-
-        String commandLinePeerIdsString = "";
-        for ( int i = 0; i < peerIdsList.size() - 1; i++ )
-        {
-            commandLinePeerIdsString += peerIdsList.get( i ) + COMMANDLINE_SEPARATOR_CHAR;
-        }
-        commandLinePeerIdsString += peerIdsList.get( peerIds.size() - 1 );
-
-        return commandLinePeerIdsString;
-    }
-
     private static Set<String> coreConfigurationParameterKeys()
     {
         return Sets.newHashSet(
@@ -697,7 +635,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 TIME_UNIT_ARG,
                 RESULT_DIR_PATH_ARG,
                 TIME_COMPRESSION_RATIO_ARG,
-                PEER_IDS_ARG,
                 CREATE_VALIDATION_PARAMS_ARG,
                 DB_VALIDATION_FILE_PATH_ARG,
                 CALCULATE_WORKLOAD_STATISTICS_ARG,
@@ -739,7 +676,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private final TimeUnit timeUnit;
     private final String resultDirPath;
     private final double timeCompressionRatio;
-    private final Set<String> peerIds;
     private final ConsoleAndFileValidationParamOptions validationCreationParams;
     private final String databaseValidationFilePath;
     private final boolean calculateWorkloadStatistics;
@@ -759,7 +695,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             TimeUnit timeUnit,
             String resultDirPath,
             double timeCompressionRatio,
-            Set<String> peerIds,
             ConsoleAndFileValidationParamOptions validationCreationParams,
             String databaseValidationFilePath,
             boolean calculateWorkloadStatistics,
@@ -783,7 +718,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         this.timeUnit = timeUnit;
         this.resultDirPath = resultDirPath;
         this.timeCompressionRatio = timeCompressionRatio;
-        this.peerIds = peerIds;
         this.validationCreationParams = validationCreationParams;
         this.databaseValidationFilePath = databaseValidationFilePath;
         this.calculateWorkloadStatistics = calculateWorkloadStatistics;
@@ -814,7 +748,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             paramsMap.put( RESULT_DIR_PATH_ARG, resultDirPath );
         }
         paramsMap.put( TIME_COMPRESSION_RATIO_ARG, Double.toString( timeCompressionRatio ) );
-        paramsMap.put( PEER_IDS_ARG, serializePeerIdsToCommandline( peerIds ) );
         if ( null != validationCreationParams )
         {
             paramsMap.put( CREATE_VALIDATION_PARAMS_ARG, validationCreationParams.toCommandlineString() );
@@ -890,12 +823,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     public double timeCompressionRatio()
     {
         return timeCompressionRatio;
-    }
-
-    @Override
-    public Set<String> peerIds()
-    {
-        return peerIds;
     }
 
     @Override
@@ -1037,9 +964,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                                          Double.parseDouble(
                                                  newParamsMapWithShortKeys.get( TIME_COMPRESSION_RATIO_ARG ) ) :
                                          timeCompressionRatio;
-        Set<String> newPeerIds = (newParamsMapWithShortKeys.containsKey( PEER_IDS_ARG )) ?
-                                 parsePeerIdsFromCommandline( newParamsMapWithShortKeys.get( PEER_IDS_ARG ) ) :
-                                 peerIds;
         ConsoleAndFileValidationParamOptions newValidationParams =
                 (newParamsMapWithShortKeys.containsKey( CREATE_VALIDATION_PARAMS_ARG ))
                 ? (null == newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG )) ? null
@@ -1083,7 +1007,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 newTimeUnit,
                 newResultDirPath,
                 newTimeCompressionRatio,
-                newPeerIds,
                 newValidationParams,
                 newDatabaseValidationFilePath,
                 newCalculateWorkloadStatistics,
@@ -1124,10 +1047,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         argsList.addAll( Lists.newArrayList( "-" + TIME_UNIT_ARG, timeUnit.name() ) );
         argsList.addAll(
                 Lists.newArrayList( "-" + TIME_COMPRESSION_RATIO_ARG, Double.toString( timeCompressionRatio ) ) );
-        if ( !peerIds.isEmpty() )
-        {
-            argsList.addAll( Lists.newArrayList( "-" + PEER_IDS_ARG, serializePeerIdsToCommandline( peerIds ) ) );
-        }
         if ( null != databaseValidationFilePath )
         {
             argsList.addAll( Lists.newArrayList( "-" + DB_VALIDATION_FILE_PATH_ARG, databaseValidationFilePath ) );
@@ -1239,13 +1158,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         sb.append( "# COMMAND: " ).append( "-" ).append( TIME_COMPRESSION_RATIO_ARG ).append( "/--" )
                 .append( TIME_COMPRESSION_RATIO_ARG_LONG ).append( "\n" );
         sb.append( TIME_COMPRESSION_RATIO_ARG_LONG ).append( "=" ).append( timeCompressionRatio ).append( "\n" );
-        sb.append( "\n" );
-        sb.append( "# NOT USED AT PRESENT - reserved for distributed driver mode\n" );
-        sb.append( "# specifies the addresses of other driver processes, so they can find each other\n" );
-        sb.append( "# LIST (e.g., peer1|peer2|peer3)\n" );
-        sb.append( "# COMMAND: " ).append( "-" ).append( PEER_IDS_ARG ).append( "/--" ).append( PEER_IDS_ARG_LONG )
-                .append( "\n" );
-        sb.append( PEER_IDS_ARG_LONG ).append( "=" ).append( serializePeerIdsToCommandline( peerIds ) ).append( "\n" );
         sb.append( "\n" );
         sb.append( "# enable validation that will check if the provided database implementation is correct\n" );
         sb.append( "# parameter value specifies where to find the validation parameters file\n" );
@@ -1398,8 +1310,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 .append( resultDirPath() ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Time Compression Ratio:" ) )
                 .append( FLOAT_FORMAT.format( timeCompressionRatio ) ).append( "\n" );
-        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Peer IDs:" ) )
-                .append( peerIds.toString() ).append( "\n" );
         String validationCreationParamsString = (null == validationCreationParams) ?
                                                 null :
                                                 format( "File (%s) Validation Set Size (%s)",
@@ -1487,10 +1397,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         {
             return false;
         }
-        if ( peerIds != null ? !peerIds.equals( that.peerIds ) : that.peerIds != null )
-        {
-            return false;
-        }
         if ( name != null ? !name.equals( that.name ) : that.name != null )
         {
             return false;
@@ -1542,7 +1448,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         result = 31 * result + (resultDirPath != null ? resultDirPath.hashCode() : 0);
         temp = Double.doubleToLongBits( timeCompressionRatio );
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (peerIds != null ? peerIds.hashCode() : 0);
         result = 31 * result + (validationCreationParams != null ? validationCreationParams.hashCode() : 0);
         result = 31 * result + (databaseValidationFilePath != null ? databaseValidationFilePath.hashCode() : 0);
         result = 31 * result + (calculateWorkloadStatistics ? 1 : 0);

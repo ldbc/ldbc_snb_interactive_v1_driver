@@ -42,7 +42,7 @@ public class WorkloadStreams
 
         PeekingIterator<Operation> peekingAsyncDependencyOperationStream =
                 Iterators.peekingIterator( originalWorkloadStreams.asynchronousStream().dependencyOperations() );
-        try
+        if ( peekingAsyncDependencyOperationStream.hasNext() )
         {
             long firstAsMilli = peekingAsyncDependencyOperationStream.peek().scheduledStartTimeAsMilli();
             if ( firstAsMilli < minScheduledStartTimeAsMilli )
@@ -50,24 +50,16 @@ public class WorkloadStreams
                 minScheduledStartTimeAsMilli = firstAsMilli;
             }
         }
-        catch ( NoSuchElementException e )
-        {
-            // do nothing, just means stream was empty
-        }
 
         PeekingIterator<Operation> peekingAsyncNonDependencyOperationStream =
                 Iterators.peekingIterator( originalWorkloadStreams.asynchronousStream().nonDependencyOperations() );
-        try
+        if ( peekingAsyncNonDependencyOperationStream.hasNext() )
         {
             long firstAsMilli = peekingAsyncNonDependencyOperationStream.peek().scheduledStartTimeAsMilli();
             if ( firstAsMilli < minScheduledStartTimeAsMilli )
             {
                 minScheduledStartTimeAsMilli = firstAsMilli;
             }
-        }
-        catch ( NoSuchElementException e )
-        {
-            // do nothing, just means stream was empty
         }
 
         List<Long> peekingBlockingDependencyOperationStreamsAheadOfMinByMillis = new ArrayList<>();
@@ -576,7 +568,8 @@ public class WorkloadStreams
         }
     }
 
-    public void setAsynchronousStream( Set<Class<? extends Operation>> dependentOperationTypes,
+    public void setAsynchronousStream(
+            Set<Class<? extends Operation>> dependentOperationTypes,
             Set<Class<? extends Operation>> dependencyOperationTypes,
             Iterator<Operation> dependencyOperations,
             Iterator<Operation> nonDependencyOperations,
@@ -596,7 +589,8 @@ public class WorkloadStreams
         return blockingStreams;
     }
 
-    public void addBlockingStream( Set<Class<? extends Operation>> dependentOperationTypes,
+    public void addBlockingStream(
+            Set<Class<? extends Operation>> dependentOperationTypes,
             Set<Class<? extends Operation>> dependencyOperationTypes,
             Iterator<Operation> dependencyOperations,
             Iterator<Operation> nonDependencyOperations,
@@ -612,7 +606,8 @@ public class WorkloadStreams
         this.blockingStreams.add( blockingStream );
     }
 
-    public static Iterator<Operation> mergeSortedByStartTimeExcludingChildOperationGenerators( GeneratorFactory gf,
+    public static Iterator<Operation> mergeSortedByStartTimeExcludingChildOperationGenerators(
+            GeneratorFactory gf,
             WorkloadStreams workloadStreams )
     {
         List<Iterator<Operation>> allStreams = new ArrayList<>();

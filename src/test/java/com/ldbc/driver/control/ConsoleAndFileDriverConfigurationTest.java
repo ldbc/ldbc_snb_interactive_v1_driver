@@ -1,7 +1,6 @@
 package com.ldbc.driver.control;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -13,11 +12,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -36,7 +33,7 @@ public class ConsoleAndFileDriverConfigurationTest
 
         assertThat( configuration.dbClassName(), equalTo( "db1" ) );
         assertThat( configuration.workloadClassName(), equalTo( "workload1" ) );
-        assertThat( configuration.operationCount(), equalTo( 1l ) );
+        assertThat( configuration.operationCount(), equalTo( 1L ) );
 
         configuration = (ConsoleAndFileDriverConfiguration) configuration
                 .applyArg( ConsoleAndFileDriverConfiguration.DB_ARG, "db2" );
@@ -48,7 +45,7 @@ public class ConsoleAndFileDriverConfigurationTest
 
         configuration = (ConsoleAndFileDriverConfiguration) configuration
                 .applyArg( ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "2" );
-        assertThat( configuration.operationCount(), equalTo( 2l ) );
+        assertThat( configuration.operationCount(), equalTo( 2L ) );
     }
 
     @Test
@@ -59,7 +56,7 @@ public class ConsoleAndFileDriverConfigurationTest
 
         assertThat( configuration1.dbClassName(), equalTo( "db1" ) );
         assertThat( configuration1.workloadClassName(), equalTo( "workload1" ) );
-        assertThat( configuration1.operationCount(), equalTo( 1l ) );
+        assertThat( configuration1.operationCount(), equalTo( 1L ) );
 
         Map<String,String> configurationUpdate2 = new HashMap<>();
         configurationUpdate2.put( ConsoleAndFileDriverConfiguration.DB_ARG, "db2" );
@@ -71,7 +68,7 @@ public class ConsoleAndFileDriverConfigurationTest
 
         assertThat( configuration2.dbClassName(), equalTo( "db2" ) );
         assertThat( configuration2.workloadClassName(), equalTo( "workload2" ) );
-        assertThat( configuration2.operationCount(), equalTo( 2l ) );
+        assertThat( configuration2.operationCount(), equalTo( 2L ) );
     }
 
     @Test
@@ -100,11 +97,10 @@ public class ConsoleAndFileDriverConfigurationTest
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = "results dir";
         Double timeCompressionRatio = 1.0;
-        Set<String> peerIds = new HashSet<>();
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationCreationParams = null;
         String databaseValidationFilePath = null;
         boolean calculateWorkloadStatistics = false;
-        long spinnerSleepDuration = 0l;
+        long spinnerSleepDuration = 0L;
         boolean printHelp = false;
         String name = "LDBC-SNB";
         boolean ignoreScheduledStartTimes = true;
@@ -123,7 +119,6 @@ public class ConsoleAndFileDriverConfigurationTest
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                peerIds,
                 validationCreationParams,
                 databaseValidationFilePath,
                 calculateWorkloadStatistics,
@@ -189,7 +184,6 @@ public class ConsoleAndFileDriverConfigurationTest
         String workloadClassName = "workload";
         long operationCount = 2;
 
-        Set<String> peerIds = Sets.newHashSet( "peer1", "peer2" );
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParamOptions =
                 new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions( "file", 2 );
 
@@ -211,10 +205,6 @@ public class ConsoleAndFileDriverConfigurationTest
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING );
-        paramsFromPublicStaticDefaultValuesAsMap.put(
-                ConsoleAndFileDriverConfiguration.PEER_IDS_ARG,
-                ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(
-                        peerIds ) );
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
                 validationParamOptions.toCommandlineString() );
@@ -281,7 +271,7 @@ public class ConsoleAndFileDriverConfigurationTest
                 ConsoleAndFileDriverConfiguration.fromDefaults( databaseClassName, workloadClassName, operationCount );
         assertThat( configuration.dbClassName(), is( nullValue() ) );
         assertThat( configuration.workloadClassName(), is( nullValue() ) );
-        assertThat( configuration.operationCount(), is( 0l ) );
+        assertThat( configuration.operationCount(), is( 0L ) );
     }
 
     @Test
@@ -305,7 +295,7 @@ public class ConsoleAndFileDriverConfigurationTest
         assertThat( configuration, is( notNullValue() ) );
         assertThat( configuration.dbClassName(), is( nullValue() ) );
         assertThat( configuration.workloadClassName(), is( nullValue() ) );
-        assertThat( configuration.operationCount(), is( 0l ) );
+        assertThat( configuration.operationCount(), is( 0L ) );
     }
 
     @Test
@@ -334,8 +324,6 @@ public class ConsoleAndFileDriverConfigurationTest
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING );
-        paramsFromPublicStaticDefaultValuesAsMap.put( ConsoleAndFileDriverConfiguration.PEER_IDS_ARG,
-                ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT_STRING );
         if ( null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT )
         {
             paramsFromPublicStaticDefaultValuesAsMap.put(
@@ -390,8 +378,6 @@ public class ConsoleAndFileDriverConfigurationTest
     @Test
     public void shouldReturnSameConfigurationUsingFromArgsAsUsingFromParamsMap() throws DriverConfigurationException
     {
-        Set<String> peerIds = Sets.newHashSet( "peerId1", "peerId2" );
-
         // Required
         Map<String,String> requiredParamsMap = new HashMap<>();
         requiredParamsMap.put( ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1" );
@@ -411,8 +397,6 @@ public class ConsoleAndFileDriverConfigurationTest
                 ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING );
-        optionalParamsMap.put( ConsoleAndFileDriverConfiguration.PEER_IDS_ARG,
-                ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline( peerIds ) );
         if ( null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT )
         {
             optionalParamsMap.put( ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
@@ -466,8 +450,6 @@ public class ConsoleAndFileDriverConfigurationTest
         optionalParamsArgsList.addAll(
                 Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
                         ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING ) );
-        optionalParamsArgsList.addAll( Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.PEER_IDS_ARG,
-                ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline( peerIds ) ) );
         if ( null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT )
         {
             optionalParamsArgsList.addAll(
@@ -535,7 +517,7 @@ public class ConsoleAndFileDriverConfigurationTest
         assertThat( configurationFromParams.name(), equalTo( ConsoleAndFileDriverConfiguration.NAME_DEFAULT ) );
         assertThat( configurationFromParams.dbClassName(), equalTo( "db class name" ) );
         assertThat( configurationFromParams.workloadClassName(), equalTo( "workload class name" ) );
-        assertThat( configurationFromParams.operationCount(), is( 1l ) );
+        assertThat( configurationFromParams.operationCount(), is( 1L ) );
         assertThat( configurationFromParams.threadCount(), is( ConsoleAndFileDriverConfiguration.THREADS_DEFAULT ) );
         assertThat( configurationFromParams.statusDisplayIntervalAsSeconds(),
                 is( ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT ) );
@@ -544,7 +526,6 @@ public class ConsoleAndFileDriverConfigurationTest
                 is( ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT ) );
         assertThat( configurationFromParams.timeCompressionRatio(),
                 is( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT ) );
-        assertThat( configurationFromParams.peerIds(), is( ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT ) );
         assertThat( configurationFromParams.validationParamsCreationOptions(),
                 is( (DriverConfiguration.ValidationParamOptions) ConsoleAndFileDriverConfiguration
                         .CREATE_VALIDATION_PARAMS_DEFAULT ) );
@@ -575,12 +556,11 @@ public class ConsoleAndFileDriverConfigurationTest
         TimeUnit timeUnit = TimeUnit.SECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        Set<String> peerIds = Sets.newHashSet( "1" );
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
                 new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions( "file", 1 );
         String dbValidationFilePath = null;
         boolean calculateWorkloadStatistics = false;
-        long spinnerSleepDuration = 0l;
+        long spinnerSleepDuration = 0L;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 10;
@@ -597,7 +577,6 @@ public class ConsoleAndFileDriverConfigurationTest
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                peerIds,
                 validationParams,
                 dbValidationFilePath,
                 calculateWorkloadStatistics,
@@ -618,7 +597,6 @@ public class ConsoleAndFileDriverConfigurationTest
         assertThat( params.timeUnit(), equalTo( timeUnit ) );
         assertThat( params.resultDirPath(), equalTo( resultDirPath ) );
         assertThat( params.timeCompressionRatio(), equalTo( timeCompressionRatio ) );
-        assertThat( params.peerIds(), equalTo( peerIds ) );
         assertThat( params.validationParamsCreationOptions(),
                 equalTo( (DriverConfiguration.ValidationParamOptions) validationParams ) );
         assertThat( params.databaseValidationFilePath(), equalTo( dbValidationFilePath ) );
@@ -667,78 +645,5 @@ public class ConsoleAndFileDriverConfigurationTest
                         MapUtils.mergeMaps( configurationInWorkloadsDirectoryAsMap, requiredParamsAsMap, true ) );
 
         assertThat( configurationFromTestResources, equalTo( configurationFromWorkloadsDirectory ) );
-    }
-
-    @Test
-    public void shouldSerializeAndParsePeerIds()
-    {
-        // Given
-        Set<String> peerIds0 = Sets.newHashSet();
-        Set<String> peerIds1 = Sets.newHashSet( "1", "2" );
-        Set<String> peerIds2 = Sets.newHashSet( "1", "2", "3" );
-
-        // When
-        String peerIdsString0 = ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline( peerIds0 );
-        String peerIdsString1 = ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline( peerIds1 );
-        String peerIdsString2 = ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline( peerIds2 );
-
-        // Then
-        assertThat( ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIdsString0 ),
-                equalTo( peerIds0 ) );
-        assertThat( ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIdsString1 ),
-                equalTo( peerIds1 ) );
-        assertThat( ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIdsString2 ),
-                equalTo( peerIds2 ) );
-    }
-
-    @Test
-    public void shouldParsePeerIds()
-    {
-        // Given
-        String peerIds1String = "";
-        String peerIds2String = "|";
-        String peerIds3String = "|1";
-        String peerIds4String = "|1";
-        String peerIds5String = "|1|";
-        String peerIds6String = "|1|2";
-        String peerIds7String = "1|2|";
-        String peerIds8String = "1";
-        String peerIds9String = "1|2";
-        String peerIds10String = "1|2|3";
-
-        Set<String> peerIds1Expected = Sets.newHashSet();
-        Set<String> peerIds2Expected = Sets.newHashSet();
-        Set<String> peerIds3Expected = Sets.newHashSet( "1" );
-        Set<String> peerIds4Expected = Sets.newHashSet( "1" );
-        Set<String> peerIds5Expected = Sets.newHashSet( "1" );
-        Set<String> peerIds6Expected = Sets.newHashSet( "1", "2" );
-        Set<String> peerIds7Expected = Sets.newHashSet( "1", "2" );
-        Set<String> peerIds8Expected = Sets.newHashSet( "1" );
-        Set<String> peerIds9Expected = Sets.newHashSet( "1", "2" );
-        Set<String> peerIds10Expected = Sets.newHashSet( "1", "2", "3" );
-
-        // When
-        Set<String> peerIds1 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIds1String );
-        Set<String> peerIds2 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIds2String );
-        Set<String> peerIds3 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIds3String );
-        Set<String> peerIds4 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIds4String );
-        Set<String> peerIds5 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIds5String );
-        Set<String> peerIds6 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIds6String );
-        Set<String> peerIds7 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIds7String );
-        Set<String> peerIds8 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIds8String );
-        Set<String> peerIds9 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIds9String );
-        Set<String> peerIds10 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIds10String );
-
-        // Then
-        assertThat( peerIds1, equalTo( peerIds1Expected ) );
-        assertThat( peerIds2, equalTo( peerIds2Expected ) );
-        assertThat( peerIds3, equalTo( peerIds3Expected ) );
-        assertThat( peerIds4, equalTo( peerIds4Expected ) );
-        assertThat( peerIds5, equalTo( peerIds5Expected ) );
-        assertThat( peerIds6, equalTo( peerIds6Expected ) );
-        assertThat( peerIds7, equalTo( peerIds7Expected ) );
-        assertThat( peerIds8, equalTo( peerIds8Expected ) );
-        assertThat( peerIds9, equalTo( peerIds9Expected ) );
-        assertThat( peerIds10, equalTo( peerIds10Expected ) );
     }
 }

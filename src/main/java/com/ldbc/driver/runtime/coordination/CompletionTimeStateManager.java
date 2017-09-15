@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime.coordination;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.MinMaxPriorityQueue;
 import com.google.common.collect.TreeMultiset;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.Function1;
@@ -24,16 +23,14 @@ import static java.lang.String.format;
  * <p/>
  * This class performs the logic of tracking completion time. It is NOT thread-safe.
  */
-public class LocalCompletionTimeStateManager implements LocalCompletionTimeReaderWriter
+public class CompletionTimeStateManager implements CompletionTimeReaderWriter
 {
-    private long localCompletionTimeAsMilli = -1;
-    private final LocalInitiatedTimeTracker localInitiatedTimeTracker =
-            LocalInitiatedTimeTrackerImpl.createUsingTreeMultiSet();
-    private final LocalCompletedTimeTracker localCompletedTimeTracker =
-            LocalCompletedTimeTrackerImpl.createUsingTreeMultiSet();
+    private long completionTimeAsMilli = -1;
+    private final InitiatedTimeTracker initiatedTimeTracker = InitiatedTimeTrackerImpl.createUsingTreeMultiSet();
+    private final CompletedTimeTracker completedTimeTracker = CompletedTimeTrackerImpl.createUsingTreeMultiSet();
     private long lastKnownLowestInitiatedTimeAsMilli = -1;
 
-    LocalCompletionTimeStateManager()
+    CompletionTimeStateManager()
     {
     }
 
@@ -44,9 +41,9 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
     }
 
     @Override
-    public long localCompletionTimeAsMilli()
+    public long completionTimeAsMilli()
     {
-        return localCompletionTimeAsMilli;
+        return completionTimeAsMilli;
     }
 
     /**
@@ -56,10 +53,10 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
      * @param timeAsMilli
      */
     @Override
-    public void submitLocalInitiatedTime( long timeAsMilli ) throws CompletionTimeException
+    public void submitInitiatedTime( long timeAsMilli ) throws CompletionTimeException
     {
         lastKnownLowestInitiatedTimeAsMilli =
-                localInitiatedTimeTracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli( timeAsMilli );
+                initiatedTimeTracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli( timeAsMilli );
         updateCompletionTime();
     }
 
@@ -70,30 +67,30 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
      * @throws com.ldbc.driver.runtime.coordination.CompletionTimeException
      */
     @Override
-    public void submitLocalCompletedTime( long timeAsMilli ) throws CompletionTimeException
+    public void submitCompletedTime( long timeAsMilli ) throws CompletionTimeException
     {
         lastKnownLowestInitiatedTimeAsMilli =
-                localInitiatedTimeTracker.removeTimeAndReturnLastKnownLowestTimeAsMilli( timeAsMilli );
-        localCompletedTimeTracker.addCompletedTimeAsMilli( timeAsMilli );
+                initiatedTimeTracker.removeTimeAndReturnLastKnownLowestTimeAsMilli( timeAsMilli );
+        completedTimeTracker.addCompletedTimeAsMilli( timeAsMilli );
         updateCompletionTime();
     }
 
     private void updateCompletionTime()
     {
-        long highestSafeCompletedTimeAsMilli = localCompletedTimeTracker
+        long highestSafeCompletedTimeAsMilli = completedTimeTracker
                 .removeTimesLowerThanAndReturnHighestRemoved( lastKnownLowestInitiatedTimeAsMilli );
         if ( -1 != highestSafeCompletedTimeAsMilli )
-        { localCompletionTimeAsMilli = highestSafeCompletedTimeAsMilli; }
+        { completionTimeAsMilli = highestSafeCompletedTimeAsMilli; }
     }
 
-    interface LocalCompletedTimeTracker
+    interface CompletedTimeTracker
     {
         void addCompletedTimeAsMilli( long completedTimeAsMilli );
 
         long removeTimesLowerThanAndReturnHighestRemoved( long timeAsMilli );
     }
 
-    public interface LocalInitiatedTimeTracker
+    public interface InitiatedTimeTracker
     {
         long addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli( long initiatedTimeAsMilli )
                 throws CompletionTimeException;
@@ -105,14 +102,14 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
         int uncompletedInitiatedTimes();
     }
 
-    static class LocalCompletedTimeTrackerImpl<INITIATED_TIMES_CONTAINER_TYPE extends Collection<Long>>
-            implements LocalCompletedTimeTracker
+    static class CompletedTimeTrackerImpl<INITIATED_TIMES_CONTAINER_TYPE extends Collection<Long>>
+            implements CompletedTimeTracker
     {
         private final INITIATED_TIMES_CONTAINER_TYPE completedTimesAsMilli;
         private final Function2<INITIATED_TIMES_CONTAINER_TYPE,Long,Long,RuntimeException>
                 removeTimesLowerThanAndReturnHighestRemovedFun;
 
-        static LocalCompletedTimeTrackerImpl createUsingTreeMultiSet()
+        static CompletedTimeTrackerImpl createUsingTreeMultiSet()
         {
             Function2<TreeMultiset<Long>,Long,Long,RuntimeException> removeTimesLowerThanAndReturnHighestRemovedFun =
                     new Function2<TreeMultiset<Long>,Long,Long,RuntimeException>()
@@ -136,13 +133,12 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
                             return highestRemovedAsMilli;
                         }
                     };
-            return new LocalCompletedTimeTrackerImpl(
+            return new CompletedTimeTrackerImpl(
                     TreeMultiset.<Long>create(),
-                    removeTimesLowerThanAndReturnHighestRemovedFun
-            );
+                    removeTimesLowerThanAndReturnHighestRemovedFun );
         }
 
-        static LocalCompletedTimeTrackerImpl createUsingArrayList()
+        static CompletedTimeTrackerImpl createUsingArrayList()
         {
             Function2<ArrayList<Long>,Long,Long,RuntimeException> removeTimesLowerThanAndReturnHighestRemovedFun =
                     new Function2<ArrayList<Long>,Long,Long,RuntimeException>()
@@ -167,13 +163,12 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
                             return highestRemovedAsMilli;
                         }
                     };
-            return new LocalCompletedTimeTrackerImpl(
+            return new CompletedTimeTrackerImpl(
                     Lists.<Long>newArrayList(),
-                    removeTimesLowerThanAndReturnHighestRemovedFun
-            );
+                    removeTimesLowerThanAndReturnHighestRemovedFun );
         }
 
-        private LocalCompletedTimeTrackerImpl(
+        private CompletedTimeTrackerImpl(
                 INITIATED_TIMES_CONTAINER_TYPE completedTimesAsMilli,
                 Function2<INITIATED_TIMES_CONTAINER_TYPE,Long,Long,RuntimeException>
                         removeTimesLowerThanAndReturnHighestRemovedFun )
@@ -197,14 +192,14 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
         @Override
         public String toString()
         {
-            return "LocalCompletedTimeTrackerImpl{" +
+            return "CompletedTimeTrackerImpl{" +
                    "completedTimesAsMilli=" + completedTimesAsMilli.toString() +
                    '}';
         }
     }
 
-    static class LocalInitiatedTimeTrackerImpl<INITIATED_TIMES_CONTAINER_TYPE extends Collection<Long>>
-            implements LocalInitiatedTimeTracker
+    static class InitiatedTimeTrackerImpl<INITIATED_TIMES_CONTAINER_TYPE extends Collection<Long>>
+            implements InitiatedTimeTracker
     {
         private final TemporalUtil temporalUtil = new TemporalUtil();
         private final INITIATED_TIMES_CONTAINER_TYPE initiatedTimesAsMilli;
@@ -214,7 +209,7 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
         private long highestInitiatedTimeAsMilli = -1;
         private int uncompletedInitiatedTimes = 0;
 
-        static LocalInitiatedTimeTrackerImpl createUsingTreeMultiSet()
+        static InitiatedTimeTrackerImpl createUsingTreeMultiSet()
         {
             Function1<TreeMultiset<Long>,Long,RuntimeException> getLastKnownLowestInitiatedTimeFun =
                     new Function1<TreeMultiset<Long>,Long,RuntimeException>()
@@ -225,13 +220,12 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
                             return initiatedTimesAsMilli.firstEntry().getElement();
                         }
                     };
-            return new LocalInitiatedTimeTrackerImpl(
+            return new InitiatedTimeTrackerImpl(
                     TreeMultiset.<Long>create(),
-                    getLastKnownLowestInitiatedTimeFun
-            );
+                    getLastKnownLowestInitiatedTimeFun );
         }
 
-        static LocalInitiatedTimeTrackerImpl createUsingArrayList()
+        static InitiatedTimeTrackerImpl createUsingArrayList()
         {
             Function1<List<Long>,Long,RuntimeException> getLastKnownLowestInitiatedTimeFun =
                     new Function1<List<Long>,Long,RuntimeException>()
@@ -242,34 +236,12 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
                             return initiatedTimesAsMilli.get( 0 );
                         }
                     };
-            return new LocalInitiatedTimeTrackerImpl(
+            return new InitiatedTimeTrackerImpl(
                     Lists.<Long>newArrayList(),
-                    getLastKnownLowestInitiatedTimeFun
-            );
+                    getLastKnownLowestInitiatedTimeFun );
         }
 
-        static LocalInitiatedTimeTrackerImpl createUsingMinMaxPriorityQueue()
-        {
-            // TODO this seems to have a bug for larger values, don't use it
-            System.err.println( format(
-                    "LocalInitiatedTimeTrackerImpl.createUsingMinMaxPriorityQueue() is buggy. When collection size is" +
-                    " very large values seem to get dropped. DO NOT USE!" ) );
-            Function1<MinMaxPriorityQueue<Long>,Long,RuntimeException> getLastKnownLowestInitiatedTimeFun =
-                    new Function1<MinMaxPriorityQueue<Long>,Long,RuntimeException>()
-                    {
-                        @Override
-                        public Long apply( MinMaxPriorityQueue<Long> initiatedTimesAsMilli )
-                        {
-                            return initiatedTimesAsMilli.peekFirst();
-                        }
-                    };
-            return new LocalInitiatedTimeTrackerImpl(
-                    MinMaxPriorityQueue.create(),
-                    getLastKnownLowestInitiatedTimeFun
-            );
-        }
-
-        private LocalInitiatedTimeTrackerImpl(
+        private InitiatedTimeTrackerImpl(
                 INITIATED_TIMES_CONTAINER_TYPE initiatedTimesAsMilli,
                 Function1<INITIATED_TIMES_CONTAINER_TYPE,Long,RuntimeException> getLastKnownLowestInitiatedTimeFun )
         {
@@ -339,7 +311,7 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
         @Override
         public String toString()
         {
-            return "LocalInitiatedTimeTrackerImpl{" +
+            return "InitiatedTimeTrackerImpl{" +
                    "initiatedTimesAsMilli=" + initiatedTimesAsMilli.toString() +
                    ", lastKnownLowestInitiatedTimeAsMilli=" + lastKnownLowestInitiatedTimeAsMilli +
                    ", lastKnownLowestInitiatedTimeAsMilli=" +

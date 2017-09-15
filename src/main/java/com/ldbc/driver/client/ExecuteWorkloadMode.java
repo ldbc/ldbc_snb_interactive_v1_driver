@@ -9,7 +9,6 @@ import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.LoggingService;
-import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
@@ -18,12 +17,15 @@ import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeService;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.DisruptorSbeMetricsService;
 import com.ldbc.driver.runtime.metrics.JsonWorkloadMetricsFormatter;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsManager;
 import com.ldbc.driver.runtime.metrics.MetricsService;
+import com.ldbc.driver.runtime.metrics.NullResultsLogWriter;
+import com.ldbc.driver.runtime.metrics.ResultsLogWriter;
+import com.ldbc.driver.runtime.metrics.SimpleResultsLogWriter;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 import com.ldbc.driver.temporal.TemporalUtil;
@@ -40,14 +42,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.text.DecimalFormat;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
 public class ExecuteWorkloadMode implements ClientMode<Object>
 {
-    private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat( "###,###,###,###,###" );
     private final ControlService controlService;
     private final TimeSource timeSource;
     private final LoggingService loggingService;
@@ -60,7 +60,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     private MetricsService metricsService = null;
     private CompletionTimeService completionTimeService = null;
     private WorkloadRunner workloadRunner = null;
-    private SimpleCsvFileWriter csvResultsLogFileWriter = null;
+    private ResultsLogWriter resultsLogWriter = null;
 
     public ExecuteWorkloadMode(
             ControlService controlService,
@@ -81,8 +81,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
      */
     public WorkloadStatusSnapshot status() throws MetricsCollectionException
     {
-        // TODO
-        return null;
+        throw new UnsupportedOperationException( "Not yet implemented" );
     }
 
     @Override
@@ -95,12 +94,6 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     @Override
     public Object startExecutionAndAwaitCompletion() throws ClientException
     {
-        if ( controlService.configuration().skipCount() > 0 )
-        {
-            loggingService.info(
-                    format( "\n --- First %s operations will be skipped ---",
-                            NUMBER_FORMAT.format( controlService.configuration().skipCount() ) ) );
-        }
         if ( controlService.configuration().warmupCount() > 0 )
         {
             loggingService.info( "\n" +
@@ -118,8 +111,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             }
             catch ( DbException e )
             {
-                throw new ClientException(
-                        format( "Error reinitializing DB after warmup: %s", database.getClass().getName() ), e );
+                throw new ClientException( format( "Error reinitializing DB: %s", database.getClass().getName() ), e );
             }
         }
         else
@@ -160,30 +152,16 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         //  ===  Results Log CSV Writer  ===
         //  ================================
         File resultsLog = resultsDirectory.getOrCreateResultsLogFile( warmup );
-        if ( null != resultsLog )
+        try
         {
-            try
-            {
-                csvResultsLogFileWriter = new SimpleCsvFileWriter(
-                        resultsLog,
-                        SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR
-                );
-
-                csvResultsLogFileWriter.writeRow(
-                        "operation_type",
-                        "scheduled_start_time_" + TimeUnit.MILLISECONDS.name(),
-                        "actual_start_time_" + TimeUnit.MILLISECONDS.name(),
-                        "execution_duration_" + controlService.configuration().timeUnit().name(),
-                        "result_code",
-                        "original_start_time"
-                );
-            }
-            catch ( IOException e )
-            {
-                throw new ClientException(
-                        format( "Error while creating results log file: %s", resultsLog.getAbsolutePath() ), e
-                );
-            }
+            resultsLogWriter = (null == resultsLog)
+                               ? new NullResultsLogWriter()
+                               : new SimpleResultsLogWriter( resultsLog, controlService.configuration().timeUnit() );
+        }
+        catch ( IOException e )
+        {
+            throw new ClientException(
+                    format( "Error creating results log writer for: %s", resultsLog.getAbsolutePath() ), e );
         }
 
         //  ==================
@@ -257,7 +235,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             catch ( DbException e )
             {
                 throw new ClientException(
-                        format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
+                        format( "Error initializing DB: %s", controlService.configuration().dbClassName() ), e );
             }
             loggingService.info( format( "Loaded DB: %s", database.getClass().getName() ) );
         }
@@ -273,7 +251,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     errorReporter,
                     controlService.configuration().timeUnit(),
                     DisruptorSbeMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                    csvResultsLogFileWriter,
+                    resultsLogWriter,
                     workload.operationTypeToClassMapping(),
                     controlService.loggingServiceFactory()
             );
@@ -290,17 +268,14 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         try
         {
             completionTimeService =
-                    completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(
+                    completionTimeServiceAssistant.newThreadedQueuedCompletionTimeService(
                             timeSource,
-                            controlService.configuration().peerIds(),
                             errorReporter
                     );
         }
         catch ( CompletionTimeException e )
         {
-            throw new ClientException(
-                    format( "Error while instantiating Completion Time Service with peer IDs %s",
-                            controlService.configuration().peerIds().toString() ), e );
+            throw new ClientException( "Error instantiating Completion Time Service", e );
         }
 
         //  ========================
@@ -338,48 +313,47 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         {
             if ( completionTimeService.getAllWriters().isEmpty() )
             {
-                // There are no local completion time writers, GCT would never advance or be non-null,
+                // There are no completion time writers, CT would never advance or be non-null,
                 // set to max so nothing ever waits on it
                 long nearlyMaxPossibleTimeAsMilli = Long.MAX_VALUE - 1;
                 long maxPossibleTimeAsMilli = Long.MAX_VALUE;
-                // Create a writer to use for advancing GCT
-                LocalCompletionTimeWriter localCompletionTimeWriter =
-                        completionTimeService.newLocalCompletionTimeWriter();
-                localCompletionTimeWriter.submitLocalInitiatedTime( nearlyMaxPossibleTimeAsMilli );
-                localCompletionTimeWriter.submitLocalCompletedTime( nearlyMaxPossibleTimeAsMilli );
-                localCompletionTimeWriter.submitLocalInitiatedTime( maxPossibleTimeAsMilli );
-                localCompletionTimeWriter.submitLocalCompletedTime( maxPossibleTimeAsMilli );
+                // Create a writer to use for advancing CT
+                CompletionTimeWriter completionTimeWriter = completionTimeService.newCompletionTimeWriter();
+                completionTimeWriter.submitInitiatedTime( nearlyMaxPossibleTimeAsMilli );
+                completionTimeWriter.submitCompletedTime( nearlyMaxPossibleTimeAsMilli );
+                completionTimeWriter.submitInitiatedTime( maxPossibleTimeAsMilli );
+                completionTimeWriter.submitCompletedTime( maxPossibleTimeAsMilli );
             }
             else
             {
-                // There are some local completion time writers, initialize them to lowest time stamp in workload
+                // There are some completion time writers, initialize them to lowest time stamp in workload
                 completionTimeServiceAssistant
                         .writeInitiatedAndCompletedTimesToAllWriters( completionTimeService, minimumTimeStamp - 1 );
                 completionTimeServiceAssistant
                         .writeInitiatedAndCompletedTimesToAllWriters( completionTimeService, minimumTimeStamp );
-                boolean globalCompletionTimeAdvancedToDesiredTime =
-                        completionTimeServiceAssistant.waitForGlobalCompletionTime(
+                boolean completionTimeAdvancedToDesiredTime =
+                        completionTimeServiceAssistant.waitForCompletionTime(
                                 timeSource,
                                 minimumTimeStamp - 1,
                                 TimeUnit.SECONDS.toMillis( 5 ),
                                 completionTimeService,
                                 errorReporter
                         );
-                long globalCompletionTimeWaitTimeoutDurationAsMilli = TimeUnit.SECONDS.toMillis( 5 );
-                if ( !globalCompletionTimeAdvancedToDesiredTime )
+                long completionTimeWaitTimeoutDurationAsMilli = TimeUnit.SECONDS.toMillis( 5 );
+                if ( !completionTimeAdvancedToDesiredTime )
                 {
                     throw new ClientException(
                             format(
-                                    "Timed out [%s] while waiting for global completion time to advance to workload " +
-                                    "start time\nCurrent GCT: %s\nWaiting For GCT: %s",
-                                    globalCompletionTimeWaitTimeoutDurationAsMilli,
-                                    completionTimeService.globalCompletionTimeAsMilli(),
+                                    "Timed out [%s] while waiting for completion time to advance to workload " +
+                                    "start time\nCurrent CT: %s\nWaiting For CT: %s",
+                                    completionTimeWaitTimeoutDurationAsMilli,
+                                    completionTimeService.completionTimeAsMilli(),
                                     controlService.workloadStartTimeAsMilli() )
                     );
                 }
-                loggingService.info( "GCT: " + temporalUtil
-                        .milliTimeToDateTimeString( completionTimeService.globalCompletionTimeAsMilli() ) + " / " +
-                                     completionTimeService.globalCompletionTimeAsMilli() );
+                loggingService.info( "CT: " + temporalUtil
+                        .milliTimeToDateTimeString( completionTimeService.completionTimeAsMilli() ) + " / " +
+                                     completionTimeService.completionTimeAsMilli() );
             }
         }
         catch ( CompletionTimeException e )
@@ -454,17 +428,14 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                         configurationFile.toPath(),
                         controlService.configuration().toPropertiesString().getBytes( StandardCharsets.UTF_8 )
                 );
-                csvResultsLogFileWriter.close();
+                resultsLogWriter.close();
                 if ( !controlService.configuration().ignoreScheduledStartTimes() )
                 {
                     loggingService.info( "Validating workload results..." );
                     // TODO make this feature accessible directly
                     ResultsLogValidator resultsLogValidator = new ResultsLogValidator();
                     ResultsLogValidationTolerances resultsLogValidationTolerances =
-                            workload.resultsLogValidationTolerances(
-                                    controlService.configuration(),
-                                    warmup
-                            );
+                            workload.resultsLogValidationTolerances( controlService.configuration(), warmup );
                     ResultsLogValidationSummary resultsLogValidationSummary = resultsLogValidator.compute(
                             resultsDirectory.getOrCreateResultsLogFile( warmup ),
                             resultsLogValidationTolerances.excessiveDelayThresholdAsMilli()

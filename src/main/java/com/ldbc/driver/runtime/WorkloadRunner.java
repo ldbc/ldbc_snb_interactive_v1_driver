@@ -6,8 +6,8 @@ import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeService;
-import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.DummyCompletionTimeWriter;
 import com.ldbc.driver.runtime.executor.OperationExecutor;
 import com.ldbc.driver.runtime.executor.OperationExecutorException;
 import com.ldbc.driver.runtime.executor.OperationStreamExecutorService;
@@ -32,9 +32,8 @@ import static java.lang.String.format;
 
 public class WorkloadRunner
 {
-    public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = 100;
-    private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER =
-            new DummyLocalCompletionTimeWriter();
+    static final long RUNNER_POLLING_INTERVAL_AS_MILLI = 100;
+    private static final CompletionTimeWriter DUMMY_COMPLETION_TIME_WRITER = new DummyCompletionTimeWriter();
 
     private final WorkloadRunnerFuture workloadRunnerFuture;
 
@@ -314,27 +313,26 @@ public class WorkloadRunner
                         loggingServiceFactory
                 );
             }
-            // only create a local completion time writer for an executor if it contains at least one READ_WRITE
-            // operation
+            // only create a completion time writer for an executor if it contains at least one READ_WRITE operation
             // otherwise it will cause completion time to stall
             WorkloadStreamDefinition asynchronousStream = workloadStreams.asynchronousStream();
-            LocalCompletionTimeWriter localCompletionTimeWriterForAsynchronous;
+            CompletionTimeWriter completionTimeWriterForAsynchronous;
             try
             {
-                localCompletionTimeWriterForAsynchronous = (asynchronousStream.dependencyOperations().hasNext())
-                                                           ? completionTimeService.newLocalCompletionTimeWriter()
-                                                           : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+                completionTimeWriterForAsynchronous = (asynchronousStream.dependencyOperations().hasNext())
+                                                      ? completionTimeService.newCompletionTimeWriter()
+                                                      : DUMMY_COMPLETION_TIME_WRITER;
             }
             catch ( CompletionTimeException e )
             {
-                throw new WorkloadException( "Error while attempting to create local completion time writer", e );
+                throw new WorkloadException( "Error while attempting to create completion time writer", e );
             }
             this.executorForAsynchronous = new ThreadPoolOperationExecutor(
                     threadCount,
                     operationHandlerExecutorsBoundedQueueSize,
                     db,
                     asynchronousStream,
-                    localCompletionTimeWriterForAsynchronous,
+                    completionTimeWriterForAsynchronous,
                     completionTimeService,
                     spinner,
                     timeSource,
@@ -346,29 +344,28 @@ public class WorkloadRunner
                     errorReporter,
                     asynchronousStream,
                     executorForAsynchronous,
-                    localCompletionTimeWriterForAsynchronous
+                    completionTimeWriterForAsynchronous
             );
 
             for ( WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions() )
             {
-                // only create a local completion time writer for an executor if it contains at least one READ_WRITE
-                // operation
+                // only create a completion time writer for an executor if it contains at least one READ_WRITE operation
                 // otherwise it will cause completion time to stall
-                LocalCompletionTimeWriter localCompletionTimeWriterForBlocking;
+                CompletionTimeWriter completionTimeWriterForBlocking;
                 try
                 {
-                    localCompletionTimeWriterForBlocking = (blockingStream.dependencyOperations().hasNext())
-                                                           ? completionTimeService.newLocalCompletionTimeWriter()
-                                                           : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+                    completionTimeWriterForBlocking = (blockingStream.dependencyOperations().hasNext())
+                                                      ? completionTimeService.newCompletionTimeWriter()
+                                                      : DUMMY_COMPLETION_TIME_WRITER;
                 }
                 catch ( CompletionTimeException e )
                 {
-                    throw new WorkloadException( "Error while attempting to create local completion time writer", e );
+                    throw new WorkloadException( "Error while attempting to create completion time writer", e );
                 }
                 OperationExecutor executorForBlocking = new SameThreadOperationExecutor(
                         db,
                         blockingStream,
-                        localCompletionTimeWriterForBlocking,
+                        completionTimeWriterForBlocking,
                         completionTimeService,
                         spinner,
                         timeSource,
@@ -382,7 +379,7 @@ public class WorkloadRunner
                                 errorReporter,
                                 blockingStream,
                                 executorForBlocking,
-                                localCompletionTimeWriterForBlocking
+                                completionTimeWriterForBlocking
                         )
                 );
             }

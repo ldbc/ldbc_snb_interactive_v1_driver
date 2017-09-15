@@ -1,218 +1,214 @@
 package com.ldbc.driver.runtime.coordination;
 
+import com.ldbc.driver.runtime.coordination.ThreadedQueuedCompletionTimeService.CompletionTimeFuture;
+import com.ldbc.driver.runtime.coordination.ThreadedQueuedCompletionTimeService.CompletionTimeWriterFuture;
 import com.ldbc.driver.temporal.TemporalUtil;
 
-abstract class CompletionTimeEvent {
-
-    public enum CompletionTimeEventType {
+abstract class CompletionTimeEvent
+{
+    public enum CompletionTimeEventType
+    {
         // Operation started executing
-        WRITE_LOCAL_INITIATED_TIME,
+        WRITE_INITIATED_TIME,
         // Operation completed scheduling
-        WRITE_LOCAL_COMPLETED_TIME,
-        // GCT came in from other process
-        WRITE_EXTERNAL_COMPLETION_TIME,
+        WRITE_COMPLETED_TIME,
         // Instruction to terminate when all results have arrived
         TERMINATE_SERVICE,
-        // Request for future to GCT value (value will only be available once event is processed)
-        READ_GCT_FUTURE,
-        // Request a new local completion time writer
-        NEW_LOCAL_COMPLETION_TIME_WRITER
+        // Request for future to CT value (value will only be available once event is processed)
+        READ_CT_FUTURE,
+        // Request a new completion time writer
+        NEW_COMPLETION_TIME_WRITER
     }
 
-    public static LocalInitiatedTimeEvent writeLocalInitiatedTime(int localCompletionTimeWriterId, long timeAsMilli) {
-        return new LocalInitiatedTimeEvent(localCompletionTimeWriterId, timeAsMilli);
+    static InitiatedTimeEvent writeInitiatedTime( int completionTimeWriterId, long timeAsMilli )
+    {
+        return new InitiatedTimeEvent( completionTimeWriterId, timeAsMilli );
     }
 
-    public static LocalCompletedTimeEvent writeLocalCompletedTime(int localCompletionTimeWriterId, long timeAsMilli) {
-        return new LocalCompletedTimeEvent(localCompletionTimeWriterId, timeAsMilli);
+    static CompletedTimeEvent writeCompletedTime( int completionTimeWriterId, long timeAsMilli )
+    {
+        return new CompletedTimeEvent( completionTimeWriterId, timeAsMilli );
     }
 
-    public static ExternalCompletionTimeEvent writeExternalCompletionTime(String peerId, long timeAsMilli) {
-        return new ExternalCompletionTimeEvent(peerId, timeAsMilli);
+    static TerminationServiceEvent terminateService( long expectedEventCount )
+    {
+        return new TerminationServiceEvent( expectedEventCount );
     }
 
-    public static TerminationServiceEvent terminateService(long expectedEventCount) {
-        return new TerminationServiceEvent(expectedEventCount);
+    static CompletionTimeFutureEvent completionTimeFuture( CompletionTimeFuture future )
+    {
+        return new CompletionTimeFutureEvent( future );
     }
 
-    public static GlobalCompletionTimeFutureEvent globalCompletionTimeFuture(ThreadedQueuedCompletionTimeService.GlobalCompletionTimeFuture future) {
-        return new GlobalCompletionTimeFutureEvent(future);
-    }
-
-    public static NewLocalCompletionTimeWriterEvent newLocalCompletionTimeWriter(ThreadedQueuedCompletionTimeService.LocalCompletionTimeWriterFuture future) {
-        return new NewLocalCompletionTimeWriterEvent(future);
+    static NewCompletionTimeWriterEvent newCompletionTimeWriter( CompletionTimeWriterFuture future )
+    {
+        return new NewCompletionTimeWriterEvent( future );
     }
 
     abstract CompletionTimeEventType type();
 
-    static class LocalInitiatedTimeEvent extends CompletionTimeEvent {
+    static class InitiatedTimeEvent extends CompletionTimeEvent
+    {
         private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-        private final int localCompletionTimeWriterId;
+        private final int completionTimeWriterId;
         private final long timeAsMilli;
 
-        private LocalInitiatedTimeEvent(int localCompletionTimeWriterId, long timeAsMilli) {
-            this.localCompletionTimeWriterId = localCompletionTimeWriterId;
+        private InitiatedTimeEvent( int completionTimeWriterId, long timeAsMilli )
+        {
+            this.completionTimeWriterId = completionTimeWriterId;
             this.timeAsMilli = timeAsMilli;
         }
 
         @Override
-        CompletionTimeEventType type() {
-            return CompletionTimeEventType.WRITE_LOCAL_INITIATED_TIME;
+        CompletionTimeEventType type()
+        {
+            return CompletionTimeEventType.WRITE_INITIATED_TIME;
         }
 
-        int localCompletionTimeWriterId() {
-            return localCompletionTimeWriterId;
+        int completionTimeWriterId()
+        {
+            return completionTimeWriterId;
         }
 
-        long timeAsMilli() {
+        long timeAsMilli()
+        {
             return timeAsMilli;
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return "InitiatedEvent{" +
-                    "localCompletionTimeWriterId=" + localCompletionTimeWriterId +
-                    ", timeAsMilli=" + timeAsMilli +
-                    ", time=" + TEMPORAL_UTIL.milliTimeToTimeString(timeAsMilli) +
-                    '}';
+                   "completionTimeWriterId=" + completionTimeWriterId +
+                   ", timeAsMilli=" + timeAsMilli +
+                   ", time=" + TEMPORAL_UTIL.milliTimeToTimeString( timeAsMilli ) +
+                   '}';
         }
     }
 
-    static class LocalCompletedTimeEvent extends CompletionTimeEvent {
+    static class CompletedTimeEvent extends CompletionTimeEvent
+    {
         private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-        private final int localCompletionTimeWriterId;
+        private final int completionTimeWriterId;
         private final long timeAsMilli;
 
-        private LocalCompletedTimeEvent(int localCompletionTimeWriterId, long timeAsMilli) {
-            this.localCompletionTimeWriterId = localCompletionTimeWriterId;
+        private CompletedTimeEvent( int completionTimeWriterId, long timeAsMilli )
+        {
+            this.completionTimeWriterId = completionTimeWriterId;
             this.timeAsMilli = timeAsMilli;
         }
 
         @Override
-        CompletionTimeEventType type() {
-            return CompletionTimeEventType.WRITE_LOCAL_COMPLETED_TIME;
+        CompletionTimeEventType type()
+        {
+            return CompletionTimeEventType.WRITE_COMPLETED_TIME;
         }
 
-        int localCompletionTimeWriterId() {
-            return localCompletionTimeWriterId;
+        int completionTimeWriterId()
+        {
+            return completionTimeWriterId;
         }
 
-        long timeAsMilli() {
+        long timeAsMilli()
+        {
             return timeAsMilli;
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return "InitiatedEvent{" +
-                    "localCompletionTimeWriterId=" + localCompletionTimeWriterId +
-                    ", timeAsMilli=" + timeAsMilli +
-                    ", time=" + TEMPORAL_UTIL.milliTimeToTimeString(timeAsMilli) +
-                    '}';
+                   "completionTimeWriterId=" + completionTimeWriterId +
+                   ", timeAsMilli=" + timeAsMilli +
+                   ", time=" + TEMPORAL_UTIL.milliTimeToTimeString( timeAsMilli ) +
+                   '}';
         }
     }
 
-    static class ExternalCompletionTimeEvent extends CompletionTimeEvent {
-        private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-        private final long timeAsMilli;
-        private final String peerId;
-
-        private ExternalCompletionTimeEvent(String peerId, long timeAsMilli) {
-            this.timeAsMilli = timeAsMilli;
-            this.peerId = peerId;
-        }
-
-        @Override
-        CompletionTimeEventType type() {
-            return CompletionTimeEventType.WRITE_EXTERNAL_COMPLETION_TIME;
-        }
-
-        long timeAsMilli() {
-            return timeAsMilli;
-        }
-
-        String peerId() {
-            return peerId;
-        }
-
-        @Override
-        public String toString() {
-            return "ExternalCompletionTimeEvent{" +
-                    "timeAsMilli=" + timeAsMilli +
-                    ", time=" + TEMPORAL_UTIL.milliTimeToTimeString(timeAsMilli) +
-                    ", peerId='" + peerId + '\'' +
-                    '}';
-        }
-    }
-
-    static class TerminationServiceEvent extends CompletionTimeEvent {
+    static class TerminationServiceEvent extends CompletionTimeEvent
+    {
         private final long expectedEventCount;
 
-        private TerminationServiceEvent(long expectedEventCount) {
+        private TerminationServiceEvent( long expectedEventCount )
+        {
             this.expectedEventCount = expectedEventCount;
         }
 
         @Override
-        CompletionTimeEventType type() {
+        CompletionTimeEventType type()
+        {
             return CompletionTimeEventType.TERMINATE_SERVICE;
         }
 
-        long expectedEventCount() {
+        long expectedEventCount()
+        {
             return expectedEventCount;
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return "TerminationServiceEvent{" +
-                    "expectedEventCount=" + expectedEventCount +
-                    '}';
+                   "expectedEventCount=" + expectedEventCount +
+                   '}';
         }
     }
 
-    static class GlobalCompletionTimeFutureEvent extends CompletionTimeEvent {
-        private final ThreadedQueuedCompletionTimeService.GlobalCompletionTimeFuture future;
+    static class CompletionTimeFutureEvent extends CompletionTimeEvent
+    {
+        private final CompletionTimeFuture future;
 
-        private GlobalCompletionTimeFutureEvent(ThreadedQueuedCompletionTimeService.GlobalCompletionTimeFuture future) {
+        private CompletionTimeFutureEvent( CompletionTimeFuture future )
+        {
             this.future = future;
         }
 
         @Override
-        CompletionTimeEventType type() {
-            return CompletionTimeEventType.READ_GCT_FUTURE;
+        CompletionTimeEventType type()
+        {
+            return CompletionTimeEventType.READ_CT_FUTURE;
         }
 
-        ThreadedQueuedCompletionTimeService.GlobalCompletionTimeFuture future() {
+        CompletionTimeFuture future()
+        {
             return future;
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return "FutureEvent{" +
-                    "future=" + future +
-                    '}';
+                   "future=" + future +
+                   '}';
         }
     }
 
-    static class NewLocalCompletionTimeWriterEvent extends CompletionTimeEvent {
-        private final ThreadedQueuedCompletionTimeService.LocalCompletionTimeWriterFuture future;
+    static class NewCompletionTimeWriterEvent extends CompletionTimeEvent
+    {
+        private final CompletionTimeWriterFuture future;
 
-        private NewLocalCompletionTimeWriterEvent(ThreadedQueuedCompletionTimeService.LocalCompletionTimeWriterFuture future) {
+        private NewCompletionTimeWriterEvent( CompletionTimeWriterFuture future )
+        {
             this.future = future;
         }
 
         @Override
-        CompletionTimeEventType type() {
-            return CompletionTimeEventType.NEW_LOCAL_COMPLETION_TIME_WRITER;
+        CompletionTimeEventType type()
+        {
+            return CompletionTimeEventType.NEW_COMPLETION_TIME_WRITER;
         }
 
-        ThreadedQueuedCompletionTimeService.LocalCompletionTimeWriterFuture future() {
+        CompletionTimeWriterFuture future()
+        {
             return future;
         }
 
         @Override
-        public String toString() {
-            return "NewLocalCompletionTimeWriterEvent{" +
-                    "future=" + future +
-                    '}';
+        public String toString()
+        {
+            return "NewCompletionTimeWriterEvent{" +
+                   "future=" + future +
+                   '}';
         }
     }
 }

@@ -1,7 +1,8 @@
 package com.ldbc.driver.runtime.coordination;
 
-public interface LocalCompletionTimeReader {
+public interface CompletionTimeReader
+{
     long lastKnownLowestInitiatedTimeAsMilli() throws CompletionTimeException;
 
-    long localCompletionTimeAsMilli() throws CompletionTimeException;
+    long completionTimeAsMilli() throws CompletionTimeException;
 }

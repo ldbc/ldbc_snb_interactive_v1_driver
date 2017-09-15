@@ -35,7 +35,7 @@ public class DummyCountingMetricsService implements MetricsService, MetricsServi
 
     @Override
     public WorkloadResultsSnapshot results() throws MetricsCollectionException {
-        return new WorkloadResultsSnapshot(metrics, 0, 0, count, TimeUnit.MILLISECONDS);
+        return new WorkloadResultsSnapshot(metrics.values(), 0, 0, count, TimeUnit.MILLISECONDS);
     }
 
     @Override

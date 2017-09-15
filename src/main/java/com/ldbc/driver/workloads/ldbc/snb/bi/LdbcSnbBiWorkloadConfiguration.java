@@ -666,44 +666,32 @@ public class LdbcSnbBiWorkloadConfiguration
 
     public static Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
     {
-        Map<Integer,Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
-        operationTypeToClassMapping.put( LdbcSnbBiQuery1PostingSummary.TYPE, LdbcSnbBiQuery1PostingSummary.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery2TopTags.TYPE, LdbcSnbBiQuery2TopTags.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery3TagEvolution.TYPE, LdbcSnbBiQuery3TagEvolution.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery4PopularCountryTopics.TYPE, LdbcSnbBiQuery4PopularCountryTopics.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery5TopCountryPosters.TYPE, LdbcSnbBiQuery5TopCountryPosters.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery6ActivePosters.TYPE, LdbcSnbBiQuery6ActivePosters.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery7AuthoritativeUsers.TYPE, LdbcSnbBiQuery7AuthoritativeUsers.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery8RelatedTopics.TYPE, LdbcSnbBiQuery8RelatedTopics.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery9RelatedForums.TYPE, LdbcSnbBiQuery9RelatedForums.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery10TagPerson.TYPE, LdbcSnbBiQuery10TagPerson.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery11UnrelatedReplies.TYPE, LdbcSnbBiQuery11UnrelatedReplies.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery12TrendingPosts.TYPE, LdbcSnbBiQuery12TrendingPosts.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery13PopularMonthlyTags.TYPE, LdbcSnbBiQuery13PopularMonthlyTags.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery14TopThreadInitiators.TYPE, LdbcSnbBiQuery14TopThreadInitiators.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery15SocialNormals.TYPE, LdbcSnbBiQuery15SocialNormals.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery16ExpertsInSocialCircle.TYPE, LdbcSnbBiQuery16ExpertsInSocialCircle.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery17FriendshipTriangles.TYPE, LdbcSnbBiQuery17FriendshipTriangles.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery18PersonPostCounts.TYPE, LdbcSnbBiQuery18PersonPostCounts.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery19StrangerInteraction.TYPE, LdbcSnbBiQuery19StrangerInteraction.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery20HighLevelTopics.TYPE, LdbcSnbBiQuery20HighLevelTopics.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery21Zombies.TYPE, LdbcSnbBiQuery21Zombies.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery22InternationalDialog.TYPE, LdbcSnbBiQuery22InternationalDialog.class );
-        operationTypeToClassMapping
-                .put( LdbcSnbBiQuery23HolidayDestinations.TYPE, LdbcSnbBiQuery23HolidayDestinations.class );
-        operationTypeToClassMapping.put( LdbcSnbBiQuery24MessagesByTopic.TYPE, LdbcSnbBiQuery24MessagesByTopic.class );
-        return operationTypeToClassMapping;
+        Map<Integer,Class<? extends Operation>> mapping = new HashMap<>();
+        mapping.put( LdbcSnbBiQuery1PostingSummary.TYPE, LdbcSnbBiQuery1PostingSummary.class );
+        mapping.put( LdbcSnbBiQuery2TopTags.TYPE, LdbcSnbBiQuery2TopTags.class );
+        mapping.put( LdbcSnbBiQuery3TagEvolution.TYPE, LdbcSnbBiQuery3TagEvolution.class );
+        mapping.put( LdbcSnbBiQuery4PopularCountryTopics.TYPE, LdbcSnbBiQuery4PopularCountryTopics.class );
+        mapping.put( LdbcSnbBiQuery5TopCountryPosters.TYPE, LdbcSnbBiQuery5TopCountryPosters.class );
+        mapping.put( LdbcSnbBiQuery6ActivePosters.TYPE, LdbcSnbBiQuery6ActivePosters.class );
+        mapping.put( LdbcSnbBiQuery7AuthoritativeUsers.TYPE, LdbcSnbBiQuery7AuthoritativeUsers.class );
+        mapping.put( LdbcSnbBiQuery8RelatedTopics.TYPE, LdbcSnbBiQuery8RelatedTopics.class );
+        mapping.put( LdbcSnbBiQuery9RelatedForums.TYPE, LdbcSnbBiQuery9RelatedForums.class );
+        mapping.put( LdbcSnbBiQuery10TagPerson.TYPE, LdbcSnbBiQuery10TagPerson.class );
+        mapping.put( LdbcSnbBiQuery11UnrelatedReplies.TYPE, LdbcSnbBiQuery11UnrelatedReplies.class );
+        mapping.put( LdbcSnbBiQuery12TrendingPosts.TYPE, LdbcSnbBiQuery12TrendingPosts.class );
+        mapping.put( LdbcSnbBiQuery13PopularMonthlyTags.TYPE, LdbcSnbBiQuery13PopularMonthlyTags.class );
+        mapping.put( LdbcSnbBiQuery14TopThreadInitiators.TYPE, LdbcSnbBiQuery14TopThreadInitiators.class );
+        mapping.put( LdbcSnbBiQuery15SocialNormals.TYPE, LdbcSnbBiQuery15SocialNormals.class );
+        mapping.put( LdbcSnbBiQuery16ExpertsInSocialCircle.TYPE, LdbcSnbBiQuery16ExpertsInSocialCircle.class );
+        mapping.put( LdbcSnbBiQuery17FriendshipTriangles.TYPE, LdbcSnbBiQuery17FriendshipTriangles.class );
+        mapping.put( LdbcSnbBiQuery18PersonPostCounts.TYPE, LdbcSnbBiQuery18PersonPostCounts.class );
+        mapping.put( LdbcSnbBiQuery19StrangerInteraction.TYPE, LdbcSnbBiQuery19StrangerInteraction.class );
+        mapping.put( LdbcSnbBiQuery20HighLevelTopics.TYPE, LdbcSnbBiQuery20HighLevelTopics.class );
+        mapping.put( LdbcSnbBiQuery21Zombies.TYPE, LdbcSnbBiQuery21Zombies.class );
+        mapping.put( LdbcSnbBiQuery22InternationalDialog.TYPE, LdbcSnbBiQuery22InternationalDialog.class );
+        mapping.put( LdbcSnbBiQuery23HolidayDestinations.TYPE, LdbcSnbBiQuery23HolidayDestinations.class );
+        mapping.put( LdbcSnbBiQuery24MessagesByTopic.TYPE, LdbcSnbBiQuery24MessagesByTopic.class );
+        return mapping;
     }
 
     static Set<String> missingParameters( Map<String,String> parameters, Iterable<String> compulsoryParameterKeys )
@@ -736,5 +724,38 @@ public class LdbcSnbBiWorkloadConfiguration
                             operationClassName ),
                     e );
         }
+    }
+
+    public static boolean hasReads( Map<String,String> params )
+    {
+        return params.containsKey( OPERATION_1_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_2_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_3_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_4_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_5_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_6_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_7_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_8_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_9_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_10_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_11_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_12_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_13_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_14_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_15_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_16_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_17_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_18_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_19_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_20_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_21_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_22_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_23_ENABLE_KEY ) ||
+               params.containsKey( OPERATION_24_ENABLE_KEY );
+    }
+
+    public static boolean hasWrites( Map<String,String> params )
+    {
+        return false;
     }
 }

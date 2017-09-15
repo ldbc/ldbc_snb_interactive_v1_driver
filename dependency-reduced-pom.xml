@@ -67,7 +67,7 @@
     <hamcrest.version>1.3</hamcrest.version>
     <sbe-version>1.0.3-RC2</sbe-version>
     <guava.version>18.0</guava.version>
-    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <disruptor-version>3.3.2</disruptor-version>
     <log4j.version>1.2.17</log4j.version>
     <commmons.collections.version>4.0</commmons.collections.version>
@@ -75,7 +75,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <commons.io.version>2.4</commons.io.version>
     <stormpot.version>2.4</stormpot.version>
-    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.source>1.8</maven.compiler.source>
     <common.math.version>3.2</common.math.version>
   </properties>
 </project>

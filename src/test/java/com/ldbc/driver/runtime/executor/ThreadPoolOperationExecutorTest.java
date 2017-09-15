@@ -7,9 +7,9 @@ import com.ldbc.driver.control.Log4jLoggingServiceFactory;
 import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
-import com.ldbc.driver.runtime.coordination.DummyGlobalCompletionTimeReader;
-import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.DummyCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.DummyCompletionTimeReader;
 import com.ldbc.driver.runtime.metrics.DummyCountingMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -37,9 +37,9 @@ public class ThreadPoolOperationExecutorTest
         boolean ignoreScheduledStartTime = false;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Spinner spinner = new Spinner( timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime );
-        LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-        DummyGlobalCompletionTimeReader dummyGlobalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-        dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli( Long.MAX_VALUE );
+        CompletionTimeWriter dummyCompletionTimeWriter = new DummyCompletionTimeWriter();
+        DummyCompletionTimeReader dummyCompletionTimeReader = new DummyCompletionTimeReader();
+        dummyCompletionTimeReader.setCompletionTimeAsMilli( Long.MAX_VALUE );
         DummyCountingMetricsService metricsService = new DummyCountingMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
                 new HashSet<Class<? extends Operation>>(),
@@ -63,8 +63,8 @@ public class ThreadPoolOperationExecutorTest
                 boundedQueueSize,
                 db,
                 streamDefinition,
-                dummyLocalCompletionTimeWriter,
-                dummyGlobalCompletionTimeReader,
+                dummyCompletionTimeWriter,
+                dummyCompletionTimeReader,
                 spinner,
                 timeSource,
                 errorReporter,
@@ -102,9 +102,9 @@ public class ThreadPoolOperationExecutorTest
         boolean ignoreScheduledStartTime = false;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Spinner spinner = new Spinner( timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime );
-        LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-        DummyGlobalCompletionTimeReader dummyGlobalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-        dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli( Long.MAX_VALUE );
+        CompletionTimeWriter dummyCompletionTimeWriter = new DummyCompletionTimeWriter();
+        DummyCompletionTimeReader dummyCompletionTimeReader = new DummyCompletionTimeReader();
+        dummyCompletionTimeReader.setCompletionTimeAsMilli( Long.MAX_VALUE );
         DummyCountingMetricsService metricsService = new DummyCountingMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
                 new HashSet<Class<? extends Operation>>(),
@@ -128,8 +128,8 @@ public class ThreadPoolOperationExecutorTest
                 boundedQueueSize,
                 db,
                 streamDefinition,
-                dummyLocalCompletionTimeWriter,
-                dummyGlobalCompletionTimeReader,
+                dummyCompletionTimeWriter,
+                dummyCompletionTimeReader,
                 spinner,
                 timeSource,
                 errorReporter,
@@ -173,9 +173,9 @@ public class ThreadPoolOperationExecutorTest
         boolean ignoreScheduledStartTime = false;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Spinner spinner = new Spinner( timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime );
-        LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-        DummyGlobalCompletionTimeReader dummyGlobalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-        dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli( Long.MAX_VALUE );
+        CompletionTimeWriter dummyCompletionTimeWriter = new DummyCompletionTimeWriter();
+        DummyCompletionTimeReader dummyCompletionTimeReader = new DummyCompletionTimeReader();
+        dummyCompletionTimeReader.setCompletionTimeAsMilli( Long.MAX_VALUE );
         DummyCountingMetricsService metricsService = new DummyCountingMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
                 new HashSet<Class<? extends Operation>>(),
@@ -199,8 +199,8 @@ public class ThreadPoolOperationExecutorTest
                 boundedQueueSize,
                 db,
                 streamDefinition,
-                dummyLocalCompletionTimeWriter,
-                dummyGlobalCompletionTimeReader,
+                dummyCompletionTimeWriter,
+                dummyCompletionTimeReader,
                 spinner,
                 timeSource,
                 errorReporter,

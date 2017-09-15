@@ -9,7 +9,7 @@ public interface LoggingService
 
     void status( WorkloadStatusSnapshot workloadStatusSnapshot,
             RecentThroughputAndDuration recentThroughputAndDuration,
-            long globalCompletionTimeAsMilli );
+            long completionTimeAsMilli );
 
     void summaryResult( WorkloadResultsSnapshot workloadResultsSnapshot );
 

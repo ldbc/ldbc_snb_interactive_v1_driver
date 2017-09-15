@@ -23,11 +23,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -87,7 +85,6 @@ public class QueuePerformanceTests
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         double timeCompressionRatio = 1.0;
-        Set<String> peerIds = new HashSet<>();
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean calculateWorkloadStatistics = false;
@@ -108,7 +105,6 @@ public class QueuePerformanceTests
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                peerIds,
                 validationParams,
                 dbValidationFilePath,
                 calculateWorkloadStatistics,

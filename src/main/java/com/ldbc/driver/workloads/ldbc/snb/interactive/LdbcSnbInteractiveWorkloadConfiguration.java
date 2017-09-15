@@ -20,7 +20,7 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-public class LdbcSnbInteractiveWorkloadConfiguration
+public abstract class LdbcSnbInteractiveWorkloadConfiguration
 {
     public static final int WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT = -1;
     public final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";
@@ -371,7 +371,7 @@ public class LdbcSnbInteractiveWorkloadConfiguration
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( params );
     }
 
-    public static Map<String,String> withoutOnly(
+    public static Map<String,String> withOnly(
             Map<String,String> originalParams,
             Class<? extends Operation>... operationClasses )
             throws DriverConfigurationException, IOException
@@ -388,10 +388,49 @@ public class LdbcSnbInteractiveWorkloadConfiguration
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( params );
     }
 
+    public static boolean hasReads( Map<String,String> params )
+    {
+        return Lists.newArrayList(
+                LONG_READ_OPERATION_1_ENABLE_KEY,
+                LONG_READ_OPERATION_2_ENABLE_KEY,
+                LONG_READ_OPERATION_3_ENABLE_KEY,
+                LONG_READ_OPERATION_4_ENABLE_KEY,
+                LONG_READ_OPERATION_5_ENABLE_KEY,
+                LONG_READ_OPERATION_6_ENABLE_KEY,
+                LONG_READ_OPERATION_7_ENABLE_KEY,
+                LONG_READ_OPERATION_8_ENABLE_KEY,
+                LONG_READ_OPERATION_9_ENABLE_KEY,
+                LONG_READ_OPERATION_10_ENABLE_KEY,
+                LONG_READ_OPERATION_11_ENABLE_KEY,
+                LONG_READ_OPERATION_12_ENABLE_KEY,
+                LONG_READ_OPERATION_13_ENABLE_KEY,
+                LONG_READ_OPERATION_14_ENABLE_KEY ).stream().anyMatch( key -> isSet( params, key ) );
+    }
+
+    public static boolean hasWrites( Map<String,String> params )
+    {
+        return Lists.newArrayList(
+                WRITE_OPERATION_1_ENABLE_KEY,
+                WRITE_OPERATION_2_ENABLE_KEY,
+                WRITE_OPERATION_3_ENABLE_KEY,
+                WRITE_OPERATION_4_ENABLE_KEY,
+                WRITE_OPERATION_5_ENABLE_KEY,
+                WRITE_OPERATION_6_ENABLE_KEY,
+                WRITE_OPERATION_7_ENABLE_KEY,
+                WRITE_OPERATION_8_ENABLE_KEY ).stream().anyMatch( key -> isSet( params, key ) );
+    }
+
+    private static boolean isSet( Map<String,String> params, String key )
+    {
+        return params.containsKey( key ) &&
+               null != params.get( key ) &&
+               Boolean.parseBoolean( params.get( key ) );
+    }
+
     public static Map<String,String> withoutShortReads( Map<String,String> originalParams )
             throws DriverConfigurationException, IOException
     {
-        Map<String,String> params = MapUtils.copyExcludingKeys( originalParams, new HashSet<String>() );
+        Map<String,String> params = MapUtils.copyExcludingKeys( originalParams, new HashSet<>() );
         params.put( SHORT_READ_OPERATION_1_ENABLE_KEY, "false" );
         params.put( SHORT_READ_OPERATION_2_ENABLE_KEY, "false" );
         params.put( SHORT_READ_OPERATION_3_ENABLE_KEY, "false" );
@@ -405,7 +444,7 @@ public class LdbcSnbInteractiveWorkloadConfiguration
     public static Map<String,String> withoutWrites( Map<String,String> originalParams )
             throws DriverConfigurationException, IOException
     {
-        Map<String,String> params = MapUtils.copyExcludingKeys( originalParams, new HashSet<String>() );
+        Map<String,String> params = MapUtils.copyExcludingKeys( originalParams, new HashSet<>() );
         params.put( WRITE_OPERATION_1_ENABLE_KEY, "false" );
         params.put( WRITE_OPERATION_2_ENABLE_KEY, "false" );
         params.put( WRITE_OPERATION_3_ENABLE_KEY, "false" );

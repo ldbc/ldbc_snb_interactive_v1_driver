@@ -7,8 +7,8 @@ import com.ldbc.driver.OperationHandlerRunnableContext;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
-import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeReader;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TimeSource;
@@ -35,8 +35,8 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
             int boundedQueueSize,
             Db db,
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-            LocalCompletionTimeWriter localCompletionTimeWriter,
-            GlobalCompletionTimeReader globalCompletionTimeReader,
+            CompletionTimeWriter completionTimeWriter,
+            CompletionTimeReader completionTimeReader,
             Spinner spinner,
             TimeSource timeSource,
             ConcurrentErrorReporter errorReporter,
@@ -46,8 +46,8 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
         this.operationHandlerRunnableContextRetriever = new OperationHandlerRunnableContextRetriever(
                 streamDefinition,
                 db,
-                localCompletionTimeWriter,
-                globalCompletionTimeReader,
+                completionTimeWriter,
+                completionTimeReader,
                 spinner,
                 timeSource,
                 errorReporter,
@@ -61,12 +61,11 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
             @Override
             public Thread newThread( Runnable runnable )
             {
-                Thread newThread = new Thread(
+                return new Thread(
                         runnable,
                         ThreadPoolOperationExecutor.class.getSimpleName() + "-id(" + factoryTimeStampId + ")" +
                         "-thread(" + count++ + ")"
                 );
-                return newThread;
             }
         };
         this.threadPoolExecutorService = ThreadPoolExecutorWithAfterExecute.newFixedThreadPool(
@@ -96,8 +95,7 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
                     format( "Error retrieving handler\nOperation: %s\n%s",
                             operation,
                             ConcurrentErrorReporter.stackTraceToString( e ) ),
-                    e
-            );
+                    e );
         }
     }
 
@@ -113,10 +111,10 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
             threadPoolExecutorService.shutdown();
             boolean allHandlersCompleted =
                     threadPoolExecutorService.awaitTermination( waitAsMilli, TimeUnit.MILLISECONDS );
-            if ( false == allHandlersCompleted )
+            if ( !allHandlersCompleted )
             {
                 List<Runnable> stillRunningThreads = threadPoolExecutorService.shutdownNow();
-                if ( false == stillRunningThreads.isEmpty() )
+                if ( !stillRunningThreads.isEmpty() )
                 {
                     String errMsg = format(
                             "%s shutdown before all handlers could complete\n%s handlers were queued for execution " +
@@ -151,7 +149,7 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
         private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever;
         private final ConcurrentErrorReporter errorReporter;
 
-        public static ThreadPoolExecutorWithAfterExecute newFixedThreadPool( int threadCount,
+        static ThreadPoolExecutorWithAfterExecute newFixedThreadPool( int threadCount,
                 ThreadFactory threadFactory,
                 AtomicLong uncompletedHandlers,
                 int boundedQueueSize,

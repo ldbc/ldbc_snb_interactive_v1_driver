@@ -2,7 +2,6 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.control.LoggingServiceFactory;
-import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.sbe.MetricsEvent;
 import com.ldbc.driver.temporal.TimeSource;
@@ -24,14 +23,14 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
 
     private final MetricsManager metricsManager;
     private final ConcurrentErrorReporter errorReporter;
-    private final SimpleCsvFileWriter csvResultsLogWriter;
-    private final TimeUnit unit;
+    private final ResultsLogWriter resultsLogWriter;
     private long processedEventCount = 0L;
     private final String[] operationNames;
     private final MetricsEvent metricsEvent;
 
-    DisruptorSbeMetricsEventHandler( ConcurrentErrorReporter errorReporter,
-            SimpleCsvFileWriter csvResultsLogWriter,
+    DisruptorSbeMetricsEventHandler(
+            ConcurrentErrorReporter errorReporter,
+            ResultsLogWriter resultsLogWriter,
             TimeUnit unit,
             TimeSource timeSource,
             long maxRuntimeDurationAsNano,
@@ -39,8 +38,7 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
             LoggingServiceFactory loggingServiceFactory ) throws MetricsCollectionException
     {
         this.errorReporter = errorReporter;
-        this.csvResultsLogWriter = csvResultsLogWriter;
-        this.unit = unit;
+        this.resultsLogWriter = resultsLogWriter;
         this.metricsManager = new MetricsManager(
                 timeSource,
                 unit,
@@ -87,17 +85,14 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
             int resultCode = metricsEvent.resultCode();
             long originalStartTime = metricsEvent.originalStartTime();
 
-            if ( null != csvResultsLogWriter )
-            {
-                csvResultsLogWriter.writeRow(
-                        operationNames[operationType],
-                        Long.toString( scheduledStartTimeAsMilli ),
-                        Long.toString( actualStartTimeAsMilli ),
-                        Long.toString( unit.convert( runDurationAsNano, TimeUnit.NANOSECONDS ) ),
-                        Integer.toString( resultCode ),
-                        Long.toString( originalStartTime )
-                );
-            }
+            resultsLogWriter.write(
+                    operationNames[operationType],
+                    scheduledStartTimeAsMilli,
+                    actualStartTimeAsMilli,
+                    runDurationAsNano,
+                    resultCode,
+                    originalStartTime );
+
             metricsManager.measure( actualStartTimeAsMilli, runDurationAsNano, operationType );
             processedEventCount++;
             break;

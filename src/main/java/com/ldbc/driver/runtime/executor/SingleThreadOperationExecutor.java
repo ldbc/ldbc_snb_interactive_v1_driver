@@ -8,8 +8,8 @@ import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
-import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeReader;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TimeSource;
@@ -49,10 +49,10 @@ public class SingleThreadOperationExecutor implements OperationExecutor
     private final AtomicLong uncompletedHandlers = new AtomicLong( 0 );
     private final AtomicBoolean shutdown = new AtomicBoolean( false );
 
-    public SingleThreadOperationExecutor( Db db,
+    SingleThreadOperationExecutor( Db db,
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-            LocalCompletionTimeWriter localCompletionTimeWriter,
-            GlobalCompletionTimeReader globalCompletionTimeReader,
+            CompletionTimeWriter completionTimeWriter,
+            CompletionTimeReader completionTimeReader,
             Spinner spinner,
             TimeSource timeSource,
             ConcurrentErrorReporter errorReporter,
@@ -63,13 +63,12 @@ public class SingleThreadOperationExecutor implements OperationExecutor
         Queue<Operation> operationQueue = DefaultQueues.newAlwaysBlockingBounded( boundedQueueSize );
         this.operationQueueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor( operationQueue );
 
-
         OperationHandlerRunnableContextRetriever operationHandlerRunnableContextInitializer =
                 new OperationHandlerRunnableContextRetriever(
                         streamDefinition,
                         db,
-                        localCompletionTimeWriter,
-                        globalCompletionTimeReader,
+                        completionTimeWriter,
+                        completionTimeReader,
                         spinner,
                         timeSource,
                         errorReporter,

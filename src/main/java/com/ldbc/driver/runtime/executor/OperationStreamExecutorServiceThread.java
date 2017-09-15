@@ -3,7 +3,7 @@ package com.ldbc.driver.runtime.executor;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,7 +23,7 @@ class OperationStreamExecutorServiceThread extends Thread
             WorkloadStreamDefinition streamDefinition,
             AtomicBoolean hasFinished,
             AtomicBoolean forcedTerminate,
-            LocalCompletionTimeWriter localCompletionTimeWriter )
+            CompletionTimeWriter completionTimeWriter )
     {
         super( OperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis() );
         this.operationExecutor = operationExecutor;
@@ -32,7 +32,7 @@ class OperationStreamExecutorServiceThread extends Thread
         this.forcedTerminate = forcedTerminate;
         this.initiatedTimeSubmittingOperationRetriever = new InitiatedTimeSubmittingOperationRetriever(
                 streamDefinition,
-                localCompletionTimeWriter
+                completionTimeWriter
         );
     }
 

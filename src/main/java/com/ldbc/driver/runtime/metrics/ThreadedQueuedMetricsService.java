@@ -36,7 +36,7 @@ public class ThreadedQueuedMetricsService implements MetricsService
     private final AtomicBoolean shutdown = new AtomicBoolean( false );
     private final ConcurrentLinkedQueue<ThreadedQueuedMetricsServiceWriter> metricsServiceWriters;
 
-    public static ThreadedQueuedMetricsService newInstanceUsingNonBlockingBoundedQueue(
+    static ThreadedQueuedMetricsService newInstanceUsingNonBlockingBoundedQueue(
             TimeSource timeSource,
             ConcurrentErrorReporter errorReporter,
             TimeUnit unit,

@@ -4,15 +4,13 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Function2;
 
-// TODO if an error policy DOES NOT terminate the benchmark and DOES NOT allow the operation to complete
-// TODO something needs to be done about DEPENDENT/GCT, because the initiated time for the operation has already been
-// reported
-// TODO perhaps the completed time for that operation needs to be reported too (to GCT service, not to MetricsService),
-// TODO to make sure DEPENDENT/GCT does not freeze at the start time of that "Failed" operation
+// TODO if error policy DOES NOT terminate benchmark and DOES NOT allow the operation to complete something needs
+// TODO to be done about DEPENDENT/CT, because the IT for the operation has already been reported
+// TODO perhaps the CT for that operation needs to be reported too (to CT service, but not to MetricsService),
+// TODO to make sure DEPENDENT/CT does not freeze at the IT of that "Failed" operation
 //
-// TODO alternatively, if the operation is a Dependency the run should terminate for sure, as the data may not have
-// been written
-// TODO and if it is not a Dependency a policy could decide if the benchmark should terminate or not
+// TODO * if operation is a Dependency the run must terminate, as operation may not have been completed
+// TODO * if operation is not a Dependency a policy could decide if the benchmark should terminate or not
 //
 // TODO take boolean result from spinner into consideration, i.e., DO NOT execute handler for "Failed" operations
 
@@ -33,7 +31,7 @@ public class Spinner
                        : new WaitForChecksAndScheduledStartTimeFun( timeSource, sleepDurationAsMilli );
     }
 
-    public boolean waitForScheduledStartTime( Operation operation )
+    boolean waitForScheduledStartTime( Operation operation )
     {
         return waitForScheduledStartTime( operation, TRUE_CHECK );
     }
@@ -60,11 +58,7 @@ public class Spinner
     // NOTE: longer sleep == lower scheduling accuracy AND lower achievable throughput
     public static void powerNap( long sleepMs )
     {
-        if ( 0 == sleepMs )
-        {
-            return;
-        }
-        else
+        if ( 0 < sleepMs )
         {
             try
             {

@@ -2,7 +2,6 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.control.LoggingServiceFactory;
-import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.sbe.MetricsEvent;
 import com.ldbc.driver.temporal.TimeSource;
@@ -54,7 +53,7 @@ public class DisruptorSbeMetricsService implements MetricsService
             ConcurrentErrorReporter errorReporter,
             TimeUnit timeUnit,
             long maxRuntimeDurationAsNano,
-            SimpleCsvFileWriter csvResultsLogWriter,
+            ResultsLogWriter resultsLogWriter,
             Map<Integer,Class<? extends Operation>> operationTypeToClassMapping,
             LoggingServiceFactory loggingServiceFactory ) throws MetricsCollectionException
     {
@@ -81,7 +80,7 @@ public class DisruptorSbeMetricsService implements MetricsService
         // Connect the handler
         eventHandler = new DisruptorSbeMetricsEventHandler(
                 errorReporter,
-                csvResultsLogWriter,
+                resultsLogWriter,
                 timeUnit,
                 timeSource,
                 maxRuntimeDurationAsNano,

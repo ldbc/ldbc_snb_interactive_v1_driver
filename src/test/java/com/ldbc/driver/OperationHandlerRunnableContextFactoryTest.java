@@ -1,8 +1,8 @@
 package com.ldbc.driver;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.DummyCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.DummyCountingMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
@@ -47,7 +47,7 @@ public class OperationHandlerRunnableContextFactoryTest
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         long spinnerSleepDuration = 0;
         Spinner spinner = new Spinner( timeSource, spinnerSleepDuration, ignoreScheduledStartTime );
-        LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
+        CompletionTimeWriter completionTimeWriter = new DummyCompletionTimeWriter();
         MetricsService metricsService = new DummyCountingMetricsService();
         long startTime = timeSource.nowAsMilli();
         for ( int i = 0; i < count; i++ )
@@ -55,7 +55,7 @@ public class OperationHandlerRunnableContextFactoryTest
             OperationHandlerRunnableContext operationHandler =
                     operationHandlerRunnerFactory.newOperationHandlerRunner();
             operationHandler
-                    .init( timeSource, spinner, operation, localCompletionTimeWriter, errorReporter, metricsService );
+                    .init( timeSource, spinner, operation, completionTimeWriter, errorReporter, metricsService );
             operationHandler.cleanup();
         }
         return timeSource.nowAsMilli() - startTime;
