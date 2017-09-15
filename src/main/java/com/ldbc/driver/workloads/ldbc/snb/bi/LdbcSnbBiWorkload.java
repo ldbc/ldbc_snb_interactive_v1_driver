@@ -1252,8 +1252,11 @@ public class LdbcSnbBiWorkload extends Workload
             long person = ((Number) operationAsList.get( 1 )).longValue();
             String tagClass = (String) operationAsList.get( 2 );
             String country = (String) operationAsList.get( 3 );
-            int limit = ((Number) operationAsList.get( 4 )).intValue();
-            return new LdbcSnbBiQuery16ExpertsInSocialCircle( person, tagClass, country, limit );
+            int minPathDistance = (int) operationAsList.get( 4 );
+            int maxPathDistance = (int) operationAsList.get( 5 );
+            int limit = ((Number) operationAsList.get( 6 )).intValue();
+            return new LdbcSnbBiQuery16ExpertsInSocialCircle( person, tagClass, country, minPathDistance,
+                    maxPathDistance, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery17FriendshipTriangles.class.getName() ) )
         {
@@ -1313,10 +1316,11 @@ public class LdbcSnbBiWorkload extends Workload
             long person2Id = ((Number) operationAsList.get( 2 )).longValue();
             long startDate = ((Number) operationAsList.get( 3 )).longValue();
             long endDate = ((Number) operationAsList.get( 4 )).longValue();
-            return new LdbcSnbBiQuery25WeightedPaths(person1Id, person2Id, startDate, endDate);
+            return new LdbcSnbBiQuery25WeightedPaths( person1Id, person2Id, startDate, endDate );
         }
+        throw new
 
-        throw new SerializingMarshallingException(
+                SerializingMarshallingException(
                 format(
                         "Workload does not know how to marshal operation\nWorkload: %s\nAssumed Operation Type: " +
                         "%s\nSerialized Operation: %s",

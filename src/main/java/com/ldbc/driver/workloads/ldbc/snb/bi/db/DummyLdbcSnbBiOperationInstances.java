@@ -111,7 +111,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery16ExpertsInSocialCircle read16()
     {
-        return new LdbcSnbBiQuery16ExpertsInSocialCircle( 0, "1", "2", 3 );
+        return new LdbcSnbBiQuery16ExpertsInSocialCircle( 0, "1", "2", 1, 2, 3 );
     }
 
     public static LdbcSnbBiQuery17FriendshipTriangles read17()
@@ -156,6 +156,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery25WeightedPaths read25()
     {
-        return new LdbcSnbBiQuery25WeightedPaths(1, 2, 1, 2 );
+        return new LdbcSnbBiQuery25WeightedPaths( 1, 2, 1, 2 );
     }
+
 }
