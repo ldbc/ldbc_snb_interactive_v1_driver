@@ -120,7 +120,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery18PersonPostCounts read18()
     {
-        return new LdbcSnbBiQuery18PersonPostCounts( 1, 2 );
+        return new LdbcSnbBiQuery18PersonPostCounts( 1, 1, Lists.newArrayList( "en", "fr" ), 1 );
     }
 
     public static LdbcSnbBiQuery19StrangerInteraction read19()

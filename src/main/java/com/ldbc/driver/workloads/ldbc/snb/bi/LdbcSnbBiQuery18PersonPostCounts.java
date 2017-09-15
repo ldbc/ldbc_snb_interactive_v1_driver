@@ -11,17 +11,31 @@ public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQu
     public static final int TYPE = 18;
     public static final int DEFAULT_LIMIT = 100;
     private final long date;
+    private final int lengthThreshold;
+    private final List<String> languages;
     private final int limit;
 
-    public LdbcSnbBiQuery18PersonPostCounts( long date, int limit )
+    public LdbcSnbBiQuery18PersonPostCounts( long date, int lengthThreshold, List<String> languages, int limit )
     {
         this.date = date;
+        this.lengthThreshold = lengthThreshold;
+        this.languages = languages;
         this.limit = limit;
     }
 
     public long date()
     {
         return date;
+    }
+
+    public int lengthThreshold()
+    {
+        return lengthThreshold;
+    }
+
+    public List<String> languages()
+    {
+        return languages;
     }
 
     public int limit()
@@ -34,6 +48,8 @@ public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQu
     {
         return "LdbcSnbBiQuery18{" +
                "date=" + date +
+               "lengthThreshold=" + lengthThreshold +
+               "languages=" + languages +
                ", limit=" + limit +
                '}';
     }
@@ -50,8 +66,11 @@ public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQu
 
         if ( date != that.date )
         { return false; }
+        if ( lengthThreshold != that.lengthThreshold )
+        { return false; }
+        if ( languages != null ? !languages.equals( that.languages ) : that.languages != null )
+        { return false; }
         return limit == that.limit;
-
     }
 
     @Override
@@ -63,7 +82,8 @@ public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQu
     }
 
     @Override
-    public List<LdbcSnbBiQuery18PersonPostCountsResult> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery18PersonPostCountsResult> marshalResult( String serializedResults )
+            throws SerializingMarshallingException
     {
         List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery18PersonPostCountsResult> result = new ArrayList<>();
@@ -85,7 +105,8 @@ public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQu
     @Override
     public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
     {
-        List<LdbcSnbBiQuery18PersonPostCountsResult> result = (List<LdbcSnbBiQuery18PersonPostCountsResult>) resultsObject;
+        List<LdbcSnbBiQuery18PersonPostCountsResult> result =
+                (List<LdbcSnbBiQuery18PersonPostCountsResult>) resultsObject;
         List<List<Object>> resultsFields = new ArrayList<>();
         for ( int i = 0; i < result.size(); i++ )
         {

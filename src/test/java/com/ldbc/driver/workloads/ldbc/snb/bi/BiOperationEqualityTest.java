@@ -526,15 +526,23 @@ public class BiOperationEqualityTest
         // Given
         long date1 = 1;
         int limit1 = 1;
+        int lengthThreshold1 = 1;
+        List<String> languages1 = Lists.newArrayList( "en" );
 
         long date2 = 2;
         int limit2 = 2;
+        int lengthThreshold2 = 1;
+        List<String> languages2 = Lists.newArrayList( "en", "fr" );
 
         // When
-        LdbcSnbBiQuery18PersonPostCounts query1a = new LdbcSnbBiQuery18PersonPostCounts( date1, limit1 );
-        LdbcSnbBiQuery18PersonPostCounts query1b = new LdbcSnbBiQuery18PersonPostCounts( date1, limit1 );
-        LdbcSnbBiQuery18PersonPostCounts query2a = new LdbcSnbBiQuery18PersonPostCounts( date2, limit2 );
-        LdbcSnbBiQuery18PersonPostCounts query3a = new LdbcSnbBiQuery18PersonPostCounts( date1, limit2 );
+        LdbcSnbBiQuery18PersonPostCounts query1a = new LdbcSnbBiQuery18PersonPostCounts( date1, lengthThreshold1,
+                languages1, limit1 );
+        LdbcSnbBiQuery18PersonPostCounts query1b = new LdbcSnbBiQuery18PersonPostCounts( date1, lengthThreshold1,
+                languages1, limit1 );
+        LdbcSnbBiQuery18PersonPostCounts query2a = new LdbcSnbBiQuery18PersonPostCounts( date2, lengthThreshold2,
+                languages2, limit2 );
+        LdbcSnbBiQuery18PersonPostCounts query3a = new LdbcSnbBiQuery18PersonPostCounts( date1, lengthThreshold1,
+                languages2, limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

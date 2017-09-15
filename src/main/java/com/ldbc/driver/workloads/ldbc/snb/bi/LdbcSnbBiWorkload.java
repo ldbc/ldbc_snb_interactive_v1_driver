@@ -1007,6 +1007,8 @@ public class LdbcSnbBiWorkload extends Workload
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.date() );
+                operationAsList.add( ldbcQuery.lengthThreshold() );
+                operationAsList.add( ldbcQuery.languages() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1228,8 +1230,10 @@ public class LdbcSnbBiWorkload extends Workload
         else if ( operationClassName.equals( LdbcSnbBiQuery18PersonPostCounts.class.getName() ) )
         {
             long date = ((Number) operationAsList.get( 1 )).longValue();
-            int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery18PersonPostCounts( date, limit );
+            int lengthThreshold = ((Number) operationAsList.get( 2 )).intValue();
+            List<String> tagClasses = (List<String>) operationAsList.get( 3 );
+            int limit = ((Number) operationAsList.get( 4 )).intValue();
+            return new LdbcSnbBiQuery18PersonPostCounts( date, lengthThreshold, tagClasses, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery19StrangerInteraction.class.getName() ) )
         {
