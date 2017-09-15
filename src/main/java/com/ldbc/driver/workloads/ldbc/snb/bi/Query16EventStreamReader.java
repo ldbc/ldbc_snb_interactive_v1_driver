@@ -111,6 +111,6 @@ public class Query16EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 3;
+        return 5;
     }
 }

@@ -161,7 +161,7 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_18_CSV_ROWS()
     {
-        return "creationDate|threshold|languages\n"
+        return "creationDate|lengthThreshold|languages\n"
                + "1441351591755|1|en\n"
                + "1441351591756|2|en;fr";
     }

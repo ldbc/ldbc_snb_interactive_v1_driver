@@ -15,7 +15,7 @@ public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQu
     private final List<String> languages;
     private final int limit;
 
-    public LdbcSnbBiQuery18PersonPostCounts( long date, int limit, int lengthThreshold, List<String> languages )
+    public LdbcSnbBiQuery18PersonPostCounts( long date, int lengthThreshold, List<String> languages, int limit )
     {
         this.date = date;
         this.lengthThreshold = lengthThreshold;
@@ -71,6 +71,7 @@ public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQu
         if ( languages != null ? !languages.equals( that.languages ) : that.languages != null )
         { return false; }
         return limit == that.limit;
+
     }
 
     @Override
