@@ -6,7 +6,7 @@ public class LdbcSnbBiQuery25WeightedPathsResult
 {
     private final List<Long> personIds;
 
-    public LdbcSnbBiQuery25WeightedPathsResult(List<Long> personIds)
+    public LdbcSnbBiQuery25WeightedPathsResult( List<Long> personIds )
     {
         this.personIds = personIds;
     }
@@ -34,7 +34,8 @@ public class LdbcSnbBiQuery25WeightedPathsResult
 
         LdbcSnbBiQuery25WeightedPathsResult that = (LdbcSnbBiQuery25WeightedPathsResult) o;
 
-        return !( personIds != null ? !personIds.equals( that.personIds ) : that.personIds() != null );
+        return !(personIds != null ? !personIds.equals( that.personIds )
+                                   : that.personIds() != null);
     }
 
     @Override

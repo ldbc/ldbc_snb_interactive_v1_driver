@@ -22,19 +22,23 @@ public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery
         this.endDate = endDate;
     }
 
-    public long person1Id() {
+    public long person1Id()
+    {
         return person1Id;
     }
 
-    public long person2Id() {
+    public long person2Id()
+    {
         return person2Id;
     }
 
-    public long startDate() {
+    public long startDate()
+    {
         return startDate;
     }
 
-    public long endDate() {
+    public long endDate()
+    {
         return endDate;
     }
 
@@ -43,9 +47,9 @@ public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery
     {
         return "LdbcSnbBiQuery25{" +
                "person1Id=" + person1Id +
-                ", person2Id=" + person2Id +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
+               ", person2Id=" + person2Id +
+               ", startDate=" + startDate +
+               ", endDate=" + endDate +
                '}';
     }
 
@@ -85,14 +89,14 @@ public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery
     public List<LdbcSnbBiQuery25WeightedPathsResult> marshalResult( String serializedResults ) throws
             SerializingMarshallingException
     {
-        List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
+        List<List<Object>> resultsAsList = SerializationUtil.marshalListOfListsLongs( serializedResults );
         List<LdbcSnbBiQuery25WeightedPathsResult> result = new ArrayList<>();
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> row = resultsAsList.get( i );
             List<Long> personIds = (List<Long>) row.get( 0 );
             result.add(
-                    new LdbcSnbBiQuery25WeightedPathsResult(personIds)
+                    new LdbcSnbBiQuery25WeightedPathsResult( personIds )
             );
         }
         return result;
