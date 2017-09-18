@@ -1324,9 +1324,7 @@ public class LdbcSnbBiWorkload extends Workload
             long endDate = ((Number) operationAsList.get( 4 )).longValue();
             return new LdbcSnbBiQuery25WeightedPaths( person1Id, person2Id, startDate, endDate );
         }
-        throw new
-
-                SerializingMarshallingException(
+        throw new SerializingMarshallingException(
                 format(
                         "Workload does not know how to marshal operation\nWorkload: %s\nAssumed Operation Type: " +
                         "%s\nSerialized Operation: %s",
