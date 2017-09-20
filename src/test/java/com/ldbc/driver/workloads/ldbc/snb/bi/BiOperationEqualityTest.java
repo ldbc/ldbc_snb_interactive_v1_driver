@@ -495,7 +495,7 @@ public class BiOperationEqualityTest
                 maxPathDistance1, limit1 );
         LdbcSnbBiQuery16ExpertsInSocialCircle
                 query1b = new LdbcSnbBiQuery16ExpertsInSocialCircle( person1, tagClass1, country1, minPathDistance1,
-                maxPathDistance2, limit1 );
+                maxPathDistance1, limit1 );
         LdbcSnbBiQuery16ExpertsInSocialCircle
                 query2a = new LdbcSnbBiQuery16ExpertsInSocialCircle( person2, tagClass2, country2, minPathDistance2,
                 maxPathDistance2, limit2 );
