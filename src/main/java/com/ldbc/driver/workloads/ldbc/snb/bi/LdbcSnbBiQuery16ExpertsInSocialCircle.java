@@ -91,7 +91,7 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
         { return false; }
         if ( tagClass != null ? !tagClass.equals( that.tagClass ) : that.tagClass != null )
         { return false; }
-        return !(country != null ? !country.equals( that.country ) : that.country != null);
+        return country != null ? country.equals( that.country ) : that.country == null;
     }
 
     @Override
@@ -100,8 +100,8 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
         int result = (int) (person ^ (person >>> 32));
         result = 31 * result + (tagClass != null ? tagClass.hashCode() : 0);
         result = 31 * result + (country != null ? country.hashCode() : 0);
-        result = 31 * result + (minPathDistance ^ (minPathDistance >>> 32));
-        result = 31 * result + (maxPathDistance ^ (maxPathDistance >>> 32));
+        result = 31 * result + minPathDistance;
+        result = 31 * result + maxPathDistance;
         result = 31 * result + limit;
         return result;
     }

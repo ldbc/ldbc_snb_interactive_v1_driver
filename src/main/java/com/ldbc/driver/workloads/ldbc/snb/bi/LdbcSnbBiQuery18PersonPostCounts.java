@@ -68,16 +68,17 @@ public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQu
         { return false; }
         if ( lengthThreshold != that.lengthThreshold )
         { return false; }
-        if ( languages != null ? !languages.equals( that.languages ) : that.languages != null )
+        if ( limit != that.limit )
         { return false; }
-        return limit == that.limit;
-
+        return languages != null ? languages.equals( that.languages ) : that.languages == null;
     }
 
     @Override
     public int hashCode()
     {
         int result = (int) (date ^ (date >>> 32));
+        result = 31 * result + lengthThreshold;
+        result = 31 * result + (languages != null ? languages.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }

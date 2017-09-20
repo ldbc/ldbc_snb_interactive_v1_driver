@@ -69,10 +69,7 @@ public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery
         { return false; }
         if ( startDate != that.startDate )
         { return false; }
-        if ( endDate != that.endDate )
-        { return false; }
-
-        return true;
+        return endDate == that.endDate;
     }
 
     @Override
