@@ -16,6 +16,7 @@ import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery21ZombiesResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery22InternationalDialogResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery23HolidayDestinationsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopicResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery25WeightedPathsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTagsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3TagEvolutionResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery4PopularCountryTopicsResult;
@@ -442,6 +443,14 @@ public class DummyLdbcSnbBiOperationResultSets
                 DummyLdbcSnbBiOperationResultInstances.read24Result(),
                 DummyLdbcSnbBiOperationResultInstances.read24Result(),
                 DummyLdbcSnbBiOperationResultInstances.read24Result()
+        );
+    }
+
+    public static List<LdbcSnbBiQuery25WeightedPathsResult> read25Results()
+    {
+        return Lists.newArrayList(
+                DummyLdbcSnbBiOperationResultInstances.read25Result(),
+                DummyLdbcSnbBiOperationResultInstances.read25Result()
         );
     }
 }

@@ -57,6 +57,7 @@ public class LdbcSnbBiWorkload extends Workload
     private FileInputStream readOperation22FileInputStream;
     private FileInputStream readOperation23FileInputStream;
     private FileInputStream readOperation24FileInputStream;
+    private FileInputStream readOperation25FileInputStream;
 
     // TODO these things should really all be in an instance of LdbcSnbBiWorkloadConfiguration or ...State
     private LdbcSnbBiWorkloadConfiguration.LdbcSnbBiInterleaves interleaves = null;
@@ -191,6 +192,9 @@ public class LdbcSnbBiWorkload extends Workload
             );
             readOperation24FileInputStream = new FileInputStream(
                     new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_24_PARAMS_FILENAME )
+            );
+            readOperation25FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_25_PARAMS_FILENAME )
             );
         }
         catch ( FileNotFoundException e )
@@ -747,6 +751,26 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
+        // Query 25
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery25WeightedPaths.class ) )
+        {
+            Query25EventStreamReader operation25StreamWithoutTimes = new Query25EventStreamReader(
+                    readOperation25FileInputStream,
+                    CHAR_SEEKER_PARAMS,
+                    gf
+            );
+            readOperationFileReaders.add( operation25StreamWithoutTimes );
+            asynchronousNonDependencyStreamsList.add(
+                    gf.assignStartTimes(
+                            gf.incrementing(
+                                    workloadStartTimeAsMilli + interleaves.operation25Interleave,
+                                    interleaves.operation25Interleave
+                            ),
+                            operation25StreamWithoutTimes
+                    )
+            );
+        }
+
         /* **************
          * **************
          * **************
@@ -990,6 +1014,8 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.person() );
                 operationAsList.add( ldbcQuery.tagClass() );
                 operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.minPathDistance() );
+                operationAsList.add( ldbcQuery.maxPathDistance() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1007,6 +1033,8 @@ public class LdbcSnbBiWorkload extends Workload
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.date() );
+                operationAsList.add( ldbcQuery.lengthThreshold() );
+                operationAsList.add( ldbcQuery.languages() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1067,6 +1095,17 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.tagClass() );
                 operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery25WeightedPaths.TYPE:
+            {
+                LdbcSnbBiQuery25WeightedPaths ldbcQuery = (LdbcSnbBiQuery25WeightedPaths) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.person1Id() );
+                operationAsList.add( ldbcQuery.person2Id() );
+                operationAsList.add( ldbcQuery.startDate() );
+                operationAsList.add( ldbcQuery.endDate() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
             default:
@@ -1217,8 +1256,11 @@ public class LdbcSnbBiWorkload extends Workload
             long person = ((Number) operationAsList.get( 1 )).longValue();
             String tagClass = (String) operationAsList.get( 2 );
             String country = (String) operationAsList.get( 3 );
-            int limit = ((Number) operationAsList.get( 4 )).intValue();
-            return new LdbcSnbBiQuery16ExpertsInSocialCircle( person, tagClass, country, limit );
+            int minPathDistance = (int) operationAsList.get( 4 );
+            int maxPathDistance = (int) operationAsList.get( 5 );
+            int limit = ((Number) operationAsList.get( 6 )).intValue();
+            return new LdbcSnbBiQuery16ExpertsInSocialCircle( person, tagClass, country, minPathDistance,
+                    maxPathDistance, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery17FriendshipTriangles.class.getName() ) )
         {
@@ -1228,8 +1270,10 @@ public class LdbcSnbBiWorkload extends Workload
         else if ( operationClassName.equals( LdbcSnbBiQuery18PersonPostCounts.class.getName() ) )
         {
             long date = ((Number) operationAsList.get( 1 )).longValue();
-            int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery18PersonPostCounts( date, limit );
+            int lengthThreshold = ((Number) operationAsList.get( 2 )).intValue();
+            List<String> tagClasses = (List<String>) operationAsList.get( 3 );
+            int limit = ((Number) operationAsList.get( 4 )).intValue();
+            return new LdbcSnbBiQuery18PersonPostCounts( date, lengthThreshold, tagClasses, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery19StrangerInteraction.class.getName() ) )
         {
@@ -1272,7 +1316,14 @@ public class LdbcSnbBiWorkload extends Workload
             int limit = ((Number) operationAsList.get( 2 )).intValue();
             return new LdbcSnbBiQuery24MessagesByTopic( tagClass, limit );
         }
-
+        else if ( operationClassName.equals( LdbcSnbBiQuery25WeightedPaths.class.getName() ) )
+        {
+            long person1Id = ((Number) operationAsList.get( 1 )).longValue();
+            long person2Id = ((Number) operationAsList.get( 2 )).longValue();
+            long startDate = ((Number) operationAsList.get( 3 )).longValue();
+            long endDate = ((Number) operationAsList.get( 4 )).longValue();
+            return new LdbcSnbBiQuery25WeightedPaths( person1Id, person2Id, startDate, endDate );
+        }
         throw new SerializingMarshallingException(
                 format(
                         "Workload does not know how to marshal operation\nWorkload: %s\nAssumed Operation Type: " +

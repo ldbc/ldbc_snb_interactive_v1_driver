@@ -1,7 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
-import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -14,11 +13,10 @@ import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
-public class Query18EventStreamReader extends BaseEventStreamReader
+public class Query25EventStreamReader extends BaseEventStreamReader
 {
-    public Query18EventStreamReader(
+    public Query25EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -29,11 +27,11 @@ public class Query18EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery18PersonPostCounts(
+        return new LdbcSnbBiQuery25WeightedPaths(
                 (long) parameters[0],
-                (int) parameters[1],
-                (List<String>) parameters[2],
-                (int) parameters[3]
+                (long) parameters[1],
+                (long) parameters[2],
+                (long) parameters[3]
         );
     }
 
@@ -43,18 +41,19 @@ public class Query18EventStreamReader extends BaseEventStreamReader
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
             /*
-            Date
-            15393166495097
+            person1Id|person2Id|startDate|endDate
+            1|2|1|2
+            3|4|3|4
             */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
                     throws IOException
             {
-                long date;
+                long person1Id;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    person1Id = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -62,27 +61,37 @@ public class Query18EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                int lengthThreshold;
+                long person2Id;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    lengthThreshold = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    person2Id = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving lengthThreshold" );
+                    throw new GeneratorException( "Error retrieving person 2" );
                 }
 
-                List<String> languages;
+                long startDate;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    languages = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
+                    startDate = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving languages" );
+                    throw new GeneratorException( "Error retrieving start date" );
                 }
 
-                return new Object[]{date, lengthThreshold, languages, LdbcSnbBiQuery18PersonPostCounts.DEFAULT_LIMIT};
+                long endDate;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    endDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving end date" );
+                }
+
+                return new Object[]{person1Id, person2Id, startDate, endDate};
             }
         };
     }
@@ -90,6 +99,6 @@ public class Query18EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 3;
+        return 4;
     }
 }

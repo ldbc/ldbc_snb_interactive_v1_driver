@@ -17,6 +17,7 @@ import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery21Zombies;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery22InternationalDialog;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery23HolidayDestinations;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopic;
+import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery25WeightedPaths;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTags;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3TagEvolution;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery4PopularCountryTopics;
@@ -110,7 +111,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery16ExpertsInSocialCircle read16()
     {
-        return new LdbcSnbBiQuery16ExpertsInSocialCircle( 0, "1", "2", 3 );
+        return new LdbcSnbBiQuery16ExpertsInSocialCircle( 0, "1", "2", 1, 2, 3 );
     }
 
     public static LdbcSnbBiQuery17FriendshipTriangles read17()
@@ -120,7 +121,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery18PersonPostCounts read18()
     {
-        return new LdbcSnbBiQuery18PersonPostCounts( 1, 2 );
+        return new LdbcSnbBiQuery18PersonPostCounts( 1, 1, Lists.newArrayList( "en", "fr" ), 1 );
     }
 
     public static LdbcSnbBiQuery19StrangerInteraction read19()
@@ -152,4 +153,10 @@ public class DummyLdbcSnbBiOperationInstances
     {
         return new LdbcSnbBiQuery24MessagesByTopic( "1", 2 );
     }
+
+    public static LdbcSnbBiQuery25WeightedPaths read25()
+    {
+        return new LdbcSnbBiQuery25WeightedPaths( 1, 2, 1, 2 );
+    }
+
 }

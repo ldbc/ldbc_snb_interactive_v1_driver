@@ -31,7 +31,9 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                 (long) parameters[0],
                 (String) parameters[1],
                 (String) parameters[2],
-                (int) parameters[3]
+                (int) parameters[3],
+                (int) parameters[4],
+                (int) parameters[5]
         );
     }
 
@@ -41,8 +43,8 @@ public class Query16EventStreamReader extends BaseEventStreamReader
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
             /*
-            TagClass|Country
-            names|Scotland
+            todoPerson|tag|country|minPathDistance|maxPathDistance
+            11052|Writer|Greece|1|2
             */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
@@ -80,7 +82,28 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving country name" );
                 }
 
-                return new Object[]{person, tagClass, country, LdbcSnbBiQuery16ExpertsInSocialCircle.DEFAULT_LIMIT};
+                int minPathDistance;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    minPathDistance = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving min path distance" );
+                }
+
+                int maxPathDistance;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    maxPathDistance = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving max path distance" );
+                }
+
+                return new Object[]{person, tagClass, country, minPathDistance, maxPathDistance,
+                        LdbcSnbBiQuery16ExpertsInSocialCircle.DEFAULT_LIMIT};
             }
         };
     }
@@ -88,6 +111,6 @@ public class Query16EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 3;
+        return 5;
     }
 }
