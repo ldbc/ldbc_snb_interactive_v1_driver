@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/ldbc/ldbc_snb_driver.svg?branch=master)](https://travis-ci.org/ldbc/ldbc_snb_driver)
 
 This driver is being developed as part of the Linked Data Benchmark Council EU-funded research project and will be used to run the benchmark workloads developed and released by LDBC:
+
 * [LDBC Project Website](http://ldbcouncil.org/)
 * [LDBC Company Website](http://ldbcouncil.org)
 * [LDBC LinkedIn Group](http://www.linkedin.com/groups/LDBC-4955240)
@@ -10,7 +11,6 @@ This driver is being developed as part of the Linked Data Benchmark Council EU-f
 * [LDBC Facebook Page](https://www.facebook.com/ldbcouncil/)
 
 ### Try it
-
 
 ```bash
 git clone https://github.com/ldbc/ldbc_driver.git
@@ -24,4 +24,4 @@ To quickly test the driver try the "simpleworkload" that is shipped with it by d
 java -cp target/jeeves-0.3-SNAPSHOT.jar com.ldbc.driver.Client -db com.ldbc.driver.workloads.simple.db.SimpleDb -P configuration/simple/simpleworkload.properties -P configuration/ldbc_driver_default.properties
 ```
 
-For more information, please refer to the [Documentation](https://github.com/ldbc/ldbc_driver/wiki)
+For more information, please refer to the [Documentation](https://github.com/ldbc/ldbc_driver/wiki).
