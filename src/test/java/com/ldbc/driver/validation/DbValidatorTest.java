@@ -218,7 +218,7 @@ public class DbValidatorTest
 
         ValidationParam validationParamLong13 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.read13(),
-                DummyLdbcSnbInteractiveOperationResultInstances.read13Result()
+                DummyLdbcSnbInteractiveOperationResultSets.read13Results()
         );
 
         ValidationParam validationParamLong14 = ValidationParam.createTyped(

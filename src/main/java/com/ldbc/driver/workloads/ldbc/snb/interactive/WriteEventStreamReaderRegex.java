@@ -324,6 +324,22 @@ public class WriteEventStreamReaderRegex
                 }
             }
 
+	    String mentionedIdsAsString = csvRow[15];
+            List<Long> mentionedIds = new ArrayList<>();
+            if ( false == mentionedIdsAsString.isEmpty() )
+            {
+                String[] mentionedIdsAsStrings = collectionSeparatorPattern.split( mentionedIdsAsString, -1 );
+                for ( String mentionedId : mentionedIdsAsStrings )
+                {
+                    mentionedIds.add( Long.parseLong( mentionedId ) );
+                }
+            }
+
+	    String privacyString = csvRow[16];
+            Boolean privacy = new Boolean( privacyString );
+
+	    String link = csvRow[17];
+
             Operation operation = new LdbcUpdate6AddPost(
                     postId,
                     imageFile,
@@ -336,7 +352,10 @@ public class WriteEventStreamReaderRegex
                     authorPersonId,
                     forumId,
                     countryId,
-                    tagIds );
+                    tagIds,
+		    mentionedIds,
+		    privacy,
+		    link );
             operation.setScheduledStartTimeAsMilli( scheduledStartTimeAsMilli );
             operation.setTimeStamp( scheduledStartTimeAsMilli );
             operation.setDependencyTimeStamp( dependencyTimeAsMilli );
@@ -390,6 +409,23 @@ public class WriteEventStreamReaderRegex
                 }
             }
 
+	    String mentionedIdsAsString = csvRow[14];
+            List<Long> mentionedIds = new ArrayList<>();
+            if ( false == mentionedIdsAsString.isEmpty() )
+            {
+                String[] mentionedIdsAsStrings = collectionSeparatorPattern.split( mentionedIdsAsString, -1 );
+                for ( String mentionedId : mentionedIdsAsStrings )
+                {
+                    mentionedIds.add( Long.parseLong( mentionedId ) );
+                }
+            }
+
+	    Boolean privacy = Boolean.parseBoolean(csvRow[15]);
+
+	    String link = csvRow[16];
+
+	    String gif = csvRow[17];
+
             Operation operation = new LdbcUpdate7AddComment(
                     commentId,
                     creationDate,
@@ -401,7 +437,11 @@ public class WriteEventStreamReaderRegex
                     countryId,
                     replyOfPostId,
                     replyOfCommentId,
-                    tagIds );
+                    tagIds,
+		    mentionedIds,
+		    privacy,
+		    link,
+		    gif );
             operation.setScheduledStartTimeAsMilli( scheduledStartTimeAsMilli );
             operation.setTimeStamp( scheduledStartTimeAsMilli );
             operation.setDependencyTimeStamp( dependencyTimeAsMilli );

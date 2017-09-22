@@ -60,11 +60,11 @@ public class DummyLdbcSnbInteractiveOperationInstances {
     }
 
     public static LdbcQuery13 read13() {
-        return new LdbcQuery13(1, 3);
+        return new LdbcQuery13(1, new Date(3));
     }
 
     public static LdbcQuery14 read14() {
-        return new LdbcQuery14(1, 3);
+        return new LdbcQuery14(1, new Date(3));
     }
 
     /*
@@ -127,11 +127,11 @@ public class DummyLdbcSnbInteractiveOperationInstances {
     }
 
     public static LdbcUpdate6AddPost write6() {
-        return new LdbcUpdate6AddPost(1, "2", new Date(3), "4", "5", "6", "7", 8, 9, 10, 11, Lists.newArrayList(12l));
+        return new LdbcUpdate6AddPost(1, "2", new Date(3), "4", "5", "6", "7", 8, 9, 10, 11, Lists.newArrayList(12l), Lists.newArrayList(13l), null, "14");
     }
 
     public static LdbcUpdate7AddComment write7() {
-        return new LdbcUpdate7AddComment(1, new Date(2), "3", "4", "5", 6, 7, 8, 9, 10, Lists.newArrayList(11l, 12l));
+        return new LdbcUpdate7AddComment(1, new Date(2), "3", "4", "5", 6, 7, 8, 9, 10, Lists.newArrayList(11l, 12l), Lists.newArrayList(13l, 14l), null, "15", "16");
     }
 
     public static LdbcUpdate8AddFriendship write8() {

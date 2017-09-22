@@ -64,11 +64,16 @@ public class WriteEventStreamReaderCharSeeker {
 
                 Long birthdayAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    birthdayAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
+		    String birthdayAsMilliStr = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == birthdayAsMilliStr) birthdayAsMilli = null;
+		    else birthdayAsMilli = Long.parseLong(birthdayAsMilliStr);
+                    //birthdayAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving birthday");
                 }
-                Date birthday = new Date(birthdayAsMilli);
+		Date birthday = null;
+		if (birthdayAsMilli != null)
+		    birthday = new Date(birthdayAsMilli);
 
                 long creationDateAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -429,7 +434,9 @@ public class WriteEventStreamReaderCharSeeker {
 
                 long countryId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    countryId = charSeeker.extract(mark, extractors.long_()).longValue();
+		    String countryIdStr = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == countryIdStr) countryId = -1;
+		    else countryId = Long.parseLong(countryIdStr);
                 } else {
                     throw new GeneratorException("Error retrieving country id");
                 }
@@ -445,6 +452,36 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving tags");
                 }
 
+		List<Long> mentionedIds;
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    mentionedIds = new ArrayList<>();
+                    long[] mentionedIdsArray = charSeeker.extract(mark, extractors.longArray()).value();
+                    for (long mentionedId : mentionedIdsArray) {
+                        mentionedIds.add(mentionedId);
+                    }
+                } else {
+                    throw new GeneratorException("Error retrieving mentioned");
+                }
+
+		Boolean privacy;
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    String tmp = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == tmp) privacy = null;
+		    if ("true" == tmp) privacy = true;
+		    else privacy = false;
+                } else {
+                    throw new GeneratorException("Error retrieving gif");
+                }
+
+		String link;
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    link = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == link) link = "";
+                } else {
+                    throw new GeneratorException("Error retrieving link");
+                }
+
+
                 Operation operation = new LdbcUpdate6AddPost(
                         postId,
                         imageFile,
@@ -457,7 +494,10 @@ public class WriteEventStreamReaderCharSeeker {
                         authorPersonId,
                         forumId,
                         countryId,
-                        tagIds);
+                        tagIds,
+			mentionedIds,
+			privacy,
+			link);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(dependencyTimeAsMilli);
@@ -527,7 +567,9 @@ public class WriteEventStreamReaderCharSeeker {
 
                 long countryId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    countryId = charSeeker.extract(mark, extractors.long_()).longValue();
+		    String countryIdStr = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == countryIdStr) countryId = -1;
+		    else countryId = Long.parseLong(countryIdStr);
                 } else {
                     throw new GeneratorException("Error retrieving country id");
                 }
@@ -557,6 +599,44 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving tags");
                 }
 
+		List<Long> mentionedIds;
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    mentionedIds = new ArrayList<>();
+                    long[] mentionedIdsArray = charSeeker.extract(mark, extractors.longArray()).value();
+                    for (long mentionedId : mentionedIdsArray) {
+                        mentionedIds.add(mentionedId);
+                    }
+                } else {
+                    throw new GeneratorException("Error retrieving mentioned");
+                }
+
+		Boolean privacy;
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    String tmp = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == tmp) privacy = null;
+		    if ("true" == tmp) privacy = true;
+		    else privacy = false;
+                } else {
+                    throw new GeneratorException("Error retrieving privacy");
+                }
+
+		String link;
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    link = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == link) link = "";
+                } else {
+                    throw new GeneratorException("Error retrieving link");
+                }
+
+		String gif;
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    gif = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == gif) gif = "";
+                } else {
+                    throw new GeneratorException("Error retrieving gif");
+                }
+
+		
                 Operation operation = new LdbcUpdate7AddComment(
                         commentId,
                         creationDate,
@@ -568,7 +648,11 @@ public class WriteEventStreamReaderCharSeeker {
                         countryId,
                         replyOfPostId,
                         replyOfCommentId,
-                        tagIds);
+                        tagIds,
+			mentionedIds,
+			privacy,
+			link,
+			gif);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(dependencyTimeAsMilli);

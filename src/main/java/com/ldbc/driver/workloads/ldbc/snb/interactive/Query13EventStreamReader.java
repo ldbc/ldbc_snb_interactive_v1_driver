@@ -9,6 +9,7 @@ import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorException;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Iterator;
 
 import static java.lang.String.format;
@@ -34,7 +35,7 @@ public class Query13EventStreamReader implements Iterator<Operation>
         Object[] rowAsObjects = csvRows.next();
         Operation operation = new LdbcQuery13(
                 (long) rowAsObjects[0],
-                (long) rowAsObjects[1]
+                (Date) rowAsObjects[1]
         );
         operation.setDependencyTimeStamp( 0 );
         return operation;
@@ -48,18 +49,18 @@ public class Query13EventStreamReader implements Iterator<Operation>
 
     public static class Query13Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
-        /*
-        Person1|Person2
-        15393166495097|2199027958081
-        */
+	/*
+        Person|Date0
+        1236219|1335225600
+         */
         @Override
         public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark )
                 throws IOException
         {
-            long person1Id;
+            long personId;
             if ( charSeeker.seek( mark, columnDelimiters ) )
             {
-                person1Id = charSeeker.extract( mark, extractors.long_() ).longValue();
+                personId = charSeeker.extract( mark, extractors.long_() ).longValue();
             }
             else
             {
@@ -67,17 +68,17 @@ public class Query13EventStreamReader implements Iterator<Operation>
                 return null;
             }
 
-            long person2Id;
+            Date date;
             if ( charSeeker.seek( mark, columnDelimiters ) )
             {
-                person2Id = charSeeker.extract( mark, extractors.long_() ).longValue();
+                date = new Date( charSeeker.extract( mark, extractors.long_() ).longValue());
             }
             else
             {
-                throw new GeneratorException( "Error retrieving person id" );
+                throw new GeneratorException( "Error retrieving date" );
             }
 
-            return new Object[]{person1Id, person2Id};
+            return new Object[]{personId, date};
         }
     }
 }

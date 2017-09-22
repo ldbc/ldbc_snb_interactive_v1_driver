@@ -27,6 +27,10 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
     private final long replyToPostId;
     private final long replyToCommentId;
     private final List<Long> tagIds;
+    private final List<Long> mentionedIds;
+    private final Boolean privacy;
+    private final String link;
+    private final String gif;
 
     public LdbcUpdate7AddComment( long commentId,
             Date creationDate,
@@ -38,7 +42,11 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
             long countryId,
             long replyToPostId,
             long replyToCommentId,
-            List<Long> tagIds )
+            List<Long> tagIds,
+            List<Long> mentionedIds,
+            Boolean privacy,
+            String link,
+            String gif)
     {
         this.commentId = commentId;
         this.creationDate = creationDate;
@@ -51,6 +59,10 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
         this.replyToPostId = replyToPostId;
         this.replyToCommentId = replyToCommentId;
         this.tagIds = tagIds;
+	this.mentionedIds = mentionedIds;
+	this.privacy = privacy;
+	this.link = link;
+	this.gif = gif;
     }
 
     public long commentId()
@@ -108,6 +120,26 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
         return tagIds;
     }
 
+    public List<Long> mentionedIds()
+    {
+        return mentionedIds;
+    }
+
+    public Boolean privacy()
+    {
+	return privacy;
+    }
+    
+    public String link()
+    {
+        return link;
+    }
+
+    public String gif()
+    {
+        return gif;
+    }
+
     @Override
     public boolean equals( Object o )
     {
@@ -140,6 +172,14 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
         { return false; }
         if ( tagIds != null ? !ListUtils.listsEqual( sort( tagIds ), sort( that.tagIds ) ) : that.tagIds != null )
         { return false; }
+	if ( mentionedIds != null ? !ListUtils.listsEqual( sort( mentionedIds ), sort( that.mentionedIds ) ) : that.mentionedIds != null )
+        { return false; }
+	if ( privacy != null ? !privacy.equals( that.privacy ) : that.privacy != null )
+	{ return false; }
+	if ( link != null ? !link.equals( that.link ) : that.link != null )
+	{ return false; }
+	if ( gif != null ? !gif.equals( that.gif ) : that.gif != null )
+	{ return false; }
 
         return true;
     }
@@ -164,6 +204,10 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
         result = 31 * result + (int) (replyToPostId ^ (replyToPostId >>> 32));
         result = 31 * result + (int) (replyToCommentId ^ (replyToCommentId >>> 32));
         result = 31 * result + (tagIds != null ? tagIds.hashCode() : 0);
+	result = 31 * result + (mentionedIds != null ? mentionedIds.hashCode() : 0);
+	result = 31 * result + (privacy != null ? privacy.hashCode() : 0);
+	result = 31 * result + (link != null ? link.hashCode() : 0);
+	result = 31 * result + (gif != null ? gif.hashCode() : 0);
         return result;
     }
 
@@ -182,6 +226,10 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
                ", replyToPostId=" + replyToPostId +
                ", replyToCommentId=" + replyToCommentId +
                ", tagIds=" + tagIds +
+               ", mentionedIds=" + mentionedIds +
+               ", privacy=" + privacy +
+               ", link=" + link +
+               ", gif=" + gif +
                '}';
     }
 

@@ -9,6 +9,7 @@ import org.codehaus.jackson.type.TypeReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -18,23 +19,23 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static final int TYPE = 14;
-    private final long person1Id;
-    private final long person2Id;
+    private final long personId;
+    private final Date maxDate;
 
-    public LdbcQuery14( long person1Id, long person2Id )
+    public LdbcQuery14( long personId, Date maxDate )
     {
-        this.person1Id = person1Id;
-        this.person2Id = person2Id;
+        this.personId = personId;
+        this.maxDate = maxDate;
     }
 
-    public long person1Id()
+    public long personId()
     {
-        return person1Id;
+        return personId;
     }
 
-    public long person2Id()
+    public Date maxDate()
     {
-        return person2Id;
+        return maxDate;
     }
 
     @Override
@@ -47,9 +48,9 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
 
         LdbcQuery14 that = (LdbcQuery14) o;
 
-        if ( person1Id != that.person1Id )
+        if ( personId != that.personId )
         { return false; }
-        if ( person2Id != that.person2Id )
+	if ( maxDate != null ? !maxDate.equals( that.maxDate ) : that.maxDate != null )
         { return false; }
 
         return true;
@@ -58,8 +59,8 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (person1Id ^ (person1Id >>> 32));
-        result = 31 * result + (int) (person2Id ^ (person2Id >>> 32));
+        int result = (int) (personId ^ (personId >>> 32));
+	result = 31 * result + (maxDate != null ? maxDate.hashCode() : 0);
         return result;
     }
 
@@ -67,8 +68,8 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
     public String toString()
     {
         return "LdbcQuery14{" +
-               "person1Id=" + person1Id +
-               ", person2Id=" + person2Id +
+               "personId=" + personId +
+               ", maxDate=" + maxDate +
                '}';
     }
 
@@ -95,23 +96,13 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> resultAsList = resultsAsList.get( i );
-            Iterable<Long> personsIdsInPath =
-                    Iterables.transform( (List<Number>) resultAsList.get( 0 ), new Function<Number,Long>()
-                    {
-                        @Override
-                        public Long apply( Number number )
-                        {
-                            return number.longValue();
-                        }
-                    } );
-            double pathWeight = ((Number) resultAsList.get( 1 )).doubleValue();
+	    String link = (String) resultAsList.get( 0 );
+            int linkCount = ((Number) resultAsList.get( 1 )).intValue();
 
-            results.add(
-                    new LdbcQuery14Result(
-                            personsIdsInPath,
-                            pathWeight
-                    )
-            );
+            results.add( new LdbcQuery14Result(
+                    link,
+                    linkCount
+            ) );
         }
         return results;
     }
@@ -125,8 +116,8 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
         {
             LdbcQuery14Result result = results.get( i );
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personsIdsInPath() );
-            resultFields.add( result.pathWeight() );
+            resultFields.add( result.link() );
+            resultFields.add( result.linkCount() );
             resultsFields.add( resultFields );
         }
 

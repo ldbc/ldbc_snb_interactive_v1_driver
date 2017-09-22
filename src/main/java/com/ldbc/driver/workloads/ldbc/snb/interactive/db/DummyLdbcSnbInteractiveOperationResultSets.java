@@ -268,8 +268,23 @@ public class DummyLdbcSnbInteractiveOperationResultSets {
         );
     }
 
-    public static LdbcQuery13Result read13Results() {
-        return DummyLdbcSnbInteractiveOperationResultInstances.read13Result();
+    public static List<LdbcQuery13Result> read13Results() {
+	return Lists.newArrayList(
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result(),
+		DummyLdbcSnbInteractiveOperationResultInstances.read13Result()
+        );
     }
 
     public static List<LdbcQuery14Result> read14Results() {
