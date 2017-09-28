@@ -127,7 +127,7 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_14_CSV_ROWS()
     {
-        return "begin|todoEnd\n"
+        return "begin|end\n"
                + "1441351591755|1441351591756\n"
                + "1441351591756|1441351591757";
     }
@@ -143,7 +143,7 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_16_CSV_ROWS()
     {
-        return "todoPerson|tag|country|minPathDistance|maxPathDistance\n"
+        return "person|tag|country|minPathDistance|maxPathDistance\n"
                + "1|Writer|Cameroon|1|1\n"
                + "2|Writer|Colombia|1|2\n"
                + "3|Writer|Niger|2|2\n"
