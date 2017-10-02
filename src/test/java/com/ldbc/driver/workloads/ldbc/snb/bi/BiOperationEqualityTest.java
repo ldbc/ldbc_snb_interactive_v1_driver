@@ -320,16 +320,18 @@ public class BiOperationEqualityTest
     {
         // Given
         String tag1 = "\u3055";
+        long date1 = 1;
         int limit1 = 1;
 
         String tag2 = "\u4e35";
+        long date2 = 2;
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery10TagPerson query1a = new LdbcSnbBiQuery10TagPerson( tag1, limit1 );
-        LdbcSnbBiQuery10TagPerson query1b = new LdbcSnbBiQuery10TagPerson( tag1, limit1 );
-        LdbcSnbBiQuery10TagPerson query2a = new LdbcSnbBiQuery10TagPerson( tag2, limit2 );
-        LdbcSnbBiQuery10TagPerson query3a = new LdbcSnbBiQuery10TagPerson( tag2, limit1 );
+        LdbcSnbBiQuery10TagPerson query1a = new LdbcSnbBiQuery10TagPerson( tag1, date1, limit1 );
+        LdbcSnbBiQuery10TagPerson query1b = new LdbcSnbBiQuery10TagPerson( tag1, date1, limit1 );
+        LdbcSnbBiQuery10TagPerson query2a = new LdbcSnbBiQuery10TagPerson( tag2, date2, limit2 );
+        LdbcSnbBiQuery10TagPerson query3a = new LdbcSnbBiQuery10TagPerson( tag2, date1, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

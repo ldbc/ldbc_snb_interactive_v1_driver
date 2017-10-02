@@ -81,7 +81,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery10TagPerson read10()
     {
-        return new LdbcSnbBiQuery10TagPerson( "\u3055", 1 );
+        return new LdbcSnbBiQuery10TagPerson( "\u3055", 1, 1 );
     }
 
     public static LdbcSnbBiQuery11UnrelatedReplies read11()

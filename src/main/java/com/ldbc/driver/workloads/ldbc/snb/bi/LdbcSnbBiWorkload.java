@@ -955,6 +955,7 @@ public class LdbcSnbBiWorkload extends Workload
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.tag() );
+                operationAsList.add( ldbcQuery.date() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1215,8 +1216,9 @@ public class LdbcSnbBiWorkload extends Workload
         else if ( operationClassName.equals( LdbcSnbBiQuery10TagPerson.class.getName() ) )
         {
             String tag = (String) operationAsList.get( 1 );
-            int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery10TagPerson( tag, limit );
+            long date = ((Number) operationAsList.get( 2 )).longValue();
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery10TagPerson( tag, date, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery11UnrelatedReplies.class.getName() ) )
         {

@@ -11,17 +11,24 @@ public class LdbcSnbBiQuery10TagPerson extends Operation<List<LdbcSnbBiQuery10Ta
     public static final int TYPE = 10;
     public static final int DEFAULT_LIMIT = 100;
     private final String tag;
+    private final long date;
     private final int limit;
 
-    public LdbcSnbBiQuery10TagPerson( String tag, int limit )
+    public LdbcSnbBiQuery10TagPerson( String tag, long date, int limit )
     {
         this.tag = tag;
+        this.date = date;
         this.limit = limit;
     }
 
     public String tag()
     {
         return tag;
+    }
+
+    public long date()
+    {
+        return date;
     }
 
     public int limit()
@@ -34,6 +41,7 @@ public class LdbcSnbBiQuery10TagPerson extends Operation<List<LdbcSnbBiQuery10Ta
     {
         return "LdbcSnbBiQuery10{" +
                "tag='" + tag + '\'' +
+               "date='" + date + '\'' +
                ", limit=" + limit +
                '}';
     }
@@ -48,16 +56,18 @@ public class LdbcSnbBiQuery10TagPerson extends Operation<List<LdbcSnbBiQuery10Ta
 
         LdbcSnbBiQuery10TagPerson that = (LdbcSnbBiQuery10TagPerson) o;
 
+        if ( date != that.date )
+        { return false; }
         if ( limit != that.limit )
         { return false; }
-        return !(tag != null ? !tag.equals( that.tag ) : that.tag != null);
-
+        return tag != null ? tag.equals( that.tag ) : that.tag == null;
     }
 
     @Override
     public int hashCode()
     {
         int result = tag != null ? tag.hashCode() : 0;
+        result = 31 * result + (int) (date ^ (date >>> 32));
         result = 31 * result + limit;
         return result;
     }

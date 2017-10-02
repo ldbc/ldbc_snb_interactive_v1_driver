@@ -93,11 +93,11 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_10_CSV_ROWS()
     {
-        return "tag\n"
-               + "Franz_Schubert\n"
-               + "Bill_Clinton\n"
-               + "Dante_Alighieri\n"
-               + "Khalid_Sheikh_Mohammed";
+        return "tag|date\n"
+               + "Franz_Schubert|1\n"
+               + "Bill_Clinton|2\n"
+               + "Dante_Alighieri|3\n"
+               + "Khalid_Sheikh_Mohammed|4";
     }
 
     public static final String QUERY_11_CSV_ROWS()
