@@ -11,13 +11,13 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
     public static final int TYPE = 12;
     public static final int DEFAULT_LIMIT = 100;
     private final long date;
-    private final int likeCount;
+    private final int likeThreshold;
     private final int limit;
 
-    public LdbcSnbBiQuery12TrendingPosts( long date, int likeCount, int limit )
+    public LdbcSnbBiQuery12TrendingPosts( long date, int likeThreshold, int limit )
     {
         this.date = date;
-        this.likeCount = likeCount;
+        this.likeThreshold = likeThreshold;
         this.limit = limit;
     }
 
@@ -26,9 +26,9 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
         return date;
     }
 
-    public int likeCount()
+    public int likeThreshold()
     {
-        return likeCount;
+        return likeThreshold;
     }
 
     public int limit()
@@ -41,7 +41,7 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
     {
         return "LdbcSnbBiQuery12TrendingPosts{" +
                "date=" + date +
-               ", likeCount=" + likeCount +
+               ", likeThreshold=" + likeThreshold +
                ", limit=" + limit +
                '}';
     }
@@ -58,17 +58,16 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
 
         if ( date != that.date )
         { return false; }
-        if ( likeCount != that.likeCount )
+        if ( likeThreshold != that.likeThreshold )
         { return false; }
         return limit == that.limit;
-
     }
 
     @Override
     public int hashCode()
     {
         int result = (int) (date ^ (date >>> 32));
-        result = 31 * result + likeCount;
+        result = 31 * result + likeThreshold;
         result = 31 * result + limit;
         return result;
     }

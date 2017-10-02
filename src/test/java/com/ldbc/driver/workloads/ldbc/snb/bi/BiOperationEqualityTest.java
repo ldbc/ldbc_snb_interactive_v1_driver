@@ -368,18 +368,18 @@ public class BiOperationEqualityTest
     {
         // Given
         long date1 = 1;
-        int likeCount1 = 1;
+        int likeThreshold1 = 1;
         int limit1 = 1;
 
         long date2 = 2;
-        int likeCount2 = 2;
+        int likeThreshold2 = 2;
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery12TrendingPosts query1a = new LdbcSnbBiQuery12TrendingPosts( date1, likeCount1, limit1 );
-        LdbcSnbBiQuery12TrendingPosts query1b = new LdbcSnbBiQuery12TrendingPosts( date1, likeCount1, limit1 );
-        LdbcSnbBiQuery12TrendingPosts query2a = new LdbcSnbBiQuery12TrendingPosts( date2, likeCount2, limit2 );
-        LdbcSnbBiQuery12TrendingPosts query3a = new LdbcSnbBiQuery12TrendingPosts( date1, likeCount2, limit2 );
+        LdbcSnbBiQuery12TrendingPosts query1a = new LdbcSnbBiQuery12TrendingPosts( date1, likeThreshold1, limit1 );
+        LdbcSnbBiQuery12TrendingPosts query1b = new LdbcSnbBiQuery12TrendingPosts( date1, likeThreshold1, limit1 );
+        LdbcSnbBiQuery12TrendingPosts query2a = new LdbcSnbBiQuery12TrendingPosts( date2, likeThreshold2, limit2 );
+        LdbcSnbBiQuery12TrendingPosts query3a = new LdbcSnbBiQuery12TrendingPosts( date1, likeThreshold2, limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

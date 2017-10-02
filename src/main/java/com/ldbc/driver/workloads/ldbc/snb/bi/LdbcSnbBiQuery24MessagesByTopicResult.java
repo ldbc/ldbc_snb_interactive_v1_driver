@@ -53,7 +53,7 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
     {
         return "LdbcSnbBiQuery24MessagesByTopicResult{" +
                "messageCount=" + messageCount +
-               ", likeCount=" + likeCount +
+               ", likeThreshold=" + likeCount +
                ", year=" + year +
                ", month=" + month +
                ", continent='" + continent + '\'' +

@@ -974,7 +974,7 @@ public class LdbcSnbBiWorkload extends Workload
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.date() );
-                operationAsList.add( ldbcQuery.likeCount() );
+                operationAsList.add( ldbcQuery.likeThreshold() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1228,9 +1228,9 @@ public class LdbcSnbBiWorkload extends Workload
         else if ( operationClassName.equals( LdbcSnbBiQuery12TrendingPosts.class.getName() ) )
         {
             long date = ((Number) operationAsList.get( 1 )).longValue();
-            int likeCount = ((Number) operationAsList.get( 2 )).intValue();
+            int likeThreshold = ((Number) operationAsList.get( 2 )).intValue();
             int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery12TrendingPosts( date, likeCount, limit );
+            return new LdbcSnbBiQuery12TrendingPosts( date, likeThreshold, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery13PopularMonthlyTags.class.getName() ) )
         {

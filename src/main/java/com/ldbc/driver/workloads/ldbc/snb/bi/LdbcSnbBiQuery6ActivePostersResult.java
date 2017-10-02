@@ -54,7 +54,7 @@ public class LdbcSnbBiQuery6ActivePostersResult
                "personId=" + personId +
                ", postCount=" + postCount +
                ", replyCount=" + replyCount +
-               ", likeCount=" + likeCount +
+               ", likeThreshold=" + likeCount +
                ", score=" + score +
                '}';
     }
