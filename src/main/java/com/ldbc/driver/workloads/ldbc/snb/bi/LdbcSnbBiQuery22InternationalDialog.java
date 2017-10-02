@@ -10,25 +10,25 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
 {
     public static final int TYPE = 22;
     public static final int DEFAULT_LIMIT = 100;
-    private final String countryX;
-    private final String countryY;
+    private final String country1;
+    private final String country2;
     private final int limit;
 
-    public LdbcSnbBiQuery22InternationalDialog( String countryX, String countryY, int limit )
+    public LdbcSnbBiQuery22InternationalDialog( String country1, String country2, int limit )
     {
-        this.countryX = countryX;
-        this.countryY = countryY;
+        this.country1 = country1;
+        this.country2 = country2;
         this.limit = limit;
     }
 
-    public String countryX()
+    public String country1()
     {
-        return countryX;
+        return country1;
     }
 
-    public String countryY()
+    public String country2()
     {
-        return countryY;
+        return country2;
     }
 
     public int limit()
@@ -40,8 +40,8 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
     public String toString()
     {
         return "LdbcSnbBiQuery22InternationalDialog{" +
-               "countryX='" + countryX + '\'' +
-               ", countryY='" + countryY + '\'' +
+               "country1='" + country1 + '\'' +
+               ", country2='" + country2 + '\'' +
                ", limit=" + limit +
                '}';
     }
@@ -58,17 +58,17 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
 
         if ( limit != that.limit )
         { return false; }
-        if ( countryX != null ? !countryX.equals( that.countryX ) : that.countryX != null )
+        if ( country1 != null ? !country1.equals( that.country1 ) : that.country1 != null )
         { return false; }
-        return !(countryY != null ? !countryY.equals( that.countryY ) : that.countryY != null);
+        return !(country2 != null ? !country2.equals( that.country2 ) : that.country2 != null);
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = countryX != null ? countryX.hashCode() : 0;
-        result = 31 * result + (countryY != null ? countryY.hashCode() : 0);
+        int result = country1 != null ? country1.hashCode() : 0;
+        result = 31 * result + (country2 != null ? country2.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }
