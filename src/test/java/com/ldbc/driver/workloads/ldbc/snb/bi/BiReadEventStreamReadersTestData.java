@@ -111,7 +111,7 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_12_CSV_ROWS()
     {
-        return "creationDate|likeThreshold\n"
+        return "date|likeThreshold\n"
                + "1441351591755|1\n"
                + "1441351591756|2";
     }
