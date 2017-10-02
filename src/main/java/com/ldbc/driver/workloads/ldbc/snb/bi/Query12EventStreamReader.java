@@ -66,7 +66,7 @@ public class Query12EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving like count" );
+                    throw new GeneratorException( "Error retrieving like threshold" );
                 }
 
                 return new Object[]{date, likeThreshold, LdbcSnbBiQuery12TrendingPosts.DEFAULT_LIMIT};
