@@ -23,10 +23,10 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_2_CSV_ROWS() throws ParseException
     {
-        return "date1|date2|country1|country2|\n"
+        return "date1|date2|country1|country2\n"
                + "1441351591755|1441351591755|countryA|countryB\n"
                + "1441351591755|1441351591755|countryA|countryC\n"
-               + "1441351591755|1441351591756|countryB|countryD";
+               + "1441351591755|1441351591756|countryB|countryD\n";
     }
 
     public static final String QUERY_3_CSV_ROWS() throws ParseException
