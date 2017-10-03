@@ -1010,8 +1010,8 @@ public class LdbcSnbBiWorkload extends Workload
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.person() );
-                operationAsList.add( ldbcQuery.tagClass() );
                 operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.tagClass() );
                 operationAsList.add( ldbcQuery.minPathDistance() );
                 operationAsList.add( ldbcQuery.maxPathDistance() );
                 operationAsList.add( ldbcQuery.limit() );
@@ -1249,8 +1249,8 @@ public class LdbcSnbBiWorkload extends Workload
         else if ( operationClassName.equals( LdbcSnbBiQuery16ExpertsInSocialCircle.class.getName() ) )
         {
             long person = ((Number) operationAsList.get( 1 )).longValue();
-            String tagClass = (String) operationAsList.get( 2 );
-            String country = (String) operationAsList.get( 3 );
+            String country = (String) operationAsList.get( 2 );
+            String tagClass = (String) operationAsList.get( 3 );
             int minPathDistance = (int) operationAsList.get( 4 );
             int maxPathDistance = (int) operationAsList.get( 5 );
             int limit = ((Number) operationAsList.get( 6 )).intValue();

@@ -63,8 +63,8 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
     {
         return "LdbcSnbBiQuery16ExpertsInSocialCircle{" +
                "person=" + person +
-               ", tagClass='" + tagClass + '\'' +
                ", country='" + country + '\'' +
+               ", tagClass='" + tagClass + '\'' +
                ", minPathDistance='" + minPathDistance + '\'' +
                ", maxPathDistance='" + maxPathDistance + '\'' +
                ", limit=" + limit +
