@@ -21,12 +21,12 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
         this.limit = limit;
     }
 
-    public long year()
+    public int year()
     {
         return year;
     }
 
-    public long month()
+    public int month()
     {
         return month;
     }
