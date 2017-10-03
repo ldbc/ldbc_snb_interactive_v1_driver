@@ -82,42 +82,30 @@ public class BiOperationEqualityTest
     public void ldbcQuery3ShouldDoEqualsCorrectly()
     {
         // Given
-        long range1Start1 = 1;
-        long range1End1 = 1;
-        long range2Start1 = 1;
-        long range2End1 = 1;
+        int year1 = 1;
+        int month1 = 1;
         int limit1 = 1;
 
-        long range1Start2 = 2;
-        long range1End2 = 2;
-        long range2Start2 = 2;
-        long range2End2 = 2;
+        int year2 = 2;
+        int month2 = 2;
         int limit2 = 2;
 
         // When
         LdbcSnbBiQuery3TagEvolution query1a = new LdbcSnbBiQuery3TagEvolution(
-                range1Start1,
-                range1End1,
-                range2Start1,
-                range2End1,
+                year1,
+                month1,
                 limit1 );
         LdbcSnbBiQuery3TagEvolution query1b = new LdbcSnbBiQuery3TagEvolution(
-                range1Start1,
-                range1End1,
-                range2Start1,
-                range2End1,
+                year1,
+                month1,
                 limit1 );
         LdbcSnbBiQuery3TagEvolution query2a = new LdbcSnbBiQuery3TagEvolution(
-                range1Start2,
-                range1End2,
-                range2Start2,
-                range2End2,
+                year2,
+                month2,
                 limit2 );
         LdbcSnbBiQuery3TagEvolution query3a = new LdbcSnbBiQuery3TagEvolution(
-                range1Start1,
-                range1End1,
-                range2Start1,
-                range2End2,
+                year1,
+                month2,
                 limit1 );
 
         // Then

@@ -31,10 +31,9 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_3_CSV_ROWS() throws ParseException
     {
-        return "range1Start|range1End|range2Start|range2End\n"
-               + "1|2|3|4\n"
-               + "5|6|7|8\n"
-               + Long.MAX_VALUE + "|" + Long.MAX_VALUE + "|" + Long.MAX_VALUE + "|" + Long.MAX_VALUE;
+        return "year|month\n"
+               + "1|2\n"
+               + "3|4\n";
     }
 
     public static final String QUERY_4_CSV_ROWS() throws ParseException

@@ -116,30 +116,18 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery3TagEvolution operation;
 
         operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
-        assertThat( operation.range1Start(), is( 1l ) );
-        assertThat( operation.range1End(), is( 2l ) );
-        assertThat( operation.range2Start(), is( 3l ) );
-        assertThat( operation.range2End(), is( 4l ) );
+        assertThat( operation.year(), is( 1 ) );
+        assertThat( operation.month(), is( 2 ) );
 
         operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
-        assertThat( operation.range1Start(), is( 5l ) );
-        assertThat( operation.range1End(), is( 6l ) );
-        assertThat( operation.range2Start(), is( 7l ) );
-        assertThat( operation.range2End(), is( 8l ) );
-
-        operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
-        assertThat( operation.range1Start(), is( Long.MAX_VALUE ) );
-        assertThat( operation.range1End(), is( Long.MAX_VALUE ) );
-        assertThat( operation.range2Start(), is( Long.MAX_VALUE ) );
-        assertThat( operation.range2End(), is( Long.MAX_VALUE ) );
+        assertThat( operation.year(), is( 3 ) );
+        assertThat( operation.month(), is( 4 ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
-        assertThat( operation.range1Start(), is( 1l ) );
-        assertThat( operation.range1End(), is( 2l ) );
-        assertThat( operation.range2Start(), is( 3l ) );
-        assertThat( operation.range2End(), is( 4l ) );
+        assertThat( operation.year(), is( 1 ) );
+        assertThat( operation.month(), is( 2 ) );
 
         assertTrue( reader.hasNext() );
     }
