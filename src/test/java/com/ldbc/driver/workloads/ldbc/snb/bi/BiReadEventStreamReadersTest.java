@@ -70,38 +70,30 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery2TopTags operation;
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.dateA(), is( 1441351591755l ) );
-        assertThat( operation.dateB(), is( 1441351591755l ) );
-        assertThat( operation.countries(),
-                CoreMatchers.<List<String>>equalTo( Lists.newArrayList( "countryA", "countryB" ) ) );
-        assertThat( operation.endOfSimulationTime(), is( 1l ) );
-        assertThat( operation.messageThreshold(), is( 10 ) );
+        assertThat( operation.date1(), is( 1441351591755l ) );
+        assertThat( operation.date2(), is( 1441351591755l ) );
+        assertThat( operation.country1(), is( "countryA" ) );
+        assertThat( operation.country2(), is( "countryB" ) );
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.dateA(), is( 1441351591755l ) );
-        assertThat( operation.dateB(), is( 1441351591755l ) );
-        assertThat( operation.countries(),
-                CoreMatchers.<List<String>>equalTo( Lists.newArrayList( "countryA", "countryC" ) ) );
-        assertThat( operation.endOfSimulationTime(), is( 2l ) );
-        assertThat( operation.messageThreshold(), is( 20 ) );
+        assertThat( operation.date1(), is( 1441351591755l ) );
+        assertThat( operation.date2(), is( 1441351591755l ) );
+        assertThat( operation.country1(), is( "countryA" ) );
+        assertThat( operation.country2(), is( "countryC" ) );
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.dateA(), is( 1441351591755l ) );
-        assertThat( operation.dateB(), is( 1441351591756l ) );
-        assertThat( operation.countries(),
-                CoreMatchers.<List<String>>equalTo( Lists.newArrayList( "countryB", "countryD", "countryE" ) ) );
-        assertThat( operation.endOfSimulationTime(), is( Long.MAX_VALUE ) );
-        assertThat( operation.messageThreshold(), is( 30 ) );
+        assertThat( operation.date1(), is( 1441351591755l ) );
+        assertThat( operation.date2(), is( 1441351591756l ) );
+        assertThat( operation.country1(), is( "countryB" ) );
+        assertThat( operation.country2(), is( "countryD" ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.dateA(), is( 1441351591755l ) );
-        assertThat( operation.dateB(), is( 1441351591755l ) );
-        assertThat( operation.countries(),
-                CoreMatchers.<List<String>>equalTo( Lists.newArrayList( "countryA", "countryB" ) ) );
-        assertThat( operation.endOfSimulationTime(), is( 1l ) );
-        assertThat( operation.messageThreshold(), is( 10 ) );
+        assertThat( operation.date1(), is( 1441351591755l ) );
+        assertThat( operation.date2(), is( 1441351591755l ) );
+        assertThat( operation.country1(), is( "countryA" ) );
+        assertThat( operation.country2(), is( "countryB" ) );
 
         assertTrue( reader.hasNext() );
     }

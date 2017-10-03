@@ -871,11 +871,10 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery2TopTags ldbcQuery = (LdbcSnbBiQuery2TopTags) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.dateA() );
-                operationAsList.add( ldbcQuery.dateB() );
-                operationAsList.add( ldbcQuery.countries() );
-                operationAsList.add( ldbcQuery.messageThreshold() );
-                operationAsList.add( ldbcQuery.endOfSimulationTime() );
+                operationAsList.add( ldbcQuery.date1() );
+                operationAsList.add( ldbcQuery.date2() );
+                operationAsList.add( ldbcQuery.country1() );
+                operationAsList.add( ldbcQuery.country2() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1149,18 +1148,16 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery2TopTags.class.getName() ) )
         {
-            long dateA = ((Number) operationAsList.get( 1 )).longValue();
-            long dateB = ((Number) operationAsList.get( 2 )).longValue();
-            List<String> countries = (List<String>) operationAsList.get( 3 );
-            int minMessageCount = ((Number) operationAsList.get( 4 )).intValue();
-            long endOfSimulationTime = ((Number) operationAsList.get( 5 )).longValue();
-            int limit = ((Number) operationAsList.get( 6 )).intValue();
+            long date1 = ((Number) operationAsList.get( 1 )).longValue();
+            long date2 = ((Number) operationAsList.get( 2 )).longValue();
+            String country1 = (String) operationAsList.get( 3 );
+            String country2 = (String) operationAsList.get( 4 );
+            int limit = ((Number) operationAsList.get( 5 )).intValue();
             return new LdbcSnbBiQuery2TopTags(
-                    dateA,
-                    dateB,
-                    countries,
-                    minMessageCount,
-                    endOfSimulationTime,
+                    date1,
+                    date2,
+                    country1,
+                    country2,
                     limit
             );
         }

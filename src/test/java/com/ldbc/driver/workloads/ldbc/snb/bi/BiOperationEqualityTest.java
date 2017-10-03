@@ -33,48 +33,42 @@ public class BiOperationEqualityTest
     public void ldbcQuery2ShouldDoEqualsCorrectly()
     {
         // Given
-        long dateA1 = 1;
-        long dateB1 = 1;
-        List<String> countries1 = Lists.newArrayList( "a", "b" );
-        int minMessageCount1 = 1;
-        long endOfSimulationTime1 = 1l;
+        long date11 = 1;
+        long date21 = 1;
+        String country11 = "a";
+        String country21 = "b";
         int limit1 = 1;
 
-        long dateA2 = 2;
-        long dateB2 = 2;
-        List<String> countries2 = Lists.newArrayList( "a", "c" );
-        int minMessageCount2 = 2;
-        long endOfSimulationTime2 = 2l;
+        long date12 = 2;
+        long date22 = 2;
+        String country12 = "a";
+        String country22 = "c";
         int limit2 = 2;
 
         // When
         LdbcSnbBiQuery2TopTags query1a = new LdbcSnbBiQuery2TopTags(
-                dateA1,
-                dateB1,
-                countries1,
-                minMessageCount1,
-                endOfSimulationTime1,
+                date11,
+                date21,
+                country11,
+                country21,
                 limit1 );
         LdbcSnbBiQuery2TopTags query1b = new LdbcSnbBiQuery2TopTags(
-                dateA1,
-                dateB1,
-                countries1,
-                minMessageCount1,
-                endOfSimulationTime1,
+                date11,
+                date21,
+                country11,
+                country21,
                 limit1 );
         LdbcSnbBiQuery2TopTags query2a = new LdbcSnbBiQuery2TopTags(
-                dateA2,
-                dateB2,
-                countries2,
-                minMessageCount2,
-                endOfSimulationTime2,
+                date12,
+                date22,
+                country12,
+                country22,
                 limit2 );
         LdbcSnbBiQuery2TopTags query3a = new LdbcSnbBiQuery2TopTags(
-                dateA1,
-                dateB2,
-                countries2,
-                minMessageCount2,
-                endOfSimulationTime2,
+                date11,
+                date22,
+                country11,
+                country22,
                 limit2 );
 
         // Then

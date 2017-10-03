@@ -1,7 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
-import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -14,7 +13,6 @@ import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 public class Query2EventStreamReader extends BaseEventStreamReader
 {
@@ -32,10 +30,9 @@ public class Query2EventStreamReader extends BaseEventStreamReader
         return new LdbcSnbBiQuery2TopTags(
                 (long) parameters[0],
                 (long) parameters[1],
-                (List<String>) parameters[2],
-                (int) parameters[3],
-                (long) parameters[4],
-                (int) parameters[5]
+                (String) parameters[2],
+                (String) parameters[3],
+                (int) parameters[4]
         );
     }
 
@@ -45,7 +42,7 @@ public class Query2EventStreamReader extends BaseEventStreamReader
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
             /*
-            Date0|Date1|CountryA|CountryB
+            Date1|Date2|Country1|Country2
             1236219|1335225600|countryA|countryB
              */
             @Override
@@ -53,17 +50,6 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long date0;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    date0 = charSeeker.extract( mark, extractors.long_() ).longValue();
-                }
-                else
-                {
-                    // if first column of next row contains nothing it means the file is finished
-                    return null;
-                }
-
                 long date1;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
@@ -71,45 +57,45 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving date" );
+                    // if first column of next row contains nothing it means the file is finished
+                    return null;
                 }
 
-                List<String> countries;
+                long date2;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    countries = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
+                    date2 = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving languages" );
+                    throw new GeneratorException( "Error retrieving date2" );
                 }
 
-                long endOfSimulationTime;
+                String country1;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    endOfSimulationTime = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    country1 = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving end of simulation time" );
+                    throw new GeneratorException( "Error retrieving country1" );
                 }
 
-                int messageThreshold;
+                String country2;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    messageThreshold = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    country2 = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving min message count" );
+                    throw new GeneratorException( "Error retrieving country2" );
                 }
 
                 return new Object[]{
-                        date0,
                         date1,
-                        countries,
-                        messageThreshold,
-                        endOfSimulationTime,
+                        date2,
+                        country1,
+                        country2,
                         LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT,
                 };
             }
@@ -119,6 +105,6 @@ public class Query2EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 5;
+        return 4;
     }
 }
