@@ -4,9 +4,9 @@ language: java
 install: true
 script:
   # the total output is approx. 50k lines, so we need to filter it a bit
-  - mvn test | grep "^\\["
-  # test the output of the mvn command
-  - test ${PIPESTATUS[0]} -eq 0
+  - mvn test | grep "^\\[" | tee mvn.log
+  # test if the output of the mvn command contained an "[INFO] BUILD SUCCESS" entry
+  - grep "\[INFO\] BUILD SUCCESS" mvn.log
 notifications:
   slack: ldbcouncil:0FIBC03v0bz1jQqtoYsLRE1h
   email: false
