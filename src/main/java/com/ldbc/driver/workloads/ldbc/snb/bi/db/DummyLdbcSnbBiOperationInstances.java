@@ -56,7 +56,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery5TopCountryPosters read5()
     {
-        return new LdbcSnbBiQuery5TopCountryPosters( "\u16a0", 1, 2 );
+        return new LdbcSnbBiQuery5TopCountryPosters( "\u16a0", 1 );
     }
 
     public static LdbcSnbBiQuery6ActivePosters read6()

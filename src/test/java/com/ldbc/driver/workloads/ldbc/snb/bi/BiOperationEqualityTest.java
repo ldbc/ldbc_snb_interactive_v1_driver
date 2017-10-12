@@ -149,32 +149,26 @@ public class BiOperationEqualityTest
     {
         // Given
         String country1 = "\u3055";
-        int popularForumLimit1 = 1;
         int limit1 = 1;
 
         String country2 = "\u4e35";
-        int popularForumLimit2 = 2;
         int limit2 = 2;
 
         // When
         LdbcSnbBiQuery5TopCountryPosters query1a = new LdbcSnbBiQuery5TopCountryPosters(
                 country1,
-                popularForumLimit1,
                 limit1
         );
         LdbcSnbBiQuery5TopCountryPosters query1b = new LdbcSnbBiQuery5TopCountryPosters(
                 country1,
-                popularForumLimit1,
                 limit1
         );
         LdbcSnbBiQuery5TopCountryPosters query2a = new LdbcSnbBiQuery5TopCountryPosters(
                 country2,
-                popularForumLimit2,
                 limit2
         );
         LdbcSnbBiQuery5TopCountryPosters query3a = new LdbcSnbBiQuery5TopCountryPosters(
                 country2,
-                popularForumLimit1,
                 limit1
         );
 
