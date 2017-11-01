@@ -59,16 +59,15 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "LdbcSnbBiQuery16ExpertsInSocialCircle{" +
-               "personId=" + personId +
+                "personId=" + personId +
+                ", country='" + country + '\'' +
                 ", tagClass='" + tagClass + '\'' +
-               ", country='" + country + '\'' +
-               ", minPathDistance='" + minPathDistance + '\'' +
-               ", maxPathDistance='" + maxPathDistance + '\'' +
-               ", limit=" + limit +
-               '}';
+                ", minPathDistance=" + minPathDistance +
+                ", maxPathDistance=" + maxPathDistance +
+                ", limit=" + limit +
+                '}';
     }
 
     @Override

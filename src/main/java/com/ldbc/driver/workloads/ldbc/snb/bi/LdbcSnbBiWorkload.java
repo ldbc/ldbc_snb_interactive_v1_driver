@@ -1246,13 +1246,13 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery16ExpertsInSocialCircle.class.getName() ) )
         {
-            long person = ((Number) operationAsList.get( 1 )).longValue();
+            long personId = ((Number) operationAsList.get( 1 )).longValue();
             String country = (String) operationAsList.get( 2 );
             String tagClass = (String) operationAsList.get( 3 );
             int minPathDistance = (int) operationAsList.get( 4 );
             int maxPathDistance = (int) operationAsList.get( 5 );
             int limit = ((Number) operationAsList.get( 6 )).intValue();
-            return new LdbcSnbBiQuery16ExpertsInSocialCircle( person, tagClass, country, minPathDistance,
+            return new LdbcSnbBiQuery16ExpertsInSocialCircle( personId, country, tagClass, minPathDistance,
                     maxPathDistance, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery17FriendshipTriangles.class.getName() ) )

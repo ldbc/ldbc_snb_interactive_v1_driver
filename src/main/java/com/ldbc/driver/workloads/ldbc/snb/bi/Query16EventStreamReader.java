@@ -102,7 +102,7 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving max path distance" );
                 }
 
-                return new Object[]{person, tagClass, country, minPathDistance, maxPathDistance,
+                return new Object[]{person, country, tagClass, minPathDistance, maxPathDistance,
                         LdbcSnbBiQuery16ExpertsInSocialCircle.DEFAULT_LIMIT};
             }
         };
