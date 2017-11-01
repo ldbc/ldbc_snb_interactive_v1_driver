@@ -1,4 +1,4 @@
-person|country|tagClass|minPathDistance|maxPathDistance
+personId|country|tagClass|minPathDistance|maxPathDistance
 11052|Greece|Writer|1|2
 11052|Burma|Writer|1|2
 11052|Romania|Writer|1|2

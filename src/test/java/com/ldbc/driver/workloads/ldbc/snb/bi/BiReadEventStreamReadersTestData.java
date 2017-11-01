@@ -142,7 +142,7 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_16_CSV_ROWS()
     {
-        return "person|country|tagClass|minPathDistance|maxPathDistance\n"
+        return "personId|country|tagClass|minPathDistance|maxPathDistance\n"
                + "1|Cameroon|Writer|1|1\n"
                + "2|Colombia|Writer|1|2\n"
                + "3|Niger|Writer|2|2\n"

@@ -1008,7 +1008,7 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery16ExpertsInSocialCircle ldbcQuery = (LdbcSnbBiQuery16ExpertsInSocialCircle) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.person() );
+                operationAsList.add( ldbcQuery.personId() );
                 operationAsList.add( ldbcQuery.country() );
                 operationAsList.add( ldbcQuery.tagClass() );
                 operationAsList.add( ldbcQuery.minPathDistance() );

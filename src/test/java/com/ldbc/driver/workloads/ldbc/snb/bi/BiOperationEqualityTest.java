@@ -453,32 +453,32 @@ public class BiOperationEqualityTest
     public void ldbcQuery16ShouldDoEqualsCorrectly()
     {
         // Given
-        long person1 = 1;
-        String tagClass1 = "\u3055";
+        long personId1 = 1;
         String country1 = "\u16a0";
+        String tagClass1 = "\u3055";
         int minPathDistance1 = 1;
         int maxPathDistance1 = 1;
         int limit1 = 1;
 
-        long person2 = 2;
-        String tagClass2 = "\u4e35";
+        long personId2 = 2;
         String country2 = "tag";
+        String tagClass2 = "\u4e35";
         int minPathDistance2 = 2;
         int maxPathDistance2 = 2;
         int limit2 = 2;
 
         // When
         LdbcSnbBiQuery16ExpertsInSocialCircle
-                query1a = new LdbcSnbBiQuery16ExpertsInSocialCircle( person1, tagClass1, country1, minPathDistance1,
+                query1a = new LdbcSnbBiQuery16ExpertsInSocialCircle( personId1, country1, tagClass1, minPathDistance1,
                 maxPathDistance1, limit1 );
         LdbcSnbBiQuery16ExpertsInSocialCircle
-                query1b = new LdbcSnbBiQuery16ExpertsInSocialCircle( person1, tagClass1, country1, minPathDistance1,
+                query1b = new LdbcSnbBiQuery16ExpertsInSocialCircle( personId1, country1, tagClass1, minPathDistance1,
                 maxPathDistance1, limit1 );
         LdbcSnbBiQuery16ExpertsInSocialCircle
-                query2a = new LdbcSnbBiQuery16ExpertsInSocialCircle( person2, tagClass2, country2, minPathDistance2,
+                query2a = new LdbcSnbBiQuery16ExpertsInSocialCircle( personId2, country2, tagClass2, minPathDistance2,
                 maxPathDistance2, limit2 );
         LdbcSnbBiQuery16ExpertsInSocialCircle
-                query3a = new LdbcSnbBiQuery16ExpertsInSocialCircle( person1, tagClass2, country1, minPathDistance1,
+                query3a = new LdbcSnbBiQuery16ExpertsInSocialCircle( personId1, country1, tagClass2, minPathDistance1,
                 maxPathDistance2, limit1 );
 
         // Then

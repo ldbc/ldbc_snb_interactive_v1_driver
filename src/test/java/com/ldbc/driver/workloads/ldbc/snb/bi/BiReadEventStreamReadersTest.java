@@ -605,31 +605,31 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery16ExpertsInSocialCircle operation;
 
         operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
-        assertThat( operation.person(), is( 1l ) );
-        assertThat( operation.tagClass(), is( "Writer" ) );
+        assertThat( operation.personId(), is( 1l ) );
         assertThat( operation.country(), is( "Cameroon" ) );
+        assertThat( operation.tagClass(), is( "Writer" ) );
 
         operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
-        assertThat( operation.person(), is( 2l ) );
-        assertThat( operation.tagClass(), is( "Writer" ) );
+        assertThat( operation.personId(), is( 2l ) );
         assertThat( operation.country(), is( "Colombia" ) );
+        assertThat( operation.tagClass(), is( "Writer" ) );
 
         operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
-        assertThat( operation.person(), is( 3l ) );
-        assertThat( operation.tagClass(), is( "Writer" ) );
+        assertThat( operation.personId(), is( 3l ) );
         assertThat( operation.country(), is( "Niger" ) );
+        assertThat( operation.tagClass(), is( "Writer" ) );
 
         operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
-        assertThat( operation.person(), is( 4l ) );
-        assertThat( operation.tagClass(), is( "Writer" ) );
+        assertThat( operation.personId(), is( 4l ) );
         assertThat( operation.country(), is( "Sweden" ) );
+        assertThat( operation.tagClass(), is( "Writer" ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
-        assertThat( operation.person(), is( 1l ) );
-        assertThat( operation.tagClass(), is( "Writer" ) );
+        assertThat( operation.personId(), is( 1l ) );
         assertThat( operation.country(), is( "Cameroon" ) );
+        assertThat( operation.tagClass(), is( "Writer" ) );
 
         assertTrue( reader.hasNext() );
     }
