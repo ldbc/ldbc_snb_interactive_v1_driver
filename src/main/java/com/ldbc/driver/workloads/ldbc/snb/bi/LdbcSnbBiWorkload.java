@@ -1292,10 +1292,10 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery22InternationalDialog.class.getName() ) )
         {
-            String countryA = (String) operationAsList.get( 1 );
-            String countryB = (String) operationAsList.get( 2 );
+            String country1 = (String) operationAsList.get( 1 );
+            String country2 = (String) operationAsList.get( 2 );
             int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery22InternationalDialog( countryA, countryB, limit );
+            return new LdbcSnbBiQuery22InternationalDialog( country1, country2, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery23HolidayDestinations.class.getName() ) )
         {

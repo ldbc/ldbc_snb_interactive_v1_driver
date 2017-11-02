@@ -619,23 +619,23 @@ public class BiOperationEqualityTest
     public void ldbcQuery22ShouldDoEqualsCorrectly()
     {
         // Given
-        String countryA1 = "\u3055";
-        String countryB1 = "\u16a0";
+        String country11 = "\u3055";
+        String country21 = "\u16a0";
         int limit1 = 1;
 
-        String countryA2 = "\u4e35";
-        String countryB2 = "tag";
+        String country12 = "\u4e35";
+        String country22 = "tag";
         int limit2 = 2;
 
         // When
         LdbcSnbBiQuery22InternationalDialog
-                query1a = new LdbcSnbBiQuery22InternationalDialog( countryA1, countryB1, limit1 );
+                query1a = new LdbcSnbBiQuery22InternationalDialog( country11, country21, limit1 );
         LdbcSnbBiQuery22InternationalDialog
-                query1b = new LdbcSnbBiQuery22InternationalDialog( countryA1, countryB1, limit1 );
+                query1b = new LdbcSnbBiQuery22InternationalDialog( country11, country21, limit1 );
         LdbcSnbBiQuery22InternationalDialog
-                query2a = new LdbcSnbBiQuery22InternationalDialog( countryA2, countryB2, limit2 );
+                query2a = new LdbcSnbBiQuery22InternationalDialog( country12, country22, limit2 );
         LdbcSnbBiQuery22InternationalDialog
-                query3a = new LdbcSnbBiQuery22InternationalDialog( countryA2, countryB1, limit1 );
+                query3a = new LdbcSnbBiQuery22InternationalDialog( country12, country21, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

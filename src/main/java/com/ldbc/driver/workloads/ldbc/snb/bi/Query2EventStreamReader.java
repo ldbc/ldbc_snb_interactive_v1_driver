@@ -43,7 +43,7 @@ public class Query2EventStreamReader extends BaseEventStreamReader
         {
             /*
             Date1|Date2|Country1|Country2
-            1236219|1335225600|countryA|countryB
+            1236219|1335225600|Yemen|Romania
              */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
