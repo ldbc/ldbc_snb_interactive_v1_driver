@@ -340,30 +340,30 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery9RelatedForums operation;
 
         operation = (LdbcSnbBiQuery9RelatedForums) reader.next();
-        assertThat( operation.tagClassA(), is( "Person" ) );
-        assertThat( operation.tagClassB(), is( "OfficeHolder" ) );
+        assertThat( operation.tagClass1(), is( "Person" ) );
+        assertThat( operation.tagClass2(), is( "OfficeHolder" ) );
         assertThat( operation.threshold(), is( 1 ) );
 
         operation = (LdbcSnbBiQuery9RelatedForums) reader.next();
-        assertThat( operation.tagClassA(), is( "Person" ) );
-        assertThat( operation.tagClassB(), is( "Writer" ) );
+        assertThat( operation.tagClass1(), is( "Person" ) );
+        assertThat( operation.tagClass2(), is( "Writer" ) );
         assertThat( operation.threshold(), is( 2 ) );
 
         operation = (LdbcSnbBiQuery9RelatedForums) reader.next();
-        assertThat( operation.tagClassA(), is( "Person" ) );
-        assertThat( operation.tagClassB(), is( "Single" ) );
+        assertThat( operation.tagClass1(), is( "Person" ) );
+        assertThat( operation.tagClass2(), is( "Single" ) );
         assertThat( operation.threshold(), is( 3 ) );
 
         operation = (LdbcSnbBiQuery9RelatedForums) reader.next();
-        assertThat( operation.tagClassA(), is( "Person" ) );
-        assertThat( operation.tagClassB(), is( "Country" ) );
+        assertThat( operation.tagClass1(), is( "Person" ) );
+        assertThat( operation.tagClass2(), is( "Country" ) );
         assertThat( operation.threshold(), is( 4 ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery9RelatedForums) reader.next();
-        assertThat( operation.tagClassA(), is( "Person" ) );
-        assertThat( operation.tagClassB(), is( "OfficeHolder" ) );
+        assertThat( operation.tagClass1(), is( "Person" ) );
+        assertThat( operation.tagClass2(), is( "OfficeHolder" ) );
         assertThat( operation.threshold(), is( 1 ) );
 
         assertTrue( reader.hasNext() );
@@ -721,30 +721,30 @@ public class BiReadEventStreamReadersTest
 
         operation = (LdbcSnbBiQuery19StrangerInteraction) reader.next();
         assertThat( operation.date(), is( 1l ) );
-        assertThat( operation.tagClassA(), is( "Writer" ) );
-        assertThat( operation.tagClassB(), is( "Single" ) );
+        assertThat( operation.tagClass1(), is( "Writer" ) );
+        assertThat( operation.tagClass2(), is( "Single" ) );
 
         operation = (LdbcSnbBiQuery19StrangerInteraction) reader.next();
         assertThat( operation.date(), is( 2l ) );
-        assertThat( operation.tagClassA(), is( "Writer" ) );
-        assertThat( operation.tagClassB(), is( "Country" ) );
+        assertThat( operation.tagClass1(), is( "Writer" ) );
+        assertThat( operation.tagClass2(), is( "Country" ) );
 
         operation = (LdbcSnbBiQuery19StrangerInteraction) reader.next();
         assertThat( operation.date(), is( 3l ) );
-        assertThat( operation.tagClassA(), is( "Writer" ) );
-        assertThat( operation.tagClassB(), is( "Album" ) );
+        assertThat( operation.tagClass1(), is( "Writer" ) );
+        assertThat( operation.tagClass2(), is( "Album" ) );
 
         operation = (LdbcSnbBiQuery19StrangerInteraction) reader.next();
         assertThat( operation.date(), is( 4l ) );
-        assertThat( operation.tagClassA(), is( "Writer" ) );
-        assertThat( operation.tagClassB(), is( "BritishRoyalty" ) );
+        assertThat( operation.tagClass1(), is( "Writer" ) );
+        assertThat( operation.tagClass2(), is( "BritishRoyalty" ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery19StrangerInteraction) reader.next();
         assertThat( operation.date(), is( 1l ) );
-        assertThat( operation.tagClassA(), is( "Writer" ) );
-        assertThat( operation.tagClassB(), is( "Single" ) );
+        assertThat( operation.tagClass1(), is( "Writer" ) );
+        assertThat( operation.tagClass2(), is( "Single" ) );
 
         assertTrue( reader.hasNext() );
     }

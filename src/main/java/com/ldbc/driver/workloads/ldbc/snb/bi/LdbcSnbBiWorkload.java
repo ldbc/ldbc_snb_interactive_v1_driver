@@ -939,8 +939,8 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery9RelatedForums ldbcQuery = (LdbcSnbBiQuery9RelatedForums) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.tagClassA() );
-                operationAsList.add( ldbcQuery.tagClassB() );
+                operationAsList.add( ldbcQuery.tagClass1() );
+                operationAsList.add( ldbcQuery.tagClass2() );
                 operationAsList.add( ldbcQuery.threshold() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1041,8 +1041,8 @@ public class LdbcSnbBiWorkload extends Workload
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.date() );
-                operationAsList.add( ldbcQuery.tagClassA() );
-                operationAsList.add( ldbcQuery.tagClassB() );
+                operationAsList.add( ldbcQuery.tagClass1() );
+                operationAsList.add( ldbcQuery.tagClass2() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1198,11 +1198,11 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery9RelatedForums.class.getName() ) )
         {
-            String tagClassA = (String) operationAsList.get( 1 );
-            String tagClassB = (String) operationAsList.get( 2 );
+            String tagClass1 = (String) operationAsList.get( 1 );
+            String tagClass2 = (String) operationAsList.get( 2 );
             int threshold = ((Number) operationAsList.get( 3 )).intValue();
             int limit = ((Number) operationAsList.get( 4 )).intValue();
-            return new LdbcSnbBiQuery9RelatedForums( tagClassA, tagClassB, threshold, limit );
+            return new LdbcSnbBiQuery9RelatedForums( tagClass1, tagClass2, threshold, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery10TagPerson.class.getName() ) )
         {
@@ -1271,10 +1271,10 @@ public class LdbcSnbBiWorkload extends Workload
         else if ( operationClassName.equals( LdbcSnbBiQuery19StrangerInteraction.class.getName() ) )
         {
             long date = ((Number) operationAsList.get( 1 )).longValue();
-            String tagClassA = (String) operationAsList.get( 2 );
-            String tagClassB = (String) operationAsList.get( 3 );
+            String tagClass1 = (String) operationAsList.get( 2 );
+            String tagClass2 = (String) operationAsList.get( 3 );
             int limit = ((Number) operationAsList.get( 4 )).intValue();
-            return new LdbcSnbBiQuery19StrangerInteraction( date, tagClassA, tagClassB, limit );
+            return new LdbcSnbBiQuery19StrangerInteraction( date, tagClass1, tagClass2, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery20HighLevelTopics.class.getName() ) )
         {

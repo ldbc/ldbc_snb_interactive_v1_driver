@@ -252,35 +252,35 @@ public class BiOperationEqualityTest
     public void ldbcQuery9ShouldDoEqualsCorrectly()
     {
         // Given
-        String tagClassA1 = "\u3055";
-        String tagClassB1 = "1";
+        String tagClass11 = "\u3055";
+        String tagClass21 = "1";
         int threshold1 = 1;
         int limit1 = 1;
 
-        String tagClassA2 = "\u4e35";
-        String tagClassB2 = "2";
+        String tagClass12 = "\u4e35";
+        String tagClass22 = "2";
         int threshold2 = 2;
         int limit2 = 2;
 
         // When
         LdbcSnbBiQuery9RelatedForums query1a = new LdbcSnbBiQuery9RelatedForums(
-                tagClassA1,
-                tagClassB1,
+                tagClass11,
+                tagClass21,
                 threshold1,
                 limit1 );
         LdbcSnbBiQuery9RelatedForums query1b = new LdbcSnbBiQuery9RelatedForums(
-                tagClassA1,
-                tagClassB1,
+                tagClass11,
+                tagClass21,
                 threshold1,
                 limit1 );
         LdbcSnbBiQuery9RelatedForums query2a = new LdbcSnbBiQuery9RelatedForums(
-                tagClassA2,
-                tagClassB2,
+                tagClass12,
+                tagClass22,
                 threshold2,
                 limit2 );
         LdbcSnbBiQuery9RelatedForums query3a = new LdbcSnbBiQuery9RelatedForums(
-                tagClassA2,
-                tagClassB2,
+                tagClass12,
+                tagClass22,
                 threshold2,
                 limit1 );
 
@@ -542,24 +542,24 @@ public class BiOperationEqualityTest
     {
         // Given
         long date1 = 1;
-        String tagClassA1 = "\u3055";
-        String tagClassB1 = "\u16a0";
+        String tagClass11 = "\u3055";
+        String tagClass21 = "\u16a0";
         int limit1 = 1;
 
         long date2 = 2;
-        String tagClassA2 = "\u4e35";
-        String tagClassB2 = "tag";
+        String tagClass12 = "\u4e35";
+        String tagClass22 = "tag";
         int limit2 = 2;
 
         // When
         LdbcSnbBiQuery19StrangerInteraction
-                query1a = new LdbcSnbBiQuery19StrangerInteraction( date1, tagClassA1, tagClassB1, limit1 );
+                query1a = new LdbcSnbBiQuery19StrangerInteraction( date1, tagClass11, tagClass21, limit1 );
         LdbcSnbBiQuery19StrangerInteraction
-                query1b = new LdbcSnbBiQuery19StrangerInteraction( date1, tagClassA1, tagClassB1, limit1 );
+                query1b = new LdbcSnbBiQuery19StrangerInteraction( date1, tagClass11, tagClass21, limit1 );
         LdbcSnbBiQuery19StrangerInteraction
-                query2a = new LdbcSnbBiQuery19StrangerInteraction( date2, tagClassA2, tagClassB2, limit2 );
+                query2a = new LdbcSnbBiQuery19StrangerInteraction( date2, tagClass12, tagClass22, limit2 );
         LdbcSnbBiQuery19StrangerInteraction
-                query3a = new LdbcSnbBiQuery19StrangerInteraction( date1, tagClassA2, tagClassB1, limit1 );
+                query3a = new LdbcSnbBiQuery19StrangerInteraction( date1, tagClass12, tagClass21, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
