@@ -84,11 +84,13 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
             List<Object> row = resultsAsList.get( i );
             long personId1 = ((Number) row.get( 0 )).longValue();
             long personId2 = ((Number) row.get( 1 )).longValue();
-            int score = ((Number) row.get( 2 )).intValue();
+            String city1Name = (String) row.get( 2 );
+            int score = ((Number) row.get( 3 )).intValue();
             result.add(
                     new LdbcSnbBiQuery22InternationalDialogResult(
                             personId1,
                             personId2,
+                            city1Name,
                             score
                     )
             );
@@ -108,6 +110,7 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.personId1() );
             resultFields.add( row.personId2() );
+            resultFields.add( row.city1Name() );
             resultFields.add( row.score() );
             resultsFields.add( resultFields );
         }

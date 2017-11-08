@@ -894,30 +894,36 @@ public class BiOperationResultEqualityTest
     {
         long personId1A = 1;
         long personId2A = 2;
+        String city1NameA = "Toronto";
         int scoreA = 3;
 
         long personId1B = 4;
         long personId2B = 5;
+        String city1NameB = "Chicago";
         int scoreB = 6;
 
         LdbcSnbBiQuery22InternationalDialogResult result1a = new LdbcSnbBiQuery22InternationalDialogResult(
                 personId1A,
                 personId2A,
+                city1NameA,
                 scoreA
         );
         LdbcSnbBiQuery22InternationalDialogResult result1b = new LdbcSnbBiQuery22InternationalDialogResult(
                 personId1A,
                 personId2A,
+                city1NameA,
                 scoreA
         );
         LdbcSnbBiQuery22InternationalDialogResult result2a = new LdbcSnbBiQuery22InternationalDialogResult(
                 personId1B,
                 personId2B,
+                city1NameB,
                 scoreB
         );
         LdbcSnbBiQuery22InternationalDialogResult result3a = new LdbcSnbBiQuery22InternationalDialogResult(
                 personId1B,
                 personId2B,
+                city1NameA,
                 scoreA
         );
 
