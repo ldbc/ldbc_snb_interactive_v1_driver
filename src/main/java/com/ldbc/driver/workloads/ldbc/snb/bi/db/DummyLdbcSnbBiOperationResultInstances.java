@@ -154,7 +154,7 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery23HolidayDestinationsResult read23Result()
     {
-        return new LdbcSnbBiQuery23HolidayDestinationsResult( "\u3055", 2, 3 );
+        return new LdbcSnbBiQuery23HolidayDestinationsResult( 1, "Germany", 2 );
     }
 
     public static LdbcSnbBiQuery24MessagesByTopicResult read24Result()

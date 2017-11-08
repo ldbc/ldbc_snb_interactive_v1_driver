@@ -936,33 +936,33 @@ public class BiOperationResultEqualityTest
     @Test
     public void ldbcQuery23ResultShouldDoEqualsCorrectly()
     {
-        String place1 = "1";
-        int month1 = 2;
-        int count1 = 3;
+        int messageCount1 = 1;
+        String country1 = "2";
+        int month1 = 3;
 
-        String place2 = "4";
-        int month2 = 5;
-        int count2 = 6;
+        int messageCount2 = 4;
+        String country2 = "5";
+        int month2 = 6;
 
         LdbcSnbBiQuery23HolidayDestinationsResult result1a = new LdbcSnbBiQuery23HolidayDestinationsResult(
-                place1,
-                month1,
-                count1
+                messageCount1,
+                country1,
+                month1
         );
         LdbcSnbBiQuery23HolidayDestinationsResult result1b = new LdbcSnbBiQuery23HolidayDestinationsResult(
-                place1,
-                month1,
-                count1
+                messageCount1,
+                country1,
+                month1
         );
         LdbcSnbBiQuery23HolidayDestinationsResult result2a = new LdbcSnbBiQuery23HolidayDestinationsResult(
-                place2,
-                month2,
-                count2
+                messageCount2,
+                country2,
+                month2
         );
         LdbcSnbBiQuery23HolidayDestinationsResult result3a = new LdbcSnbBiQuery23HolidayDestinationsResult(
-                place2,
-                month2,
-                count1
+                messageCount1,
+                country2,
+                month2
         );
 
         assertThat( result1a, equalTo( result1b ) );
