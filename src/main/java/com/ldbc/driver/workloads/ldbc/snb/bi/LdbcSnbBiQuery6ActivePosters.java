@@ -72,16 +72,16 @@ public class LdbcSnbBiQuery6ActivePosters extends Operation<List<LdbcSnbBiQuery6
         {
             List<Object> row = resultsAsList.get( i );
             long personId = ((Number) row.get( 0 )).longValue();
-            int postCount = ((Number) row.get( 1 )).intValue();
-            int replyCount = ((Number) row.get( 2 )).intValue();
-            int likeCount = ((Number) row.get( 3 )).intValue();
+            int replyCount = ((Number) row.get( 1 )).intValue();
+            int likeCount = ((Number) row.get( 2 )).intValue();
+            int messageCount = ((Number) row.get( 3 )).intValue();
             int score = ((Number) row.get( 4 )).intValue();
             result.add(
                     new LdbcSnbBiQuery6ActivePostersResult(
                             personId,
-                            postCount,
                             replyCount,
                             likeCount,
+                            messageCount,
                             score
                     )
             );
@@ -99,9 +99,9 @@ public class LdbcSnbBiQuery6ActivePosters extends Operation<List<LdbcSnbBiQuery6
             LdbcSnbBiQuery6ActivePostersResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.personId() );
-            resultFields.add( row.postCount() );
             resultFields.add( row.replyCount() );
             resultFields.add( row.likeCount() );
+            resultFields.add( row.messageCount() );
             resultFields.add( row.score() );
             resultsFields.add( resultFields );
         }

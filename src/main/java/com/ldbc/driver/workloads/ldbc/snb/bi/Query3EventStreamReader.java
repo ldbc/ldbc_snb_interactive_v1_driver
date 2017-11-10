@@ -28,11 +28,9 @@ public class Query3EventStreamReader extends BaseEventStreamReader
     Operation operationFromParameters( Object[] parameters )
     {
         return new LdbcSnbBiQuery3TagEvolution(
-                (long) parameters[0],
-                (long) parameters[1],
-                (long) parameters[2],
-                (long) parameters[3],
-                (int) parameters[4]
+                (int) parameters[0],
+                (int) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -42,18 +40,17 @@ public class Query3EventStreamReader extends BaseEventStreamReader
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
             /*
-            range1Start|range1End|range2Start|range2End
-            7696581543848|1293840000|1293840000|1293840000
+            year|month
              */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
                     throws IOException
             {
-                long range1Start;
+                int year;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    range1Start = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    year = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
@@ -61,41 +58,19 @@ public class Query3EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                long range1End;
+                int month;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    range1End = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    month = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving date" );
-                }
-
-                long range2Start;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    range2Start = charSeeker.extract( mark, extractors.long_() ).longValue();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving date" );
-                }
-
-                long range2End;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    range2End = charSeeker.extract( mark, extractors.long_() ).longValue();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving date" );
+                    throw new GeneratorException( "Error retrieving month" );
                 }
 
                 return new Object[]{
-                        range1Start,
-                        range1End,
-                        range2Start,
-                        range2End,
+                        year,
+                        month,
                         LdbcSnbBiQuery3TagEvolution.DEFAULT_LIMIT
                 };
             }
@@ -105,6 +80,6 @@ public class Query3EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 4;
+        return 2;
     }
 }

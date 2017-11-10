@@ -10,60 +10,50 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
 {
     public static final int TYPE = 2;
     public static final int DEFAULT_LIMIT = 100;
-    private final long dateA;
-    private final long dateB;
-    private final List<String> countries;
-    private final int messageThreshold;
-    private final long endOfSimulationTime;
+    private final long date1;
+    private final long date2;
+    private final String country1;
+    private final String country2;
     private final int limit;
 
     public LdbcSnbBiQuery2TopTags(
-            long dateA,
-            long dateB,
-            List<String> countries,
-            int messageThreshold,
-            long endOfSimulationTime,
+            long date1,
+            long date2,
+            String country1,
+            String country2,
             int limit )
     {
-        this.dateA = dateA;
-        this.dateB = dateB;
-        this.countries = countries;
-        this.messageThreshold = messageThreshold;
-        this.endOfSimulationTime = endOfSimulationTime;
+        this.date1 = date1;
+        this.date2 = date2;
+        this.country1 = country1;
+        this.country2 = country2;
         this.limit = limit;
     }
 
-    public long dateA()
+    public long date1()
     {
-        return dateA;
+        return date1;
     }
 
-    public long dateB()
+    public long date2()
     {
-        return dateB;
+        return date2;
     }
 
-    public List<String> countries()
+    public String country1()
     {
-        return countries;
+        return country1;
     }
 
-    public int messageThreshold()
+    public String country2()
     {
-        return messageThreshold;
-    }
-
-    public long endOfSimulationTime()
-    {
-        return endOfSimulationTime;
+        return country2;
     }
 
     public int limit()
     {
         return limit;
     }
-
-
 
     @Override
     public boolean equals( Object o )
@@ -75,27 +65,24 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
 
         LdbcSnbBiQuery2TopTags that = (LdbcSnbBiQuery2TopTags) o;
 
-        if ( dateA != that.dateA )
+        if ( date1 != that.date1 )
         { return false; }
-        if ( dateB != that.dateB )
-        { return false; }
-        if ( messageThreshold != that.messageThreshold )
-        { return false; }
-        if ( endOfSimulationTime != that.endOfSimulationTime )
+        if ( date2 != that.date2 )
         { return false; }
         if ( limit != that.limit )
         { return false; }
-        return !(countries != null ? !countries.equals( that.countries ) : that.countries != null);
+        if ( country1 != null ? !country1.equals( that.country1 ) : that.country1 != null )
+        { return false; }
+        return country2 != null ? country2.equals( that.country2 ) : that.country2 == null;
     }
 
     @Override
     public int hashCode()
     {
-        int result = (int) (dateA ^ (dateA >>> 32));
-        result = 31 * result + (int) (dateB ^ (dateB >>> 32));
-        result = 31 * result + (countries != null ? countries.hashCode() : 0);
-        result = 31 * result + messageThreshold;
-        result = 31 * result + (int) (endOfSimulationTime ^ (endOfSimulationTime >>> 32));
+        int result = (int) (date1 ^ (date1 >>> 32));
+        result = 31 * result + (int) (date2 ^ (date2 >>> 32));
+        result = 31 * result + (country1 != null ? country1.hashCode() : 0);
+        result = 31 * result + (country2 != null ? country2.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }

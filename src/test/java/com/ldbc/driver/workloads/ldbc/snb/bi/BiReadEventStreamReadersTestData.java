@@ -23,18 +23,17 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_2_CSV_ROWS() throws ParseException
     {
-        return "date1|date2|countries|endDate|messageThreshold\n"
-               + "1441351591755|1441351591755|countryA;countryB|1|10\n"
-               + "1441351591755|1441351591755|countryA;countryC|2|20\n"
-               + "1441351591755|1441351591756|countryB;countryD;countryE|" + Long.toString( Long.MAX_VALUE ) + "|30";
+        return "date1|date2|country1|country2\n"
+               + "1441351591755|1441351591755|countryA|countryB\n"
+               + "1441351591755|1441351591755|countryA|countryC\n"
+               + "1441351591755|1441351591756|countryB|countryD\n";
     }
 
     public static final String QUERY_3_CSV_ROWS() throws ParseException
     {
-        return "range1Start|range1End|range2Start|range2End\n"
-               + "1|2|3|4\n"
-               + "5|6|7|8\n"
-               + Long.MAX_VALUE + "|" + Long.MAX_VALUE + "|" + Long.MAX_VALUE + "|" + Long.MAX_VALUE;
+        return "year|month\n"
+               + "1|2\n"
+               + "3|4\n";
     }
 
     public static final String QUERY_4_CSV_ROWS() throws ParseException
@@ -93,11 +92,11 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_10_CSV_ROWS()
     {
-        return "tag\n"
-               + "Franz_Schubert\n"
-               + "Bill_Clinton\n"
-               + "Dante_Alighieri\n"
-               + "Khalid_Sheikh_Mohammed";
+        return "tag|date\n"
+               + "Franz_Schubert|1\n"
+               + "Bill_Clinton|2\n"
+               + "Dante_Alighieri|3\n"
+               + "Khalid_Sheikh_Mohammed|4";
     }
 
     public static final String QUERY_11_CSV_ROWS()
@@ -111,7 +110,7 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_12_CSV_ROWS()
     {
-        return "creationDate|likeCount\n"
+        return "date|likeThreshold\n"
                + "1441351591755|1\n"
                + "1441351591756|2";
     }
@@ -127,7 +126,7 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_14_CSV_ROWS()
     {
-        return "begin|todoEnd\n"
+        return "begin|end\n"
                + "1441351591755|1441351591756\n"
                + "1441351591756|1441351591757";
     }
@@ -143,11 +142,11 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_16_CSV_ROWS()
     {
-        return "todoPerson|tag|country|minPathDistance|maxPathDistance\n"
-               + "1|Writer|Cameroon|1|1\n"
-               + "2|Writer|Colombia|1|2\n"
-               + "3|Writer|Niger|2|2\n"
-               + "4|Writer|Sweden|1|4";
+        return "personId|country|tagClass|minPathDistance|maxPathDistance\n"
+               + "1|Cameroon|Writer|1|1\n"
+               + "2|Colombia|Writer|1|2\n"
+               + "3|Niger|Writer|2|2\n"
+               + "4|Sweden|Writer|1|4";
     }
 
     public static final String QUERY_17_CSV_ROWS()

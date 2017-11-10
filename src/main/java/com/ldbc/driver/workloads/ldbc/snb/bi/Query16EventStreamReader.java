@@ -43,8 +43,8 @@ public class Query16EventStreamReader extends BaseEventStreamReader
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
             /*
-            todoPerson|tag|country|minPathDistance|maxPathDistance
-            11052|Writer|Greece|1|2
+            Person|country|tagClass|minPathDistance|maxPathDistance
+            11052|Greece|Writer|1|2
             */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
@@ -62,16 +62,6 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                String tagClass;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    tagClass = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving tag class" );
-                }
-
                 String country;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
@@ -80,6 +70,16 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                 else
                 {
                     throw new GeneratorException( "Error retrieving country name" );
+                }
+
+                String tagClass;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    tagClass = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving tag class" );
                 }
 
                 int minPathDistance;
@@ -102,7 +102,7 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving max path distance" );
                 }
 
-                return new Object[]{person, tagClass, country, minPathDistance, maxPathDistance,
+                return new Object[]{person, country, tagClass, minPathDistance, maxPathDistance,
                         LdbcSnbBiQuery16ExpertsInSocialCircle.DEFAULT_LIMIT};
             }
         };

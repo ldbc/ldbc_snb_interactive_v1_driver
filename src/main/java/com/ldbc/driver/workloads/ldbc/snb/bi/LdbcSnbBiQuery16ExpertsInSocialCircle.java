@@ -10,37 +10,37 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
 {
     public static final int TYPE = 16;
     public static final int DEFAULT_LIMIT = 100;
-    private final long person;
-    private final String tagClass;
+    private final long personId;
     private final String country;
+    private final String tagClass;
     private final int minPathDistance;
     private final int maxPathDistance;
     private final int limit;
 
-    public LdbcSnbBiQuery16ExpertsInSocialCircle( long person, String tagClass, String country, int
+    public LdbcSnbBiQuery16ExpertsInSocialCircle(long personId, String country, String tagClass, int
             minPathDistance, int maxPathDistance, int limit )
     {
-        this.person = person;
-        this.tagClass = tagClass;
+        this.personId = personId;
         this.country = country;
+        this.tagClass = tagClass;
         this.minPathDistance = minPathDistance;
         this.maxPathDistance = maxPathDistance;
         this.limit = limit;
     }
 
-    public long person()
+    public long personId()
     {
-        return person;
-    }
-
-    public String tagClass()
-    {
-        return tagClass;
+        return personId;
     }
 
     public String country()
     {
         return country;
+    }
+
+    public String tagClass()
+    {
+        return tagClass;
     }
 
     public int minPathDistance()
@@ -59,47 +59,37 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "LdbcSnbBiQuery16ExpertsInSocialCircle{" +
-               "person=" + person +
-               ", tagClass='" + tagClass + '\'' +
-               ", country='" + country + '\'' +
-               ", minPathDistance='" + minPathDistance + '\'' +
-               ", maxPathDistance='" + maxPathDistance + '\'' +
-               ", limit=" + limit +
-               '}';
+                "personId=" + personId +
+                ", country='" + country + '\'' +
+                ", tagClass='" + tagClass + '\'' +
+                ", minPathDistance=" + minPathDistance +
+                ", maxPathDistance=" + maxPathDistance +
+                ", limit=" + limit +
+                '}';
     }
 
     @Override
-    public boolean equals( Object o )
-    {
-        if ( this == o )
-        { return true; }
-        if ( o == null || getClass() != o.getClass() )
-        { return false; }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         LdbcSnbBiQuery16ExpertsInSocialCircle that = (LdbcSnbBiQuery16ExpertsInSocialCircle) o;
 
-        if ( person != that.person )
-        { return false; }
-        if ( minPathDistance != that.minPathDistance )
-        { return false; }
-        if ( maxPathDistance != that.maxPathDistance )
-        { return false; }
-        if ( limit != that.limit )
-        { return false; }
-        if ( tagClass != null ? !tagClass.equals( that.tagClass ) : that.tagClass != null )
-        { return false; }
-        return country != null ? country.equals( that.country ) : that.country == null;
+        if (personId != that.personId) return false;
+        if (minPathDistance != that.minPathDistance) return false;
+        if (maxPathDistance != that.maxPathDistance) return false;
+        if (limit != that.limit) return false;
+        if (country != null ? !country.equals(that.country) : that.country != null) return false;
+        return tagClass != null ? tagClass.equals(that.tagClass) : that.tagClass == null;
     }
 
     @Override
-    public int hashCode()
-    {
-        int result = (int) (person ^ (person >>> 32));
-        result = 31 * result + (tagClass != null ? tagClass.hashCode() : 0);
+    public int hashCode() {
+        int result = (int) (personId ^ (personId >>> 32));
         result = 31 * result + (country != null ? country.hashCode() : 0);
+        result = 31 * result + (tagClass != null ? tagClass.hashCode() : 0);
         result = 31 * result + minPathDistance;
         result = 31 * result + maxPathDistance;
         result = 31 * result + limit;

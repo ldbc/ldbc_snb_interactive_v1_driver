@@ -362,31 +362,31 @@ public class LdbcSnbBiWorkloadConfiguration
     /*
      * Read Operation Parameters
      */
-    public final static String OPERATION_1_PARAMS_FILENAME = "q1_param.txt";
-    public final static String OPERATION_2_PARAMS_FILENAME = "q2_param.txt";
-    public final static String OPERATION_3_PARAMS_FILENAME = "q3_param.txt";
-    public final static String OPERATION_4_PARAMS_FILENAME = "q4_param.txt";
-    public final static String OPERATION_5_PARAMS_FILENAME = "q5_param.txt";
-    public final static String OPERATION_6_PARAMS_FILENAME = "q6_param.txt";
-    public final static String OPERATION_7_PARAMS_FILENAME = "q7_param.txt";
-    public final static String OPERATION_8_PARAMS_FILENAME = "q8_param.txt";
-    public final static String OPERATION_9_PARAMS_FILENAME = "q9_param.txt";
-    public final static String OPERATION_10_PARAMS_FILENAME = "q10_param.txt";
-    public final static String OPERATION_11_PARAMS_FILENAME = "q11_param.txt";
-    public final static String OPERATION_12_PARAMS_FILENAME = "q12_param.txt";
-    public final static String OPERATION_13_PARAMS_FILENAME = "q13_param.txt";
-    public final static String OPERATION_14_PARAMS_FILENAME = "q14_param.txt";
-    public final static String OPERATION_15_PARAMS_FILENAME = "q15_param.txt";
-    public final static String OPERATION_16_PARAMS_FILENAME = "q16_param.txt";
-    public final static String OPERATION_17_PARAMS_FILENAME = "q17_param.txt";
-    public final static String OPERATION_18_PARAMS_FILENAME = "q18_param.txt";
-    public final static String OPERATION_19_PARAMS_FILENAME = "q19_param.txt";
-    public final static String OPERATION_20_PARAMS_FILENAME = "q20_param.txt";
-    public final static String OPERATION_21_PARAMS_FILENAME = "q21_param.txt";
-    public final static String OPERATION_22_PARAMS_FILENAME = "q22_param.txt";
-    public final static String OPERATION_23_PARAMS_FILENAME = "q23_param.txt";
-    public final static String OPERATION_24_PARAMS_FILENAME = "q24_param.txt";
-    public final static String OPERATION_25_PARAMS_FILENAME = "q25_param.txt";
+    public final static String OPERATION_1_PARAMS_FILENAME = "bi_1_param.txt";
+    public final static String OPERATION_2_PARAMS_FILENAME = "bi_2_param.txt";
+    public final static String OPERATION_3_PARAMS_FILENAME = "bi_3_param.txt";
+    public final static String OPERATION_4_PARAMS_FILENAME = "bi_4_param.txt";
+    public final static String OPERATION_5_PARAMS_FILENAME = "bi_5_param.txt";
+    public final static String OPERATION_6_PARAMS_FILENAME = "bi_6_param.txt";
+    public final static String OPERATION_7_PARAMS_FILENAME = "bi_7_param.txt";
+    public final static String OPERATION_8_PARAMS_FILENAME = "bi_8_param.txt";
+    public final static String OPERATION_9_PARAMS_FILENAME = "bi_9_param.txt";
+    public final static String OPERATION_10_PARAMS_FILENAME = "bi_10_param.txt";
+    public final static String OPERATION_11_PARAMS_FILENAME = "bi_11_param.txt";
+    public final static String OPERATION_12_PARAMS_FILENAME = "bi_12_param.txt";
+    public final static String OPERATION_13_PARAMS_FILENAME = "bi_13_param.txt";
+    public final static String OPERATION_14_PARAMS_FILENAME = "bi_14_param.txt";
+    public final static String OPERATION_15_PARAMS_FILENAME = "bi_15_param.txt";
+    public final static String OPERATION_16_PARAMS_FILENAME = "bi_16_param.txt";
+    public final static String OPERATION_17_PARAMS_FILENAME = "bi_17_param.txt";
+    public final static String OPERATION_18_PARAMS_FILENAME = "bi_18_param.txt";
+    public final static String OPERATION_19_PARAMS_FILENAME = "bi_19_param.txt";
+    public final static String OPERATION_20_PARAMS_FILENAME = "bi_20_param.txt";
+    public final static String OPERATION_21_PARAMS_FILENAME = "bi_21_param.txt";
+    public final static String OPERATION_22_PARAMS_FILENAME = "bi_22_param.txt";
+    public final static String OPERATION_23_PARAMS_FILENAME = "bi_23_param.txt";
+    public final static String OPERATION_24_PARAMS_FILENAME = "bi_24_param.txt";
+    public final static String OPERATION_25_PARAMS_FILENAME = "bi_25_param.txt";
     public final static List<String> OPERATION_PARAMS_FILENAMES = Lists.newArrayList(
             OPERATION_1_PARAMS_FILENAME,
             OPERATION_2_PARAMS_FILENAME,

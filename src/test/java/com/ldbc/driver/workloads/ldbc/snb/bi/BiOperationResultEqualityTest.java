@@ -278,43 +278,43 @@ public class BiOperationResultEqualityTest
     public void ldbcQuery6ResultShouldDoEqualsCorrectly()
     {
         long personId1 = 1;
-        int postCount1 = 2;
-        int replyCount1 = 3;
-        int likeCount1 = 4;
+        int replyCount1 = 2;
+        int likeCount1 = 3;
+        int messageCount1 = 4;
         int score1 = 5;
 
         long personId2 = 6;
-        int postCount2 = 7;
-        int replyCount2 = 8;
-        int likeCount2 = 9;
+        int replyCount2 = 7;
+        int likeCount2 = 8;
+        int messageCount2 = 9;
         int score2 = 10;
 
         LdbcSnbBiQuery6ActivePostersResult result1a = new LdbcSnbBiQuery6ActivePostersResult(
                 personId1,
-                postCount1,
                 replyCount1,
                 likeCount1,
+                messageCount1,
                 score1
         );
         LdbcSnbBiQuery6ActivePostersResult result1b = new LdbcSnbBiQuery6ActivePostersResult(
                 personId1,
-                postCount1,
                 replyCount1,
                 likeCount1,
+                messageCount1,
                 score1
         );
         LdbcSnbBiQuery6ActivePostersResult result2a = new LdbcSnbBiQuery6ActivePostersResult(
                 personId2,
-                postCount2,
                 replyCount2,
                 likeCount2,
+                messageCount2,
                 score2
         );
         LdbcSnbBiQuery6ActivePostersResult result3a = new LdbcSnbBiQuery6ActivePostersResult(
                 personId2,
-                postCount2,
                 replyCount2,
                 likeCount2,
+                messageCount2,
                 score1
         );
 
@@ -525,30 +525,30 @@ public class BiOperationResultEqualityTest
 
         LdbcSnbBiQuery12TrendingPostsResult result1a = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId1,
+                createDate1,
                 firstName1,
                 lastName1,
-                createDate1,
                 count1
         );
         LdbcSnbBiQuery12TrendingPostsResult result1b = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId1,
+                createDate1,
                 firstName1,
                 lastName1,
-                createDate1,
                 count1
         );
         LdbcSnbBiQuery12TrendingPostsResult result2a = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId2,
+                createDate2,
                 firstName2,
                 lastName2,
-                createDate2,
                 count2
         );
         LdbcSnbBiQuery12TrendingPostsResult result3a = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId2,
+                createDate2,
                 firstName1,
                 lastName2,
-                createDate2,
                 count2
         );
 
@@ -894,30 +894,36 @@ public class BiOperationResultEqualityTest
     {
         long personId1A = 1;
         long personId2A = 2;
+        String city1NameA = "Toronto";
         int scoreA = 3;
 
         long personId1B = 4;
         long personId2B = 5;
+        String city1NameB = "Chicago";
         int scoreB = 6;
 
         LdbcSnbBiQuery22InternationalDialogResult result1a = new LdbcSnbBiQuery22InternationalDialogResult(
                 personId1A,
                 personId2A,
+                city1NameA,
                 scoreA
         );
         LdbcSnbBiQuery22InternationalDialogResult result1b = new LdbcSnbBiQuery22InternationalDialogResult(
                 personId1A,
                 personId2A,
+                city1NameA,
                 scoreA
         );
         LdbcSnbBiQuery22InternationalDialogResult result2a = new LdbcSnbBiQuery22InternationalDialogResult(
                 personId1B,
                 personId2B,
+                city1NameB,
                 scoreB
         );
         LdbcSnbBiQuery22InternationalDialogResult result3a = new LdbcSnbBiQuery22InternationalDialogResult(
                 personId1B,
                 personId2B,
+                city1NameA,
                 scoreA
         );
 
@@ -930,33 +936,33 @@ public class BiOperationResultEqualityTest
     @Test
     public void ldbcQuery23ResultShouldDoEqualsCorrectly()
     {
-        String place1 = "1";
-        int month1 = 2;
-        int count1 = 3;
+        int messageCount1 = 1;
+        String country1 = "2";
+        int month1 = 3;
 
-        String place2 = "4";
-        int month2 = 5;
-        int count2 = 6;
+        int messageCount2 = 4;
+        String country2 = "5";
+        int month2 = 6;
 
         LdbcSnbBiQuery23HolidayDestinationsResult result1a = new LdbcSnbBiQuery23HolidayDestinationsResult(
-                place1,
-                month1,
-                count1
+                messageCount1,
+                country1,
+                month1
         );
         LdbcSnbBiQuery23HolidayDestinationsResult result1b = new LdbcSnbBiQuery23HolidayDestinationsResult(
-                place1,
-                month1,
-                count1
+                messageCount1,
+                country1,
+                month1
         );
         LdbcSnbBiQuery23HolidayDestinationsResult result2a = new LdbcSnbBiQuery23HolidayDestinationsResult(
-                place2,
-                month2,
-                count2
+                messageCount2,
+                country2,
+                month2
         );
         LdbcSnbBiQuery23HolidayDestinationsResult result3a = new LdbcSnbBiQuery23HolidayDestinationsResult(
-                place2,
-                month2,
-                count1
+                messageCount1,
+                country2,
+                month2
         );
 
         assertThat( result1a, equalTo( result1b ) );

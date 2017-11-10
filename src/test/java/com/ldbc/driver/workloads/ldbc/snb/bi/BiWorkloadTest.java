@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.ldbc.driver.workloads.ldbc.snb.bi.db.DummyLdbcSnbBiOperationInstances.read16;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -117,7 +118,7 @@ public class BiWorkloadTest extends WorkloadTest
                         DummyLdbcSnbBiOperationResultSets.read15Results()
                 ),
                 Tuple.<Operation,Object>tuple2(
-                        DummyLdbcSnbBiOperationInstances.read16(),
+                        read16(),
                         DummyLdbcSnbBiOperationResultSets.read16Results()
                 ),
                 Tuple.<Operation,Object>tuple2(

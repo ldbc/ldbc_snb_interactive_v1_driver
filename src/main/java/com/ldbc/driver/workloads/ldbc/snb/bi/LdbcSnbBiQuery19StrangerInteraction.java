@@ -11,15 +11,15 @@ public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbB
     public static final int TYPE = 19;
     public static final int DEFAULT_LIMIT = 100;
     private final long date;
-    private final String tagClassA;
-    private final String tagClassB;
+    private final String tagClass1;
+    private final String tagClass2;
     private final int limit;
 
-    public LdbcSnbBiQuery19StrangerInteraction( long date, String tagClassA, String tagClassB, int limit )
+    public LdbcSnbBiQuery19StrangerInteraction(long date, String tagClass1, String tagClass2, int limit )
     {
         this.date = date;
-        this.tagClassA = tagClassA;
-        this.tagClassB = tagClassB;
+        this.tagClass1 = tagClass1;
+        this.tagClass2 = tagClass2;
         this.limit = limit;
     }
 
@@ -28,14 +28,14 @@ public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbB
         return date;
     }
 
-    public String tagClassA()
+    public String tagClass1()
     {
-        return tagClassA;
+        return tagClass1;
     }
 
-    public String tagClassB()
+    public String tagClass2()
     {
-        return tagClassB;
+        return tagClass2;
     }
 
     public int limit()
@@ -48,8 +48,8 @@ public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbB
     {
         return "LdbcSnbBiQuery19StrangerInteraction{" +
                "date=" + date +
-               ", tagClassA='" + tagClassA + '\'' +
-               ", tagClassB='" + tagClassB + '\'' +
+               ", tagClass1='" + tagClass1 + '\'' +
+               ", tagClass2='" + tagClass2 + '\'' +
                ", limit=" + limit +
                '}';
     }
@@ -68,9 +68,9 @@ public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbB
         { return false; }
         if ( limit != that.limit )
         { return false; }
-        if ( tagClassA != null ? !tagClassA.equals( that.tagClassA ) : that.tagClassA != null )
+        if ( tagClass1 != null ? !tagClass1.equals( that.tagClass1) : that.tagClass1 != null )
         { return false; }
-        return !(tagClassB != null ? !tagClassB.equals( that.tagClassB ) : that.tagClassB != null);
+        return !(tagClass2 != null ? !tagClass2.equals( that.tagClass2) : that.tagClass2 != null);
 
     }
 
@@ -78,8 +78,8 @@ public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbB
     public int hashCode()
     {
         int result = (int) (date ^ (date >>> 32));
-        result = 31 * result + (tagClassA != null ? tagClassA.hashCode() : 0);
-        result = 31 * result + (tagClassB != null ? tagClassB.hashCode() : 0);
+        result = 31 * result + (tagClass1 != null ? tagClass1.hashCode() : 0);
+        result = 31 * result + (tagClass2 != null ? tagClass2.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }

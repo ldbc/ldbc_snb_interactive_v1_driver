@@ -10,27 +10,27 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
 {
     public static final int TYPE = 9;
     public static final int DEFAULT_LIMIT = 100;
-    private final String tagClassA;
-    private final String tagClassB;
+    private final String tagClass1;
+    private final String tagClass2;
     private final int threshold;
     private final int limit;
 
-    public LdbcSnbBiQuery9RelatedForums( String tagClassA, String tagClassB, int threshold, int limit )
+    public LdbcSnbBiQuery9RelatedForums(String tagClass1, String tagClass2, int threshold, int limit )
     {
-        this.tagClassA = tagClassA;
-        this.tagClassB = tagClassB;
+        this.tagClass1 = tagClass1;
+        this.tagClass2 = tagClass2;
         this.threshold = threshold;
         this.limit = limit;
     }
 
-    public String tagClassA()
+    public String tagClass1()
     {
-        return tagClassA;
+        return tagClass1;
     }
 
-    public String tagClassB()
+    public String tagClass2()
     {
-        return tagClassB;
+        return tagClass2;
     }
 
     public int threshold()
@@ -47,8 +47,8 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
     public String toString()
     {
         return "LdbcSnbBiQuery9RelatedForums{" +
-               "tagClassA='" + tagClassA + '\'' +
-               ", tagClassB='" + tagClassB + '\'' +
+               "tagClass1='" + tagClass1 + '\'' +
+               ", tagClass2='" + tagClass2 + '\'' +
                ", threshold=" + threshold +
                ", limit=" + limit +
                '}';
@@ -68,16 +68,16 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
         { return false; }
         if ( limit != that.limit )
         { return false; }
-        if ( tagClassA != null ? !tagClassA.equals( that.tagClassA ) : that.tagClassA != null )
+        if ( tagClass1 != null ? !tagClass1.equals( that.tagClass1) : that.tagClass1 != null )
         { return false; }
-        return !(tagClassB != null ? !tagClassB.equals( that.tagClassB ) : that.tagClassB != null);
+        return !(tagClass2 != null ? !tagClass2.equals( that.tagClass2) : that.tagClass2 != null);
     }
 
     @Override
     public int hashCode()
     {
-        int result = tagClassA != null ? tagClassA.hashCode() : 0;
-        result = 31 * result + (tagClassB != null ? tagClassB.hashCode() : 0);
+        int result = tagClass1 != null ? tagClass1.hashCode() : 0;
+        result = 31 * result + (tagClass2 != null ? tagClass2.hashCode() : 0);
         result = 31 * result + threshold;
         result = 31 * result + limit;
         return result;

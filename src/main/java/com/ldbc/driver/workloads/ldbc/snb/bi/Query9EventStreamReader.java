@@ -41,18 +41,17 @@ public class Query9EventStreamReader extends BaseEventStreamReader
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
             /*
-            TagClassA|CountryB
-            tag_a|tag_b
+            tagClass1|tagClass2|threshold
             */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
                     throws IOException
             {
-                String tagClassA;
+                String tagClass1;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tagClassA = charSeeker.extract( mark, extractors.string() ).value();
+                    tagClass1 = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -60,10 +59,10 @@ public class Query9EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                String tagClassB;
+                String tagClass2;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tagClassB = charSeeker.extract( mark, extractors.string() ).value();
+                    tagClass2 = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -80,7 +79,7 @@ public class Query9EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving threshold" );
                 }
 
-                return new Object[]{tagClassA, tagClassB, threshold, LdbcSnbBiQuery9RelatedForums.DEFAULT_LIMIT};
+                return new Object[]{tagClass1, tagClass2, threshold, LdbcSnbBiQuery9RelatedForums.DEFAULT_LIMIT};
             }
         };
     }

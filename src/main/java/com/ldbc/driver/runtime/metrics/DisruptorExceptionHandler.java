@@ -21,7 +21,7 @@ public class DisruptorExceptionHandler implements ExceptionHandler
                 this,
                 format( "Disruptor encountered error on event\nl = %s\no = %s\n%s",
                         l,
-                        o.toString(),
+                        o == null ? "null" : o.toString(),
                         ConcurrentErrorReporter.stackTraceToString( throwable )
                 )
         );
