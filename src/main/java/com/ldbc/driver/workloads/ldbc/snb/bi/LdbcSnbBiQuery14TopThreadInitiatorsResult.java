@@ -5,21 +5,21 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
     private final long personId;
     private final String firstName;
     private final String lastName;
+    private final int postCount;
     private final int messageCount;
-    private final int threadCount;
 
     public LdbcSnbBiQuery14TopThreadInitiatorsResult(
             long personId,
             String firstName,
             String lastName,
-            int messageCount,
-            int threadCount )
+            int postCount,
+            int messageCount)
     {
         this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.postCount = postCount;
         this.messageCount = messageCount;
-        this.threadCount = threadCount;
     }
 
     public long personId()
@@ -37,58 +37,49 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
         return lastName;
     }
 
+    public int postCount()
+    {
+        return postCount;
+    }
+
     public int messageCount()
     {
         return messageCount;
     }
 
-    public int threadCount()
-    {
-        return threadCount;
-    }
-
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "LdbcSnbBiQuery14TopThreadInitiatorsResult{" +
-               "personId=" + personId +
-               ", firstName='" + firstName + '\'' +
-               ", lastName='" + lastName + '\'' +
-               ", messageCount=" + messageCount +
-               ", threadCount=" + threadCount +
-               '}';
+                "personId=" + personId +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", postCount=" + postCount +
+                ", messageCount=" + messageCount +
+                '}';
     }
 
     @Override
-    public boolean equals( Object o )
-    {
-        if ( this == o )
-        { return true; }
-        if ( o == null || getClass() != o.getClass() )
-        { return false; }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         LdbcSnbBiQuery14TopThreadInitiatorsResult that = (LdbcSnbBiQuery14TopThreadInitiatorsResult) o;
 
-        if ( personId != that.personId )
-        { return false; }
-        if ( messageCount != that.messageCount )
-        { return false; }
-        if ( threadCount != that.threadCount )
-        { return false; }
-        if ( firstName != null ? !firstName.equals( that.firstName ) : that.firstName != null )
-        { return false; }
-        return !(lastName != null ? !lastName.equals( that.lastName ) : that.lastName != null);
-
+        if (personId != that.personId) return false;
+        if (postCount != that.postCount) return false;
+        if (messageCount != that.messageCount) return false;
+        if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
+        return lastName != null ? lastName.equals(that.lastName) : that.lastName == null;
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + postCount;
         result = 31 * result + messageCount;
-        result = 31 * result + threadCount;
         return result;
     }
+
 }

@@ -113,8 +113,8 @@ public class LdbcSnbBiQuery14TopThreadInitiators extends Operation<List<LdbcSnbB
             resultFields.add( row.personId() );
             resultFields.add( row.firstName() );
             resultFields.add( row.lastName() );
+            resultFields.add( row.postCount() );
             resultFields.add( row.messageCount() );
-            resultFields.add( row.threadCount() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );
