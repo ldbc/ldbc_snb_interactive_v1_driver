@@ -278,43 +278,43 @@ public class BiOperationResultEqualityTest
     public void ldbcQuery6ResultShouldDoEqualsCorrectly()
     {
         long personId1 = 1;
-        int postCount1 = 2;
-        int replyCount1 = 3;
-        int likeCount1 = 4;
+        int replyCount1 = 2;
+        int likeCount1 = 3;
+        int messageCount1 = 4;
         int score1 = 5;
 
         long personId2 = 6;
-        int postCount2 = 7;
-        int replyCount2 = 8;
-        int likeCount2 = 9;
+        int replyCount2 = 7;
+        int likeCount2 = 8;
+        int messageCount2 = 9;
         int score2 = 10;
 
         LdbcSnbBiQuery6ActivePostersResult result1a = new LdbcSnbBiQuery6ActivePostersResult(
                 personId1,
-                postCount1,
                 replyCount1,
                 likeCount1,
+                messageCount1,
                 score1
         );
         LdbcSnbBiQuery6ActivePostersResult result1b = new LdbcSnbBiQuery6ActivePostersResult(
                 personId1,
-                postCount1,
                 replyCount1,
                 likeCount1,
+                messageCount1,
                 score1
         );
         LdbcSnbBiQuery6ActivePostersResult result2a = new LdbcSnbBiQuery6ActivePostersResult(
                 personId2,
-                postCount2,
                 replyCount2,
                 likeCount2,
+                messageCount2,
                 score2
         );
         LdbcSnbBiQuery6ActivePostersResult result3a = new LdbcSnbBiQuery6ActivePostersResult(
                 personId2,
-                postCount2,
                 replyCount2,
                 likeCount2,
+                messageCount2,
                 score1
         );
 
