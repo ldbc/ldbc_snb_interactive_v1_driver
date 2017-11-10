@@ -525,30 +525,30 @@ public class BiOperationResultEqualityTest
 
         LdbcSnbBiQuery12TrendingPostsResult result1a = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId1,
+                createDate1,
                 firstName1,
                 lastName1,
-                createDate1,
                 count1
         );
         LdbcSnbBiQuery12TrendingPostsResult result1b = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId1,
+                createDate1,
                 firstName1,
                 lastName1,
-                createDate1,
                 count1
         );
         LdbcSnbBiQuery12TrendingPostsResult result2a = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId2,
+                createDate2,
                 firstName2,
                 lastName2,
-                createDate2,
                 count2
         );
         LdbcSnbBiQuery12TrendingPostsResult result3a = new LdbcSnbBiQuery12TrendingPostsResult(
                 postId2,
+                createDate2,
                 firstName1,
                 lastName2,
-                createDate2,
                 count2
         );
 

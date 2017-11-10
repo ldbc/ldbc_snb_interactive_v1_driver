@@ -82,16 +82,16 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
         {
             List<Object> row = resultsAsList.get( i );
             long postId = ((Number) row.get( 0 )).longValue();
-            String firstName = (String) row.get( 1 );
-            String lastName = (String) row.get( 2 );
-            long creationDate = ((Number) row.get( 3 )).longValue();
+            long creationDate = ((Number) row.get( 1 )).longValue();
+            String firstName = (String) row.get( 2 );
+            String lastName = (String) row.get( 3 );
             int count = ((Number) row.get( 4 )).intValue();
             result.add(
                     new LdbcSnbBiQuery12TrendingPostsResult(
                             postId,
+                            creationDate,
                             firstName,
                             lastName,
-                            creationDate,
                             count
                     )
             );
@@ -109,9 +109,9 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
             LdbcSnbBiQuery12TrendingPostsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.messageId() );
+            resultFields.add( row.creationDate() );
             resultFields.add( row.firstName() );
             resultFields.add( row.lastName() );
-            resultFields.add( row.creationDate() );
             resultFields.add( row.likeCount() );
             resultsFields.add( resultFields );
         }

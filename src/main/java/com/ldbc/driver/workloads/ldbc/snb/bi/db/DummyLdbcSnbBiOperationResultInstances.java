@@ -91,7 +91,7 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery12TrendingPostsResult read12Result()
     {
-        return new LdbcSnbBiQuery12TrendingPostsResult( 1, "\u16a0", "\u3055", 2, 3 );
+        return new LdbcSnbBiQuery12TrendingPostsResult( 1, 2L, "\u16a0", "\u3055", 3 );
     }
 
     public static LdbcSnbBiQuery13PopularMonthlyTagsResult read13Result()
