@@ -3,7 +3,6 @@ package com.ldbc.driver.util;
 import com.google.common.collect.Lists;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -37,25 +36,14 @@ public class FileUtils
 
     public static List<File> filesWithSuffixInDirectory( File directory, final String fileNameSuffix )
     {
-        return Lists.newArrayList(
-                directory.listFiles(
-                        new FilenameFilter()
-                        {
-                            @Override
-                            public boolean accept( File dir, String name )
-                            {
-                                return name.endsWith( fileNameSuffix );
-                            }
-                        }
-                )
-        );
+        return Lists.newArrayList( directory.listFiles( ( dir, name ) -> name.endsWith( fileNameSuffix ) ) );
     }
 
-    public static void assertDirectoryDoesNotExist( File dir )
+    public static void assertFileDoesNotExist( File file )
     {
-        if ( dir.exists() )
+        if ( file.exists() )
         {
-            throw new RuntimeException( "Directory already exists: " + dir.getAbsolutePath() );
+            throw new RuntimeException( "File already exists: " + file.getAbsolutePath() );
         }
     }
 
@@ -102,15 +90,22 @@ public class FileUtils
         }
     }
 
-    public static void tryCreateDir( File dir, boolean failIfExists )
+    public static void tryCreateDirs( File dir, boolean failIfExists )
     {
-        if ( dir.exists() && failIfExists )
+        if ( dir.exists() )
         {
-            throw new RuntimeException( "Directory already exists: " + dir.getAbsolutePath() );
+            if ( failIfExists )
+            {
+                throw new RuntimeException( "Directory already exists: " + dir.getAbsolutePath() );
+            }
+            else if ( !dir.isDirectory() )
+            {
+                throw new RuntimeException( "Is not a directory: " + dir.getAbsolutePath() );
+            }
         }
-        else if ( !dir.exists() && !dir.mkdir() )
+        else if ( !dir.mkdirs() )
         {
-            throw new RuntimeException( "Unable to create directory: " + dir.getAbsolutePath() );
+            throw new RuntimeException( "Unable to create directory structure: " + dir.getAbsolutePath() );
         }
     }
 
@@ -124,7 +119,7 @@ public class FileUtils
                     from.getAbsolutePath(),
                     to.getAbsolutePath() ) );
             FileUtils.assertDirectoryExists( from );
-            FileUtils.assertDirectoryDoesNotExist( to );
+            FileUtils.assertFileDoesNotExist( to );
             // Alternative method of copying database into working directory
             org.apache.commons.io.FileUtils.copyDirectory( from, to );
             FileUtils.assertDirectoryExists( from );

@@ -7,8 +7,8 @@ import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
+import com.ldbc.driver.util.FileUtils;
 import com.ldbc.driver.util.MapUtils;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -19,17 +19,30 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static java.lang.String.format;
+import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.FINISHED;
+import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.INITIALIZING;
+import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.MEASUREMENT;
+import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.NOT_FOUND;
+import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.WARMUP;
 
 public class ResultsDirectory
 {
+    public enum BenchmarkPhase
+    {
+        NOT_FOUND,
+        INITIALIZING,
+        WARMUP,
+        MEASUREMENT,
+        FINISHED
+    }
+
     private static final String WARMUP_IDENTIFIER = "-WARMUP-";
 
-    public static final String RESULTS_LOG_FILENAME_SUFFIX = "-results_log.csv";
-    public static final String RESULTS_METRICS_FILENAME_SUFFIX = "-results.json";
-    public static final String RESULTS_CONFIGURATION_FILENAME_SUFFIX = "-configuration.properties";
+    private static final String RESULTS_LOG_FILENAME_SUFFIX = "-results_log.csv";
+    private static final String RESULTS_METRICS_FILENAME_SUFFIX = "-results.json";
+    private static final String RESULTS_CONFIGURATION_FILENAME_SUFFIX = "-configuration.properties";
 
-    public static final String RESULTS_VALIDATION_FILENAME_SUFFIX = "-validation.json";
+    private static final String RESULTS_VALIDATION_FILENAME_SUFFIX = "-validation.json";
 
     private final DriverConfiguration configuration;
     private final File resultsDir;
@@ -37,24 +50,12 @@ public class ResultsDirectory
     public static ResultsDirectory fromDirectory( File resultsDir )
             throws IOException, DriverConfigurationException, ClientException
     {
-        FileFilter configurationFileFilter = new FileFilter()
-        {
-            @Override
-            public boolean accept( File file )
-            {
-                return !file.getName().contains( WARMUP_IDENTIFIER ) &&
-                       file.getName().endsWith( RESULTS_CONFIGURATION_FILENAME_SUFFIX );
-            }
-        };
-        File[] resultFiles = resultsDir.listFiles( configurationFileFilter );
-        if ( null == resultFiles || resultFiles.length != 1 )
+        File configurationFile = findConfigurationFile( resultsDir, false );
+        if ( null == configurationFile )
         {
             throw new RuntimeException( "Could not find configuration file in: " + resultsDir.getAbsolutePath() );
         }
-        File configurationFile = resultFiles[0];
-        Map<String,String> configurationMap = MapUtils.loadPropertiesToMap( configurationFile );
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromParamsMap( configurationMap );
-        return new ResultsDirectory( configuration );
+        return new ResultsDirectory( getConfigurationFrom( configurationFile ) );
     }
 
     public ResultsDirectory( DriverConfiguration configuration ) throws ClientException
@@ -67,7 +68,7 @@ public class ResultsDirectory
         else
         {
             this.resultsDir = new File( configuration.resultDirPath() );
-            if ( this.resultsDir.exists() && !resultsDir.isDirectory() )
+            if ( this.resultsDir.exists() && !this.resultsDir.isDirectory() )
             {
                 throw new ClientException( "Results directory is not directory: " + this.resultsDir.getAbsolutePath() );
             }
@@ -75,15 +76,12 @@ public class ResultsDirectory
             {
                 try
                 {
-                    FileUtils.forceMkdir( this.resultsDir );
+                    FileUtils.tryCreateDirs( this.resultsDir, false );
                 }
-                catch ( IOException e )
+                catch ( Exception e )
                 {
                     throw new ClientException(
-                            format( "Results directory does not exist and could not be created: %s",
-                                    this.resultsDir.getAbsolutePath() ),
-                            e
-                    );
+                            "Results directory could not be created: " + this.resultsDir.getAbsolutePath(), e );
                 }
             }
         }
@@ -94,20 +92,18 @@ public class ResultsDirectory
         return null != resultsDir;
     }
 
-    public File getOrCreateResultsLogFile( boolean warmup ) throws ClientException
+    File getOrCreateResultsLogFile( boolean warmup ) throws ClientException
     {
-        File resultsLog = getResultsLogFile( warmup );
+        File resultsLog = getResultsLogFile( resultsDir, configuration, warmup );
         if ( !resultsLog.exists() )
         {
             try
             {
-                com.ldbc.driver.util.FileUtils.createOrFail( resultsLog );
+                FileUtils.createOrFail( resultsLog );
             }
             catch ( IOException e )
             {
-                throw new ClientException(
-                        format( "Error creating results log file: %s", resultsLog.getAbsolutePath() ), e
-                );
+                throw new ClientException( "Error creating results log file: " + resultsLog.getAbsolutePath(), e );
             }
         }
         return resultsLog;
@@ -115,30 +111,21 @@ public class ResultsDirectory
 
     public File getResultsLogFile( boolean warmup ) throws ClientException
     {
-        if ( null == resultsDir )
-        {
-            throw new ClientException( "Results directory is null" );
-        }
-        else
-        {
-            return new File( resultsDir, resultsLogFilename( warmup ) );
-        }
+        return getResultsLogFile( resultsDir, configuration, warmup );
     }
 
     public long getResultsLogFileLength( boolean warmup ) throws ClientException
     {
         try ( SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(
-                getResultsLogFile( warmup ),
-                SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING
-        ) )
+                getResultsLogFile( resultsDir, configuration, warmup ),
+                SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING ) )
         {
             return Iterators.size( csvResultsLogReader );
         }
         catch ( FileNotFoundException e )
         {
             throw new ClientException(
-                    format( "Error calculating length of %s", getResultsLogFile( warmup ).getAbsolutePath() ), e
-            );
+                    "Error calculating length of " + getResultsLogFile( warmup ).getAbsolutePath(), e );
         }
     }
 
@@ -149,103 +136,71 @@ public class ResultsDirectory
         {
             try
             {
-                com.ldbc.driver.util.FileUtils.createOrFail( resultsSummary );
+                FileUtils.createOrFail( resultsSummary );
             }
             catch ( IOException e )
             {
                 throw new ClientException(
-                        format( "Error creating results summary file: %s", resultsSummary.getAbsolutePath() ), e
-                );
+                        "Error creating results summary file: " + resultsSummary.getAbsolutePath(), e );
             }
         }
         return resultsSummary;
     }
 
-    public File getResultsSummaryFile( boolean warmup ) throws ClientException
+    private File getResultsSummaryFile( boolean warmup ) throws ClientException
     {
-        if ( null == resultsDir )
-        {
-            throw new ClientException( "Results directory is null" );
-        }
-        else
-        {
-            return new File( resultsDir, resultsSummaryFilename( warmup ) );
-        }
+        return getResultsSummaryFile( resultsDir, configuration, warmup );
     }
 
-    public File getOrCreateConfigurationFile( boolean warmup ) throws ClientException
+    File getOrCreateConfigurationFile( boolean warmup ) throws ClientException
     {
         File configurationFile = getConfigurationFile( warmup );
         if ( !configurationFile.exists() )
         {
             try
             {
-                com.ldbc.driver.util.FileUtils.createOrFail( configurationFile );
+                FileUtils.createOrFail( configurationFile );
             }
             catch ( IOException e )
             {
                 throw new ClientException(
-                        format( "Error creating configuration file: %s", configurationFile.getAbsolutePath() ), e
-                );
+                        "Error creating configuration file: " + configurationFile.getAbsolutePath(), e );
             }
         }
         return configurationFile;
     }
 
-    public File getConfigurationFile( boolean warmup ) throws ClientException
+    private File getConfigurationFile( boolean warmup ) throws ClientException
     {
-        if ( null == resultsDir )
-        {
-            throw new ClientException( "Results directory is null" );
-        }
-        else
-        {
-            return new File( resultsDir, configurationFilename( warmup ) );
-        }
+        return new File( resultsDir, configurationFilename( configuration, warmup ) );
     }
 
-    public File getOrCreateResultsValidationFile( boolean warmup ) throws ClientException
+    File getOrCreateResultsValidationFile( boolean warmup ) throws ClientException
     {
         File resultsValidationFile = getResultsValidationFile( warmup );
         if ( !resultsValidationFile.exists() )
         {
             try
             {
-                com.ldbc.driver.util.FileUtils.createOrFail( resultsValidationFile );
+                FileUtils.createOrFail( resultsValidationFile );
             }
             catch ( IOException e )
             {
                 throw new ClientException(
-                        format( "Error creating results validation file: %s", resultsValidationFile.getAbsolutePath() ),
-                        e
-                );
+                        "Error creating results validation file: " + resultsValidationFile.getAbsolutePath(), e );
             }
         }
         return resultsValidationFile;
     }
 
-    public File getResultsValidationFile( boolean warmup ) throws ClientException
+    private File getResultsValidationFile( boolean warmup ) throws ClientException
     {
-        if ( null == resultsDir )
-        {
-            throw new ClientException( "Results directory is null" );
-        }
-        else
-        {
-            return new File( resultsDir, resultsValidationFilename( warmup ) );
-        }
+        return new File( resultsDir, resultsValidationFilename( configuration, warmup ) );
     }
 
     public Set<File> files() throws ClientException
     {
-        if ( null == resultsDir )
-        {
-            throw new ClientException( "Results directory is null" );
-        }
-        else
-        {
-            return Sets.newHashSet( resultsDir.listFiles() );
-        }
+        return Sets.newHashSet( resultsDir.listFiles() );
     }
 
     public Set<File> expectedFiles() throws ClientException
@@ -278,30 +233,121 @@ public class ResultsDirectory
         }
     }
 
-    private String resultsValidationFilename( boolean warmup )
+    public static BenchmarkPhase phase( File resultsDir )
+            throws ClientException, DriverConfigurationException, IOException
+    {
+        if ( !exists( resultsDir ) )
+        {
+            // Results directory has not yet been created
+            return NOT_FOUND;
+        }
+
+        File warmupResultsLog = findResultsLogFile( resultsDir, true );
+        if ( null == warmupResultsLog || !warmupResultsLog.exists() )
+        {
+            // Warmup results log (the first file to be created during warmup) has not yet been created
+            return INITIALIZING;
+        }
+
+        File measurementResultsLogFile = findResultsLogFile( resultsDir, false );
+        if ( null == measurementResultsLogFile || !measurementResultsLogFile.exists() )
+        {
+            // Warmup results log is present, but measurement results log is not. We are between warmup and measurement
+            return WARMUP;
+        }
+
+        File warmupConfigurationFile = findConfigurationFile( resultsDir, true );
+        DriverConfiguration warmupConfiguration = getConfigurationFrom( warmupConfigurationFile );
+        File measurementSummary = getResultsSummaryFile( resultsDir, warmupConfiguration, false );
+        if ( !measurementSummary.exists() )
+        {
+            // Measurement results log is present, but measurement summary file is not. Measurement is still running
+            return MEASUREMENT;
+        }
+
+        // Measurement summary file is present. We're done
+        return FINISHED;
+    }
+
+    private static boolean exists( File resultsDir )
+    {
+        return resultsDir != null && resultsDir.isDirectory() && resultsDir.exists();
+    }
+
+    private static File findConfigurationFile( File resultsDir, boolean warmup )
+            throws DriverConfigurationException, IOException
+    {
+        FileFilter configurationFileFilter = file ->
+                file.getName().contains( WARMUP_IDENTIFIER ) == warmup &&
+                file.getName().endsWith( RESULTS_CONFIGURATION_FILENAME_SUFFIX );
+        File[] resultFiles = resultsDir.listFiles( configurationFileFilter );
+        if ( null == resultFiles || resultFiles.length != 1 )
+        {
+            return null;
+        }
+        else
+        {
+            return resultFiles[0];
+        }
+    }
+
+    private static DriverConfiguration getConfigurationFrom( File configurationFile )
+            throws DriverConfigurationException, IOException
+    {
+        Map<String,String> configurationMap = MapUtils.loadPropertiesToMap( configurationFile );
+        return ConsoleAndFileDriverConfiguration.fromParamsMap( configurationMap );
+    }
+
+    private static File findResultsLogFile( File resultsDir, boolean warmup )
+            throws DriverConfigurationException, IOException
+    {
+        FileFilter resultsLogFileFilter = file ->
+                file.getName().contains( WARMUP_IDENTIFIER ) == warmup &&
+                file.getName().endsWith( RESULTS_LOG_FILENAME_SUFFIX );
+        File[] resultFiles = resultsDir.listFiles( resultsLogFileFilter );
+        if ( null == resultFiles || resultFiles.length != 1 )
+        {
+            return null;
+        }
+        else
+        {
+            return resultFiles[0];
+        }
+    }
+
+    private static File getResultsLogFile( File resultsDir, DriverConfiguration configuration, boolean warmup )
+            throws ClientException
+    {
+        return new File( resultsDir, resultsLogFilename( configuration, warmup ) );
+    }
+
+    private static File getResultsSummaryFile( File resultsDir, DriverConfiguration configuration, boolean warmup )
+            throws ClientException
+    {
+        return new File( resultsDir, resultsSummaryFilename( configuration, warmup ) );
+    }
+
+    private static String resultsValidationFilename( DriverConfiguration configuration, boolean warmup )
     {
         return (warmup) ? configuration.name() + WARMUP_IDENTIFIER + RESULTS_VALIDATION_FILENAME_SUFFIX
                         : configuration.name() + RESULTS_VALIDATION_FILENAME_SUFFIX;
     }
 
-    private String resultsLogFilename( boolean warmup )
+    private static String resultsLogFilename( DriverConfiguration configuration, boolean warmup )
     {
-        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER +
-                          RESULTS_LOG_FILENAME_SUFFIX
+        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER + RESULTS_LOG_FILENAME_SUFFIX
                         : configuration.name() + RESULTS_LOG_FILENAME_SUFFIX;
     }
 
-    private String resultsSummaryFilename( boolean warmup )
+    private static String resultsSummaryFilename( DriverConfiguration configuration, boolean warmup )
     {
-        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER +
-                          RESULTS_METRICS_FILENAME_SUFFIX
+        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER + RESULTS_METRICS_FILENAME_SUFFIX
                         : configuration.name() + RESULTS_METRICS_FILENAME_SUFFIX;
     }
 
-    private String configurationFilename( boolean warmup )
+    private static String configurationFilename( DriverConfiguration configuration, boolean warmup )
     {
-        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER +
-                          RESULTS_CONFIGURATION_FILENAME_SUFFIX
+        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER + RESULTS_CONFIGURATION_FILENAME_SUFFIX
                         : configuration.name() + RESULTS_CONFIGURATION_FILENAME_SUFFIX;
     }
 }
