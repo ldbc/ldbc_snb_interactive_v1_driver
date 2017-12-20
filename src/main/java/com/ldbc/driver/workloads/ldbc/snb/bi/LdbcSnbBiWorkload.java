@@ -1062,7 +1062,6 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.country() );
                 operationAsList.add( ldbcQuery.endDate() );
-                operationAsList.add( ldbcQuery.days() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -1286,9 +1285,8 @@ public class LdbcSnbBiWorkload extends Workload
         {
             String country = (String) operationAsList.get( 1 );
             long endDate = ((Number) operationAsList.get( 2 )).longValue();
-            int days = ((Number) operationAsList.get( 3 )).intValue();
-            int limit = ((Number) operationAsList.get( 4 )).intValue();
-            return new LdbcSnbBiQuery21Zombies( country, endDate, days, limit );
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery21Zombies( country, endDate, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery22InternationalDialog.class.getName() ) )
         {

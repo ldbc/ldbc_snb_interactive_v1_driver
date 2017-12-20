@@ -5,6 +5,7 @@ import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21ZombiesResult>>
 {
@@ -13,14 +14,12 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
     public static final int DEFAULT_DAYS = 30;
     private final String country;
     private final long endDate;
-    private final int days;
     private final int limit;
 
-    public LdbcSnbBiQuery21Zombies( String country, long endDate, int days, int limit )
+    public LdbcSnbBiQuery21Zombies( String country, long endDate, int limit )
     {
         this.country = country;
         this.endDate = endDate;
-        this.days = days;
         this.limit = limit;
     }
 
@@ -34,11 +33,6 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
         return endDate;
     }
 
-    public int days()
-    {
-        return days;
-    }
-
     public int limit()
     {
         return limit;
@@ -50,38 +44,24 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
         return "LdbcSnbBiQuery21Zombies{" +
                "country='" + country + '\'' +
                ", endDate=" + endDate +
-               ", days=" + days +
                ", limit=" + limit +
                '}';
     }
 
     @Override
-    public boolean equals( Object o )
-    {
-        if ( this == o )
-        { return true; }
-        if ( o == null || getClass() != o.getClass() )
-        { return false; }
-
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         LdbcSnbBiQuery21Zombies that = (LdbcSnbBiQuery21Zombies) o;
-
-        if ( endDate != that.endDate )
-        { return false; }
-        if ( days != that.days )
-        { return false; }
-        if ( limit != that.limit )
-        { return false; }
-        return !(country != null ? !country.equals( that.country ) : that.country != null);
+        return endDate == that.endDate &&
+                limit == that.limit &&
+                Objects.equals(country, that.country);
     }
 
     @Override
-    public int hashCode()
-    {
-        int result = country != null ? country.hashCode() : 0;
-        result = 31 * result + (int) (endDate ^ (endDate >>> 32));
-        result = 31 * result + days;
-        result = 31 * result + limit;
-        return result;
+    public int hashCode() {
+
+        return Objects.hash(country, endDate, limit);
     }
 
     @Override
