@@ -249,20 +249,20 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     /*
      * Read Operation Parameters
      */
-    public final static String READ_OPERATION_1_PARAMS_FILENAME = "query_1_param.txt";
-    public final static String READ_OPERATION_2_PARAMS_FILENAME = "query_2_param.txt";
-    public final static String READ_OPERATION_3_PARAMS_FILENAME = "query_3_param.txt";
-    public final static String READ_OPERATION_4_PARAMS_FILENAME = "query_4_param.txt";
-    public final static String READ_OPERATION_5_PARAMS_FILENAME = "query_5_param.txt";
-    public final static String READ_OPERATION_6_PARAMS_FILENAME = "query_6_param.txt";
-    public final static String READ_OPERATION_7_PARAMS_FILENAME = "query_7_param.txt";
-    public final static String READ_OPERATION_8_PARAMS_FILENAME = "query_8_param.txt";
-    public final static String READ_OPERATION_9_PARAMS_FILENAME = "query_9_param.txt";
-    public final static String READ_OPERATION_10_PARAMS_FILENAME = "query_10_param.txt";
-    public final static String READ_OPERATION_11_PARAMS_FILENAME = "query_11_param.txt";
-    public final static String READ_OPERATION_12_PARAMS_FILENAME = "query_12_param.txt";
-    public final static String READ_OPERATION_13_PARAMS_FILENAME = "query_13_param.txt";
-    public final static String READ_OPERATION_14_PARAMS_FILENAME = "query_14_param.txt";
+    public final static String READ_OPERATION_1_PARAMS_FILENAME = "interactive_1_param.txt";
+    public final static String READ_OPERATION_2_PARAMS_FILENAME = "interactive_2_param.txt";
+    public final static String READ_OPERATION_3_PARAMS_FILENAME = "interactive_3_param.txt";
+    public final static String READ_OPERATION_4_PARAMS_FILENAME = "interactive_4_param.txt";
+    public final static String READ_OPERATION_5_PARAMS_FILENAME = "interactive_5_param.txt";
+    public final static String READ_OPERATION_6_PARAMS_FILENAME = "interactive_6_param.txt";
+    public final static String READ_OPERATION_7_PARAMS_FILENAME = "interactive_7_param.txt";
+    public final static String READ_OPERATION_8_PARAMS_FILENAME = "interactive_8_param.txt";
+    public final static String READ_OPERATION_9_PARAMS_FILENAME = "interactive_9_param.txt";
+    public final static String READ_OPERATION_10_PARAMS_FILENAME = "interactive_10_param.txt";
+    public final static String READ_OPERATION_11_PARAMS_FILENAME = "interactive_11_param.txt";
+    public final static String READ_OPERATION_12_PARAMS_FILENAME = "interactive_12_param.txt";
+    public final static String READ_OPERATION_13_PARAMS_FILENAME = "interactive_13_param.txt";
+    public final static String READ_OPERATION_14_PARAMS_FILENAME = "interactive_14_param.txt";
     public final static List<String> READ_OPERATION_PARAMS_FILENAMES = Lists.newArrayList(
             READ_OPERATION_1_PARAMS_FILENAME,
             READ_OPERATION_2_PARAMS_FILENAME,
