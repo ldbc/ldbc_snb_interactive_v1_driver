@@ -2,15 +2,23 @@ package com.ldbc.driver.util;
 
 import com.google.common.collect.Lists;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public class FileUtils
@@ -152,6 +160,28 @@ public class FileUtils
         catch ( IOException e )
         {
             throw new UncheckedIOException( e );
+        }
+    }
+
+    public static void printlnsToFile( File file, String... lines )
+    {
+        try ( PrintWriter printer = new PrintWriter( new FileOutputStream( file, true ) ) )
+        {
+            Arrays.stream( lines ).forEach( printer::println );
+        }
+        catch ( FileNotFoundException e )
+        {
+            throw new RuntimeException( "Error writing line to file\n" +
+                                        "Line: " + lines + "\n" +
+                                        "File: " + file.getAbsolutePath(), e );
+        }
+    }
+
+    public static String inputStringToString( InputStream is ) throws IOException
+    {
+        try ( BufferedReader buffer = new BufferedReader( new InputStreamReader( is ) ) )
+        {
+            return buffer.lines().collect( joining( "\n" ) );
         }
     }
 }
