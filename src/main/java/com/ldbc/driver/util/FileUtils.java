@@ -98,6 +98,32 @@ public class FileUtils
         }
     }
 
+    public static void tryCreateFile( File file, boolean failIfExists )
+    {
+        try
+        {
+            if ( file.exists() )
+            {
+                if ( failIfExists )
+                {
+                    throw new RuntimeException( "File already exists: " + file.getAbsolutePath() );
+                }
+                else if ( file.isDirectory() )
+                {
+                    throw new RuntimeException( "Is a directory: " + file.getAbsolutePath() );
+                }
+            }
+            else if ( !file.createNewFile() )
+            {
+                throw new RuntimeException( "Unable to create file: " + file.getAbsolutePath() );
+            }
+        }
+        catch ( IOException e )
+        {
+            throw new RuntimeException( "Unable to create file: " + file.getAbsolutePath(), e );
+        }
+    }
+
     public static void tryCreateDirs( File dir, boolean failIfExists )
     {
         if ( dir.exists() )

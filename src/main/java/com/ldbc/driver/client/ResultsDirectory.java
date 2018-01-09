@@ -14,16 +14,19 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.FINISHED;
 import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.INITIALIZING;
 import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.MEASUREMENT;
+import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.MEASUREMENT_FINISHED;
 import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.NOT_FOUND;
 import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.WARMUP;
+import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.WARMUP_FINISHED;
+import static java.util.stream.Collectors.joining;
 
 public class ResultsDirectory
 {
@@ -32,8 +35,9 @@ public class ResultsDirectory
         NOT_FOUND,
         INITIALIZING,
         WARMUP,
+        WARMUP_FINISHED,
         MEASUREMENT,
-        FINISHED
+        MEASUREMENT_FINISHED
     }
 
     private static final String WARMUP_IDENTIFIER = "-WARMUP-";
@@ -249,15 +253,32 @@ public class ResultsDirectory
             return INITIALIZING;
         }
 
-        File measurementResultsLogFile = findResultsLogFile( resultsDir, false );
-        if ( null == measurementResultsLogFile || !measurementResultsLogFile.exists() )
+        // Warmup results log exists. Warmup has started
+        File warmupConfigurationFile = findConfigurationFile( resultsDir, true );
+        if ( null == warmupConfigurationFile )
         {
-            // Warmup results log is present, but measurement results log is not. We are between warmup and measurement
+            // Warmup results log is present, but warmup configuration file is not. Warmup is still running
             return WARMUP;
         }
 
-        File warmupConfigurationFile = findConfigurationFile( resultsDir, true );
+        // Warmup configuration file exists
         DriverConfiguration warmupConfiguration = getConfigurationFrom( warmupConfigurationFile );
+        File warmupSummary = getResultsSummaryFile( resultsDir, warmupConfiguration, true );
+        if ( !warmupSummary.exists() )
+        {
+            // Warmup configuration file is present, but warmup summary file is not. Warmup is still running
+            return WARMUP;
+        }
+
+        // Warmup summary exists. Warmup as finished
+        File measurementResultsLogFile = findResultsLogFile( resultsDir, false );
+        if ( null == measurementResultsLogFile || !measurementResultsLogFile.exists() )
+        {
+            // Warmup summary is present, but measurement results log is not. Waiting for measurement to start
+            return WARMUP_FINISHED;
+        }
+
+        // Measurement results log exists. Measurement has started
         File measurementSummary = getResultsSummaryFile( resultsDir, warmupConfiguration, false );
         if ( !measurementSummary.exists() )
         {
@@ -266,7 +287,7 @@ public class ResultsDirectory
         }
 
         // Measurement summary file is present. We're done
-        return FINISHED;
+        return MEASUREMENT_FINISHED;
     }
 
     private static boolean exists( File resultsDir )
@@ -305,9 +326,15 @@ public class ResultsDirectory
                 file.getName().contains( WARMUP_IDENTIFIER ) == warmup &&
                 file.getName().endsWith( RESULTS_LOG_FILENAME_SUFFIX );
         File[] resultFiles = resultsDir.listFiles( resultsLogFileFilter );
-        if ( null == resultFiles || resultFiles.length != 1 )
+        if ( null == resultFiles || resultFiles.length == 0 )
         {
             return null;
+        }
+        else if ( resultFiles.length > 1 )
+        {
+            throw new RuntimeException(
+                    "Expected to find 1 results log file, but found: " +
+                    Arrays.stream( resultFiles ).map( File::getAbsolutePath ).collect( joining( "," ) ) );
         }
         else
         {
