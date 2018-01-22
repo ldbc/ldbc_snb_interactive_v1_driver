@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.util.ListUtils;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -130,6 +132,26 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
     public List<Organization> workAt()
     {
         return workAt;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put("personId", personId)
+                .put("personFirstName", personFirstName)
+                .put("personLastName", personLastName)
+                .put("gender", gender)
+                .put("birthday", birthday)
+                .put("creationDate", creationDate)
+                .put("locationIp", locationIp)
+                .put("browserUsed", browserUsed)
+                .put("cityId", cityId)
+                .put("languages", languages)
+                .put("emails", emails)
+                .put("tagIds", tagIds)
+                .put("studyAt", studyAt)
+                .put("workAt", workAt)
+                .build();
     }
 
     @Override

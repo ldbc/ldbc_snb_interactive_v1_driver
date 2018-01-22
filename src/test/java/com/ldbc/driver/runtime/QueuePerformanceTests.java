@@ -1,15 +1,8 @@
 package com.ldbc.driver.runtime;
 
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.SerializingMarshallingException;
-import com.ldbc.driver.Workload;
-import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
-import com.ldbc.driver.control.DriverConfiguration;
-import com.ldbc.driver.control.DriverConfigurationException;
-import com.ldbc.driver.control.Log4jLoggingServiceFactory;
-import com.ldbc.driver.control.LoggingServiceFactory;
+import com.google.common.collect.ImmutableMap;
+import com.ldbc.driver.*;
+import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -26,13 +19,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.LinkedTransferQueue;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
@@ -44,6 +31,11 @@ public class QueuePerformanceTests
 {
     final Operation TERMINATE_OPERATION = new Operation<Object>()
     {
+        @Override
+        public Map<String, Object> parameterMap() {
+            return ImmutableMap.of();
+        }
+
         @Override
         public int type()
         {

@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.simple;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 
 import java.util.Iterator;
@@ -43,6 +44,16 @@ public class ReadModifyWriteOperation extends Operation<Object>
     public Map<String,Iterator<Byte>> values()
     {
         return writeValues;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put("table", table)
+                .put("key", key)
+                .put("fields", readFields)
+                .put("values", writeValues)
+                .build();
     }
 
     @Override

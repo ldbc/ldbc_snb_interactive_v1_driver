@@ -1,11 +1,13 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -37,6 +39,16 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
     public Date creationDate()
     {
         return creationDate;
+    }
+
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put("person1Id", person1Id)
+                .put("person2Id", person2Id)
+                .put("creationDate", creationDate)
+                .build();
     }
 
     @Override

@@ -1,10 +1,12 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery1PostingSummaryResult>>
 {
@@ -19,6 +21,13 @@ public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery
     public long date()
     {
         return date;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put("date", date)
+                .build();
     }
 
     @Override

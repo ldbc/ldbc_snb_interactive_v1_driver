@@ -1,11 +1,13 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBiQuery13PopularMonthlyTagsResult>>
 {
@@ -28,6 +30,14 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put("country", country)
+                .put("limit", limit)
+                .build();
     }
 
     @Override

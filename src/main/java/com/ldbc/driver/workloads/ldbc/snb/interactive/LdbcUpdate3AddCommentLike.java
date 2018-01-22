@@ -1,11 +1,13 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -37,6 +39,15 @@ public class LdbcUpdate3AddCommentLike extends Operation<LdbcNoResult>
     public Date creationDate()
     {
         return creationDate;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put("personId", personId)
+                .put("commentId", commentId)
+                .put("creationDate", creationDate)
+                .build();
     }
 
     @Override

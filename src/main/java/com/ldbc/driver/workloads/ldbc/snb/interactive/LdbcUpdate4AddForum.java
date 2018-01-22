@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.util.ListUtils;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -55,6 +57,17 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
     public List<Long> tagIds()
     {
         return tagIds;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put("forumId", forumId)
+                .put("forumTitle", forumTitle)
+                .put("creationDate", creationDate)
+                .put("moderatorPersonId", moderatorPersonId)
+                .put("tagIds", tagIds)
+                .build();
     }
 
     @Override

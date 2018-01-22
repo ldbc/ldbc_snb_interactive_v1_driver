@@ -1,6 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
@@ -10,6 +11,7 @@ import org.codehaus.jackson.type.TypeReference;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -35,6 +37,14 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
     public long person2Id()
     {
         return person2Id;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put("person1Id", person1Id)
+                .put("person2Id()", person2Id())
+                .build();
     }
 
     @Override
