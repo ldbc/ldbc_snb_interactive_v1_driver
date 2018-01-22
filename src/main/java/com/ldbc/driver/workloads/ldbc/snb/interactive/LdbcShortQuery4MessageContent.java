@@ -17,6 +17,8 @@ public class LdbcShortQuery4MessageContent extends Operation<LdbcShortQuery4Mess
 {
     public static final int TYPE = 104;
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final String MESSAGE_ID = "messageId";
+
     private final long messageId;
 
     public LdbcShortQuery4MessageContent( long messageId )
@@ -32,7 +34,7 @@ public class LdbcShortQuery4MessageContent extends Operation<LdbcShortQuery4Mess
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("messageId", messageId)
+                .put(MESSAGE_ID, messageId)
                 .build();
     }
 

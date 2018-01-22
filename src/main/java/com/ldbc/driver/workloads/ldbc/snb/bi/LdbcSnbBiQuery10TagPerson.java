@@ -12,6 +12,10 @@ public class LdbcSnbBiQuery10TagPerson extends Operation<List<LdbcSnbBiQuery10Ta
 {
     public static final int TYPE = 10;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String TAG = "tag";
+    public static final String LIMIT = "limit";
+    public static final String DATE = "date";
+
     private final String tag;
     private final long date;
     private final int limit;
@@ -41,8 +45,9 @@ public class LdbcSnbBiQuery10TagPerson extends Operation<List<LdbcSnbBiQuery10Ta
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("tag", tag)
-                .put("limit", limit)
+                .put(TAG, tag)
+                .put(DATE, date)
+                .put(LIMIT, limit)
                 .build();
     }
 

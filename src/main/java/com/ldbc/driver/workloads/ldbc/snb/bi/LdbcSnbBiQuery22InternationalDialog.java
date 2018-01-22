@@ -12,6 +12,10 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
 {
     public static final int TYPE = 22;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String COUNTRY1 = "country1";
+    public static final String COUNTRY2 = "country2";
+    public static final String LIMIT = "limit";
+
     private final String country1;
     private final String country2;
     private final int limit;
@@ -41,9 +45,9 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("countryX", countryX)
-                .put("countryY", countryY)
-                .put("limit", limit)
+                .put(COUNTRY1, country1)
+                .put(COUNTRY2, country2)
+                .put(LIMIT, limit)
                 .build();
     }
 

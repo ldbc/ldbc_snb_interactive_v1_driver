@@ -11,6 +11,10 @@ import java.util.Vector;
 public class ScanOperation extends Operation<Vector<Map<String,Iterator<Byte>>>>
 {
     public static final int TYPE = 5;
+    public static final String TABLE = "table";
+    public static final String START_KEY = "startKey";
+    public static final String RECORD_COUNT = "recordCount";
+    public static final String FIELDS = "fields";
 
     private final String table;
     private final String startKey;
@@ -49,10 +53,10 @@ public class ScanOperation extends Operation<Vector<Map<String,Iterator<Byte>>>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("table", table)
-                .put("startKey", startKey)
-                .put("recordCount", recordCount)
-                .put("fields", fields)
+                .put(TABLE, table)
+                .put(START_KEY, startKey)
+                .put(RECORD_COUNT, recordCount)
+                .put(FIELDS, fields)
                 .build();
     }
 

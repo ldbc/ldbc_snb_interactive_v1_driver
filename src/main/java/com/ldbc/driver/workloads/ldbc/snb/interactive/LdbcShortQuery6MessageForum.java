@@ -17,6 +17,8 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
 {
     public static final int TYPE = 106;
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final String MESSAGE_ID = "messageId";
+
     private final long messageId;
 
     public LdbcShortQuery6MessageForum( long messageId )
@@ -32,7 +34,7 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("messageId", messageId)
+                .put(MESSAGE_ID, messageId)
                 .build();
     }
 

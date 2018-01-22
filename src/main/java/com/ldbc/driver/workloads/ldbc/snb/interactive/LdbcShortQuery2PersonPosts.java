@@ -18,6 +18,9 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     public static final int TYPE = 102;
     public static final int DEFAULT_LIMIT = 10;
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final String PERSON_ID = "personId";
+    public static final String LIMIT = "limit";
+
     private final long personId;
     private final int limit;
 
@@ -40,8 +43,8 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("personId", personId)
-                .put("limit", limit)
+                .put(PERSON_ID, personId)
+                .put(LIMIT, limit)
                 .build();
     }
 

@@ -19,6 +19,9 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
 
     public static final int TYPE = 7;
     public static final int DEFAULT_LIMIT = 20;
+    public static final String PERSON_ID = "personId";
+    public static final String LIMIT = "limit";
+
     private final long personId;
     private final int limit;
 
@@ -39,12 +42,11 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
         return limit;
     }
 
-
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("personId", personId)
-                .put("limit", limit)
+                .put(PERSON_ID, personId)
+                .put(LIMIT, limit)
                 .build();
     }
 

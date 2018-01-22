@@ -19,6 +19,9 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
 
     public static final int TYPE = 8;
     public static final int DEFAULT_LIMIT = 20;
+    public static final String PERSON_ID = "personId";
+    public static final String LIMIT = "limit";
+
     private final long personId;
     private final int limit;
 
@@ -43,8 +46,8 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("personId", personId)
-                .put("limit", limit)
+                .put(PERSON_ID, personId)
+                .put(LIMIT, limit)
                 .build();
     }
 

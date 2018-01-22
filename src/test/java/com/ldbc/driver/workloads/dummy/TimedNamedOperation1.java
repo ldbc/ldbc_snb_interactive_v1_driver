@@ -1,7 +1,13 @@
 package com.ldbc.driver.workloads.dummy;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+
 public class TimedNamedOperation1 extends NothingOperation {
     public static final int TYPE = 1;
+    public static final String NAME = "name";
+
     private final String name;
 
     public TimedNamedOperation1(long scheduledStartTimeAsMilli, long timeStamp, long dependencyTimeAsMilli, String name) {
@@ -13,6 +19,13 @@ public class TimedNamedOperation1 extends NothingOperation {
 
     public String name() {
         return name;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(NAME, name)
+                .build();
     }
 
     @Override

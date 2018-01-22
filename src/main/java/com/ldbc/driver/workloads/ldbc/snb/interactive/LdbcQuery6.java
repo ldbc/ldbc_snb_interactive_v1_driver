@@ -23,6 +23,10 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
     private final String tagName;
     private final int limit;
 
+    public static final String PERSON_ID = "personId";
+    public static final String TAG_NAME = "tagName";
+    public static final String LIMIT = "limit";
+
     public LdbcQuery6( long personId, String tagName, int limit )
     {
         this.personId = personId;
@@ -49,9 +53,9 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("personId", personId)
-                .put("tagName", tagName)
-                .put("limit", limit)
+                .put(PERSON_ID, personId)
+                .put(TAG_NAME, tagName)
+                .put(LIMIT, limit)
                 .build();
     }
 

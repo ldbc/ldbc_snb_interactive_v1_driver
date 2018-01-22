@@ -12,6 +12,10 @@ public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQu
 {
     public static final int TYPE = 11;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String BLACK_LIST = "blackList";
+    public static final String COUNTRY = "country";
+    public static final String LIMIT = "limit";
+
     private final String country;
     private final List<String> blackList;
     private final int limit;
@@ -41,9 +45,9 @@ public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQu
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("blackList", blackList)
-                .put("country", country)
-                .put("limit", limit)
+                .put(BLACK_LIST, blackList)
+                .put(COUNTRY, country)
+                .put(LIMIT, limit)
                 .build();
     }
 

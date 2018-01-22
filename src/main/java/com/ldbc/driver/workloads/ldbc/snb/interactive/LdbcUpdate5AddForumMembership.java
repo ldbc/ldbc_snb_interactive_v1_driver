@@ -15,6 +15,10 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1005;
+    public static final String FORUM_ID = "forumId";
+    public static final String PERSON_ID = "personId";
+    public static final String JOIN_DATE = "joinDate";
+
     private final long forumId;
     private final long personId;
     private final Date joinDate;
@@ -44,9 +48,9 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("forumId", forumId)
-                .put("personId", personId)
-                .put("joinDate", joinDate)
+                .put(FORUM_ID, forumId)
+                .put(PERSON_ID, personId)
+                .put(JOIN_DATE, joinDate)
                 .build();
     }
 

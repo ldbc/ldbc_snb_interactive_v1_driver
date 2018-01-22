@@ -27,6 +27,13 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
     private final int durationDays;
     private final int limit;
 
+    public static final String PERSON_ID = "personId";
+    public static final String COUNTRY_X_NAME  = "countryXName";
+    public static final String COUNTRY_Y_NAME  = "countryYName";
+    public static final String START_DATE = "startDate";
+    public static final String DURATION_DAYS= "durationDays";
+    public static final String LIMIT = "limit";
+
     public LdbcQuery3( long personId, String countryXName, String countryYName, Date startDate, int durationDays,
             int limit )
     {
@@ -71,12 +78,12 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-            .put("personId", personId)
-            .put("countryXName", countryXName)
-            .put("countryYName", countryYName)
-            .put("startDate", startDate)
-            .put("durationDays", durationDays)
-            .put("limit", limit)
+            .put(PERSON_ID, personId)
+            .put(COUNTRY_X_NAME, countryXName)
+            .put(COUNTRY_Y_NAME, countryYName)
+            .put(START_DATE, startDate)
+            .put(DURATION_DAYS, durationDays)
+            .put(LIMIT, limit)
             .build();
     }
 

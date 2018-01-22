@@ -24,6 +24,10 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
     private final Date minDate;
     private final int limit;
 
+    public static final String PERSON_ID = "personId";
+    public static final String MIN_DATE = "minDate";
+    public static final String LIMIT = "limit";
+
     public LdbcQuery5( long personId, Date minDate, int limit )
     {
         super();
@@ -50,9 +54,9 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("personId", personId)
-                .put("minDate", minDate)
-                .put("limit", limit)
+                .put(PERSON_ID, personId)
+                .put(MIN_DATE, minDate)
+                .put(LIMIT, limit)
                 .build();
     }
 

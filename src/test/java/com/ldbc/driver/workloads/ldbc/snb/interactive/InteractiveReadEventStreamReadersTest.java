@@ -3,14 +3,13 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.csv.charseeker.*;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.testutils.TestUtils;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.TimeZone;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -46,6 +45,7 @@ public class InteractiveReadEventStreamReadersTest
         operation = (LdbcQuery1) reader.next();
         assertThat(operation.personId(), is(10995117334833L));
         assertThat(operation.firstName(), equalTo("John"));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery1) reader.next();
         assertThat(operation.personId(), is(14293651244033L));
@@ -58,6 +58,7 @@ public class InteractiveReadEventStreamReadersTest
         operation = (LdbcQuery1) reader.next();
         assertThat(operation.personId(), is(2199023331001L));
         assertThat(operation.firstName(), equalTo("Chen"));
+
 
         assertThat(reader.hasNext(), is(false));
     }
@@ -94,6 +95,7 @@ public class InteractiveReadEventStreamReadersTest
         calendar.clear();
         calendar.set(2013, Calendar.JANUARY, 28);
         assertThat(operation.maxDate().getTime(), is(calendar.getTime().getTime()));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery2) reader.next();
         assertThat(operation.personId(), is(9895606011404L));
@@ -151,6 +153,7 @@ public class InteractiveReadEventStreamReadersTest
         calendar.clear();
         calendar.set(2011, Calendar.DECEMBER, 1);
         assertThat(operation.startDate().getTime(), is(calendar.getTime().getTime()));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery3) reader.next();
         assertThat(operation.personId(), is(979201L));
@@ -168,7 +171,6 @@ public class InteractiveReadEventStreamReadersTest
         assertThat(operation.durationDays(), is(58));
         calendar.clear();
         calendar.set(2011, Calendar.MAY, 1);
-        assertThat(operation.startDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery3) reader.next();
         assertThat(operation.personId(), is(13194140498760L));
@@ -272,6 +274,7 @@ public class InteractiveReadEventStreamReadersTest
         calendar.clear();
         calendar.set(2012, Calendar.DECEMBER, 15);
         assertThat(operation.minDate().getTime(), is(calendar.getTime().getTime()));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery5) reader.next();
         assertThat(operation.personId(), is(979201L));
@@ -322,6 +325,7 @@ public class InteractiveReadEventStreamReadersTest
         operation = (LdbcQuery6) reader.next();
         assertThat(operation.personId(), is(9895605643992L));
         assertThat(operation.tagName(), is("Jiang_Zemin"));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery6) reader.next();
         assertThat(operation.personId(), is(979201L));
@@ -365,6 +369,7 @@ public class InteractiveReadEventStreamReadersTest
 
         operation = (LdbcQuery7) reader.next();
         assertThat(operation.personId(), is(16492675436774L));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery7) reader.next();
         assertThat(operation.personId(), is(14293651330072L));
@@ -405,6 +410,7 @@ public class InteractiveReadEventStreamReadersTest
 
         operation = (LdbcQuery8) reader.next();
         assertThat(operation.personId(), is(15393164184077L));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery8) reader.next();
         assertThat(operation.personId(), is(15393163594341L));
@@ -450,6 +456,7 @@ public class InteractiveReadEventStreamReadersTest
         calendar.clear();
         calendar.set(2011, Calendar.DECEMBER, 22);
         assertThat(operation.maxDate().getTime(), is(calendar.getTime().getTime()));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery9) reader.next();
         assertThat(operation.personId(), is(979201L));
@@ -500,6 +507,7 @@ public class InteractiveReadEventStreamReadersTest
         operation = (LdbcQuery10) reader.next();
         assertThat(operation.personId(), is(9895605643992L));
         assertThat(operation.month(), is(2));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery10) reader.next();
         assertThat(operation.personId(), is(979201L));
@@ -546,6 +554,7 @@ public class InteractiveReadEventStreamReadersTest
         assertThat(operation.personId(), is(9895605643992L));
         assertThat(operation.countryName(), is("Taiwan"));
         assertThat(operation.workFromYear(), is(2013));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery11) reader.next();
         assertThat(operation.personId(), is(979201L));
@@ -593,6 +602,7 @@ public class InteractiveReadEventStreamReadersTest
         operation = (LdbcQuery12) reader.next();
         assertThat(operation.personId(), is(12094628092905L));
         assertThat(operation.tagClassName(), equalTo("SoccerManager"));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery12) reader.next();
         assertThat(operation.personId(), is(9895606011404L));
@@ -637,6 +647,7 @@ public class InteractiveReadEventStreamReadersTest
         operation = (LdbcQuery13) reader.next();
         assertThat(operation.person1Id(), is(9895605643992L));
         assertThat(operation.person2Id(), is(1099512323797L));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery13) reader.next();
         assertThat(operation.person1Id(), is(979201L));
@@ -681,6 +692,7 @@ public class InteractiveReadEventStreamReadersTest
         operation = (LdbcQuery14) reader.next();
         assertThat(operation.person1Id(), is(9895605643992L));
         assertThat(operation.person2Id(), is(4398046737628L));
+        TestUtils.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery14) reader.next();
         assertThat(operation.person1Id(), is(979201L));
@@ -696,4 +708,5 @@ public class InteractiveReadEventStreamReadersTest
 
         assertThat(reader.hasNext(), is(false));
     }
+
 }

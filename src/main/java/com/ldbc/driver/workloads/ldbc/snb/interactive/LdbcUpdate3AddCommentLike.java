@@ -15,6 +15,10 @@ public class LdbcUpdate3AddCommentLike extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1003;
+    public static final String PERSON_ID = "personId";
+    public static final String COMMENT_ID = "commentId";
+    public static final String CREATION_DATE = "creationDate";
+
     private final long personId;
     private final long commentId;
     private final Date creationDate;
@@ -44,9 +48,9 @@ public class LdbcUpdate3AddCommentLike extends Operation<LdbcNoResult>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("personId", personId)
-                .put("commentId", commentId)
-                .put("creationDate", creationDate)
+                .put(PERSON_ID, personId)
+                .put(COMMENT_ID, commentId)
+                .put(CREATION_DATE, creationDate)
                 .build();
     }
 

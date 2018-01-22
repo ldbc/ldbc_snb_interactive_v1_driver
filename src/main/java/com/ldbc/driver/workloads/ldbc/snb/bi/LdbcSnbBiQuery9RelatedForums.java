@@ -12,6 +12,11 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
 {
     public static final int TYPE = 9;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String TAG_CLASS1 = "tagClass1";
+    public static final String TAG_CLASS2 = "tagClass2";
+    public static final String THRESHOLD = "threshold";
+    public static final String LIMIT = "limit";
+
     private final String tagClass1;
     private final String tagClass2;
     private final int threshold;
@@ -48,10 +53,10 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("tagClassA", tagClassA)
-                .put("tagClassB", tagClassB)
-                .put("threshold", threshold)
-                .put("limit", limit)
+                .put(TAG_CLASS1, tagClass1)
+                .put(TAG_CLASS2, tagClass2)
+                .put(THRESHOLD, threshold)
+                .put(LIMIT, limit)
                 .build();
     }
 

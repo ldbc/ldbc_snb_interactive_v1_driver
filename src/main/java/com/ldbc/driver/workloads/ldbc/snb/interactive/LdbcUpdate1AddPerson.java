@@ -18,6 +18,21 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1001;
+    public static final String PERSON_ID = "personId";
+    public static final String PERSON_FIRST_NAME = "personFirstName";
+    public static final String PERSON_LAST_NAME = "personLastName";
+    public static final String GENDER = "gender";
+    public static final String BIRTHDAY = "birthday";
+    public static final String CREATION_DATE = "creationDate";
+    public static final String LOCATION_IP = "locationIp";
+    public static final String BROWSER_USED = "browserUsed";
+    public static final String CITY_ID = "cityId";
+    public static final String LANGUAGES = "languages";
+    public static final String EMAILS = "emails";
+    public static final String TAG_IDS = "tagIds";
+    public static final String STUDY_AT = "studyAt";
+    public static final String WORK_AT = "workAt";
+
     private final long personId;
     private final String personFirstName;
     private final String personLastName;
@@ -137,20 +152,20 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("personId", personId)
-                .put("personFirstName", personFirstName)
-                .put("personLastName", personLastName)
-                .put("gender", gender)
-                .put("birthday", birthday)
-                .put("creationDate", creationDate)
-                .put("locationIp", locationIp)
-                .put("browserUsed", browserUsed)
-                .put("cityId", cityId)
-                .put("languages", languages)
-                .put("emails", emails)
-                .put("tagIds", tagIds)
-                .put("studyAt", studyAt)
-                .put("workAt", workAt)
+                .put(PERSON_ID, personId)
+                .put(PERSON_FIRST_NAME, personFirstName)
+                .put(PERSON_LAST_NAME, personLastName)
+                .put(GENDER, gender)
+                .put(BIRTHDAY, birthday)
+                .put(CREATION_DATE, creationDate)
+                .put(LOCATION_IP, locationIp)
+                .put(BROWSER_USED, browserUsed)
+                .put(CITY_ID, cityId)
+                .put(LANGUAGES, languages)
+                .put(EMAILS, emails)
+                .put(TAG_IDS, tagIds)
+                .put(STUDY_AT, studyAt)
+                .put(WORK_AT, workAt)
                 .build();
     }
 

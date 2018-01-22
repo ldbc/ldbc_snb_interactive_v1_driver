@@ -18,6 +18,12 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1004;
+    public static final String FORUM_ID = "forumId";
+    public static final String FORUM_TITLE = "forumTitle";
+    public static final String CREATION_DATE = "creationDate";
+    public static final String MODERATOR_PERSON_ID = "moderatorPersonId";
+    public static final String TAG_IDS = "tagIds";
+
     private final long forumId;
     private final String forumTitle;
     private final Date creationDate;
@@ -62,11 +68,11 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("forumId", forumId)
-                .put("forumTitle", forumTitle)
-                .put("creationDate", creationDate)
-                .put("moderatorPersonId", moderatorPersonId)
-                .put("tagIds", tagIds)
+                .put(FORUM_ID, forumId)
+                .put(FORUM_TITLE, forumTitle)
+                .put(CREATION_DATE, creationDate)
+                .put(MODERATOR_PERSON_ID, moderatorPersonId)
+                .put(TAG_IDS, tagIds)
                 .build();
     }
 

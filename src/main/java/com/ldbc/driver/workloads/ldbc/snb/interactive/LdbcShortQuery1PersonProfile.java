@@ -17,6 +17,8 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 101;
+    public static final String PERSON_ID = "personId";
+
     private final long personId;
 
     public LdbcShortQuery1PersonProfile( long personId )
@@ -33,7 +35,7 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("personId", personId)
+                .put(PERSON_ID, personId)
                 .build();
     }
 

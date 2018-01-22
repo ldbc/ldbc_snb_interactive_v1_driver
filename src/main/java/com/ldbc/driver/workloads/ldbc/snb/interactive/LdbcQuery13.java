@@ -18,6 +18,9 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static final int TYPE = 13;
+    public static final String PERSON1_ID = "person1Id";
+    public static final String PERSON2_ID = "person2Id";
+
     private final long person1Id;
     private final long person2Id;
 
@@ -40,8 +43,8 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("person1Id", person1Id)
-                .put("person2Id", person2Id)
+                .put(PERSON1_ID, person1Id)
+                .put(PERSON2_ID, person2Id)
                 .build();
     }
 

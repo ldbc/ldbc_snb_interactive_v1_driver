@@ -12,6 +12,10 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
 {
     public static final int TYPE = 12;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String DATE = "date";
+    public static final String LIKE_THRESHOLD = "likeThreshold";
+    public static final String LIMIT = "limit";
+
     private final long date;
     private final int likeThreshold;
     private final int limit;
@@ -41,9 +45,9 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("date", date)
-                .put("likeCount", likeCount)
-                .put("limit", limit)
+                .put(DATE, date)
+                .put(LIKE_THRESHOLD, likeThreshold)
+                .put(LIMIT, limit)
                 .build();
     }
 

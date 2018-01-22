@@ -12,6 +12,12 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
 {
     public static final int TYPE = 2;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String DATE1 = "date1";
+    public static final String DATE2 = "date2";
+    public static final String COUNTRY1 = "country1";
+    public static final String COUNTRY2 = "country2";
+    public static final String LIMIT = "limit";
+
     private final long date1;
     private final long date2;
     private final String country1;
@@ -60,11 +66,11 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("date1", date1)
-                .put("date2", date2)
-                .put("country1", country1)
-                .put("country2", country2)
-                .put("limit", limit)
+                .put(DATE1, date1)
+                .put(DATE2, date2)
+                .put(COUNTRY1, country1)
+                .put(COUNTRY2, country2)
+                .put(LIMIT, limit)
                 .build();
     }
 

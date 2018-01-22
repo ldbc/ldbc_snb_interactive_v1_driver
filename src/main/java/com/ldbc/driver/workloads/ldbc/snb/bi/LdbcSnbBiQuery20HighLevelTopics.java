@@ -12,6 +12,9 @@ public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQue
 {
     public static final int TYPE = 20;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String TAG_CLASSES = "tagClasses";
+    public static final String LIMIT = "limit";
+
     private final List<String> tagClasses;
     private final int limit;
 
@@ -34,8 +37,8 @@ public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQue
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("tagClasses", tagClasses)
-                .put("limit", limit)
+                .put(TAG_CLASSES, tagClasses)
+                .put(LIMIT, limit)
                 .build();
     }
 

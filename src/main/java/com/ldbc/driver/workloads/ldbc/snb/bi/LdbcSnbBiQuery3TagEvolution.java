@@ -12,6 +12,10 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
 {
     public static final int TYPE = 3;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String YEAR = "year";
+    public static final String MONTH = "month";
+    public static final String LIMIT = "limit";
+
     private final int year;
     private final int month;
     private final int limit;
@@ -41,11 +45,9 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("range1Start", range1Start)
-                .put("range1End", range1End)
-                .put("range2Start", range2Start)
-                .put("range2End", range2End)
-                .put("limit", limit)
+                .put(YEAR, year)
+                .put(MONTH, month)
+                .put(LIMIT, limit)
                 .build();
     }
 

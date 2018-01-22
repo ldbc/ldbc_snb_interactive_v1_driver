@@ -24,6 +24,10 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
     private final String firstName;
     private final int limit;
 
+    public static final String PERSON_ID = "personId";
+    public static final String FIRST_NAME = "firstName";
+    public static final String LIMIT = "limit";
+
     public LdbcQuery1( long personId, String firstName, int limit )
     {
         this.personId = personId;
@@ -49,9 +53,9 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("personId", personId)
-                .put("firstName", firstName)
-                .put("limit", limit)
+                .put(PERSON_ID, personId)
+                .put(FIRST_NAME, firstName)
+                .put(LIMIT, limit)
                 .build();
     }
 

@@ -15,6 +15,10 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1008;
+    public static final String PERSON1_ID = "person1Id";
+    public static final String PERSON2_ID = "person2Id";
+    public static final String CREATION_DATE = "creationDate";
+
     private final long person1Id;
     private final long person2Id;
     private final Date creationDate;
@@ -45,9 +49,9 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("person1Id", person1Id)
-                .put("person2Id", person2Id)
-                .put("creationDate", creationDate)
+                .put(PERSON1_ID, person1Id)
+                .put(PERSON2_ID, person2Id)
+                .put(CREATION_DATE, creationDate)
                 .build();
     }
 

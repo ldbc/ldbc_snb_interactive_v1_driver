@@ -12,6 +12,10 @@ public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbB
 {
     public static final int TYPE = 4;
     public static final int DEFAULT_LIMIT = 20;
+    public static final String TAG_CLASS = "tagClass";
+    public static final String COUNTRY = "country";
+    public static final String LIMIT = "limit";
+
     private final String tagClass;
     private final String country;
     private final int limit;
@@ -41,9 +45,9 @@ public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbB
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("tagClass", tagClass)
-                .put("country", country)
-                .put("limit", limit)
+                .put(TAG_CLASS, tagClass)
+                .put(COUNTRY, country)
+                .put(LIMIT, limit)
                 .build();
     }
 

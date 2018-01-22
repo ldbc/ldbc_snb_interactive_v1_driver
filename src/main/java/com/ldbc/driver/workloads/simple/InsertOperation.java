@@ -9,6 +9,9 @@ import java.util.Map;
 public class InsertOperation extends Operation<Object>
 {
     public static final int TYPE = 2;
+    public static final String TABLE = "table";
+    public static final String KEY = "key";
+    public static final String VALUES = "VALUES";
 
     private final String table;
     private final String key;
@@ -40,9 +43,9 @@ public class InsertOperation extends Operation<Object>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("table", table)
-                .put("key", key)
-                .put("fields", values)
+                .put(TABLE, table)
+                .put(KEY, key)
+                .put(VALUES, values)
                 .build();
     }
 

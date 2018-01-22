@@ -11,6 +11,11 @@ import java.util.Map;
 public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery25WeightedPathsResult>>
 {
     public static final int TYPE = 25;
+    public static final String PERSON1_ID = "person1Id";
+    public static final String PERSON2_ID = "person2Id";
+    public static final String START_DATE = "startDate";
+    public static final String END_DATE = "endDate";
+
     private final long person1Id;
     private final long person2Id;
     private final long startDate;
@@ -47,10 +52,10 @@ public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("person1Id", person1Id)
-                .put("person2Id", person2Id)
-                .put("startDate", startDate)
-                .put("endDate", endDate)
+                .put(PERSON1_ID, person1Id)
+                .put(PERSON2_ID, person2Id)
+                .put(START_DATE, startDate)
+                .put(END_DATE, endDate)
                 .build();
     }
 

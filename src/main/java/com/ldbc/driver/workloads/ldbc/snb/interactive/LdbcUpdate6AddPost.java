@@ -18,6 +18,19 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1006;
+    public static final String POST_ID = "postId";
+    public static final String IMAGE_FILE = "imageFile";
+    public static final String CREATION_DATE = "creationDate";
+    public static final String LOCATION_IP = "locationIp";
+    public static final String BROWSER_USED = "browserUsed";
+    public static final String LANGUAGE = "language";
+    public static final String CONTENT = "content";
+    public static final String LENGTH = "length";
+    public static final String AUTHOR_PERSON_ID = "authorPersonId";
+    public static final String FORUM_ID = "forumId";
+    public static final String COUNTRY_ID = "countryId";
+    public static final String TAG_IDS = "tagIds";
+
     private final long postId;
     private final String imageFile;
     private final Date creationDate;
@@ -121,18 +134,18 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("postId", postId)
-                .put("imageFile", imageFile)
-                .put("creationDate", creationDate)
-                .put("locationIp", locationIp)
-                .put("browserUsed", browserUsed)
-                .put("language", language)
-                .put("content", content)
-                .put("length", length)
-                .put("authorPersonId", authorPersonId)
-                .put("forumId", forumId)
-                .put("countryId", countryId)
-                .put("tagIds", tagIds)
+                .put(POST_ID, postId)
+                .put(IMAGE_FILE, imageFile)
+                .put(CREATION_DATE, creationDate)
+                .put(LOCATION_IP, locationIp)
+                .put(BROWSER_USED, browserUsed)
+                .put(LANGUAGE, language)
+                .put(CONTENT, content)
+                .put(LENGTH, length)
+                .put(AUTHOR_PERSON_ID, authorPersonId)
+                .put(FORUM_ID, forumId)
+                .put(COUNTRY_ID, countryId)
+                .put(TAG_IDS, tagIds)
                 .build();
     }
 

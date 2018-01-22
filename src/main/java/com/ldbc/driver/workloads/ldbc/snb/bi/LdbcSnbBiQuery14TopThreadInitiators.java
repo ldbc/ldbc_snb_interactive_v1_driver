@@ -12,6 +12,10 @@ public class LdbcSnbBiQuery14TopThreadInitiators extends Operation<List<LdbcSnbB
 {
     public static final int TYPE = 14;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String BEGIN_DATE = "beginDate";
+    public static final String END_DATE = "endDate";
+    public static final String LIMIT = "limit";
+
     private final long beginDate;
     private final long endDate;
     private final int limit;
@@ -41,9 +45,9 @@ public class LdbcSnbBiQuery14TopThreadInitiators extends Operation<List<LdbcSnbB
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("beginDate", beginDate)
-                .put("endDate", endDate)
-                .put("limit", limit)
+                .put(BEGIN_DATE, beginDate)
+                .put(END_DATE, endDate)
+                .put(LIMIT, limit)
                 .build();
     }
 

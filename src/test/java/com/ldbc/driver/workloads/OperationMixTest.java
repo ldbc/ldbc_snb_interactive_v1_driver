@@ -1,12 +1,24 @@
 package com.ldbc.driver.workloads;
 
+import com.google.common.base.CaseFormat;
+import com.google.common.collect.Sets;
+import com.google.common.reflect.ClassPath;
+import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.DriverConfigurationException;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -132,5 +144,39 @@ public class OperationMixTest
         expectedInterleaves.put( 4, 40l );
         expectedInterleaves.put( 5, 50l );
         assertThat( operationMix.interleaves(), equalTo( expectedInterleaves ) );
+    }
+
+    /**
+     * Make sure that all operations implement static fields for parameter names
+     */
+    @Test
+    public void parameterValidation() throws IOException {
+        List<Class> operations = ClassPath.from( ClassLoader.getSystemClassLoader() )
+                .getAllClasses().stream()
+                .filter( classInfo -> classInfo.getPackageName().startsWith( "com.ldbc.driver" ) )
+                .filter( classInfo -> !classInfo.getSimpleName().equals("") ) // ignore anonymous classes
+                .map( ClassPath.ClassInfo::load )
+                .filter( clazz -> !Modifier.isAbstract( clazz.getModifiers() ) )
+                .filter(Operation.class::isAssignableFrom)
+                .collect( toList() );
+
+        Set<Field> commonFields = Sets.newHashSet(Operation.class.getDeclaredFields());
+
+        operations.forEach(clazz -> {
+            Set<Field> allFields = Sets.newHashSet(clazz.getDeclaredFields());
+            allFields.removeAll(commonFields);
+
+            Stream<Field> nonStaticFields = allFields
+                    .stream()
+                    .filter(field -> !Modifier.isStatic(field.getModifiers()));
+
+            nonStaticFields.forEach(field -> {
+                String declaratorName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, field.getName());
+                assertTrue(
+                        clazz.getName() + " is missing field name declaration for parameter " + field.getName(),
+                        allFields.stream().anyMatch(f -> f.getName().equals(declaratorName))
+                );
+            });
+        });
     }
 }

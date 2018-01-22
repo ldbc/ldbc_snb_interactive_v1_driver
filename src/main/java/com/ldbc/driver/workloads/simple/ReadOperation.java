@@ -10,6 +10,9 @@ import java.util.Map;
 public class ReadOperation extends Operation<Map<String,Iterator<Byte>>>
 {
     public static final int TYPE = 3;
+    public static final String TABLE = "table";
+    public static final String KEY = "key";
+    public static final String FIELDS = "fields";
 
     private final String table;
     private final String key;
@@ -40,9 +43,9 @@ public class ReadOperation extends Operation<Map<String,Iterator<Byte>>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("table", table)
-                .put("key", key)
-                .put("fields", fields)
+                .put(TABLE, table)
+                .put(KEY, key)
+                .put(FIELDS, fields)
                 .build();
     }
 

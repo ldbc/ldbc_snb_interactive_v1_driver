@@ -11,6 +11,8 @@ import java.util.Map;
 public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery1PostingSummaryResult>>
 {
     public static final int TYPE = 1;
+    public static final String DATE = "date";
+
     private final long date;
 
     public LdbcSnbBiQuery1PostingSummary( long date )
@@ -26,7 +28,7 @@ public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("date", date)
+                .put(DATE, date)
                 .build();
     }
 

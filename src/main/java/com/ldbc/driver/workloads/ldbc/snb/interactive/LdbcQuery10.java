@@ -19,6 +19,10 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
 
     public static final int TYPE = 10;
     public static final int DEFAULT_LIMIT = 10;
+    public static final String PERSON_ID = "personId";
+    public static final String MONTH = "month";
+    public static final String LIMIT = "limit";
+
     private final long personId;
     private final int month;
     private final int limit;
@@ -49,9 +53,9 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("personId", personId)
-                .put("month", month)
-                .put("limit", limit)
+                .put(PERSON_ID, personId)
+                .put(MONTH, month)
+                .put(LIMIT, limit)
                 .build();
     }
 

@@ -11,6 +11,8 @@ import java.util.Map;
 public class LdbcSnbBiQuery17FriendshipTriangles extends Operation<LdbcSnbBiQuery17FriendshipTrianglesResult>
 {
     public static final int TYPE = 17;
+    public static final String COUNTRY = "country";
+
     private final String country;
 
     public LdbcSnbBiQuery17FriendshipTriangles( String country )
@@ -26,7 +28,7 @@ public class LdbcSnbBiQuery17FriendshipTriangles extends Operation<LdbcSnbBiQuer
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("country", country)
+                .put(COUNTRY, country)
                 .build();
     }
 

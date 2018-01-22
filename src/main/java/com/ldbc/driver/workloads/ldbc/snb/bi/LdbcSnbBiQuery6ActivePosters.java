@@ -12,6 +12,9 @@ public class LdbcSnbBiQuery6ActivePosters extends Operation<List<LdbcSnbBiQuery6
 {
     public static final int TYPE = 6;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String TAG = "tag";
+    public static final String LIMIT = "limit";
+
     private final String tag;
     private final int limit;
 
@@ -34,8 +37,8 @@ public class LdbcSnbBiQuery6ActivePosters extends Operation<List<LdbcSnbBiQuery6
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("tag", tag)
-                .put("limit", limit)
+                .put(TAG, tag)
+                .put(LIMIT, limit)
                 .build();
     }
 

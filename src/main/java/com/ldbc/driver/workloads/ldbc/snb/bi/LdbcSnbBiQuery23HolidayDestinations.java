@@ -12,6 +12,9 @@ public class LdbcSnbBiQuery23HolidayDestinations extends Operation<List<LdbcSnbB
 {
     public static final int TYPE = 23;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String COUNTRY = "country";
+    public static final String LIMIT = "limit";
+
     private final String country;
     private final int limit;
 
@@ -34,8 +37,8 @@ public class LdbcSnbBiQuery23HolidayDestinations extends Operation<List<LdbcSnbB
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("country", country)
-                .put("limit", limit)
+                .put(COUNTRY, country)
+                .put(LIMIT, limit)
                 .build();
     }
 

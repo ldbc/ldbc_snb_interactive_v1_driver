@@ -12,6 +12,9 @@ public class LdbcSnbBiQuery5TopCountryPosters extends Operation<List<LdbcSnbBiQu
 {
     public static final int TYPE = 5;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String COUNTRY = "country";
+    public static final String LIMIT = "limit";
+
     private final String country;
     private final int limit;
 
@@ -34,9 +37,8 @@ public class LdbcSnbBiQuery5TopCountryPosters extends Operation<List<LdbcSnbBiQu
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("country", country)
-                .put("popularForumLimit", popularForumLimit)
-                .put("limit", limit)
+                .put(COUNTRY, country)
+                .put(LIMIT, limit)
                 .build();
     }
 

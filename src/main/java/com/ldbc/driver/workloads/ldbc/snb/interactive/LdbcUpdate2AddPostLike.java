@@ -15,6 +15,10 @@ public class LdbcUpdate2AddPostLike extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1002;
+    public static final String PERSON_ID = "personId";
+    public static final String POST_ID = "postId";
+    public static final String CREATION_DATE = "creationDate";
+
     private final long personId;
     private final long postId;
     private final Date creationDate;
@@ -44,9 +48,9 @@ public class LdbcUpdate2AddPostLike extends Operation<LdbcNoResult>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put("personId", personId)
-                .put("postId", postId)
-                .put("creationDate", creationDate)
+                .put(PERSON_ID, personId)
+                .put(POST_ID, postId)
+                .put(CREATION_DATE, creationDate)
                 .build();
     }
 
