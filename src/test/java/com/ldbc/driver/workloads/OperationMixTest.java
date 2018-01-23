@@ -1,12 +1,24 @@
 package com.ldbc.driver.workloads;
 
+import com.google.common.base.CaseFormat;
+import com.google.common.collect.Sets;
+import com.google.common.reflect.ClassPath;
+import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.DriverConfigurationException;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 

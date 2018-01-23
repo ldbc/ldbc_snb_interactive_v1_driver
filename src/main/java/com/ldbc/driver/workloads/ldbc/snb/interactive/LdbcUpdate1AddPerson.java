@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.util.ListUtils;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -16,6 +18,21 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1001;
+    public static final String PERSON_ID = "personId";
+    public static final String PERSON_FIRST_NAME = "personFirstName";
+    public static final String PERSON_LAST_NAME = "personLastName";
+    public static final String GENDER = "gender";
+    public static final String BIRTHDAY = "birthday";
+    public static final String CREATION_DATE = "creationDate";
+    public static final String LOCATION_IP = "locationIp";
+    public static final String BROWSER_USED = "browserUsed";
+    public static final String CITY_ID = "cityId";
+    public static final String LANGUAGES = "languages";
+    public static final String EMAILS = "emails";
+    public static final String TAG_IDS = "tagIds";
+    public static final String STUDY_AT = "studyAt";
+    public static final String WORK_AT = "workAt";
+
     private final long personId;
     private final String personFirstName;
     private final String personLastName;
@@ -130,6 +147,26 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
     public List<Organization> workAt()
     {
         return workAt;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON_ID, personId)
+                .put(PERSON_FIRST_NAME, personFirstName)
+                .put(PERSON_LAST_NAME, personLastName)
+                .put(GENDER, gender)
+                .put(BIRTHDAY, birthday)
+                .put(CREATION_DATE, creationDate)
+                .put(LOCATION_IP, locationIp)
+                .put(BROWSER_USED, browserUsed)
+                .put(CITY_ID, cityId)
+                .put(LANGUAGES, languages)
+                .put(EMAILS, emails)
+                .put(TAG_IDS, tagIds)
+                .put(STUDY_AT, studyAt)
+                .put(WORK_AT, workAt)
+                .build();
     }
 
     @Override

@@ -1,10 +1,7 @@
 package com.ldbc.driver.runtime.executor;
 
-import com.ldbc.driver.ChildOperationGenerator;
-import com.ldbc.driver.Db;
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.SerializingMarshallingException;
-import com.ldbc.driver.WorkloadStreams;
+import com.google.common.collect.ImmutableMap;
+import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
@@ -14,6 +11,7 @@ import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TimeSource;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -25,21 +23,27 @@ public class SingleThreadOperationExecutor implements OperationExecutor
     static final Operation TERMINATE_OPERATION = new Operation()
     {
         @Override
+        public Map<String,Object> parameterMap()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public int type()
         {
-            return -1;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public Object marshalResult( String serializedOperationResult ) throws SerializingMarshallingException
         {
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
         {
-            return null;
+            throw new UnsupportedOperationException();
         }
 
     };

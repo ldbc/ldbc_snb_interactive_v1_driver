@@ -1,15 +1,20 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQuery24MessagesByTopicResult>>
 {
     public static final int TYPE = 24;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String TAG_CLASS = "tagClass";
+    public static final String LIMIT = "limit";
+
     private final String tagClass;
     private final int limit;
 
@@ -27,6 +32,14 @@ public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQue
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(TAG_CLASS, tagClass)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override

@@ -1,14 +1,21 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery25WeightedPathsResult>>
 {
     public static final int TYPE = 25;
+    public static final String PERSON1_ID = "person1Id";
+    public static final String PERSON2_ID = "person2Id";
+    public static final String START_DATE = "startDate";
+    public static final String END_DATE = "endDate";
+
     private final long person1Id;
     private final long person2Id;
     private final long startDate;
@@ -40,6 +47,16 @@ public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery
     public long endDate()
     {
         return endDate;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON1_ID, person1Id)
+                .put(PERSON2_ID, person2Id)
+                .put(START_DATE, startDate)
+                .put(END_DATE, endDate)
+                .build();
     }
 
     @Override

@@ -1,15 +1,24 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSnbBiQuery16ExpertsInSocialCircleResult>>
 {
     public static final int TYPE = 16;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String PERSON_ID = "personId";
+    public static final String TAG_CLASS = "tagClass";
+    public static final String COUNTRY = "country";
+    public static final String MIN_PATH_DISTANCE = "minPathDistance";
+    public static final String MAX_PATH_DISTANCE = "maxPathDistance";
+    public static final String LIMIT = "limit";
+
     private final long personId;
     private final String country;
     private final String tagClass;
@@ -56,6 +65,18 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON_ID, personId)
+                .put(TAG_CLASS, tagClass)
+                .put(COUNTRY, country)
+                .put(MIN_PATH_DISTANCE, minPathDistance)
+                .put(MAX_PATH_DISTANCE, maxPathDistance)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override

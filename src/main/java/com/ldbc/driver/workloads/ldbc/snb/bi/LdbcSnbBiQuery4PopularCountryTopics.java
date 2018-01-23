@@ -1,15 +1,21 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbBiQuery4PopularCountryTopicsResult>>
 {
     public static final int TYPE = 4;
     public static final int DEFAULT_LIMIT = 20;
+    public static final String TAG_CLASS = "tagClass";
+    public static final String COUNTRY = "country";
+    public static final String LIMIT = "limit";
+
     private final String tagClass;
     private final String country;
     private final int limit;
@@ -34,6 +40,15 @@ public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbB
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(TAG_CLASS, tagClass)
+                .put(COUNTRY, country)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override

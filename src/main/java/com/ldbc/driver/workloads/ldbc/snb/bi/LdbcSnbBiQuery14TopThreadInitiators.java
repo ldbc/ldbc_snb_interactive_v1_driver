@@ -1,15 +1,21 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery14TopThreadInitiators extends Operation<List<LdbcSnbBiQuery14TopThreadInitiatorsResult>>
 {
     public static final int TYPE = 14;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String BEGIN_DATE = "beginDate";
+    public static final String END_DATE = "endDate";
+    public static final String LIMIT = "limit";
+
     private final long beginDate;
     private final long endDate;
     private final int limit;
@@ -34,6 +40,15 @@ public class LdbcSnbBiQuery14TopThreadInitiators extends Operation<List<LdbcSnbB
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(BEGIN_DATE, beginDate)
+                .put(END_DATE, endDate)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override

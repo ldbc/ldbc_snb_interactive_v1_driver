@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -8,6 +9,7 @@ import org.codehaus.jackson.type.TypeReference;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -15,6 +17,8 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
 {
     public static final int TYPE = 106;
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final String MESSAGE_ID = "messageId";
+
     private final long messageId;
 
     public LdbcShortQuery6MessageForum( long messageId )
@@ -25,6 +29,13 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
     public long messageId()
     {
         return messageId;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(MESSAGE_ID, messageId)
+                .build();
     }
 
     @Override

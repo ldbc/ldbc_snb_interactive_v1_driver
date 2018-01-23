@@ -2,6 +2,8 @@ package com.ldbc.driver;
 
 import com.ldbc.driver.temporal.TemporalUtil;
 
+import java.util.Map;
+
 public abstract class Operation<RESULT_TYPE>
 {
     private static final TemporalUtil temporalutil = new TemporalUtil();
@@ -50,6 +52,8 @@ public abstract class Operation<RESULT_TYPE>
                ", dependencyTimeStamp=" + temporalutil.milliTimeToDateTimeString( dependencyTimeStamp ) +
                '}';
     }
+
+    public abstract Map<String, Object> parameterMap();
 
     public abstract RESULT_TYPE marshalResult( String serializedOperationResult )
             throws SerializingMarshallingException;

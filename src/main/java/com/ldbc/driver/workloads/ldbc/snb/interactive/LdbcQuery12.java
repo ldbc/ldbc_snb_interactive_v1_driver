@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -8,6 +9,7 @@ import org.codehaus.jackson.type.TypeReference;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -17,6 +19,10 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
 
     public static final int TYPE = 12;
     public static final int DEFAULT_LIMIT = 20;
+    public static final String PERSON_ID = "personId";
+    public static final String TAG_CLASS_NAME = "tagClassName";
+    public static final String LIMIT = "limit";
+
     private final long personId;
     private final String tagClassName;
     private final int limit;
@@ -41,6 +47,15 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON_ID, personId)
+                .put(TAG_CLASS_NAME, tagClassName)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override

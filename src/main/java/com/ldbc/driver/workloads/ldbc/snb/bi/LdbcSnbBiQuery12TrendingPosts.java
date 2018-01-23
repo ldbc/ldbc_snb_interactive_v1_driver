@@ -1,15 +1,21 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery12TrendingPostsResult>>
 {
     public static final int TYPE = 12;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String DATE = "date";
+    public static final String LIKE_THRESHOLD = "likeThreshold";
+    public static final String LIMIT = "limit";
+
     private final long date;
     private final int likeThreshold;
     private final int limit;
@@ -34,6 +40,15 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(DATE, date)
+                .put(LIKE_THRESHOLD, likeThreshold)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override
