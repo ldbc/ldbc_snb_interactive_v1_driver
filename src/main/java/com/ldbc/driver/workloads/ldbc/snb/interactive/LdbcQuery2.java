@@ -20,13 +20,13 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
 
     public static final int TYPE = 2;
     public static final int DEFAULT_LIMIT = 20;
-    private final long personId;
-    private final Date maxDate;
-    private final int limit;
-
     public static String PERSON_ID = "personId";
     public static String MAX_DATE = "maxDate";
     public static String LIMIT = "limit";
+
+    private final long personId;
+    private final Date maxDate;
+    private final int limit;
 
     public LdbcQuery2( long personId, Date maxDate, int limit )
     {

@@ -20,13 +20,13 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
 
     public static final int TYPE = 1;
     public static final int DEFAULT_LIMIT = 20;
-    private final long personId;
-    private final String firstName;
-    private final int limit;
-
     public static final String PERSON_ID = "personId";
     public static final String FIRST_NAME = "firstName";
     public static final String LIMIT = "limit";
+
+    private final long personId;
+    private final String firstName;
+    private final int limit;
 
     public LdbcQuery1( long personId, String firstName, int limit )
     {
