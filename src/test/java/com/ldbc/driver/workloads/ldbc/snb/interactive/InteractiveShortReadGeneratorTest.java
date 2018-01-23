@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import com.ldbc.driver.testutils.TestUtils;
+import com.ldbc.driver.workloads.OperationTest;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
 import org.junit.Test;
@@ -93,7 +93,7 @@ public class InteractiveShortReadGeneratorTest
         // round robbin will choose short read 1 before short read 4
         assertThat(operation.type(), equalTo(LdbcShortQuery1PersonProfile.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(2l));
-        TestUtils.assertCorrectParameterMap(operation);
+        OperationTest.assertCorrectParameterMap(operation);
 
 
         assertThat(state, is(initialProbability));
@@ -111,7 +111,7 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(3l));
-        TestUtils.assertCorrectParameterMap(operation);
+        OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability));
@@ -127,7 +127,7 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery3PersonFriends.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(4l));
-        TestUtils.assertCorrectParameterMap(operation);
+        OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -143,7 +143,7 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(5l));
-        TestUtils.assertCorrectParameterMap(operation);
+        OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -159,7 +159,7 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(6l));
-        TestUtils.assertCorrectParameterMap(operation);
+        OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -172,7 +172,7 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery6MessageForum.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(7l));
-        TestUtils.assertCorrectParameterMap(operation);
+        OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -185,7 +185,7 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(8l));
-        TestUtils.assertCorrectParameterMap(operation);
+        OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -201,7 +201,7 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery1PersonProfile.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(9l));
-        TestUtils.assertCorrectParameterMap(operation);
+        OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -217,7 +217,7 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(10l));
-        TestUtils.assertCorrectParameterMap(operation);
+        OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -233,7 +233,7 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery3PersonFriends.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(11l));
-        TestUtils.assertCorrectParameterMap(operation);
+        OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -249,7 +249,7 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(12l));
-        TestUtils.assertCorrectParameterMap(operation);
+        OperationTest.assertCorrectParameterMap(operation);
     }
 
     @Test

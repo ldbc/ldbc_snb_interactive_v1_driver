@@ -23,26 +23,27 @@ public class SingleThreadOperationExecutor implements OperationExecutor
     static final Operation TERMINATE_OPERATION = new Operation()
     {
         @Override
-        public Map<String, Object> parameterMap() {
-            return ImmutableMap.of();
+        public Map<String,Object> parameterMap()
+        {
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public int type()
         {
-            return -1;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public Object marshalResult( String serializedOperationResult ) throws SerializingMarshallingException
         {
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
         {
-            return null;
+            throw new UnsupportedOperationException();
         }
 
     };
