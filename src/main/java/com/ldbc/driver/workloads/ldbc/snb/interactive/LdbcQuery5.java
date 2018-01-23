@@ -20,13 +20,13 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
 
     public static final int TYPE = 5;
     public static final int DEFAULT_LIMIT = 20;
-    private final long personId;
-    private final Date minDate;
-    private final int limit;
-
     public static final String PERSON_ID = "personId";
     public static final String MIN_DATE = "minDate";
     public static final String LIMIT = "limit";
+
+    private final long personId;
+    private final Date minDate;
+    private final int limit;
 
     public LdbcQuery5( long personId, Date minDate, int limit )
     {

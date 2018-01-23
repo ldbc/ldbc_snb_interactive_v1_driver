@@ -20,15 +20,15 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
 
     public static final int TYPE = 4;
     public static final int DEFAULT_LIMIT = 10;
+    public static final String PERSON_ID = "personId";
+    public static final String START_DATE = "startDate";
+    public static final String DURATION_DAYS = "durationDays";
+    public static final String LIMIT = "limit";
+
     private final long personId;
     private final Date startDate;
     private final int durationDays;
     private final int limit;
-
-    private static final String PERSON_ID = "personId";
-    private static final String START_DATE = "startDate";
-    private static final String DURATION_DAYS = "durationDays";
-    private static final String LIMIT = "limit";
 
     public LdbcQuery4( long personId, Date startDate, int durationDays, int limit )
     {

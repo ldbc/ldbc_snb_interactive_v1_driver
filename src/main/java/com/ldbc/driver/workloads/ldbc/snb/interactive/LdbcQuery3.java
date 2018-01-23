@@ -20,19 +20,19 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
 
     public static final int TYPE = 3;
     public static final int DEFAULT_LIMIT = 20;
-    private final long personId;
-    private final String countryXName;
-    private final String countryYName;
-    private final Date startDate;
-    private final int durationDays;
-    private final int limit;
-
     public static final String PERSON_ID = "personId";
     public static final String COUNTRY_X_NAME  = "countryXName";
     public static final String COUNTRY_Y_NAME  = "countryYName";
     public static final String START_DATE = "startDate";
     public static final String DURATION_DAYS= "durationDays";
     public static final String LIMIT = "limit";
+
+    private final long personId;
+    private final String countryXName;
+    private final String countryYName;
+    private final Date startDate;
+    private final int durationDays;
+    private final int limit;
 
     public LdbcQuery3( long personId, String countryXName, String countryYName, Date startDate, int durationDays,
             int limit )

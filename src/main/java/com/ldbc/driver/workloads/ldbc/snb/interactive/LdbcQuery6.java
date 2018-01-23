@@ -19,13 +19,13 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
 
     public static final int TYPE = 6;
     public static final int DEFAULT_LIMIT = 10;
-    private final long personId;
-    private final String tagName;
-    private final int limit;
-
     public static final String PERSON_ID = "personId";
     public static final String TAG_NAME = "tagName";
     public static final String LIMIT = "limit";
+
+    private final long personId;
+    private final String tagName;
+    private final int limit;
 
     public LdbcQuery6( long personId, String tagName, int limit )
     {
