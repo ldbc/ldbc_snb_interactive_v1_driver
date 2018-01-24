@@ -3,14 +3,14 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 public class LdbcSnbBiQuery9RelatedForumsResult
 {
     private final long forumId;
-    private final int sumA;
-    private final int sumB;
+    private final int count1;
+    private final int count2;
 
-    public LdbcSnbBiQuery9RelatedForumsResult( long forumId, int sumA, int sumB )
+    public LdbcSnbBiQuery9RelatedForumsResult(long forumId, int count1, int count2)
     {
         this.forumId = forumId;
-        this.sumA = sumA;
-        this.sumB = sumB;
+        this.count1 = count1;
+        this.count2 = count2;
     }
 
     public long forumId()
@@ -18,14 +18,14 @@ public class LdbcSnbBiQuery9RelatedForumsResult
         return forumId;
     }
 
-    public int sumA()
+    public int count1()
     {
-        return sumA;
+        return count1;
     }
 
-    public int sumB()
+    public int count2()
     {
-        return sumB;
+        return count2;
     }
 
     @Override
@@ -33,8 +33,8 @@ public class LdbcSnbBiQuery9RelatedForumsResult
     {
         return "LdbcSnbBiQuery9RelatedForumsResult{" +
                "forumId=" + forumId +
-               ", sumA=" + sumA +
-               ", sumB=" + sumB +
+               ", count1=" + count1 +
+               ", count2=" + count2 +
                '}';
     }
 
@@ -50,9 +50,9 @@ public class LdbcSnbBiQuery9RelatedForumsResult
 
         if ( forumId != that.forumId )
         { return false; }
-        if ( sumA != that.sumA )
+        if ( count1 != that.count1)
         { return false; }
-        return sumB == that.sumB;
+        return count2 == that.count2;
 
     }
 
@@ -60,8 +60,8 @@ public class LdbcSnbBiQuery9RelatedForumsResult
     public int hashCode()
     {
         int result = (int) (forumId ^ (forumId >>> 32));
-        result = 31 * result + sumA;
-        result = 31 * result + sumB;
+        result = 31 * result + count1;
+        result = 31 * result + count2;
         return result;
     }
 }

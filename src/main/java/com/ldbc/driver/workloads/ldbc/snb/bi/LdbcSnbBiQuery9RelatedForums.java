@@ -110,13 +110,13 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
         {
             List<Object> row = resultsAsList.get( i );
             long forumId = ((Number) row.get( 0 )).longValue();
-            int sumA = ((Number) row.get( 1 )).intValue();
-            int sumB = ((Number) row.get( 2 )).intValue();
+            int count1 = ((Number) row.get( 1 )).intValue();
+            int count2 = ((Number) row.get( 2 )).intValue();
             result.add(
                     new LdbcSnbBiQuery9RelatedForumsResult(
                             forumId,
-                            sumA,
-                            sumB
+                            count1,
+                            count2
                     )
             );
         }
@@ -133,8 +133,8 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
             LdbcSnbBiQuery9RelatedForumsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.forumId() );
-            resultFields.add( row.sumA() );
-            resultFields.add( row.sumB() );
+            resultFields.add( row.count1() );
+            resultFields.add( row.count2() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );
