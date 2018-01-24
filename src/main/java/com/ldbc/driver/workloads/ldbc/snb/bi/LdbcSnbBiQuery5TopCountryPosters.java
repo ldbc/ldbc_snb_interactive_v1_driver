@@ -84,17 +84,17 @@ public class LdbcSnbBiQuery5TopCountryPosters extends Operation<List<LdbcSnbBiQu
         {
             List<Object> row = resultsAsList.get( i );
             long personId = ((Number) row.get( 0 )).longValue();
-            String firstName = (String) row.get( 1 );
-            String lastName = (String) row.get( 2 );
-            long creationDate = ((Number) row.get( 3 )).longValue();
-            int count = ((Number) row.get( 4 )).intValue();
+            String personFirstName = (String) row.get( 1 );
+            String personLastName = (String) row.get( 2 );
+            long personCreationDate = ((Number) row.get( 3 )).longValue();
+            int postCount = ((Number) row.get( 4 )).intValue();
             result.add(
                     new LdbcSnbBiQuery5TopCountryPostersResult(
                             personId,
-                            firstName,
-                            lastName,
-                            creationDate,
-                            count
+                            personFirstName,
+                            personLastName,
+                            personCreationDate,
+                            postCount
                     )
             );
         }
@@ -112,10 +112,10 @@ public class LdbcSnbBiQuery5TopCountryPosters extends Operation<List<LdbcSnbBiQu
             LdbcSnbBiQuery5TopCountryPostersResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.personId() );
-            resultFields.add( row.firstName() );
-            resultFields.add( row.lastName() );
-            resultFields.add( row.creationDate() );
-            resultFields.add( row.count() );
+            resultFields.add( row.personFirstName() );
+            resultFields.add( row.personLastName() );
+            resultFields.add( row.personCreationDate() );
+            resultFields.add( row.postCount() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );
