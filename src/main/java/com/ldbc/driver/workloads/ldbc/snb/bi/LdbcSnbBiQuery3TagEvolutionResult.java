@@ -2,51 +2,51 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery3TagEvolutionResult
 {
-    private final String tag;
-    private final int countA;
-    private final int countB;
-    private final int difference;
+    private final String tagName;
+    private final int countMonth1;
+    private final int countMonth2;
+    private final int diff;
 
     public LdbcSnbBiQuery3TagEvolutionResult(
-            String tag,
-            int countA,
-            int countB,
-            int difference )
+            String tagName,
+            int countMonth1,
+            int countMonth2,
+            int diff)
     {
-        this.tag = tag;
-        this.countA = countA;
-        this.countB = countB;
-        this.difference = difference;
+        this.tagName = tagName;
+        this.countMonth1 = countMonth1;
+        this.countMonth2 = countMonth2;
+        this.diff = diff;
     }
 
-    public String tag()
+    public String tagName()
     {
-        return tag;
+        return tagName;
     }
 
-    public int countA()
+    public int countMonth1()
     {
-        return countA;
+        return countMonth1;
     }
 
-    public int countB()
+    public int countMonth2()
     {
-        return countB;
+        return countMonth2;
     }
 
-    public int difference()
+    public int diff()
     {
-        return difference;
+        return diff;
     }
 
     @Override
     public String toString()
     {
         return "LdbcSnbBiQuery3Result{" +
-               "tag='" + tag + '\'' +
-               ", countA=" + countA +
-               ", countB=" + countB +
-               ", difference=" + difference +
+               "tagName='" + tagName + '\'' +
+               ", countMonth1=" + countMonth1 +
+               ", countMonth2=" + countMonth2 +
+               ", diff=" + diff +
                '}';
     }
 
@@ -60,23 +60,23 @@ public class LdbcSnbBiQuery3TagEvolutionResult
 
         LdbcSnbBiQuery3TagEvolutionResult that = (LdbcSnbBiQuery3TagEvolutionResult) o;
 
-        if ( countA != that.countA )
+        if ( countMonth1 != that.countMonth1)
         { return false; }
-        if ( countB != that.countB )
+        if ( countMonth2 != that.countMonth2)
         { return false; }
-        if ( difference != that.difference )
+        if ( diff != that.diff)
         { return false; }
-        return !(tag != null ? !tag.equals( that.tag ) : that.tag != null);
+        return !(tagName != null ? !tagName.equals( that.tagName) : that.tagName != null);
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = tag != null ? tag.hashCode() : 0;
-        result = 31 * result + countA;
-        result = 31 * result + countB;
-        result = 31 * result + difference;
+        int result = tagName != null ? tagName.hashCode() : 0;
+        result = 31 * result + countMonth1;
+        result = 31 * result + countMonth2;
+        result = 31 * result + diff;
         return result;
     }
 }
