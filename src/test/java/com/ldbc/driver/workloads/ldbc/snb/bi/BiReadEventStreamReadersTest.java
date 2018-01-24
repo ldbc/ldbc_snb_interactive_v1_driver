@@ -72,29 +72,29 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery2TopTags operation;
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.date1(), is( 1441351591755l ) );
-        assertThat( operation.date2(), is( 1441351591755l ) );
+        assertThat( operation.startDate(), is( 1441351591755l ) );
+        assertThat( operation.endDate(), is( 1441351591755l ) );
         assertThat( operation.country1(), is( "countryA" ) );
         assertThat( operation.country2(), is( "countryB" ) );
         OperationTest.assertCorrectParameterMap(operation);
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.date1(), is( 1441351591755l ) );
-        assertThat( operation.date2(), is( 1441351591755l ) );
+        assertThat( operation.startDate(), is( 1441351591755l ) );
+        assertThat( operation.endDate(), is( 1441351591755l ) );
         assertThat( operation.country1(), is( "countryA" ) );
         assertThat( operation.country2(), is( "countryC" ) );
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.date1(), is( 1441351591755l ) );
-        assertThat( operation.date2(), is( 1441351591756l ) );
+        assertThat( operation.startDate(), is( 1441351591755l ) );
+        assertThat( operation.endDate(), is( 1441351591756l ) );
         assertThat( operation.country1(), is( "countryB" ) );
         assertThat( operation.country2(), is( "countryD" ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.date1(), is( 1441351591755l ) );
-        assertThat( operation.date2(), is( 1441351591755l ) );
+        assertThat( operation.startDate(), is( 1441351591755l ) );
+        assertThat( operation.endDate(), is( 1441351591755l ) );
         assertThat( operation.country1(), is( "countryA" ) );
         assertThat( operation.country2(), is( "countryB" ) );
 

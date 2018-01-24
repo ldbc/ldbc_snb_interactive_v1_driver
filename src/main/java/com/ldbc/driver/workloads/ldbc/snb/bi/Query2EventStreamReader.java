@@ -68,7 +68,7 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving date2" );
+                    throw new GeneratorException( "Error retrieving endDate" );
                 }
 
                 String country1;

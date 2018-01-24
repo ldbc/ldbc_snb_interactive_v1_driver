@@ -871,8 +871,8 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery2TopTags ldbcQuery = (LdbcSnbBiQuery2TopTags) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.date1() );
-                operationAsList.add( ldbcQuery.date2() );
+                operationAsList.add( ldbcQuery.startDate() );
+                operationAsList.add( ldbcQuery.endDate() );
                 operationAsList.add( ldbcQuery.country1() );
                 operationAsList.add( ldbcQuery.country2() );
                 operationAsList.add( ldbcQuery.limit() );

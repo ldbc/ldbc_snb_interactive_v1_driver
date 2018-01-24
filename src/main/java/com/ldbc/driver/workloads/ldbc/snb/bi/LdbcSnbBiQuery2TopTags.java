@@ -12,40 +12,40 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
 {
     public static final int TYPE = 2;
     public static final int DEFAULT_LIMIT = 100;
-    public static final String DATE1 = "date1";
-    public static final String DATE2 = "date2";
+    public static final String START_DATE = "startDate";
+    public static final String END_DATE = "endDate";
     public static final String COUNTRY1 = "country1";
     public static final String COUNTRY2 = "country2";
     public static final String LIMIT = "limit";
 
-    private final long date1;
-    private final long date2;
+    private final long startDate;
+    private final long endDate;
     private final String country1;
     private final String country2;
     private final int limit;
 
     public LdbcSnbBiQuery2TopTags(
-            long date1,
-            long date2,
+            long startDate,
+            long endDate,
             String country1,
             String country2,
             int limit )
     {
-        this.date1 = date1;
-        this.date2 = date2;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.country1 = country1;
         this.country2 = country2;
         this.limit = limit;
     }
 
-    public long date1()
+    public long startDate()
     {
-        return date1;
+        return startDate;
     }
 
-    public long date2()
+    public long endDate()
     {
-        return date2;
+        return endDate;
     }
 
     public String country1()
@@ -66,8 +66,8 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(DATE1, date1)
-                .put(DATE2, date2)
+                .put(START_DATE, startDate)
+                .put(END_DATE, endDate)
                 .put(COUNTRY1, country1)
                 .put(COUNTRY2, country2)
                 .put(LIMIT, limit)
@@ -84,9 +84,9 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
 
         LdbcSnbBiQuery2TopTags that = (LdbcSnbBiQuery2TopTags) o;
 
-        if ( date1 != that.date1 )
+        if ( startDate != that.startDate)
         { return false; }
-        if ( date2 != that.date2 )
+        if ( endDate != that.endDate)
         { return false; }
         if ( limit != that.limit )
         { return false; }
@@ -98,8 +98,8 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
     @Override
     public int hashCode()
     {
-        int result = (int) (date1 ^ (date1 >>> 32));
-        result = 31 * result + (int) (date2 ^ (date2 >>> 32));
+        int result = (int) (startDate ^ (startDate >>> 32));
+        result = 31 * result + (int) (endDate ^ (endDate >>> 32));
         result = 31 * result + (country1 != null ? country1.hashCode() : 0);
         result = 31 * result + (country2 != null ? country2.hashCode() : 0);
         result = 31 * result + limit;
@@ -115,21 +115,21 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> row = resultsAsList.get( i );
-            String country = (String) row.get( 0 );
-            int month = ((Number) row.get( 1 )).intValue();
-            String gender = (String) row.get( 2 );
+            String countryName = (String) row.get( 0 );
+            int messageMonth = ((Number) row.get( 1 )).intValue();
+            String personGender = (String) row.get( 2 );
             int ageGroup = ((Number) row.get( 3 )).intValue();
-            String tag = (String) row.get( 4 );
-            int count = ((Number) row.get( 5 )).intValue();
+            String tagName = (String) row.get( 4 );
+            int messageCount = ((Number) row.get( 5 )).intValue();
 
             result.add(
                     new LdbcSnbBiQuery2TopTagsResult(
-                            country,
-                            month,
-                            gender,
+                            countryName,
+                            messageMonth,
+                            personGender,
                             ageGroup,
-                            tag,
-                            count
+                            tagName,
+                            messageCount
                     )
             );
         }
@@ -145,12 +145,12 @@ public class LdbcSnbBiQuery2TopTags extends Operation<List<LdbcSnbBiQuery2TopTag
         {
             LdbcSnbBiQuery2TopTagsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add( row.country() );
-            resultFields.add( row.month() );
-            resultFields.add( row.gender() );
+            resultFields.add( row.countryName() );
+            resultFields.add( row.messageMonth() );
+            resultFields.add( row.personGender() );
             resultFields.add( row.ageGroup() );
-            resultFields.add( row.tag() );
-            resultFields.add( row.count() );
+            resultFields.add( row.tagName() );
+            resultFields.add( row.messageCount() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );
