@@ -13,8 +13,8 @@ public class LdbcSnbBiQuery10TagPerson extends Operation<List<LdbcSnbBiQuery10Ta
     public static final int TYPE = 10;
     public static final int DEFAULT_LIMIT = 100;
     public static final String TAG = "tag";
-    public static final String LIMIT = "limit";
     public static final String DATE = "date";
+    public static final String LIMIT = "limit";
 
     private final String tag;
     private final long date;
