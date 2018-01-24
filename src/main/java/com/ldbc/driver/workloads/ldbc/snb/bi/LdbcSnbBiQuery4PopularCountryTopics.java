@@ -100,15 +100,15 @@ public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbB
             long forumId = ((Number) row.get( 0 )).longValue();
             String title = (String) row.get( 1 );
             long creationDate = ((Number) row.get( 2 )).longValue();
-            long moderator = ((Number) row.get( 3 )).longValue();
-            int count = ((Number) row.get( 4 )).intValue();
+            long personId = ((Number) row.get( 3 )).longValue();
+            int postCount = ((Number) row.get( 4 )).intValue();
             result.add(
                     new LdbcSnbBiQuery4PopularCountryTopicsResult(
                             forumId,
                             title,
                             creationDate,
-                            moderator,
-                            count
+                            personId,
+                            postCount
                     )
             );
         }
@@ -128,8 +128,8 @@ public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbB
             resultFields.add( row.forumId() );
             resultFields.add( row.forumTitle() );
             resultFields.add( row.forumCreationDate() );
-            resultFields.add( row.moderatorId() );
-            resultFields.add( row.count() );
+            resultFields.add( row.personId() );
+            resultFields.add( row.postCount() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );
