@@ -2,18 +2,18 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery8RelatedTopicsResult
 {
-    private final String tag;
+    private final String relatedTagName;
     private final int count;
 
-    public LdbcSnbBiQuery8RelatedTopicsResult( String tag, int count )
+    public LdbcSnbBiQuery8RelatedTopicsResult(String relatedTagName, int count )
     {
-        this.tag = tag;
+        this.relatedTagName = relatedTagName;
         this.count = count;
     }
 
     public String tag()
     {
-        return tag;
+        return relatedTagName;
     }
 
     public int count()
@@ -25,7 +25,7 @@ public class LdbcSnbBiQuery8RelatedTopicsResult
     public String toString()
     {
         return "LdbcSnbBiQuery8Result{" +
-               "tag='" + tag + '\'' +
+               "relatedTagName='" + relatedTagName + '\'' +
                ", count=" + count +
                '}';
     }
@@ -42,14 +42,14 @@ public class LdbcSnbBiQuery8RelatedTopicsResult
 
         if ( count != that.count )
         { return false; }
-        return !(tag != null ? !tag.equals( that.tag ) : that.tag != null);
+        return !(relatedTagName != null ? !relatedTagName.equals( that.relatedTagName) : that.relatedTagName != null);
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = tag != null ? tag.hashCode() : 0;
+        int result = relatedTagName != null ? relatedTagName.hashCode() : 0;
         result = 31 * result + count;
         return result;
     }
