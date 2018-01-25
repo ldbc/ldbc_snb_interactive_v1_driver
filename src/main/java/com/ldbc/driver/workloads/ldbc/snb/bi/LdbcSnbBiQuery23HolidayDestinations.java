@@ -46,7 +46,7 @@ public class LdbcSnbBiQuery23HolidayDestinations extends Operation<List<LdbcSnbB
     public String toString()
     {
         return "LdbcSnbBiQuery23{" +
-               "country='" + country + '\'' +
+               "destinationName='" + country + '\'' +
                ", limit=" + limit +
                '}';
     }
@@ -85,12 +85,12 @@ public class LdbcSnbBiQuery23HolidayDestinations extends Operation<List<LdbcSnbB
         {
             List<Object> row = resultsAsList.get( i );
             int messageCount = ((Number) row.get( 0 )).intValue();
-            String country = (String) row.get( 1 );
+            String destinationName = (String) row.get( 1 );
             int month = ((Number) row.get( 2 )).intValue();
             result.add(
                     new LdbcSnbBiQuery23HolidayDestinationsResult(
                             messageCount,
-                            country,
+                            destinationName,
                             month
                     )
             );
@@ -109,7 +109,7 @@ public class LdbcSnbBiQuery23HolidayDestinations extends Operation<List<LdbcSnbB
             LdbcSnbBiQuery23HolidayDestinationsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.messageCount() );
-            resultFields.add( row.country() );
+            resultFields.add( row.destinationName() );
             resultFields.add( row.month() );
             resultsFields.add( resultFields );
         }
