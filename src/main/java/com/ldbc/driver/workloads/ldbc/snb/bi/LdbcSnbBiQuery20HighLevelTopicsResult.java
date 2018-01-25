@@ -2,31 +2,31 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery20HighLevelTopicsResult
 {
-    private final String tagClass;
-    private final int count;
+    private final String tagClassName;
+    private final int messageCount;
 
-    public LdbcSnbBiQuery20HighLevelTopicsResult( String tagClass, int count )
+    public LdbcSnbBiQuery20HighLevelTopicsResult(String tagClassName, int messageCount)
     {
-        this.tagClass = tagClass;
-        this.count = count;
+        this.tagClassName = tagClassName;
+        this.messageCount = messageCount;
     }
 
-    public String tagClass()
+    public String tagClassName()
     {
-        return tagClass;
+        return tagClassName;
     }
 
-    public int count()
+    public int messageCount()
     {
-        return count;
+        return messageCount;
     }
 
     @Override
     public String toString()
     {
         return "LdbcSnbBiQuery20Result{" +
-               "tagClass='" + tagClass + '\'' +
-               ", count=" + count +
+               "tagClassName='" + tagClassName + '\'' +
+               ", messageCount=" + messageCount +
                '}';
     }
 
@@ -40,17 +40,17 @@ public class LdbcSnbBiQuery20HighLevelTopicsResult
 
         LdbcSnbBiQuery20HighLevelTopicsResult that = (LdbcSnbBiQuery20HighLevelTopicsResult) o;
 
-        if ( count != that.count )
+        if ( messageCount != that.messageCount)
         { return false; }
-        return !(tagClass != null ? !tagClass.equals( that.tagClass ) : that.tagClass != null);
+        return !(tagClassName != null ? !tagClassName.equals( that.tagClassName) : that.tagClassName != null);
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = tagClass != null ? tagClass.hashCode() : 0;
-        result = 31 * result + count;
+        int result = tagClassName != null ? tagClassName.hashCode() : 0;
+        result = 31 * result + messageCount;
         return result;
     }
 }

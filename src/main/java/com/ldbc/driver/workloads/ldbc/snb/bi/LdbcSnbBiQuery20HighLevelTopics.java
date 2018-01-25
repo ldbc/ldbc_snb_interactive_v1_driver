@@ -84,12 +84,12 @@ public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQue
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> row = resultsAsList.get( i );
-            String tagClass = (String) row.get( 0 );
-            int count = ((Number) row.get( 1 )).intValue();
+            String tagClassName = (String) row.get( 0 );
+            int messageCount = ((Number) row.get( 1 )).intValue();
             result.add(
                     new LdbcSnbBiQuery20HighLevelTopicsResult(
-                            tagClass,
-                            count
+                            tagClassName,
+                            messageCount
                     )
             );
         }
@@ -106,8 +106,8 @@ public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQue
         {
             LdbcSnbBiQuery20HighLevelTopicsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add( row.tagClass() );
-            resultFields.add( row.count() );
+            resultFields.add( row.tagClassName() );
+            resultFields.add( row.messageCount() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );
