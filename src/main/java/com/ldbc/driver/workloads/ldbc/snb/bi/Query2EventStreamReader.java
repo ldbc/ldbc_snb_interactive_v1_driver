@@ -41,19 +41,15 @@ public class Query2EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            Date1|Date2|Country1|Country2
-            1236219|1335225600|Yemen|Romania
-             */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
                     throws IOException
             {
-                long date1;
+                long startDate;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date1 = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    startDate = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -61,10 +57,10 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                long date2;
+                long endDate;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date2 = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    endDate = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -92,8 +88,8 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                 }
 
                 return new Object[]{
-                        date1,
-                        date2,
+                        startDate,
+                        endDate,
                         country1,
                         country2,
                         LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT,
