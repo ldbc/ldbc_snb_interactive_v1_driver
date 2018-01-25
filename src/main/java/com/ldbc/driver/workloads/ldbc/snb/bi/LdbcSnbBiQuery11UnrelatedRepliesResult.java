@@ -3,14 +3,14 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 public class LdbcSnbBiQuery11UnrelatedRepliesResult
 {
     private final long personId;
-    private final String tag;
+    private final String tagName;
     private final int likeCount;
     private final int replyCount;
 
-    public LdbcSnbBiQuery11UnrelatedRepliesResult( long personId, String tag, int likeCount, int replyCount )
+    public LdbcSnbBiQuery11UnrelatedRepliesResult(long personId, String tagName, int likeCount, int replyCount )
     {
         this.personId = personId;
-        this.tag = tag;
+        this.tagName = tagName;
         this.likeCount = likeCount;
         this.replyCount = replyCount;
     }
@@ -22,7 +22,7 @@ public class LdbcSnbBiQuery11UnrelatedRepliesResult
 
     public String tag()
     {
-        return tag;
+        return tagName;
     }
 
     public int likeCount()
@@ -40,7 +40,7 @@ public class LdbcSnbBiQuery11UnrelatedRepliesResult
     {
         return "LdbcSnbBiQuery11Result{" +
                "personId=" + personId +
-               ", tag='" + tag + '\'' +
+               ", tagName='" + tagName + '\'' +
                ", likeCount=" + likeCount +
                ", replyCount=" + replyCount +
                '}';
@@ -62,7 +62,7 @@ public class LdbcSnbBiQuery11UnrelatedRepliesResult
         { return false; }
         if ( replyCount != that.replyCount )
         { return false; }
-        return !(tag != null ? !tag.equals( that.tag ) : that.tag != null);
+        return !(tagName != null ? !tagName.equals( that.tagName) : that.tagName != null);
 
     }
 
@@ -70,7 +70,7 @@ public class LdbcSnbBiQuery11UnrelatedRepliesResult
     public int hashCode()
     {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (tag != null ? tag.hashCode() : 0);
+        result = 31 * result + (tagName != null ? tagName.hashCode() : 0);
         result = 31 * result + likeCount;
         result = 31 * result + replyCount;
         return result;
