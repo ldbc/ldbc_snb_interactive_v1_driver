@@ -96,18 +96,18 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> row = resultsAsList.get( i );
-            long postId = ((Number) row.get( 0 )).longValue();
-            long creationDate = ((Number) row.get( 1 )).longValue();
-            String firstName = (String) row.get( 2 );
-            String lastName = (String) row.get( 3 );
-            int count = ((Number) row.get( 4 )).intValue();
+            long messageId = ((Number) row.get( 0 )).longValue();
+            long messageCreationDate = ((Number) row.get( 1 )).longValue();
+            String creatorFirstName = (String) row.get( 2 );
+            String creatorLastName = (String) row.get( 3 );
+            int likeCount = ((Number) row.get( 4 )).intValue();
             result.add(
                     new LdbcSnbBiQuery12TrendingPostsResult(
-                            postId,
-                            creationDate,
-                            firstName,
-                            lastName,
-                            count
+                            messageId,
+                            messageCreationDate,
+                            creatorFirstName,
+                            creatorLastName,
+                            likeCount
                     )
             );
         }
@@ -124,9 +124,9 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
             LdbcSnbBiQuery12TrendingPostsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.messageId() );
-            resultFields.add( row.creationDate() );
-            resultFields.add( row.firstName() );
-            resultFields.add( row.lastName() );
+            resultFields.add( row.messageCreationDate() );
+            resultFields.add( row.creatorFirstName() );
+            resultFields.add( row.creatorLastName() );
             resultFields.add( row.likeCount() );
             resultsFields.add( resultFields );
         }

@@ -3,22 +3,22 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 public class LdbcSnbBiQuery12TrendingPostsResult
 {
     private final long messageId;
-    private final long creationDate;
-    private final String firstName;
-    private final String lastName;
+    private final long messageCreationDate;
+    private final String creatorFirstName;
+    private final String creatorLastName;
     private final int likeCount;
 
     public LdbcSnbBiQuery12TrendingPostsResult(
             long messageId,
-            long creationDate,
-            String firstName,
-            String lastName,
+            long messageCreationDate,
+            String creatorFirstName,
+            String creatorLastName,
             int likeCount )
     {
         this.messageId = messageId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.creationDate = creationDate;
+        this.messageCreationDate = messageCreationDate;
+        this.creatorFirstName = creatorFirstName;
+        this.creatorLastName = creatorLastName;
         this.likeCount = likeCount;
     }
 
@@ -27,19 +27,19 @@ public class LdbcSnbBiQuery12TrendingPostsResult
         return messageId;
     }
 
-    public long creationDate()
+    public long messageCreationDate()
     {
-        return creationDate;
+        return messageCreationDate;
     }
 
-    public String firstName()
+    public String creatorFirstName()
     {
-        return firstName;
+        return creatorFirstName;
     }
 
-    public String lastName()
+    public String creatorLastName()
     {
-        return lastName;
+        return creatorLastName;
     }
 
     public int likeCount()
@@ -51,9 +51,9 @@ public class LdbcSnbBiQuery12TrendingPostsResult
     public String toString() {
         return "LdbcSnbBiQuery12TrendingPostsResult{" +
                 "messageId=" + messageId +
-                ", creationDate=" + creationDate +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
+                ", messageCreationDate=" + messageCreationDate +
+                ", creatorFirstName='" + creatorFirstName + '\'' +
+                ", creatorLastName='" + creatorLastName + '\'' +
                 ", likeCount=" + likeCount +
                 '}';
     }
@@ -66,18 +66,18 @@ public class LdbcSnbBiQuery12TrendingPostsResult
         LdbcSnbBiQuery12TrendingPostsResult that = (LdbcSnbBiQuery12TrendingPostsResult) o;
 
         if (messageId != that.messageId) return false;
-        if (creationDate != that.creationDate) return false;
+        if (messageCreationDate != that.messageCreationDate) return false;
         if (likeCount != that.likeCount) return false;
-        if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
-        return lastName != null ? lastName.equals(that.lastName) : that.lastName == null;
+        if (creatorFirstName != null ? !creatorFirstName.equals(that.creatorFirstName) : that.creatorFirstName != null) return false;
+        return creatorLastName != null ? creatorLastName.equals(that.creatorLastName) : that.creatorLastName == null;
     }
 
     @Override
     public int hashCode() {
         int result = (int) (messageId ^ (messageId >>> 32));
-        result = 31 * result + (int) (creationDate ^ (creationDate >>> 32));
-        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
-        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (int) (messageCreationDate ^ (messageCreationDate >>> 32));
+        result = 31 * result + (creatorFirstName != null ? creatorFirstName.hashCode() : 0);
+        result = 31 * result + (creatorLastName != null ? creatorLastName.hashCode() : 0);
         result = 31 * result + likeCount;
         return result;
     }
