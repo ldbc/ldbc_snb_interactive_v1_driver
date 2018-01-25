@@ -87,10 +87,10 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
             List<Object> row = resultsAsList.get( i );
             int year = ((Number) row.get( 0 )).intValue();
             int month = ((Number) row.get( 1 )).intValue();
-            List<LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity> tagPopularities = new ArrayList<>();
+            List<LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity> popularTags = new ArrayList<>();
             for ( List tagPopularity : (List<List>) row.get( 2 ) )
             {
-                tagPopularities.add(
+                popularTags.add(
                         new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity(
                                 (String) tagPopularity.get( 0 ),
                                 (Integer) tagPopularity.get( 1 )
@@ -101,7 +101,7 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
                     new LdbcSnbBiQuery13PopularMonthlyTagsResult(
                             year,
                             month,
-                            tagPopularities
+                            popularTags
                     )
             );
         }
@@ -121,7 +121,7 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
             resultFields.add( row.year() );
             resultFields.add( row.month() );
             List<List> tagPopularitiesAsLists = new ArrayList<>();
-            for ( LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity tagPopularity : row.tagPopularities() )
+            for ( LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity tagPopularity : row.popularTags() )
             {
                 tagPopularitiesAsLists.add( Lists.newArrayList( tagPopularity.tagName(), tagPopularity.popularity() ) );
             }
