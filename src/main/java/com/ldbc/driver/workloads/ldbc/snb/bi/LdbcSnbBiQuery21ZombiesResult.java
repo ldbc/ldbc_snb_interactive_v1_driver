@@ -5,16 +5,16 @@ import com.ldbc.driver.validation.ValidationEquality;
 public class LdbcSnbBiQuery21ZombiesResult
 {
     private final long personId;
-    private final int zombieCount;
-    private final int realCount;
-    private final double score;
+    private final int zombieLikeCount;
+    private final int totalLikeCount;
+    private final double zombieScore;
 
-    public LdbcSnbBiQuery21ZombiesResult( long personId, int zombieCount, int realCount, double score )
+    public LdbcSnbBiQuery21ZombiesResult(long personId, int zombieLikeCount, int totalLikeCount, double zombieScore)
     {
         this.personId = personId;
-        this.zombieCount = zombieCount;
-        this.realCount = realCount;
-        this.score = score;
+        this.zombieLikeCount = zombieLikeCount;
+        this.totalLikeCount = totalLikeCount;
+        this.zombieScore = zombieScore;
     }
 
     public long personId()
@@ -22,19 +22,19 @@ public class LdbcSnbBiQuery21ZombiesResult
         return personId;
     }
 
-    public int zombieCount()
+    public int zombieLikeCount()
     {
-        return zombieCount;
+        return zombieLikeCount;
     }
 
-    public int realCount()
+    public int totalLikeCount()
     {
-        return realCount;
+        return totalLikeCount;
     }
 
-    public double score()
+    public double zombieScore()
     {
-        return score;
+        return zombieScore;
     }
 
     @Override
@@ -42,9 +42,9 @@ public class LdbcSnbBiQuery21ZombiesResult
     {
         return "LdbcSnbBiQuery21ZombiesResult{" +
                "personId=" + personId +
-               ", zombieCount=" + zombieCount +
-               ", realCount=" + realCount +
-               ", score=" + score +
+               ", zombieLikeCount=" + zombieLikeCount +
+               ", totalLikeCount=" + totalLikeCount +
+               ", zombieScore=" + zombieScore +
                '}';
     }
 
@@ -60,11 +60,11 @@ public class LdbcSnbBiQuery21ZombiesResult
 
         if ( personId != that.personId )
         { return false; }
-        if ( zombieCount != that.zombieCount )
+        if ( zombieLikeCount != that.zombieLikeCount)
         { return false; }
-        if ( realCount != that.realCount )
+        if ( totalLikeCount != that.totalLikeCount)
         { return false; }
-        return ValidationEquality.doubleEquals( that.score, score );
+        return ValidationEquality.doubleEquals( that.zombieScore, zombieScore);
 
     }
 
@@ -74,9 +74,9 @@ public class LdbcSnbBiQuery21ZombiesResult
         int result;
         long temp;
         result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + zombieCount;
-        result = 31 * result + realCount;
-        temp = Double.doubleToLongBits( score );
+        result = 31 * result + zombieLikeCount;
+        result = 31 * result + totalLikeCount;
+        temp = Double.doubleToLongBits(zombieScore);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
