@@ -548,18 +548,18 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery14TopThreadInitiators operation;
 
         operation = (LdbcSnbBiQuery14TopThreadInitiators) reader.next();
-        assertThat( operation.beginDate(), is( 1441351591755l ) );
+        assertThat( operation.startDate(), is( 1441351591755l ) );
         assertThat( operation.endDate(), is( 1441351591756l ) );
         OperationTest.assertCorrectParameterMap(operation);
 
         operation = (LdbcSnbBiQuery14TopThreadInitiators) reader.next();
-        assertThat( operation.beginDate(), is( 1441351591756l ) );
+        assertThat( operation.startDate(), is( 1441351591756l ) );
         assertThat( operation.endDate(), is( 1441351591757l ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery14TopThreadInitiators) reader.next();
-        assertThat( operation.beginDate(), is( 1441351591755l ) );
+        assertThat( operation.startDate(), is( 1441351591755l ) );
         assertThat( operation.endDate(), is( 1441351591756l ) );
 
         assertTrue( reader.hasNext() );

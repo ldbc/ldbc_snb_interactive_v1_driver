@@ -989,7 +989,7 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery14TopThreadInitiators ldbcQuery = (LdbcSnbBiQuery14TopThreadInitiators) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.beginDate() );
+                operationAsList.add( ldbcQuery.startDate() );
                 operationAsList.add( ldbcQuery.endDate() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
