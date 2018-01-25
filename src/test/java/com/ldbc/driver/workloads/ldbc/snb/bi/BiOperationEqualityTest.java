@@ -33,40 +33,40 @@ public class BiOperationEqualityTest
     public void ldbcQuery2ShouldDoEqualsCorrectly()
     {
         // Given
-        long date11 = 1;
-        long date21 = 1;
+        long startDate1 = 1;
+        long endDate1 = 1;
         String country11 = "a";
         String country21 = "b";
         int limit1 = 1;
 
-        long date12 = 2;
-        long date22 = 2;
+        long startDate2 = 2;
+        long endDate2 = 2;
         String country12 = "a";
         String country22 = "c";
         int limit2 = 2;
 
         // When
         LdbcSnbBiQuery2TopTags query1a = new LdbcSnbBiQuery2TopTags(
-                date11,
-                date21,
+                startDate1,
+                endDate1,
                 country11,
                 country21,
                 limit1 );
         LdbcSnbBiQuery2TopTags query1b = new LdbcSnbBiQuery2TopTags(
-                date11,
-                date21,
+                startDate1,
+                endDate1,
                 country11,
                 country21,
                 limit1 );
         LdbcSnbBiQuery2TopTags query2a = new LdbcSnbBiQuery2TopTags(
-                date12,
-                date22,
+                startDate2,
+                endDate2,
                 country12,
                 country22,
                 limit2 );
         LdbcSnbBiQuery2TopTags query3a = new LdbcSnbBiQuery2TopTags(
-                date11,
-                date22,
+                startDate1,
+                endDate2,
                 country11,
                 country22,
                 limit2 );
@@ -321,18 +321,18 @@ public class BiOperationEqualityTest
     {
         // Given
         String country1 = "\u16a0";
-        List<String> blackList1 = Lists.newArrayList( "\u3055" );
+        List<String> blacklist1 = Lists.newArrayList( "\u3055" );
         int limit1 = 1;
 
         String country2 = "tag";
-        List<String> blackList2 = Lists.newArrayList( "\u4e35" );
+        List<String> blacklist2 = Lists.newArrayList( "\u4e35" );
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery11UnrelatedReplies query1a = new LdbcSnbBiQuery11UnrelatedReplies( country1, blackList1, limit1 );
-        LdbcSnbBiQuery11UnrelatedReplies query1b = new LdbcSnbBiQuery11UnrelatedReplies( country1, blackList1, limit1 );
-        LdbcSnbBiQuery11UnrelatedReplies query2a = new LdbcSnbBiQuery11UnrelatedReplies( country2, blackList2, limit2 );
-        LdbcSnbBiQuery11UnrelatedReplies query3a = new LdbcSnbBiQuery11UnrelatedReplies( country1, blackList2, limit1 );
+        LdbcSnbBiQuery11UnrelatedReplies query1a = new LdbcSnbBiQuery11UnrelatedReplies( country1, blacklist1, limit1 );
+        LdbcSnbBiQuery11UnrelatedReplies query1b = new LdbcSnbBiQuery11UnrelatedReplies( country1, blacklist1, limit1 );
+        LdbcSnbBiQuery11UnrelatedReplies query2a = new LdbcSnbBiQuery11UnrelatedReplies( country2, blacklist2, limit2 );
+        LdbcSnbBiQuery11UnrelatedReplies query3a = new LdbcSnbBiQuery11UnrelatedReplies( country1, blacklist2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -393,29 +393,29 @@ public class BiOperationEqualityTest
     public void ldbcQuery14ShouldDoEqualsCorrectly()
     {
         // Given
-        long beginDate1 = 1;
+        long startDate1 = 1;
         long endDate1 = 1;
         int limit1 = 1;
 
-        long beginDate2 = 2;
+        long startDate2 = 2;
         long endDate2 = 2;
         int limit2 = 2;
 
         // When
         LdbcSnbBiQuery14TopThreadInitiators query1a = new LdbcSnbBiQuery14TopThreadInitiators(
-                beginDate1,
+                startDate1,
                 endDate1,
                 limit1 );
         LdbcSnbBiQuery14TopThreadInitiators query1b = new LdbcSnbBiQuery14TopThreadInitiators(
-                beginDate1,
+                startDate1,
                 endDate1,
                 limit1 );
         LdbcSnbBiQuery14TopThreadInitiators query2a = new LdbcSnbBiQuery14TopThreadInitiators(
-                beginDate2,
+                startDate2,
                 endDate2,
                 limit2 );
         LdbcSnbBiQuery14TopThreadInitiators query3a = new LdbcSnbBiQuery14TopThreadInitiators(
-                beginDate1,
+                startDate1,
                 endDate2,
                 limit2 );
 
@@ -511,14 +511,14 @@ public class BiOperationEqualityTest
     {
         // Given
         long date1 = 1;
-        int limit1 = 1;
         int lengthThreshold1 = 1;
         List<String> languages1 = Lists.newArrayList( "en" );
+        int limit1 = 1;
 
         long date2 = 2;
-        int limit2 = 2;
         int lengthThreshold2 = 1;
         List<String> languages2 = Lists.newArrayList( "en", "fr" );
+        int limit2 = 2;
 
         // When
         LdbcSnbBiQuery18PersonPostCounts query1a = new LdbcSnbBiQuery18PersonPostCounts( date1, lengthThreshold1,
@@ -594,12 +594,10 @@ public class BiOperationEqualityTest
         // Given
         String country1 = "\u3055";
         long endDate1 = 1;
-        int days1 = 1;
         int limit1 = 1;
 
         String country2 = "\u4e35";
         long endDate2 = 2;
-        int days2 = 2;
         int limit2 = 2;
 
         // When
