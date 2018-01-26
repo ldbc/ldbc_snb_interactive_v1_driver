@@ -47,10 +47,10 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long personid;
+                long personId;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    personid = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    personId = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -98,7 +98,7 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving max path distance" );
                 }
 
-                return new Object[]{personid, country, tagClass, minPathDistance, maxPathDistance,
+                return new Object[]{personId, country, tagClass, minPathDistance, maxPathDistance,
                         LdbcSnbBiQuery16ExpertsInSocialCircle.DEFAULT_LIMIT};
             }
         };
