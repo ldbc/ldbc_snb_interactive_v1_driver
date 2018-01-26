@@ -112,12 +112,12 @@ public class LdbcSnbBiQuery19StrangerInteraction extends Operation<List<LdbcSnbB
             List<Object> row = resultsAsList.get( i );
             long personId = ((Number) row.get( 0 )).longValue();
             int strangerCount = ((Number) row.get( 1 )).intValue();
-            int count = ((Number) row.get( 2 )).intValue();
+            int interactionCount = ((Number) row.get( 2 )).intValue();
             result.add(
                     new LdbcSnbBiQuery19StrangerInteractionResult(
                             personId,
                             strangerCount,
-                            count
+                            interactionCount
                     )
             );
         }

@@ -2,42 +2,42 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery2TopTagsResult
 {
-    private final String country;
-    private final int month;
-    private final String gender;
+    private final String countryName;
+    private final int messageMonth;
+    private final String personGender;
     private final int ageGroup;
-    private final String tag;
-    private final int count;
+    private final String tagName;
+    private final int messageCount;
 
     public LdbcSnbBiQuery2TopTagsResult(
-            String country,
-            int month,
-            String gender,
+            String countryName,
+            int messageMonth,
+            String personGender,
             int ageGroup,
-            String tag,
-            int count )
+            String tagName,
+            int messageCount)
     {
-        this.country = country;
-        this.month = month;
-        this.gender = gender;
+        this.countryName = countryName;
+        this.messageMonth = messageMonth;
+        this.personGender = personGender;
         this.ageGroup = ageGroup;
-        this.tag = tag;
-        this.count = count;
+        this.tagName = tagName;
+        this.messageCount = messageCount;
     }
 
-    public String country()
+    public String countryName()
     {
-        return country;
+        return countryName;
     }
 
-    public int month()
+    public int messageMonth()
     {
-        return month;
+        return messageMonth;
     }
 
-    public String gender()
+    public String personGender()
     {
-        return gender;
+        return personGender;
     }
 
     public int ageGroup()
@@ -45,26 +45,26 @@ public class LdbcSnbBiQuery2TopTagsResult
         return ageGroup;
     }
 
-    public String tag()
+    public String tagName()
     {
-        return tag;
+        return tagName;
     }
 
-    public int count()
+    public int messageCount()
     {
-        return count;
+        return messageCount;
     }
 
     @Override
     public String toString()
     {
         return "LdbcSnbBiQuery2TopTagsResult{" +
-               "country='" + country + '\'' +
-               ", month=" + month +
-               ", gender='" + gender + '\'' +
+               "countryName='" + countryName + '\'' +
+               ", messageMonth=" + messageMonth +
+               ", personGender='" + personGender + '\'' +
                ", ageGroup=" + ageGroup +
-               ", tag='" + tag + '\'' +
-               ", count=" + count +
+               ", tagName='" + tagName + '\'' +
+               ", messageCount=" + messageCount +
                '}';
     }
 
@@ -78,29 +78,29 @@ public class LdbcSnbBiQuery2TopTagsResult
 
         LdbcSnbBiQuery2TopTagsResult that = (LdbcSnbBiQuery2TopTagsResult) o;
 
-        if ( month != that.month )
+        if ( messageMonth != that.messageMonth)
         { return false; }
         if ( ageGroup != that.ageGroup )
         { return false; }
-        if ( count != that.count )
+        if ( messageCount != that.messageCount)
         { return false; }
-        if ( country != null ? !country.equals( that.country ) : that.country != null )
+        if ( countryName != null ? !countryName.equals( that.countryName) : that.countryName != null )
         { return false; }
-        if ( gender != null ? !gender.equals( that.gender ) : that.gender != null )
+        if ( personGender != null ? !personGender.equals( that.personGender) : that.personGender != null )
         { return false; }
-        return !(tag != null ? !tag.equals( that.tag ) : that.tag != null);
+        return !(tagName != null ? !tagName.equals( that.tagName) : that.tagName != null);
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = country != null ? country.hashCode() : 0;
-        result = 31 * result + month;
-        result = 31 * result + (gender != null ? gender.hashCode() : 0);
+        int result = countryName != null ? countryName.hashCode() : 0;
+        result = 31 * result + messageMonth;
+        result = 31 * result + (personGender != null ? personGender.hashCode() : 0);
         result = 31 * result + ageGroup;
-        result = 31 * result + (tag != null ? tag.hashCode() : 0);
-        result = 31 * result + count;
+        result = 31 * result + (tagName != null ? tagName.hashCode() : 0);
+        result = 31 * result + messageCount;
         return result;
     }
 }

@@ -13,8 +13,8 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
     public static final int TYPE = 16;
     public static final int DEFAULT_LIMIT = 100;
     public static final String PERSON_ID = "personId";
-    public static final String TAG_CLASS = "tagClass";
     public static final String COUNTRY = "country";
+    public static final String TAG_CLASS = "tagClass";
     public static final String MIN_PATH_DISTANCE = "minPathDistance";
     public static final String MAX_PATH_DISTANCE = "maxPathDistance";
     public static final String LIMIT = "limit";
@@ -26,7 +26,7 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
     private final int maxPathDistance;
     private final int limit;
 
-    public LdbcSnbBiQuery16ExpertsInSocialCircle(long personId, String country, String tagClass, int
+    public LdbcSnbBiQuery16ExpertsInSocialCircle( long personId, String country, String tagClass, int
             minPathDistance, int maxPathDistance, int limit )
     {
         this.personId = personId;
@@ -71,8 +71,8 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
                 .put(PERSON_ID, personId)
-                .put(TAG_CLASS, tagClass)
                 .put(COUNTRY, country)
+                .put(TAG_CLASS, tagClass)
                 .put(MIN_PATH_DISTANCE, minPathDistance)
                 .put(MAX_PATH_DISTANCE, maxPathDistance)
                 .put(LIMIT, limit)
@@ -127,13 +127,13 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircle extends Operation<List<LdbcSn
         {
             List<Object> row = resultsAsList.get( i );
             long personId = ((Number) row.get( 0 )).longValue();
-            String tag = (String) row.get( 1 );
-            int count = ((Number) row.get( 2 )).intValue();
+            String tagName = (String) row.get( 1 );
+            int messageCount = ((Number) row.get( 2 )).intValue();
             result.add(
                     new LdbcSnbBiQuery16ExpertsInSocialCircleResult(
                             personId,
-                            tag,
-                            count
+                            tagName,
+                            messageCount
                     )
             );
         }

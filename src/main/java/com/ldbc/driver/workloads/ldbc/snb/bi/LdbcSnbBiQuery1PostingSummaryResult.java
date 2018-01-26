@@ -7,35 +7,35 @@ public class LdbcSnbBiQuery1PostingSummaryResult
     public static final int CATEGORY_TWEET = 2;
     public static final int CATEGORY_LONG = 3;
 
-    private final int year;
+    private final int messageYear;
     private final boolean isComment;
-    private final int messageLengthCategory;
+    private final int lengthCategory;
     private final long messageCount;
-    private final long messageLengthMean;
-    private final long messageLengthSum;
-    private final float percentOfTotalMessageCount;
+    private final long averageMessageLength;
+    private final long sumMessageLength;
+    private final float percentOfMessages;
 
     public LdbcSnbBiQuery1PostingSummaryResult(
-            int year,
+            int messageYear,
             boolean isComment,
-            int messageLengthCategory,
+            int lengthCategory,
             long messageCount,
-            long messageLengthMean,
-            long messageLengthSum,
-            float percentOfTotalMessageCount )
+            long averageMessageLength,
+            long sumMessageLength,
+            float percentOfMessages)
     {
-        this.year = year;
+        this.messageYear = messageYear;
         this.isComment = isComment;
-        this.messageLengthCategory = messageLengthCategory;
+        this.lengthCategory = lengthCategory;
         this.messageCount = messageCount;
-        this.messageLengthMean = messageLengthMean;
-        this.messageLengthSum = messageLengthSum;
-        this.percentOfTotalMessageCount = percentOfTotalMessageCount;
+        this.averageMessageLength = averageMessageLength;
+        this.sumMessageLength = sumMessageLength;
+        this.percentOfMessages = percentOfMessages;
     }
 
-    public int year()
+    public int messageYear()
     {
-        return year;
+        return messageYear;
     }
 
     public boolean isComment()
@@ -43,9 +43,9 @@ public class LdbcSnbBiQuery1PostingSummaryResult
         return isComment;
     }
 
-    public int messageLengthCategory()
+    public int lengthCategory()
     {
-        return messageLengthCategory;
+        return lengthCategory;
     }
 
     public long messageCount()
@@ -53,32 +53,32 @@ public class LdbcSnbBiQuery1PostingSummaryResult
         return messageCount;
     }
 
-    public long messageLengthMean()
+    public long averageMessageLength()
     {
-        return messageLengthMean;
+        return averageMessageLength;
     }
 
-    public long messageLengthSum()
+    public long sumMessageLength()
     {
-        return messageLengthSum;
+        return sumMessageLength;
     }
 
-    public float percentOfTotalMessageCount()
+    public float percentOfMessages()
     {
-        return percentOfTotalMessageCount;
+        return percentOfMessages;
     }
 
     @Override
     public String toString()
     {
         return "LdbcSnbBiQuery1Result{" +
-               "year=" + year +
+               "messageYear=" + messageYear +
                ", isComment=" + isComment +
-               ", messageLengthCategory=" + messageLengthCategory +
+               ", lengthCategory=" + lengthCategory +
                ", messageCount=" + messageCount +
-               ", messageLengthMean=" + messageLengthMean +
-               ", messageLengthSum=" + messageLengthSum +
-               ", percentOfTotalMessageCount=" + percentOfTotalMessageCount +
+               ", averageMessageLength=" + averageMessageLength +
+               ", sumMessageLength=" + sumMessageLength +
+               ", percentOfMessages=" + percentOfMessages +
                '}';
     }
 
@@ -92,32 +92,32 @@ public class LdbcSnbBiQuery1PostingSummaryResult
 
         LdbcSnbBiQuery1PostingSummaryResult that = (LdbcSnbBiQuery1PostingSummaryResult) o;
 
-        if ( year != that.year )
+        if ( messageYear != that.messageYear)
         { return false; }
         if ( isComment != that.isComment )
         { return false; }
-        if ( messageLengthCategory != that.messageLengthCategory )
+        if ( lengthCategory != that.lengthCategory)
         { return false; }
         if ( messageCount != that.messageCount )
         { return false; }
-        if ( messageLengthMean != that.messageLengthMean )
+        if ( averageMessageLength != that.averageMessageLength)
         { return false; }
-        if ( messageLengthSum != that.messageLengthSum )
+        if ( sumMessageLength != that.sumMessageLength)
         { return false; }
-        return floatEpsilonCompare( that.percentOfTotalMessageCount, percentOfTotalMessageCount, EPSILON );
+        return floatEpsilonCompare( that.percentOfMessages, percentOfMessages, EPSILON );
     }
 
     @Override
     public int hashCode()
     {
-        int result = year;
+        int result = messageYear;
         result = 31 * result + (isComment ? 1 : 0);
-        result = 31 * result + messageLengthCategory;
+        result = 31 * result + lengthCategory;
         result = 31 * result + (int) (messageCount ^ (messageCount >>> 32));
-        result = 31 * result + (int) (messageLengthMean ^ (messageLengthMean >>> 32));
-        result = 31 * result + (int) (messageLengthSum ^ (messageLengthSum >>> 32));
+        result = 31 * result + (int) (averageMessageLength ^ (averageMessageLength >>> 32));
+        result = 31 * result + (int) (sumMessageLength ^ (sumMessageLength >>> 32));
         result = 31 * result +
-                 (percentOfTotalMessageCount != +0.0f ? Float.floatToIntBits( percentOfTotalMessageCount ) : 0);
+                 (percentOfMessages != +0.0f ? Float.floatToIntBits(percentOfMessages) : 0);
         return result;
     }
 

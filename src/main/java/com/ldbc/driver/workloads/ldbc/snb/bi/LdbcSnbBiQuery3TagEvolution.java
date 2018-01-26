@@ -95,16 +95,16 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> row = resultsAsList.get( i );
-            String tag = (String) row.get( 0 );
-            int countA = ((Number) row.get( 1 )).intValue();
-            int countB = ((Number) row.get( 2 )).intValue();
-            int difference = ((Number) row.get( 3 )).intValue();
+            String tagName = (String) row.get( 0 );
+            int countMonth1 = ((Number) row.get( 1 )).intValue();
+            int countMonth2 = ((Number) row.get( 2 )).intValue();
+            int diff = ((Number) row.get( 3 )).intValue();
             result.add(
                     new LdbcSnbBiQuery3TagEvolutionResult(
-                            tag,
-                            countA,
-                            countB,
-                            difference
+                            tagName,
+                            countMonth1,
+                            countMonth2,
+                            diff
                     )
             );
         }
@@ -121,10 +121,10 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
         {
             LdbcSnbBiQuery3TagEvolutionResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add( row.tag() );
-            resultFields.add( row.countA() );
-            resultFields.add( row.countB() );
-            resultFields.add( row.difference() );
+            resultFields.add( row.tagName() );
+            resultFields.add( row.countMonth1() );
+            resultFields.add( row.countMonth2() );
+            resultFields.add( row.diff() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

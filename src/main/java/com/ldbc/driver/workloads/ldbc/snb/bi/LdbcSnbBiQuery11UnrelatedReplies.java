@@ -12,24 +12,24 @@ public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQu
 {
     public static final int TYPE = 11;
     public static final int DEFAULT_LIMIT = 100;
-    public static final String BLACK_LIST = "blackList";
+    public static final String BLACKLIST = "blacklist";
     public static final String COUNTRY = "country";
     public static final String LIMIT = "limit";
 
     private final String country;
-    private final List<String> blackList;
+    private final List<String> blacklist;
     private final int limit;
 
-    public LdbcSnbBiQuery11UnrelatedReplies( String country, List<String> blackList, int limit )
+    public LdbcSnbBiQuery11UnrelatedReplies(String country, List<String> blacklist, int limit )
     {
         this.country = country;
-        this.blackList = blackList;
+        this.blacklist = blacklist;
         this.limit = limit;
     }
 
-    public List<String> blackList()
+    public List<String> blacklist()
     {
-        return blackList;
+        return blacklist;
     }
 
     public String country()
@@ -45,7 +45,7 @@ public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQu
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(BLACK_LIST, blackList)
+                .put(BLACKLIST, blacklist)
                 .put(COUNTRY, country)
                 .put(LIMIT, limit)
                 .build();
@@ -56,7 +56,7 @@ public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQu
     {
         return "LdbcSnbBiQuery11UnrelatedReplies{" +
                "country='" + country + '\'' +
-               ", blackList=" + blackList +
+               ", blacklist=" + blacklist +
                ", limit=" + limit +
                '}';
     }
@@ -75,7 +75,7 @@ public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQu
         { return false; }
         if ( country != null ? !country.equals( that.country ) : that.country != null )
         { return false; }
-        return !(blackList != null ? !blackList.equals( that.blackList ) : that.blackList != null);
+        return !(blacklist != null ? !blacklist.equals( that.blacklist) : that.blacklist != null);
 
     }
 
@@ -83,7 +83,7 @@ public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQu
     public int hashCode()
     {
         int result = country != null ? country.hashCode() : 0;
-        result = 31 * result + (blackList != null ? blackList.hashCode() : 0);
+        result = 31 * result + (blacklist != null ? blacklist.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }
@@ -98,13 +98,13 @@ public class LdbcSnbBiQuery11UnrelatedReplies extends Operation<List<LdbcSnbBiQu
         {
             List<Object> row = resultsAsList.get( i );
             long personId = ((Number) row.get( 0 )).longValue();
-            String tag = (String) row.get( 1 );
+            String tagName = (String) row.get( 1 );
             int likeCount = ((Number) row.get( 2 )).intValue();
             int replyCount = ((Number) row.get( 3 )).intValue();
             result.add(
                     new LdbcSnbBiQuery11UnrelatedRepliesResult(
                             personId,
-                            tag,
+                            tagName,
                             likeCount,
                             replyCount
                     )

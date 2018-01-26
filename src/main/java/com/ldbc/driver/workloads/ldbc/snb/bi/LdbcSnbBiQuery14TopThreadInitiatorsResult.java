@@ -3,22 +3,22 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 public class LdbcSnbBiQuery14TopThreadInitiatorsResult
 {
     private final long personId;
-    private final String firstName;
-    private final String lastName;
-    private final int postCount;
+    private final String personFirstName;
+    private final String personLastName;
+    private final int threadCount;
     private final int messageCount;
 
     public LdbcSnbBiQuery14TopThreadInitiatorsResult(
             long personId,
-            String firstName,
-            String lastName,
-            int postCount,
+            String personFirstName,
+            String personLastName,
+            int threadCount,
             int messageCount)
     {
         this.personId = personId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.postCount = postCount;
+        this.personFirstName = personFirstName;
+        this.personLastName = personLastName;
+        this.threadCount = threadCount;
         this.messageCount = messageCount;
     }
 
@@ -27,19 +27,19 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
         return personId;
     }
 
-    public String firstName()
+    public String personFirstName()
     {
-        return firstName;
+        return personFirstName;
     }
 
-    public String lastName()
+    public String personLastName()
     {
-        return lastName;
+        return personLastName;
     }
 
-    public int postCount()
+    public int threadCount()
     {
-        return postCount;
+        return threadCount;
     }
 
     public int messageCount()
@@ -51,9 +51,9 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
     public String toString() {
         return "LdbcSnbBiQuery14TopThreadInitiatorsResult{" +
                 "personId=" + personId +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", postCount=" + postCount +
+                ", personFirstName='" + personFirstName + '\'' +
+                ", personLastName='" + personLastName + '\'' +
+                ", threadCount=" + threadCount +
                 ", messageCount=" + messageCount +
                 '}';
     }
@@ -66,18 +66,18 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
         LdbcSnbBiQuery14TopThreadInitiatorsResult that = (LdbcSnbBiQuery14TopThreadInitiatorsResult) o;
 
         if (personId != that.personId) return false;
-        if (postCount != that.postCount) return false;
+        if (threadCount != that.threadCount) return false;
         if (messageCount != that.messageCount) return false;
-        if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
-        return lastName != null ? lastName.equals(that.lastName) : that.lastName == null;
+        if (personFirstName != null ? !personFirstName.equals(that.personFirstName) : that.personFirstName != null) return false;
+        return personLastName != null ? personLastName.equals(that.personLastName) : that.personLastName == null;
     }
 
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
-        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-        result = 31 * result + postCount;
+        result = 31 * result + (personFirstName != null ? personFirstName.hashCode() : 0);
+        result = 31 * result + (personLastName != null ? personLastName.hashCode() : 0);
+        result = 31 * result + threadCount;
         result = 31 * result + messageCount;
         return result;
     }

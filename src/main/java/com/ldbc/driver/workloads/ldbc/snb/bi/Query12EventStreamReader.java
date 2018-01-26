@@ -39,10 +39,6 @@ public class Query12EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            Date
-            1236219
-            */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )

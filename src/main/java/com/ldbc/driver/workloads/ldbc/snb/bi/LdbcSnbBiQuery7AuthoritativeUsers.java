@@ -85,11 +85,11 @@ public class LdbcSnbBiQuery7AuthoritativeUsers extends Operation<List<LdbcSnbBiQ
         {
             List<Object> row = resultsAsList.get( i );
             long personId = ((Number) row.get( 0 )).longValue();
-            int score = ((Number) row.get( 1 )).intValue();
+            int authorityScore = ((Number) row.get( 1 )).intValue();
             result.add(
                     new LdbcSnbBiQuery7AuthoritativeUsersResult(
                             personId,
-                            score
+                            authorityScore
                     )
             );
         }

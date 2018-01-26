@@ -37,10 +37,6 @@ public class Query7EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            Tag
-            lol
-            */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )

@@ -3,13 +3,13 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 public class LdbcSnbBiQuery23HolidayDestinationsResult
 {
     private final int messageCount;
-    private final String country;
+    private final String destinationName;
     private final int month;
 
-    public LdbcSnbBiQuery23HolidayDestinationsResult( int messageCount, String country, int month )
+    public LdbcSnbBiQuery23HolidayDestinationsResult(int messageCount, String destinationName, int month )
     {
         this.messageCount = messageCount;
-        this.country = country;
+        this.destinationName = destinationName;
         this.month = month;
     }
 
@@ -18,9 +18,9 @@ public class LdbcSnbBiQuery23HolidayDestinationsResult
         return messageCount;
     }
 
-    public String country()
+    public String destinationName()
     {
-        return country;
+        return destinationName;
     }
 
     public int month()
@@ -32,7 +32,7 @@ public class LdbcSnbBiQuery23HolidayDestinationsResult
     public String toString() {
         return "LdbcSnbBiQuery23HolidayDestinationsResult{" +
                 "messageCount=" + messageCount +
-                ", country='" + country + '\'' +
+                ", destinationName='" + destinationName + '\'' +
                 ", month=" + month +
                 '}';
     }
@@ -46,13 +46,13 @@ public class LdbcSnbBiQuery23HolidayDestinationsResult
 
         if (messageCount != that.messageCount) return false;
         if (month != that.month) return false;
-        return country != null ? country.equals(that.country) : that.country == null;
+        return destinationName != null ? destinationName.equals(that.destinationName) : that.destinationName == null;
     }
 
     @Override
     public int hashCode() {
         int result = messageCount;
-        result = 31 * result + (country != null ? country.hashCode() : 0);
+        result = 31 * result + (destinationName != null ? destinationName.hashCode() : 0);
         result = 31 * result + month;
         return result;
     }

@@ -42,19 +42,15 @@ public class Query16EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            Person|country|tagClass|minPathDistance|maxPathDistance
-            11052|Greece|Writer|1|2
-            */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
                     throws IOException
             {
-                long person;
+                long personId;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    person = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    personId = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -102,7 +98,7 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving max path distance" );
                 }
 
-                return new Object[]{person, country, tagClass, minPathDistance, maxPathDistance,
+                return new Object[]{personId, country, tagClass, minPathDistance, maxPathDistance,
                         LdbcSnbBiQuery16ExpertsInSocialCircle.DEFAULT_LIMIT};
             }
         };

@@ -114,9 +114,9 @@ public class LdbcSnbBiQuery21Zombies extends Operation<List<LdbcSnbBiQuery21Zomb
             LdbcSnbBiQuery21ZombiesResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.personId() );
-            resultFields.add( row.zombieCount() );
-            resultFields.add( row.realCount() );
-            resultFields.add( row.score() );
+            resultFields.add( row.zombieLikeCount() );
+            resultFields.add( row.totalLikeCount() );
+            resultFields.add( row.zombieScore() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

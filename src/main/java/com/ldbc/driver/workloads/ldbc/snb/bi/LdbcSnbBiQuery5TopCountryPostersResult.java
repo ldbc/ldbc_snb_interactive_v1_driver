@@ -3,23 +3,23 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 public class LdbcSnbBiQuery5TopCountryPostersResult
 {
     private final long personId;
-    private final String firstName;
-    private final String lastName;
-    private final long creationDate;
-    private final int count;
+    private final String personFirstName;
+    private final String personLastName;
+    private final long personCreationDate;
+    private final int postCount;
 
     public LdbcSnbBiQuery5TopCountryPostersResult(
             long personId,
-            String firstName,
-            String lastName,
-            long creationDate,
-            int count )
+            String personFirstName,
+            String personLastName,
+            long personCreationDate,
+            int postCount)
     {
         this.personId = personId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.creationDate = creationDate;
-        this.count = count;
+        this.personFirstName = personFirstName;
+        this.personLastName = personLastName;
+        this.personCreationDate = personCreationDate;
+        this.postCount = postCount;
     }
 
     public long personId()
@@ -27,24 +27,24 @@ public class LdbcSnbBiQuery5TopCountryPostersResult
         return personId;
     }
 
-    public String firstName()
+    public String personFirstName()
     {
-        return firstName;
+        return personFirstName;
     }
 
-    public String lastName()
+    public String personLastName()
     {
-        return lastName;
+        return personLastName;
     }
 
-    public long creationDate()
+    public long personCreationDate()
     {
-        return creationDate;
+        return personCreationDate;
     }
 
-    public int count()
+    public int postCount()
     {
-        return count;
+        return postCount;
     }
 
     @Override
@@ -52,10 +52,10 @@ public class LdbcSnbBiQuery5TopCountryPostersResult
     {
         return "LdbcSnbBiQuery5Result{" +
                "personId=" + personId +
-               ", firstName='" + firstName + '\'' +
-               ", lastName='" + lastName + '\'' +
-               ", creationDate=" + creationDate +
-               ", count=" + count +
+               ", personFirstName='" + personFirstName + '\'' +
+               ", personLastName='" + personLastName + '\'' +
+               ", personCreationDate=" + personCreationDate +
+               ", postCount=" + postCount +
                '}';
     }
 
@@ -71,13 +71,13 @@ public class LdbcSnbBiQuery5TopCountryPostersResult
 
         if ( personId != that.personId )
         { return false; }
-        if ( creationDate != that.creationDate )
+        if ( personCreationDate != that.personCreationDate)
         { return false; }
-        if ( count != that.count )
+        if ( postCount != that.postCount)
         { return false; }
-        if ( firstName != null ? !firstName.equals( that.firstName ) : that.firstName != null )
+        if ( personFirstName != null ? !personFirstName.equals( that.personFirstName) : that.personFirstName != null )
         { return false; }
-        return !(lastName != null ? !lastName.equals( that.lastName ) : that.lastName != null);
+        return !(personLastName != null ? !personLastName.equals( that.personLastName) : that.personLastName != null);
 
     }
 
@@ -85,10 +85,10 @@ public class LdbcSnbBiQuery5TopCountryPostersResult
     public int hashCode()
     {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
-        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-        result = 31 * result + (int) (creationDate ^ (creationDate >>> 32));
-        result = 31 * result + count;
+        result = 31 * result + (personFirstName != null ? personFirstName.hashCode() : 0);
+        result = 31 * result + (personLastName != null ? personLastName.hashCode() : 0);
+        result = 31 * result + (int) (personCreationDate ^ (personCreationDate >>> 32));
+        result = 31 * result + postCount;
         return result;
     }
 }

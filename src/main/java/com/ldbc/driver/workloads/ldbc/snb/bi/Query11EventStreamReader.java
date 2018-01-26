@@ -41,10 +41,6 @@ public class Query11EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            KeyWord|Country
-            Chicken|Egypt
-            */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
@@ -61,17 +57,17 @@ public class Query11EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                List<String> blackList;
+                List<String> blacklist;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    blackList = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
+                    blacklist = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
                 }
                 else
                 {
                     throw new GeneratorException( "Error retrieving black list" );
                 }
 
-                return new Object[]{country, blackList, LdbcSnbBiQuery11UnrelatedReplies.DEFAULT_LIMIT};
+                return new Object[]{country, blacklist, LdbcSnbBiQuery11UnrelatedReplies.DEFAULT_LIMIT};
             }
         };
     }

@@ -6,13 +6,13 @@ public class LdbcSnbBiQuery13PopularMonthlyTagsResult
 {
     private final int year;
     private final int month;
-    private final List<TagPopularity> tagPopularities;
+    private final List<TagPopularity> popularTags;
 
-    public LdbcSnbBiQuery13PopularMonthlyTagsResult( int year, int month, List<TagPopularity> tagPopularities )
+    public LdbcSnbBiQuery13PopularMonthlyTagsResult( int year, int month, List<TagPopularity> popularTags)
     {
         this.year = year;
         this.month = month;
-        this.tagPopularities = tagPopularities;
+        this.popularTags = popularTags;
     }
 
     public int year()
@@ -25,9 +25,9 @@ public class LdbcSnbBiQuery13PopularMonthlyTagsResult
         return month;
     }
 
-    public List<TagPopularity> tagPopularities()
+    public List<TagPopularity> popularTags()
     {
-        return tagPopularities;
+        return popularTags;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class LdbcSnbBiQuery13PopularMonthlyTagsResult
         return "LdbcSnbBiQuery13PopularMonthlyTagsResult{" +
                "year=" + year +
                ", month=" + month +
-               ", tagPopularities=" + tagPopularities +
+               ", popularTags=" + popularTags +
                '}';
     }
 
@@ -54,8 +54,8 @@ public class LdbcSnbBiQuery13PopularMonthlyTagsResult
         { return false; }
         if ( month != that.month )
         { return false; }
-        return !(tagPopularities != null ? !tagPopularities.equals( that.tagPopularities )
-                                         : that.tagPopularities != null);
+        return !(popularTags != null ? !popularTags.equals( that.popularTags)
+                                         : that.popularTags != null);
 
     }
 
@@ -64,7 +64,7 @@ public class LdbcSnbBiQuery13PopularMonthlyTagsResult
     {
         int result = year;
         result = 31 * result + month;
-        result = 31 * result + (tagPopularities != null ? tagPopularities.hashCode() : 0);
+        result = 31 * result + (popularTags != null ? popularTags.hashCode() : 0);
         return result;
     }
 

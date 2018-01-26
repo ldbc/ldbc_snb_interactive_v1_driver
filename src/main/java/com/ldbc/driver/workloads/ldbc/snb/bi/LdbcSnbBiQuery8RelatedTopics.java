@@ -84,11 +84,11 @@ public class LdbcSnbBiQuery8RelatedTopics extends Operation<List<LdbcSnbBiQuery8
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> row = resultsAsList.get( i );
-            String tag = (String) row.get( 0 );
+            String relatedTagName = (String) row.get( 0 );
             int count = ((Number) row.get( 1 )).intValue();
             result.add(
                     new LdbcSnbBiQuery8RelatedTopicsResult(
-                            tag,
+                            relatedTagName,
                             count
                     )
             );
