@@ -7,6 +7,7 @@ import com.ldbc.driver.SerializingMarshallingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery25WeightedPathsResult>>
 {
@@ -103,14 +104,21 @@ public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery
     public List<LdbcSnbBiQuery25WeightedPathsResult> marshalResult( String serializedResults ) throws
             SerializingMarshallingException
     {
-        List<List<Object>> resultsAsList = SerializationUtil.marshalListOfListsLongs( serializedResults );
+        List<List<Object>> resultsAsList = SerializationUtil.marshalListOfLists( serializedResults );
         List<LdbcSnbBiQuery25WeightedPathsResult> result = new ArrayList<>();
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> row = resultsAsList.get( i );
-            List<Long> personIds = (List<Long>) row.get( 0 );
+            List<Long> personIds = ((List<Object>) row.get( 0 )).stream().map(x -> {
+                if (x instanceof Integer) {
+                    return Long.valueOf((Integer) x);
+                } else {
+                    return (Long) x;
+                }
+            }).collect(Collectors.toList());
+            double weight = (double) row.get( 1 );
             result.add(
-                    new LdbcSnbBiQuery25WeightedPathsResult( personIds )
+                    new LdbcSnbBiQuery25WeightedPathsResult( personIds, weight )
             );
         }
         return result;
@@ -127,6 +135,7 @@ public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery
             LdbcSnbBiQuery25WeightedPathsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.personIds() );
+            resultFields.add( row.weight() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

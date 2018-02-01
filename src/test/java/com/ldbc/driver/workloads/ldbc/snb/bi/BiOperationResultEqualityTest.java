@@ -1027,10 +1027,11 @@ public class BiOperationResultEqualityTest
         List<Long> personIds1 = Lists.newArrayList(1L, 2L, 3L);
         List<Long> personIds2 = Lists.newArrayList(1L, 2L, 3L);
         List<Long> personIds3 = Lists.newArrayList(1L, 2L);
+        double weight = 0.5;
 
-        LdbcSnbBiQuery25WeightedPathsResult result1a = new LdbcSnbBiQuery25WeightedPathsResult( personIds1 );
-        LdbcSnbBiQuery25WeightedPathsResult result2a = new LdbcSnbBiQuery25WeightedPathsResult( personIds2 );
-        LdbcSnbBiQuery25WeightedPathsResult result3a = new LdbcSnbBiQuery25WeightedPathsResult( personIds3 );
+        LdbcSnbBiQuery25WeightedPathsResult result1a = new LdbcSnbBiQuery25WeightedPathsResult( personIds1, weight );
+        LdbcSnbBiQuery25WeightedPathsResult result2a = new LdbcSnbBiQuery25WeightedPathsResult( personIds2, weight );
+        LdbcSnbBiQuery25WeightedPathsResult result3a = new LdbcSnbBiQuery25WeightedPathsResult( personIds3, weight );
 
         assertThat( result1a, equalTo( result2a ) );
         assertThat( result1a, not( equalTo( result3a ) ) );

@@ -164,6 +164,6 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery25WeightedPathsResult read25Result()
     {
-        return new LdbcSnbBiQuery25WeightedPathsResult( Lists.newArrayList(1L, 2L));
+        return new LdbcSnbBiQuery25WeightedPathsResult( Lists.newArrayList(1L, 2L), 0.5);
     }
 }
