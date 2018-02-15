@@ -1,5 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -31,8 +33,6 @@ import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Equator;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 
 import java.io.Closeable;
 import java.io.File;

@@ -1,5 +1,9 @@
 package com.ldbc.driver.validation;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Db;
 import com.ldbc.driver.Operation;
@@ -10,9 +14,6 @@ import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple2;
 import com.ldbc.driver.util.Tuple3;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-import org.codehaus.jackson.util.DefaultPrettyPrinter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class DbValidationResult
         this.totalOperationsPerOperationType = new HashMap<>();
         this.objectMapper = new ObjectMapper();
         this.defaultPrettyPrinter = new DefaultPrettyPrinter();
-        this.defaultPrettyPrinter.indentArraysWith( new DefaultPrettyPrinter.Lf2SpacesIndenter() );
+        this.defaultPrettyPrinter.indentArraysWith( new DefaultIndenter("  ", DefaultIndenter.SYS_LF) );
     }
 
     void reportMissingHandlerForOperation( Operation operation )

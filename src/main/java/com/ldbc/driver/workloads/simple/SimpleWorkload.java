@@ -1,5 +1,7 @@
 package com.ldbc.driver.workloads.simple;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import com.ldbc.driver.Operation;
@@ -12,8 +14,6 @@ import com.ldbc.driver.generator.MinMaxGenerator;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple2;
 import com.ldbc.driver.util.Tuple3;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 
 import java.io.IOException;
 import java.util.ArrayList;

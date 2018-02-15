@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;

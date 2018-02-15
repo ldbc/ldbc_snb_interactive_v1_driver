@@ -1,5 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ldbc.driver.ChildOperationGenerator;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
@@ -9,8 +11,6 @@ import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.generator.GeneratorFactory;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 
 import java.io.Closeable;
 import java.io.File;
