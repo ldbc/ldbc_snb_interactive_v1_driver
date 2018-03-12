@@ -49,7 +49,8 @@ public class SingleThreadOperationExecutor implements OperationExecutor
     private final AtomicLong uncompletedHandlers = new AtomicLong( 0 );
     private final AtomicBoolean shutdown = new AtomicBoolean( false );
 
-    public SingleThreadOperationExecutor( Db db,
+    public SingleThreadOperationExecutor(
+            Db db,
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
             LocalCompletionTimeWriter localCompletionTimeWriter,
             GlobalCompletionTimeReader globalCompletionTimeReader,

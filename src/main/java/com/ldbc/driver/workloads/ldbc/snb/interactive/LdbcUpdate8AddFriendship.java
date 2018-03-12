@@ -12,49 +12,60 @@ import java.util.Date;
 
 import static java.lang.String.format;
 
-public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult> {
+public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
+{
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1008;
     private final long person1Id;
     private final long person2Id;
     private final Date creationDate;
 
-    public LdbcUpdate8AddFriendship( long person1Id, long person2Id, Date creationDate ) {
+    public LdbcUpdate8AddFriendship( long person1Id, long person2Id, Date creationDate )
+    {
         this.person1Id = person1Id;
         this.person2Id = person2Id;
         this.creationDate = creationDate;
     }
 
-    public long person1Id() {
+    public long person1Id()
+    {
         return person1Id;
     }
 
-    public long person2Id() {
+    public long person2Id()
+    {
         return person2Id;
     }
 
-    public Date creationDate() {
+    public Date creationDate()
+    {
         return creationDate;
     }
 
     @Override
-    public boolean equals( Object o ) {
-        if (this == o) {
+    public boolean equals( Object o )
+    {
+        if ( this == o )
+        {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if ( o == null || getClass() != o.getClass() )
+        {
             return false;
         }
 
         LdbcUpdate8AddFriendship that = (LdbcUpdate8AddFriendship) o;
 
-        if (person1Id != that.person1Id) {
+        if ( person1Id != that.person1Id )
+        {
             return false;
         }
-        if (person2Id != that.person2Id) {
+        if ( person2Id != that.person2Id )
+        {
             return false;
         }
-        if (creationDate != null ? !creationDate.equals( that.creationDate ) : that.creationDate != null) {
+        if ( creationDate != null ? !creationDate.equals( that.creationDate ) : that.creationDate != null )
+        {
             return false;
         }
 
@@ -62,7 +73,8 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult> {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int result = (int) (person1Id ^ (person1Id >>> 32));
         result = 31 * result + (int) (person2Id ^ (person2Id >>> 32));
         result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);
@@ -70,23 +82,26 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult> {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "LdbcUpdate8AddFriendship{" +
-            "person1Id=" + person1Id +
-            ", person2Id=" + person2Id +
-            ", creationDate=" + creationDate +
-            '}';
+                "person1Id=" + person1Id +
+                ", person2Id=" + person2Id +
+                ", creationDate=" + creationDate +
+                '}';
     }
 
     @Override
-    public void writeKyro( Kryo kryo, Output output ) {
+    public void writeKyro( Kryo kryo, Output output )
+    {
         output.writeInt( type() );
         output.writeLong( person1Id );
         output.writeLong( person2Id );
         output.writeLong( creationDate.getTime() );
     }
 
-    public static Operation readKyro( Input input ) {
+    public static Operation readKyro( Input input )
+    {
         Long person1Id = input.readLong();
         Long person2Id = input.readLong();
         Date creationDate = new Date( input.readLong() );
@@ -94,23 +109,29 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult> {
     }
 
     @Override
-    public LdbcNoResult marshalResult( String serializedOperationResult ) {
+    public LdbcNoResult marshalResult( String serializedOperationResult )
+    {
         return LdbcNoResult.INSTANCE;
     }
 
     @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException {
-        try {
+    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
+    {
+        try
+        {
             return objectMapper.writeValueAsString(
-                LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT );
-        } catch (IOException e) {
+                    LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT );
+        }
+        catch ( IOException e )
+        {
             throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                operationResultInstance ), e );
+                                                               operationResultInstance ), e );
         }
     }
 
     @Override
-    public int type() {
+    public int type()
+    {
         return TYPE;
     }
 }

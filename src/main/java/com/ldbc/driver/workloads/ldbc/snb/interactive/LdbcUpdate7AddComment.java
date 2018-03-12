@@ -33,16 +33,16 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
     private final List<Long> tagIds;
 
     public LdbcUpdate7AddComment( long commentId,
-            Date creationDate,
-            String locationIp,
-            String browserUsed,
-            String content,
-            int length,
-            long authorPersonId,
-            long countryId,
-            long replyToPostId,
-            long replyToCommentId,
-            List<Long> tagIds )
+                                  Date creationDate,
+                                  String locationIp,
+                                  String browserUsed,
+                                  String content,
+                                  int length,
+                                  long authorPersonId,
+                                  long countryId,
+                                  long replyToPostId,
+                                  long replyToCommentId,
+                                  List<Long> tagIds )
     {
         this.commentId = commentId;
         this.creationDate = creationDate;
@@ -116,34 +116,60 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
     public boolean equals( Object o )
     {
         if ( this == o )
-        { return true; }
+        {
+            return true;
+        }
         if ( o == null || getClass() != o.getClass() )
-        { return false; }
+        {
+            return false;
+        }
 
         LdbcUpdate7AddComment that = (LdbcUpdate7AddComment) o;
 
         if ( authorPersonId != that.authorPersonId )
-        { return false; }
+        {
+            return false;
+        }
         if ( commentId != that.commentId )
-        { return false; }
+        {
+            return false;
+        }
         if ( countryId != that.countryId )
-        { return false; }
+        {
+            return false;
+        }
         if ( length != that.length )
-        { return false; }
+        {
+            return false;
+        }
         if ( replyToCommentId != that.replyToCommentId )
-        { return false; }
+        {
+            return false;
+        }
         if ( replyToPostId != that.replyToPostId )
-        { return false; }
+        {
+            return false;
+        }
         if ( browserUsed != null ? !browserUsed.equals( that.browserUsed ) : that.browserUsed != null )
-        { return false; }
+        {
+            return false;
+        }
         if ( content != null ? !content.equals( that.content ) : that.content != null )
-        { return false; }
+        {
+            return false;
+        }
         if ( creationDate != null ? !creationDate.equals( that.creationDate ) : that.creationDate != null )
-        { return false; }
+        {
+            return false;
+        }
         if ( locationIp != null ? !locationIp.equals( that.locationIp ) : that.locationIp != null )
-        { return false; }
+        {
+            return false;
+        }
         if ( tagIds != null ? !ListUtils.listsEqual( sort( tagIds ), sort( that.tagIds ) ) : that.tagIds != null )
-        { return false; }
+        {
+            return false;
+        }
 
         return true;
     }
@@ -175,22 +201,23 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
     public String toString()
     {
         return "LdbcUpdate7AddComment{" +
-               "commentId=" + commentId +
-               ", creationDate=" + creationDate +
-               ", locationIp='" + locationIp + '\'' +
-               ", browserUsed='" + browserUsed + '\'' +
-               ", content='" + content + '\'' +
-               ", length=" + length +
-               ", authorPersonId=" + authorPersonId +
-               ", countryId=" + countryId +
-               ", replyToPostId=" + replyToPostId +
-               ", replyToCommentId=" + replyToCommentId +
-               ", tagIds=" + tagIds +
-               '}';
+                "commentId=" + commentId +
+                ", creationDate=" + creationDate +
+                ", locationIp='" + locationIp + '\'' +
+                ", browserUsed='" + browserUsed + '\'' +
+                ", content='" + content + '\'' +
+                ", length=" + length +
+                ", authorPersonId=" + authorPersonId +
+                ", countryId=" + countryId +
+                ", replyToPostId=" + replyToPostId +
+                ", replyToCommentId=" + replyToCommentId +
+                ", tagIds=" + tagIds +
+                '}';
     }
 
     @Override
-    public void writeKyro( Kryo kryo, Output output ) {
+    public void writeKyro( Kryo kryo, Output output )
+    {
         output.writeInt( type() );
         output.writeLong( commentId );
         output.writeLong( creationDate.getTime() );
@@ -201,14 +228,16 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
         output.writeLong( authorPersonId );
         output.writeLong( countryId );
         output.writeLong( replyToPostId );
-        output.writeLong( replyToCommentId);
+        output.writeLong( replyToCommentId );
         output.writeInt( tagIds.size() );
-        for (Long tagId : tagIds) {
+        for ( Long tagId : tagIds )
+        {
             output.writeLong( tagId );
         }
     }
 
-    public static Operation readKyro( Input input ) {
+    public static Operation readKyro( Input input )
+    {
         List<Long> tagIds = new ArrayList<>();
         Long commentId = input.readLong();
         Date creationDate = new Date( input.readLong() );
@@ -221,22 +250,24 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
         Long replyToPostId = input.readLong();
         Long replyToCommentId = input.readLong();
         int n = input.readInt();
-        for (int i = 0; i < n; ++i) {
+        for ( int i = 0; i < n; ++i )
+        {
             tagIds.add( input.readLong() );
         }
         return new LdbcUpdate7AddComment(
-            commentId,
-            creationDate,
-            locationIp,
-            browserUsed,
-            content,
-            length,
-            authorPersonId,
-            countryId,
-            replyToPostId,
-            replyToCommentId,
-            tagIds );
+                commentId,
+                creationDate,
+                locationIp,
+                browserUsed,
+                content,
+                length,
+                authorPersonId,
+                countryId,
+                replyToPostId,
+                replyToCommentId,
+                tagIds );
     }
+
     @Override
     public LdbcNoResult marshalResult( String serializedOperationResult )
     {
@@ -254,7 +285,7 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
         catch ( IOException e )
         {
             throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    operationResultInstance ), e );
+                                                               operationResultInstance ), e );
         }
     }
 

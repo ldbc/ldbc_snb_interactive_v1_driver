@@ -93,7 +93,8 @@ class WorkloadStatusThread extends Thread
         continueRunning.set( false );
     }
 
-    private void updateRecentThroughput( final long[][] recentOperationCountsAtDurations,
+    private void updateRecentThroughput(
+            final long[][] recentOperationCountsAtDurations,
             final SettableRecentThroughputAndDuration settableRecentThroughputAndDuration )
     {
         long minOperationCount = Long.MAX_VALUE;
@@ -125,8 +126,8 @@ class WorkloadStatusThread extends Thread
                                   ? 0
                                   : (double) recentOperationCount / recentRunDurationAsMilli * 1000;
         double recentUpdateThroughput = (0 == recentRunDurationAsMilli)
-                ? 0
-                : (double) recentUpdateOperationCount / recentRunDurationAsMilli * 1000;
+                                        ? 0
+                                        : (double) recentUpdateOperationCount / recentRunDurationAsMilli * 1000;
         settableRecentThroughputAndDuration.setThroughput( recentThroughput );
         settableRecentThroughputAndDuration.setDuration( recentRunDurationAsMilli );
         settableRecentThroughputAndDuration.setUpdateThroughput( recentUpdateThroughput );
@@ -138,11 +139,13 @@ class WorkloadStatusThread extends Thread
         private double throughput = 0.0;
         private long duration = 0;
 
-        public double updateThroughput() {
+        public double updateThroughput()
+        {
             return updateThroughput;
         }
 
-        public void setUpdateThroughput(double updateThroughput) {
+        public void setUpdateThroughput( double updateThroughput )
+        {
             this.updateThroughput = updateThroughput;
         }
 

@@ -192,9 +192,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private static final char COMMANDLINE_SEPARATOR_CHAR = '|';
     private static final String COMMANDLINE_SEPARATOR_REGEX_STRING = "\\|";
 
-    public static Map<String, String> defaultsAsMap() throws DriverConfigurationException
+    public static Map<String,String> defaultsAsMap() throws DriverConfigurationException
     {
-        Map<String, String> defaultParamsMap = new HashMap<>();
+        Map<String,String> defaultParamsMap = new HashMap<>();
         defaultParamsMap.put( IGNORE_SCHEDULED_START_TIMES_ARG, IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING );
         defaultParamsMap.put( HELP_ARG, HELP_DEFAULT_STRING );
         defaultParamsMap.put( OPERATION_COUNT_ARG, OPERATION_COUNT_DEFAULT_STRING );
@@ -227,7 +227,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     {
         try
         {
-            Map<String, String> paramsMap = parseArgs( args, OPTIONS );
+            Map<String,String> paramsMap = parseArgs( args, OPTIONS );
             return fromParamsMap( paramsMap );
         }
         catch ( Exception e )
@@ -243,7 +243,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     {
         try
         {
-            Map<String, String> paramsMap = defaultsAsMap();
+            Map<String,String> paramsMap = defaultsAsMap();
             paramsMap.put( DB_ARG, databaseClassName );
             paramsMap.put( WORKLOAD_ARG, workloadClassName );
             paramsMap.put( OPERATION_COUNT_ARG, Long.toString( operationCount ) );
@@ -252,11 +252,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         catch ( DriverConfigurationException e )
         {
             throw new DriverConfigurationException( format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
-                    e );
+                                                    e );
         }
     }
 
-    public static ConsoleAndFileDriverConfiguration fromParamsMap( Map<String, String> paramsMap )
+    public static ConsoleAndFileDriverConfiguration fromParamsMap( Map<String,String> paramsMap )
             throws DriverConfigurationException
     {
         try
@@ -282,9 +282,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             Set<String> peerIds = parsePeerIdsFromCommandline( paramsMap.get( PEER_IDS_ARG ) );
             ConsoleAndFileValidationParamOptions databaseConsoleAndFileValidationParams =
                     (null == paramsMap.get( CREATE_VALIDATION_PARAMS_ARG )) ?
-                            null :
-                            ConsoleAndFileValidationParamOptions
-                                    .fromCommandlineString( paramsMap.get( CREATE_VALIDATION_PARAMS_ARG ) );
+                    null :
+                    ConsoleAndFileValidationParamOptions
+                            .fromCommandlineString( paramsMap.get( CREATE_VALIDATION_PARAMS_ARG ) );
             String databaseValidationFilePath = paramsMap.get( DB_VALIDATION_FILE_PATH_ARG );
             boolean calculateWorkloadStatistics =
                     Boolean.parseBoolean( paramsMap.get( CALCULATE_WORKLOAD_STATISTICS_ARG ) );
@@ -321,7 +321,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         catch ( DriverConfigurationException e )
         {
             throw new DriverConfigurationException( format( "%s\n%s", e.getMessage(), commandlineHelpString() ),
-                    e );
+                                                    e );
         }
     }
 
@@ -343,11 +343,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         }
     }
 
-    private static Map<String, String> parseArgs( String[] args, Options options )
+    private static Map<String,String> parseArgs( String[] args, Options options )
             throws ParseException, DriverConfigurationException
     {
-        Map<String, String> cmdParams = new HashMap<>();
-        Map<String, String> fileParams = new HashMap<>();
+        Map<String,String> cmdParams = new HashMap<>();
+        Map<String,String> fileParams = new HashMap<>();
 
         CommandLineParser parser = new BasicParser();
 
@@ -460,7 +460,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             String filePath = validationParams[0];
             int validationSetSize = Integer.parseInt( validationParams[1] );
             cmdParams.put( CREATE_VALIDATION_PARAMS_ARG,
-                    new ConsoleAndFileValidationParamOptions( filePath, validationSetSize ).toCommandlineString() );
+                           new ConsoleAndFileValidationParamOptions( filePath, validationSetSize ).toCommandlineString() );
         }
 
         if ( cmd.hasOption( PEER_IDS_ARG ) )
@@ -479,7 +479,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 {
                     Properties tempFileProperties = new Properties();
                     tempFileProperties.load( new FileInputStream( propertyFilePath ) );
-                    Map<String, String> tempFileParams = MapUtils.propertiesToMap( tempFileProperties );
+                    Map<String,String> tempFileParams = MapUtils.propertiesToMap( tempFileProperties );
                     boolean overwrite = true;
                     fileParams = MapUtils.mergeMaps(
                             convertLongKeysToShortKeys( tempFileParams ),
@@ -496,7 +496,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
         if ( cmd.hasOption( PROPERTY_ARG ) )
         {
-            for ( Entry<Object, Object> cmdProperty : cmd.getOptionProperties( PROPERTY_ARG ).entrySet() )
+            for ( Entry<Object,Object> cmdProperty : cmd.getOptionProperties( PROPERTY_ARG ).entrySet() )
             {
                 cmdParams.put( (String) cmdProperty.getKey(), (String) cmdProperty.getValue() );
             }
@@ -509,7 +509,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 overwrite );
     }
 
-    public static Map<String, String> convertLongKeysToShortKeys( Map<String, String> paramsMap )
+    public static Map<String,String> convertLongKeysToShortKeys( Map<String,String> paramsMap )
     {
         paramsMap = replaceKey( paramsMap, OPERATION_COUNT_ARG_LONG, OPERATION_COUNT_ARG );
         paramsMap = replaceKey( paramsMap, NAME_ARG_LONG, NAME_ARG );
@@ -533,7 +533,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
     // NOTE: not safe in general case, no check for duplicate keys, i.e., if newKey already exists its value will be
     // overwritten
-    private static Map<String, String> replaceKey( Map<String, String> paramsMap, String oldKey, String newKey )
+    private static Map<String,String> replaceKey( Map<String,String> paramsMap, String oldKey, String newKey )
     {
         if ( false == paramsMap.containsKey( oldKey ) )
         {
@@ -639,7 +639,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         options.addOption( skipCountOption );
 
         Option consumeUpdatesOption =
-                OptionBuilder.hasArgs(1).withDescription( CONSUME_UPDATES_DESCRIPTION )
+                OptionBuilder.hasArgs( 1 ).withDescription( CONSUME_UPDATES_DESCRIPTION )
                              .withLongOpt( CONSUME_UPDATES_ARG_LONG ).create( CONSUME_UPDATES_ARG );
         options.addOption( consumeUpdatesOption );
 
@@ -740,13 +740,13 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         PrintWriter writer = new PrintWriter( os );
         HelpFormatter helpFormatter = new HelpFormatter();
         helpFormatter.printHelp( writer, printedRowWidth, commandLineSyntax, header, options, spacesBeforeOption,
-                spacesBeforeOptionDescription, footer, displayUsage );
+                                 spacesBeforeOptionDescription, footer, displayUsage );
         writer.flush();
         writer.close();
         return os.toString();
     }
 
-    private final Map<String, String> paramsMap;
+    private final Map<String,String> paramsMap;
     private final String name;
     private final String dbClassName;
     private final String workloadClassName;
@@ -768,7 +768,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private final boolean consumeUpdates;
 
     public ConsoleAndFileDriverConfiguration(
-            Map<String, String> paramsMap,
+            Map<String,String> paramsMap,
             String name,
             String dbClassName,
             String workloadClassName,
@@ -981,7 +981,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     }
 
     @Override
-    public Map<String, String> asMap()
+    public Map<String,String> asMap()
     {
         return paramsMap;
     }
@@ -1015,7 +1015,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
      */
     public DriverConfiguration applyArg( String argument, String newValue ) throws DriverConfigurationException
     {
-        Map<String, String> newParamsMap = new HashMap<>();
+        Map<String,String> newParamsMap = new HashMap<>();
         newParamsMap.put( argument, newValue );
         return applyArgs( newParamsMap );
     }
@@ -1032,76 +1032,76 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
      * @throws DriverConfigurationException
      */
     @Override
-    public DriverConfiguration applyArgs( Map<String, String> newParamsMap ) throws DriverConfigurationException
+    public DriverConfiguration applyArgs( Map<String,String> newParamsMap ) throws DriverConfigurationException
     {
-        Map<String, String> newParamsMapWithShortKeys = convertLongKeysToShortKeys( newParamsMap );
-        Map<String, String> newOtherParams = MapUtils.mergeMaps( this.paramsMap, newParamsMapWithShortKeys, true );
+        Map<String,String> newParamsMapWithShortKeys = convertLongKeysToShortKeys( newParamsMap );
+        Map<String,String> newOtherParams = MapUtils.mergeMaps( this.paramsMap, newParamsMapWithShortKeys, true );
 
         String newName = (newParamsMapWithShortKeys.containsKey( NAME_ARG )) ?
-                newParamsMapWithShortKeys.get( NAME_ARG ) :
-                name;
+                         newParamsMapWithShortKeys.get( NAME_ARG ) :
+                         name;
         String newDbClassName = (newParamsMapWithShortKeys.containsKey( DB_ARG )) ?
-                newParamsMapWithShortKeys.get( DB_ARG ) :
-                dbClassName;
+                                newParamsMapWithShortKeys.get( DB_ARG ) :
+                                dbClassName;
         String newWorkloadClassName = (newParamsMapWithShortKeys.containsKey( WORKLOAD_ARG )) ?
-                newParamsMapWithShortKeys.get( WORKLOAD_ARG ) :
-                workloadClassName;
+                                      newParamsMapWithShortKeys.get( WORKLOAD_ARG ) :
+                                      workloadClassName;
         long newOperationCount = (newParamsMapWithShortKeys.containsKey( OPERATION_COUNT_ARG )) ?
-                Long.parseLong( newParamsMapWithShortKeys.get( OPERATION_COUNT_ARG ) ) :
-                operationCount;
+                                 Long.parseLong( newParamsMapWithShortKeys.get( OPERATION_COUNT_ARG ) ) :
+                                 operationCount;
         int newThreadCount = (newParamsMapWithShortKeys.containsKey( THREADS_ARG )) ?
-                Integer.parseInt( newParamsMapWithShortKeys.get( THREADS_ARG ) ) :
-                threadCount;
+                             Integer.parseInt( newParamsMapWithShortKeys.get( THREADS_ARG ) ) :
+                             threadCount;
         int newStatusDisplayIntervalAsSeconds = (newParamsMapWithShortKeys.containsKey( SHOW_STATUS_ARG )) ?
-                Integer.parseInt( newParamsMapWithShortKeys.get( SHOW_STATUS_ARG ) ) :
-                statusDisplayIntervalAsSeconds;
+                                                Integer.parseInt( newParamsMapWithShortKeys.get( SHOW_STATUS_ARG ) ) :
+                                                statusDisplayIntervalAsSeconds;
         TimeUnit newTimeUnit = (newParamsMapWithShortKeys.containsKey( TIME_UNIT_ARG )) ?
-                TimeUnit.valueOf( newParamsMapWithShortKeys.get( TIME_UNIT_ARG ) ) :
-                timeUnit;
+                               TimeUnit.valueOf( newParamsMapWithShortKeys.get( TIME_UNIT_ARG ) ) :
+                               timeUnit;
         String newResultDirPath = (newParamsMapWithShortKeys.containsKey( RESULT_DIR_PATH_ARG )) ?
-                newParamsMapWithShortKeys.get( RESULT_DIR_PATH_ARG ) :
-                resultDirPath;
+                                  newParamsMapWithShortKeys.get( RESULT_DIR_PATH_ARG ) :
+                                  resultDirPath;
         double newTimeCompressionRatio = (newParamsMapWithShortKeys.containsKey( TIME_COMPRESSION_RATIO_ARG )) ?
-                Double.parseDouble(
-                        newParamsMapWithShortKeys.get( TIME_COMPRESSION_RATIO_ARG ) ) :
-                timeCompressionRatio;
+                                         Double.parseDouble(
+                                                 newParamsMapWithShortKeys.get( TIME_COMPRESSION_RATIO_ARG ) ) :
+                                         timeCompressionRatio;
         Set<String> newPeerIds = (newParamsMapWithShortKeys.containsKey( PEER_IDS_ARG )) ?
-                parsePeerIdsFromCommandline( newParamsMapWithShortKeys.get( PEER_IDS_ARG ) ) :
-                peerIds;
+                                 parsePeerIdsFromCommandline( newParamsMapWithShortKeys.get( PEER_IDS_ARG ) ) :
+                                 peerIds;
         ConsoleAndFileValidationParamOptions newValidationParams =
                 (newParamsMapWithShortKeys.containsKey( CREATE_VALIDATION_PARAMS_ARG ))
-                        ? (null == newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG )) ? null
-                        :
-                        ConsoleAndFileValidationParamOptions
-                                .fromCommandlineString( newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG ) )
-                        : validationCreationParams;
+                ? (null == newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG )) ? null
+                                                                                          :
+                  ConsoleAndFileValidationParamOptions
+                          .fromCommandlineString( newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG ) )
+                : validationCreationParams;
         String newDatabaseValidationFilePath = (newParamsMapWithShortKeys.containsKey( DB_VALIDATION_FILE_PATH_ARG )) ?
-                newParamsMapWithShortKeys.get( DB_VALIDATION_FILE_PATH_ARG ) :
-                databaseValidationFilePath;
+                                               newParamsMapWithShortKeys.get( DB_VALIDATION_FILE_PATH_ARG ) :
+                                               databaseValidationFilePath;
         boolean newCalculateWorkloadStatistics =
                 (newParamsMapWithShortKeys.containsKey( CALCULATE_WORKLOAD_STATISTICS_ARG )) ?
-                        Boolean.parseBoolean( newParamsMapWithShortKeys.get( CALCULATE_WORKLOAD_STATISTICS_ARG ) ) :
-                        calculateWorkloadStatistics;
+                Boolean.parseBoolean( newParamsMapWithShortKeys.get( CALCULATE_WORKLOAD_STATISTICS_ARG ) ) :
+                calculateWorkloadStatistics;
         long newSpinnerSleepDurationAsMilli = (newParamsMapWithShortKeys.containsKey( SPINNER_SLEEP_DURATION_ARG )) ?
-                Long.parseLong(
-                        (newParamsMapWithShortKeys.get( SPINNER_SLEEP_DURATION_ARG )) ) :
-                spinnerSleepDurationAsMilli;
+                                              Long.parseLong(
+                                                      (newParamsMapWithShortKeys.get( SPINNER_SLEEP_DURATION_ARG )) ) :
+                                              spinnerSleepDurationAsMilli;
         boolean newPrintHelp = (newParamsMapWithShortKeys.containsKey( HELP_ARG )) ?
-                Boolean.parseBoolean( newParamsMapWithShortKeys.get( HELP_ARG ) ) :
-                printHelp;
+                               Boolean.parseBoolean( newParamsMapWithShortKeys.get( HELP_ARG ) ) :
+                               printHelp;
         boolean newIgnoreScheduledStartTimes =
                 (newParamsMapWithShortKeys.containsKey( IGNORE_SCHEDULED_START_TIMES_ARG )) ?
-                        Boolean.parseBoolean( newParamsMapWithShortKeys.get( IGNORE_SCHEDULED_START_TIMES_ARG ) ) :
-                        ignoreScheduledStartTimes;
+                Boolean.parseBoolean( newParamsMapWithShortKeys.get( IGNORE_SCHEDULED_START_TIMES_ARG ) ) :
+                ignoreScheduledStartTimes;
         long newWarmupCount = (newParamsMapWithShortKeys.containsKey( WARMUP_COUNT_ARG )) ?
-                Long.parseLong( newParamsMapWithShortKeys.get( WARMUP_COUNT_ARG ) ) :
-                warmupCount;
+                              Long.parseLong( newParamsMapWithShortKeys.get( WARMUP_COUNT_ARG ) ) :
+                              warmupCount;
         long newSkipCount = (newParamsMapWithShortKeys.containsKey( SKIP_COUNT_ARG )) ?
-                Long.parseLong( newParamsMapWithShortKeys.get( SKIP_COUNT_ARG ) ) :
-                skipCount;
+                            Long.parseLong( newParamsMapWithShortKeys.get( SKIP_COUNT_ARG ) ) :
+                            skipCount;
         boolean newConsumeUpdates = (newParamsMapWithShortKeys.containsKey( CONSUME_UPDATES_ARG )) ?
-                Boolean.parseBoolean( newParamsMapWithShortKeys.get( CONSUME_UPDATES_ARG ) ) :
-                consumeUpdates();
+                                    Boolean.parseBoolean( newParamsMapWithShortKeys.get( CONSUME_UPDATES_ARG ) ) :
+                                    consumeUpdates();
 
         return new ConsoleAndFileDriverConfiguration(
                 newOtherParams,
@@ -1167,7 +1167,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         if ( null != validationCreationParams )
         {
             argsList.addAll( Lists.newArrayList( "-" + CREATE_VALIDATION_PARAMS_ARG,
-                    validationCreationParams.toCommandlineString() ) );
+                                                 validationCreationParams.toCommandlineString() ) );
         }
         if ( calculateWorkloadStatistics )
         {
@@ -1184,9 +1184,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             argsList.add( "-" + IGNORE_SCHEDULED_START_TIMES_ARG );
         }
         // additional, workload/database-related params
-        Map<String, String> additionalParameters =
+        Map<String,String> additionalParameters =
                 MapUtils.copyExcludingKeys( paramsMap, coreConfigurationParameterKeys() );
-        for ( Entry<String, String> additionalParam : MapUtils.sortedEntrySet( additionalParameters ) )
+        for ( Entry<String,String> additionalParam : MapUtils.sortedEntrySet( additionalParameters ) )
         {
             argsList.addAll( Lists.newArrayList( "-p", additionalParam.getKey(), additionalParam.getValue() ) );
         }
@@ -1387,7 +1387,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             sb.append( DB_ARG_LONG ).append( "=" ).append( dbClassName ).append( "\n" );
         }
         // Write additional, workload/database-related keys as well
-        Map<String, String> additionalConfigurationParameters =
+        Map<String,String> additionalConfigurationParameters =
                 MapUtils.copyExcludingKeys( paramsMap, coreConfigurationParameterKeys() );
         if ( !additionalConfigurationParameters.isEmpty() )
         {
@@ -1396,7 +1396,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             sb.append( "# *** non-core configuration parameters ***\n" );
             sb.append( "# ************************************************************************************\n" );
             sb.append( "\n" );
-            for ( Entry<String, String> configurationParameter : MapUtils
+            for ( Entry<String,String> configurationParameter : MapUtils
                     .sortedEntrySet( additionalConfigurationParameters ) )
             {
                 sb.append( configurationParameter.getKey() ).append( "=" ).append( configurationParameter.getValue() )
@@ -1438,10 +1438,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Peer IDs:" ) )
           .append( peerIds.toString() ).append( "\n" );
         String validationCreationParamsString = (null == validationCreationParams) ?
-                null :
-                format( "File (%s) Validation Set Size (%s)",
-                        validationCreationParams.filePath(),
-                        validationCreationParams.validationSetSize );
+                                                null :
+                                                format( "File (%s) Validation Set Size (%s)",
+                                                        validationCreationParams.filePath(),
+                                                        validationCreationParams.validationSetSize );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Validation Creation Params:" ) )
           .append( validationCreationParamsString ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Database Validation File:" ) )
@@ -1460,7 +1460,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
         Set<String> excludedKeys = coreConfigurationParameterKeys();
 
-        Map<String, String> filteredParamsMap =
+        Map<String,String> filteredParamsMap =
                 MapUtils.copyExcludingKeys( convertLongKeysToShortKeys( paramsMap ), excludedKeys );
         if ( !filteredParamsMap.isEmpty() )
         {
@@ -1522,7 +1522,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             return false;
         }
         if ( databaseValidationFilePath != null ? !databaseValidationFilePath.equals( that.databaseValidationFilePath )
-                : that.databaseValidationFilePath != null )
+                                                : that.databaseValidationFilePath != null )
         {
             return false;
         }
@@ -1555,12 +1555,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             return false;
         }
         if ( validationCreationParams != null ? !validationCreationParams.equals( that.validationCreationParams )
-                : that.validationCreationParams != null )
+                                              : that.validationCreationParams != null )
         {
             return false;
         }
         if ( workloadClassName != null ? !workloadClassName.equals( that.workloadClassName )
-                : that.workloadClassName != null )
+                                       : that.workloadClassName != null )
         {
             return false;
         }

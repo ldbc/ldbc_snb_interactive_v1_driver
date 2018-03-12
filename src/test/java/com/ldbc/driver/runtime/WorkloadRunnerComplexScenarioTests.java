@@ -1765,6 +1765,7 @@ public class WorkloadRunnerComplexScenarioTests
         long spinnerSleepDurationAsMilli = SPINNER_SLEEP_DURATION_AS_MILLI;
         int operationHandlerExecutorsBoundedQueueSize = 100;
         boolean detailedStatus = false;
+        boolean consumeUpdates = true;
         LoggingServiceFactory loggingServiceFactory = new Log4jLoggingServiceFactory( detailedStatus );
         WorkloadRunner runner = new WorkloadRunner(
                 timeSource,
@@ -1779,7 +1780,7 @@ public class WorkloadRunnerComplexScenarioTests
                 spinnerSleepDurationAsMilli,
                 ignoreScheduledStartTime,
                 operationHandlerExecutorsBoundedQueueSize,
-                true
+                consumeUpdates
         );
         return new WorkloadRunnerThread( runner, errorReporter );
     }

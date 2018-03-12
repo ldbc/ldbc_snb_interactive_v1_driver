@@ -111,6 +111,7 @@ public class ConsoleAndFileDriverConfigurationTest
         long warmupCount = 5;
         long skipCount = 6;
         Map<String,String> paramsMap = new HashMap<>();
+        boolean consumeUpdates = true;
 
         ConsoleAndFileDriverConfiguration configurationBefore = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -132,7 +133,7 @@ public class ConsoleAndFileDriverConfigurationTest
                 ignoreScheduledStartTimes,
                 warmupCount,
                 skipCount,
-                true );
+                consumeUpdates );
 
         DriverConfiguration configurationAfter =
                 ConsoleAndFileDriverConfiguration.fromParamsMap( configurationBefore.asMap() );
@@ -335,7 +336,7 @@ public class ConsoleAndFileDriverConfigurationTest
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING );
         paramsFromPublicStaticDefaultValuesAsMap.put( ConsoleAndFileDriverConfiguration.PEER_IDS_ARG,
-                ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT_STRING );
+                                                      ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT_STRING );
         if ( null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT )
         {
             paramsFromPublicStaticDefaultValuesAsMap.put(
@@ -383,7 +384,7 @@ public class ConsoleAndFileDriverConfigurationTest
 
         assertThat( configurationFromPublicStaticDefaultValuesAsMap, equalTo( configurationFromDefault ) );
         assertThat( configurationFromPublicStaticDefaultValuesAsMap,
-                equalTo( configurationFromDefaultOptionalParamsMap ) );
+                    equalTo( configurationFromDefaultOptionalParamsMap ) );
         assertThat( configurationFromDefault, equalTo( configurationFromDefaultOptionalParamsMap ) );
     }
 
@@ -400,39 +401,39 @@ public class ConsoleAndFileDriverConfigurationTest
         // Optional
         Map<String,String> optionalParamsMap = new HashMap<>();
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.THREADS_ARG,
-                ConsoleAndFileDriverConfiguration.THREADS_DEFAULT_STRING );
+                               ConsoleAndFileDriverConfiguration.THREADS_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.SHOW_STATUS_ARG,
-                ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT_STRING );
+                               ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.TIME_UNIT_ARG,
-                ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT_STRING );
+                               ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.NAME_ARG,
-                ConsoleAndFileDriverConfiguration.NAME_DEFAULT_STRING );
+                               ConsoleAndFileDriverConfiguration.NAME_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG,
-                ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT_STRING );
+                               ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING );
+                               ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.PEER_IDS_ARG,
-                ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline( peerIds ) );
+                               ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline( peerIds ) );
         if ( null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT )
         {
             optionalParamsMap.put( ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
-                    ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT.toCommandlineString() );
+                                   ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT.toCommandlineString() );
         }
         if ( null != ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING )
         {
             optionalParamsMap.put( ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG,
-                    ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING );
+                                   ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING );
         }
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG,
-                ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING );
+                               ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.HELP_ARG,
-                ConsoleAndFileDriverConfiguration.HELP_DEFAULT_STRING );
+                               ConsoleAndFileDriverConfiguration.HELP_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING );
+                               ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG,
-                ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING );
+                               ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG,
-                ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT_STRING );
+                               ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT_STRING );
         // Extra
         optionalParamsMap.put( "extra_key", "extra_value" );
 
@@ -447,39 +448,39 @@ public class ConsoleAndFileDriverConfigurationTest
         // Optional
         List<String> optionalParamsArgsList = new ArrayList<>();
         optionalParamsArgsList.addAll( Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.THREADS_ARG,
-                ConsoleAndFileDriverConfiguration.THREADS_DEFAULT_STRING ) );
+                                                           ConsoleAndFileDriverConfiguration.THREADS_DEFAULT_STRING ) );
         optionalParamsArgsList.addAll( Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.SHOW_STATUS_ARG,
-                ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT_STRING ) );
+                                                           ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT_STRING ) );
         optionalParamsArgsList.addAll( Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.TIME_UNIT_ARG,
-                ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT_STRING ) );
+                                                           ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT_STRING ) );
         if ( null != ConsoleAndFileDriverConfiguration.NAME_ARG )
         {
             optionalParamsArgsList.addAll( Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.NAME_ARG,
-                    ConsoleAndFileDriverConfiguration.NAME_DEFAULT_STRING ) );
+                                                               ConsoleAndFileDriverConfiguration.NAME_DEFAULT_STRING ) );
         }
         if ( null != ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT )
         {
             optionalParamsArgsList.addAll(
                     Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG,
-                            ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT_STRING ) );
+                                        ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT_STRING ) );
         }
         optionalParamsArgsList.addAll(
                 Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                        ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING ) );
+                                    ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING ) );
         optionalParamsArgsList.addAll( Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.PEER_IDS_ARG,
-                ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline( peerIds ) ) );
+                                                           ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline( peerIds ) ) );
         if ( null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT )
         {
             optionalParamsArgsList.addAll(
                     Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
-                            ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT
-                                    .toCommandlineString() ) );
+                                        ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT
+                                                .toCommandlineString() ) );
         }
         if ( null != ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING )
         {
             optionalParamsArgsList.addAll(
                     Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG,
-                            ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING ) );
+                                        ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING ) );
         }
         if ( ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT )
         {
@@ -487,7 +488,9 @@ public class ConsoleAndFileDriverConfigurationTest
                     Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG ) );
         }
         if ( ConsoleAndFileDriverConfiguration.HELP_DEFAULT )
-        { optionalParamsArgsList.addAll( Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.HELP_ARG ) ); }
+        {
+            optionalParamsArgsList.addAll( Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.HELP_ARG ) );
+        }
         if ( ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT )
         {
             optionalParamsArgsList.addAll(
@@ -495,9 +498,9 @@ public class ConsoleAndFileDriverConfigurationTest
         }
         optionalParamsArgsList.addAll(
                 Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG,
-                        ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING ) );
+                                    ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING ) );
         optionalParamsArgsList.addAll( Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG,
-                ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT_STRING ) );
+                                                           ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT_STRING ) );
         // Extra
         optionalParamsArgsList.addAll( Lists.newArrayList( "-p", "extra_key", "extra_value" ) );
 
@@ -538,28 +541,28 @@ public class ConsoleAndFileDriverConfigurationTest
         assertThat( configurationFromParams.operationCount(), is( 1l ) );
         assertThat( configurationFromParams.threadCount(), is( ConsoleAndFileDriverConfiguration.THREADS_DEFAULT ) );
         assertThat( configurationFromParams.statusDisplayIntervalAsSeconds(),
-                is( ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT ) );
+                    is( ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT ) );
         assertThat( configurationFromParams.timeUnit(), is( ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT ) );
         assertThat( new File( configurationFromParams.resultDirPath() ).getName(),
-                is( ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT ) );
+                    is( ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT ) );
         assertThat( configurationFromParams.timeCompressionRatio(),
-                is( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT ) );
+                    is( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT ) );
         assertThat( configurationFromParams.peerIds(), is( ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT ) );
         assertThat( configurationFromParams.validationParamsCreationOptions(),
-                is( (DriverConfiguration.ValidationParamOptions) ConsoleAndFileDriverConfiguration
-                        .CREATE_VALIDATION_PARAMS_DEFAULT ) );
+                    is( (DriverConfiguration.ValidationParamOptions) ConsoleAndFileDriverConfiguration
+                            .CREATE_VALIDATION_PARAMS_DEFAULT ) );
         assertThat( configurationFromParams.databaseValidationFilePath(),
-                is( ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT ) );
+                    is( ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT ) );
         assertThat( configurationFromParams.calculateWorkloadStatistics(),
-                is( ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT ) );
+                    is( ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT ) );
         assertThat( configurationFromParams.shouldPrintHelpString(),
-                is( ConsoleAndFileDriverConfiguration.HELP_DEFAULT ) );
+                    is( ConsoleAndFileDriverConfiguration.HELP_DEFAULT ) );
         assertThat( configurationFromParams.ignoreScheduledStartTimes(),
-                is( ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT ) );
+                    is( ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT ) );
         assertThat( configurationFromParams.spinnerSleepDurationAsMilli(),
-                is( ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT ) );
+                    is( ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT ) );
         assertThat( configurationFromParams.warmupCount(),
-                is( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT ) );
+                    is( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT ) );
     }
 
     @Test
@@ -585,6 +588,7 @@ public class ConsoleAndFileDriverConfigurationTest
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 10;
         long skipCount = 100;
+        boolean consumeUpdates = true;
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -606,7 +610,7 @@ public class ConsoleAndFileDriverConfigurationTest
                 ignoreScheduledStartTimes,
                 warmupCount,
                 skipCount,
-                true );
+                consumeUpdates );
 
         assertThat( params.asMap(), equalTo( paramsMap ) );
         assertThat( params.name(), equalTo( name ) );
@@ -620,7 +624,7 @@ public class ConsoleAndFileDriverConfigurationTest
         assertThat( params.timeCompressionRatio(), equalTo( timeCompressionRatio ) );
         assertThat( params.peerIds(), equalTo( peerIds ) );
         assertThat( params.validationParamsCreationOptions(),
-                equalTo( (DriverConfiguration.ValidationParamOptions) validationParams ) );
+                    equalTo( (DriverConfiguration.ValidationParamOptions) validationParams ) );
         assertThat( params.databaseValidationFilePath(), equalTo( dbValidationFilePath ) );
         assertThat( params.calculateWorkloadStatistics(), equalTo( calculateWorkloadStatistics ) );
         assertThat( params.shouldPrintHelpString(), equalTo( printHelp ) );
@@ -684,11 +688,11 @@ public class ConsoleAndFileDriverConfigurationTest
 
         // Then
         assertThat( ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIdsString0 ),
-                equalTo( peerIds0 ) );
+                    equalTo( peerIds0 ) );
         assertThat( ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIdsString1 ),
-                equalTo( peerIds1 ) );
+                    equalTo( peerIds1 ) );
         assertThat( ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline( peerIdsString2 ),
-                equalTo( peerIds2 ) );
+                    equalTo( peerIds2 ) );
     }
 
     @Test

@@ -7,7 +7,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.String.format;
 
-public class ConsumerOperationStreamExecutorService {
+public class ConsumerOperationStreamExecutorService
+{
     public static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.SECONDS.toMillis( 10 );
 
     private final ConsumerOperationStreamExecutorServiceThread operationStreamExecutorServiceThread;
@@ -18,25 +19,31 @@ public class ConsumerOperationStreamExecutorService {
     private final AtomicBoolean forceThreadToTerminate = new AtomicBoolean( false );
 
     public ConsumerOperationStreamExecutorService(
-        ConcurrentErrorReporter errorReporter,
-        OperationExecutor operationExecutor) throws OperationExecutorException {
+            ConcurrentErrorReporter errorReporter,
+            OperationExecutor operationExecutor ) throws OperationExecutorException
+    {
         this.errorReporter = errorReporter;
-        try {
+        try
+        {
             this.operationStreamExecutorServiceThread = new ConsumerOperationStreamExecutorServiceThread(
-                operationExecutor,
-                errorReporter,
-                hasFinished,
-                forceThreadToTerminate );
-        } catch (OperationExecutorException e) {
+                    operationExecutor,
+                    errorReporter,
+                    hasFinished,
+                    forceThreadToTerminate );
+        }
+        catch ( OperationExecutorException e )
+        {
             String errMsg = format( "Unexpected error encountered while creating ConsumerOperationStreamExecutorServiceThread\n%s",
-                    ConcurrentErrorReporter.stackTraceToString( e ) );
+                                    ConcurrentErrorReporter.stackTraceToString( e ) );
             errorReporter.reportError( this, errMsg );
             throw e;
         }
     }
 
-    synchronized public AtomicBoolean execute() {
-        if (executing.get()) {
+    synchronized public AtomicBoolean execute()
+    {
+        if ( executing.get() )
+        {
             return hasFinished;
         }
         executing.set( true );
@@ -44,23 +51,30 @@ public class ConsumerOperationStreamExecutorService {
         return hasFinished;
     }
 
-    synchronized public void shutdown( long shutdownWait ) throws OperationExecutorException {
-        if (shutdown.get()) {
+    synchronized public void shutdown( long shutdownWait ) throws OperationExecutorException
+    {
+        if ( shutdown.get() )
+        {
             throw new OperationExecutorException( "Executor has already been shutdown" );
         }
-        if (null != operationStreamExecutorServiceThread) {
+        if ( null != operationStreamExecutorServiceThread )
+        {
             doShutdown( shutdownWait );
         }
         shutdown.set( true );
     }
 
-    private void doShutdown( long shutdownWait ) {
-        try {
+    private void doShutdown( long shutdownWait )
+    {
+        try
+        {
             forceThreadToTerminate.set( true );
             operationStreamExecutorServiceThread.join( shutdownWait );
-        } catch (Exception e) {
+        }
+        catch ( Exception e )
+        {
             String errMsg = format( "Unexpected error encountered while shutting down thread\n%s",
-                ConcurrentErrorReporter.stackTraceToString( e ) );
+                                    ConcurrentErrorReporter.stackTraceToString( e ) );
             errorReporter.reportError( this, errMsg );
         }
     }

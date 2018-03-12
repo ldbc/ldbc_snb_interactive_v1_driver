@@ -115,7 +115,8 @@ public class MetricsManager
         }
     }
 
-    MetricsManager( TimeSource timeSource,
+    MetricsManager(
+            TimeSource timeSource,
             TimeUnit unit,
             long highestExpectedRuntimeDurationAsNano,
             Map<Integer,Class<? extends Operation>> operationTypeToClassMapping,
@@ -159,7 +160,7 @@ public class MetricsManager
         for ( OperationTypeMetricsManager operationTypeMetricsManager : operationTypeMetricsManagers )
         {
             //WARN only report non-update operations
-            if ( null != operationTypeMetricsManager && !operationTypeMetricsManager.name().contains("Update") && operationTypeMetricsManager.count() > 0 )
+            if ( null != operationTypeMetricsManager && !operationTypeMetricsManager.name().contains( "Update" ) && operationTypeMetricsManager.count() > 0 )
             {
                 count += operationTypeMetricsManager.count();
             }
@@ -173,7 +174,7 @@ public class MetricsManager
         for ( OperationTypeMetricsManager operationTypeMetricsManager : operationTypeMetricsManagers )
         {
             // WARN: only report the non-update operations
-            if ( null != operationTypeMetricsManager && operationTypeMetricsManager.name().contains("Update") && operationTypeMetricsManager.count() > 0 )
+            if ( null != operationTypeMetricsManager && operationTypeMetricsManager.name().contains( "Update" ) && operationTypeMetricsManager.count() > 0 )
             {
                 count += operationTypeMetricsManager.count();
             }
@@ -215,9 +216,9 @@ public class MetricsManager
                     runDurationAsMilli,
                     operationCount,
                     durationSinceLastMeasurementAsMilli,
-                    operationsPerSecond ,
+                    operationsPerSecond,
                     updateCount,
-                    updatesPerSecond);
+                    updatesPerSecond );
         }
         else
         {
@@ -228,7 +229,7 @@ public class MetricsManager
                     (-1 == latestFinishTimeAsMilli) ? -1 : nowAsMilli - latestFinishTimeAsMilli;
             double operationsPerSecond =
                     ((double) operationCount / TimeUnit.MILLISECONDS.toNanos( runDurationAsMilli )) *
-                    TimeUnit.SECONDS.toNanos( 1 );
+                            TimeUnit.SECONDS.toNanos( 1 );
             double updatesPerSecond =
                     ((double) updateCount / TimeUnit.MILLISECONDS.toNanos( runDurationAsMilli )) *
                             TimeUnit.SECONDS.toNanos( 1 );
@@ -236,9 +237,9 @@ public class MetricsManager
                     runDurationAsMilli,
                     operationCount,
                     durationSinceLastMeasurementAsMilli,
-                    operationsPerSecond ,
+                    operationsPerSecond,
                     updateCount,
-                    updatesPerSecond);
+                    updatesPerSecond );
         }
     }
 }

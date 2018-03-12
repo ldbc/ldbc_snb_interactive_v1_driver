@@ -65,7 +65,7 @@ public class Log4jLoggingService implements LoggingService
                                status.getUpdateThroughput(),
                                recentThroughputAndDuration.throughput(),
                                recentThroughputAndDuration.duration(),
-                               recentThroughputAndDuration.updateThroughput());
+                               recentThroughputAndDuration.updateThroughput() );
         logger.info( statusString );
     }
 
@@ -81,36 +81,39 @@ public class Log4jLoggingService implements LoggingService
         logger.info( "\n" + detailedWorkloadMetricsFormatter.format( workloadResultsSnapshot ) );
     }
 
-    private String formatWithoutGct( long operationCount, long updateCount, long runDurationAsMilli,
+    private String formatWithoutGct(
+            long operationCount, long updateCount, long runDurationAsMilli,
             long durationSinceLastMeasurementAsMilli, double throughput, double updateThroughput, double recentThroughput,
             long recentDurationAsMilli, double recentUpdateThroughput )
     {
         return format( operationCount, updateCount, runDurationAsMilli, durationSinceLastMeasurementAsMilli, throughput, updateThroughput,
-                recentThroughput, recentDurationAsMilli, recentUpdateThroughput,null ).toString();
+                       recentThroughput, recentDurationAsMilli, recentUpdateThroughput, null ).toString();
     }
 
-    private String formatWithGct( long operationCount, long updateCount, long runDurationAsMilli,
-                                  long durationSinceLastMeasurementAsMilli, double throughput, double updateThroughput, double recentThroughput,
-                                  long recentDurationAsMilli, double recentUpdateThroughput, long gctAsMilli )
+    private String formatWithGct(
+            long operationCount, long updateCount, long runDurationAsMilli,
+            long durationSinceLastMeasurementAsMilli, double throughput, double updateThroughput, double recentThroughput,
+            long recentDurationAsMilli, double recentUpdateThroughput, long gctAsMilli )
     {
         return format( operationCount, updateCount, runDurationAsMilli, durationSinceLastMeasurementAsMilli, throughput, updateThroughput,
-                recentThroughput, recentDurationAsMilli, recentUpdateThroughput, gctAsMilli ).toString();
+                       recentThroughput, recentDurationAsMilli, recentUpdateThroughput, gctAsMilli ).toString();
     }
 
-    private StringBuffer format( long operationCount, long updateCount, long runDurationAsMilli, long durationSinceLastMeasurementAsMilli,
+    private StringBuffer format(
+            long operationCount, long updateCount, long runDurationAsMilli, long durationSinceLastMeasurementAsMilli,
             double throughput, double updateThroughput, double recentThroughput, long recentDurationAsMilli, double recentUpdateThroughput, Long gctAsMilli )
     {
         StringBuffer sb = new StringBuffer();
         sb.append( "Runtime [" )
-                .append( (-1 == runDurationAsMilli) ? "--" : temporalUtil.milliDurationToString( runDurationAsMilli ) )
-                .append( "], " );
-        sb.append( "Operations [" ).append( OPERATION_COUNT_FORMATTER.format( operationCount ) ).append(" / ").append(OPERATION_COUNT_FORMATTER.format(updateCount)).append( "], " );
+          .append( (-1 == runDurationAsMilli) ? "--" : temporalUtil.milliDurationToString( runDurationAsMilli ) )
+          .append( "], " );
+        sb.append( "Operations [" ).append( OPERATION_COUNT_FORMATTER.format( operationCount ) ).append( " / " ).append( OPERATION_COUNT_FORMATTER.format( updateCount ) ).append( "], " );
         sb.append( "Last [" ).append( (-1 == durationSinceLastMeasurementAsMilli) ? "--" : temporalUtil
                 .milliDurationToString( durationSinceLastMeasurementAsMilli ) ).append( "], " );
         sb.append( "Throughput" );
-        sb.append( " (Total) [" ).append( THROUGHPUT_FORMATTER.format( throughput ) ).append(" / ").append(THROUGHPUT_FORMATTER.format(updateThroughput)).append( "]" );
+        sb.append( " (Total) [" ).append( THROUGHPUT_FORMATTER.format( throughput ) ).append( " / " ).append( THROUGHPUT_FORMATTER.format( updateThroughput ) ).append( "]" );
         sb.append( " (Last " ).append( TimeUnit.MILLISECONDS.toSeconds( recentDurationAsMilli ) ).append( "s) [" )
-                .append( THROUGHPUT_FORMATTER.format( recentThroughput ) ).append(" / ").append(THROUGHPUT_FORMATTER.format(recentUpdateThroughput)).append( "]" );
+          .append( THROUGHPUT_FORMATTER.format( recentThroughput ) ).append( " / " ).append( THROUGHPUT_FORMATTER.format( recentUpdateThroughput ) ).append( "]" );
         if ( null != gctAsMilli )
         {
             sb.append(

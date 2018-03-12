@@ -96,6 +96,7 @@ public class QueuePerformanceTests
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 0;
         long skipCount = 0;
+        boolean consumeUpdates = true;
 
         DriverConfiguration config = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -117,7 +118,7 @@ public class QueuePerformanceTests
                 ignoreScheduledStartTimes,
                 warmupCount,
                 skipCount,
-                true );
+                consumeUpdates );
 
         GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
         boolean returnStreamsWithDbConnector = false;
