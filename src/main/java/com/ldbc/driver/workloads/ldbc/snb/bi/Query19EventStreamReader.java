@@ -40,10 +40,6 @@ public class Query19EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            TagClass0|TagClass1
-            names|places
-            */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
@@ -60,16 +56,6 @@ public class Query19EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                String tagClass0;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    tagClass0 = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving tag class 0" );
-                }
-
                 String tagClass1;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
@@ -77,10 +63,20 @@ public class Query19EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
+                    throw new GeneratorException( "Error retrieving tag class 0" );
+                }
+
+                String tagClass2;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    tagClass2 = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
                     throw new GeneratorException( "Error retrieving tag class 1" );
                 }
 
-                return new Object[]{date, tagClass0, tagClass1, LdbcSnbBiQuery19StrangerInteraction.DEFAULT_LIMIT};
+                return new Object[]{date, tagClass1, tagClass2, LdbcSnbBiQuery19StrangerInteraction.DEFAULT_LIMIT};
             }
         };
     }

@@ -1,15 +1,21 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbBiQuery4PopularCountryTopicsResult>>
 {
     public static final int TYPE = 4;
     public static final int DEFAULT_LIMIT = 20;
+    public static final String TAG_CLASS = "tagClass";
+    public static final String COUNTRY = "country";
+    public static final String LIMIT = "limit";
+
     private final String tagClass;
     private final String country;
     private final int limit;
@@ -34,6 +40,15 @@ public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbB
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(TAG_CLASS, tagClass)
+                .put(COUNTRY, country)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override
@@ -85,15 +100,15 @@ public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbB
             long forumId = ((Number) row.get( 0 )).longValue();
             String title = (String) row.get( 1 );
             long creationDate = ((Number) row.get( 2 )).longValue();
-            long moderator = ((Number) row.get( 3 )).longValue();
-            int count = ((Number) row.get( 4 )).intValue();
+            long personId = ((Number) row.get( 3 )).longValue();
+            int postCount = ((Number) row.get( 4 )).intValue();
             result.add(
                     new LdbcSnbBiQuery4PopularCountryTopicsResult(
                             forumId,
                             title,
                             creationDate,
-                            moderator,
-                            count
+                            personId,
+                            postCount
                     )
             );
         }
@@ -113,8 +128,8 @@ public class LdbcSnbBiQuery4PopularCountryTopics extends Operation<List<LdbcSnbB
             resultFields.add( row.forumId() );
             resultFields.add( row.forumTitle() );
             resultFields.add( row.forumCreationDate() );
-            resultFields.add( row.moderatorId() );
-            resultFields.add( row.count() );
+            resultFields.add( row.personId() );
+            resultFields.add( row.postCount() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

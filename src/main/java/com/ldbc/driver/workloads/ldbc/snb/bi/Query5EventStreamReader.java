@@ -28,8 +28,7 @@ public class Query5EventStreamReader extends BaseEventStreamReader
     {
         return new LdbcSnbBiQuery5TopCountryPosters(
                 (String) parameters[0],
-                (int) parameters[1],
-                (int) parameters[2]
+                (int) parameters[1]
         );
     }
 
@@ -38,10 +37,6 @@ public class Query5EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            Country
-            Sweden
-            */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
@@ -60,7 +55,6 @@ public class Query5EventStreamReader extends BaseEventStreamReader
 
                 return new Object[]{
                         country,
-                        LdbcSnbBiQuery5TopCountryPosters.DEFAULT_POPULAR_FORUM_LIMIT,
                         LdbcSnbBiQuery5TopCountryPosters.DEFAULT_LIMIT
                 };
             }

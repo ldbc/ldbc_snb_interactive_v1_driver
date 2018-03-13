@@ -7,6 +7,7 @@ import com.ldbc.driver.csv.charseeker.CharSeeker;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Readables;
 import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
+import com.ldbc.driver.workloads.OperationTest;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -76,6 +77,7 @@ public class InteractiveWriteEventStreamReaderTest
                 new LdbcUpdate1AddPerson.Organization(913L, 1971),
                 new LdbcUpdate1AddPerson.Organization(1539L, 1971)
         )));
+        OperationTest.assertCorrectParameterMap(addPerson);
 
         LdbcUpdate2AddPostLike addPostLike = (LdbcUpdate2AddPostLike) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
@@ -86,6 +88,7 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addPostLike.personId(), is(1582L));
         assertThat(addPostLike.postId(), is(120207L));
         assertThat(addPostLike.creationDate(), equalTo(creationDate));
+        OperationTest.assertCorrectParameterMap(addPostLike);
 
         LdbcUpdate3AddCommentLike addCommentLike = (LdbcUpdate3AddCommentLike) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
@@ -96,6 +99,7 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addCommentLike.personId(), is(1095L));
         assertThat(addCommentLike.commentId(), is(120426L));
         assertThat(addCommentLike.creationDate(), equalTo(creationDate));
+        OperationTest.assertCorrectParameterMap(addCommentLike);
 
         LdbcUpdate4AddForum addForum = (LdbcUpdate4AddForum) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
@@ -108,6 +112,7 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addForum.creationDate(), equalTo(creationDate));
         assertThat(addForum.moderatorPersonId(), is(989L));
         assertThat(addForum.tagIds(), equalTo((List) Lists.newArrayList(10716l)));
+        OperationTest.assertCorrectParameterMap(addForum);
 
         LdbcUpdate5AddForumMembership addForumMembership = (LdbcUpdate5AddForumMembership) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
@@ -118,6 +123,7 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addForumMembership.forumId(), is(2153L));
         assertThat(addForumMembership.personId(), is(372L));
         assertThat(addForumMembership.joinDate(), equalTo(creationDate));
+        OperationTest.assertCorrectParameterMap(addForumMembership);
 
         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
@@ -137,6 +143,7 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addPost.forumId(), is(2152L));
         assertThat(addPost.countryId(), is(9L));
         assertThat(addPost.tagIds(), equalTo((List) Lists.newArrayList(1437l)));
+        OperationTest.assertCorrectParameterMap(addPost);
 
         LdbcUpdate7AddComment addComment = (LdbcUpdate7AddComment) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
@@ -155,6 +162,7 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addComment.replyToPostId(), is(-1L));
         assertThat(addComment.replyToCommentId(), is(4034289L));
         assertThat(addComment.tagIds(), equalTo((List) Lists.newArrayList(1403l, 1990l, 2009l, 2081l, 2817l, 2855l, 2987l, 6316l, 7425l, 8224l, 8466l)));
+        OperationTest.assertCorrectParameterMap(addComment);
 
         addComment = (LdbcUpdate7AddComment) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
@@ -173,6 +181,7 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addComment.replyToPostId(), is(-1L));
         assertThat(addComment.replyToCommentId(), is(4034289L));
         assertThat(addComment.tagIds(), equalTo((List) Lists.newArrayList()));
+        OperationTest.assertCorrectParameterMap(addComment);
 
         LdbcUpdate8AddFriendship addFriendship = (LdbcUpdate8AddFriendship) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
@@ -183,6 +192,7 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addFriendship.person1Id(), is(1920L));
         assertThat(addFriendship.person2Id(), is(655L));
         assertThat(addFriendship.creationDate(), equalTo(creationDate));
+        OperationTest.assertCorrectParameterMap(addFriendship);
 
         assertThat(writeEventStreamReader.hasNext(), is(false));
     }

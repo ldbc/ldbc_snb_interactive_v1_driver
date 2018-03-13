@@ -1,36 +1,43 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9RelatedForumsResult>>
 {
     public static final int TYPE = 9;
     public static final int DEFAULT_LIMIT = 100;
-    private final String tagClassA;
-    private final String tagClassB;
+    public static final String TAG_CLASS1 = "tagClass1";
+    public static final String TAG_CLASS2 = "tagClass2";
+    public static final String THRESHOLD = "threshold";
+    public static final String LIMIT = "limit";
+
+    private final String tagClass1;
+    private final String tagClass2;
     private final int threshold;
     private final int limit;
 
-    public LdbcSnbBiQuery9RelatedForums( String tagClassA, String tagClassB, int threshold, int limit )
+    public LdbcSnbBiQuery9RelatedForums(String tagClass1, String tagClass2, int threshold, int limit )
     {
-        this.tagClassA = tagClassA;
-        this.tagClassB = tagClassB;
+        this.tagClass1 = tagClass1;
+        this.tagClass2 = tagClass2;
         this.threshold = threshold;
         this.limit = limit;
     }
 
-    public String tagClassA()
+    public String tagClass1()
     {
-        return tagClassA;
+        return tagClass1;
     }
 
-    public String tagClassB()
+    public String tagClass2()
     {
-        return tagClassB;
+        return tagClass2;
     }
 
     public int threshold()
@@ -44,11 +51,21 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(TAG_CLASS1, tagClass1)
+                .put(TAG_CLASS2, tagClass2)
+                .put(THRESHOLD, threshold)
+                .put(LIMIT, limit)
+                .build();
+    }
+
+    @Override
     public String toString()
     {
         return "LdbcSnbBiQuery9RelatedForums{" +
-               "tagClassA='" + tagClassA + '\'' +
-               ", tagClassB='" + tagClassB + '\'' +
+               "tagClass1='" + tagClass1 + '\'' +
+               ", tagClass2='" + tagClass2 + '\'' +
                ", threshold=" + threshold +
                ", limit=" + limit +
                '}';
@@ -68,16 +85,16 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
         { return false; }
         if ( limit != that.limit )
         { return false; }
-        if ( tagClassA != null ? !tagClassA.equals( that.tagClassA ) : that.tagClassA != null )
+        if ( tagClass1 != null ? !tagClass1.equals( that.tagClass1) : that.tagClass1 != null )
         { return false; }
-        return !(tagClassB != null ? !tagClassB.equals( that.tagClassB ) : that.tagClassB != null);
+        return !(tagClass2 != null ? !tagClass2.equals( that.tagClass2) : that.tagClass2 != null);
     }
 
     @Override
     public int hashCode()
     {
-        int result = tagClassA != null ? tagClassA.hashCode() : 0;
-        result = 31 * result + (tagClassB != null ? tagClassB.hashCode() : 0);
+        int result = tagClass1 != null ? tagClass1.hashCode() : 0;
+        result = 31 * result + (tagClass2 != null ? tagClass2.hashCode() : 0);
         result = 31 * result + threshold;
         result = 31 * result + limit;
         return result;
@@ -93,13 +110,13 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
         {
             List<Object> row = resultsAsList.get( i );
             long forumId = ((Number) row.get( 0 )).longValue();
-            int sumA = ((Number) row.get( 1 )).intValue();
-            int sumB = ((Number) row.get( 2 )).intValue();
+            int count1 = ((Number) row.get( 1 )).intValue();
+            int count2 = ((Number) row.get( 2 )).intValue();
             result.add(
                     new LdbcSnbBiQuery9RelatedForumsResult(
                             forumId,
-                            sumA,
-                            sumB
+                            count1,
+                            count2
                     )
             );
         }
@@ -116,8 +133,8 @@ public class LdbcSnbBiQuery9RelatedForums extends Operation<List<LdbcSnbBiQuery9
             LdbcSnbBiQuery9RelatedForumsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.forumId() );
-            resultFields.add( row.sumA() );
-            resultFields.add( row.sumB() );
+            resultFields.add( row.count1() );
+            resultFields.add( row.count2() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

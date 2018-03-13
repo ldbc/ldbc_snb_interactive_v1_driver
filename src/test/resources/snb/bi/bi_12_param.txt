@@ -1,4 +1,4 @@
-creationDate|likeCount
+creationDate|likeThreshold
 1287698400000|400
 1288566000000|400
 1289170800000|400

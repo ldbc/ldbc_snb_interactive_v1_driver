@@ -1,15 +1,20 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery7AuthoritativeUsers extends Operation<List<LdbcSnbBiQuery7AuthoritativeUsersResult>>
 {
     public static final int TYPE = 7;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String TAG = "tag";
+    public static final String LIMIT = "limit";
+
     private final String tag;
     private final int limit;
 
@@ -27,6 +32,14 @@ public class LdbcSnbBiQuery7AuthoritativeUsers extends Operation<List<LdbcSnbBiQ
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(TAG, tag)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override
@@ -72,11 +85,11 @@ public class LdbcSnbBiQuery7AuthoritativeUsers extends Operation<List<LdbcSnbBiQ
         {
             List<Object> row = resultsAsList.get( i );
             long personId = ((Number) row.get( 0 )).longValue();
-            int score = ((Number) row.get( 1 )).intValue();
+            int authorityScore = ((Number) row.get( 1 )).intValue();
             result.add(
                     new LdbcSnbBiQuery7AuthoritativeUsersResult(
                             personId,
-                            score
+                            authorityScore
                     )
             );
         }

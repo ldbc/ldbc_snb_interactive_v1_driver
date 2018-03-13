@@ -7,20 +7,20 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
     private final int likeCount;
     private final int year;
     private final int month;
-    private final String continent;
+    private final String continentName;
 
     public LdbcSnbBiQuery24MessagesByTopicResult(
             int messageCount,
             int likeCount,
             int year,
             int month,
-            String continent )
+            String continentName)
     {
         this.messageCount = messageCount;
         this.likeCount = likeCount;
         this.year = year;
         this.month = month;
-        this.continent = continent;
+        this.continentName = continentName;
     }
 
     public int messageCount()
@@ -43,9 +43,9 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
         return month;
     }
 
-    public String continent()
+    public String continentName()
     {
-        return continent;
+        return continentName;
     }
 
     @Override
@@ -53,10 +53,10 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
     {
         return "LdbcSnbBiQuery24MessagesByTopicResult{" +
                "messageCount=" + messageCount +
-               ", likeCount=" + likeCount +
+               ", likeThreshold=" + likeCount +
                ", year=" + year +
                ", month=" + month +
-               ", continent='" + continent + '\'' +
+               ", continentName='" + continentName + '\'' +
                '}';
     }
 
@@ -78,7 +78,7 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
         { return false; }
         if ( month != that.month )
         { return false; }
-        return !(continent != null ? !continent.equals( that.continent ) : that.continent != null);
+        return !(continentName != null ? !continentName.equals( that.continentName) : that.continentName != null);
 
     }
 
@@ -89,7 +89,7 @@ public class LdbcSnbBiQuery24MessagesByTopicResult
         result = 31 * result + likeCount;
         result = 31 * result + year;
         result = 31 * result + month;
-        result = 31 * result + (continent != null ? continent.hashCode() : 0);
+        result = 31 * result + (continentName != null ? continentName.hashCode() : 0);
         return result;
     }
 }

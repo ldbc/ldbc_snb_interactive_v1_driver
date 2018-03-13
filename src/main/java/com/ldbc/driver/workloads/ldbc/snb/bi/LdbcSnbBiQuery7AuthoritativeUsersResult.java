@@ -3,12 +3,12 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 public class LdbcSnbBiQuery7AuthoritativeUsersResult
 {
     private final long personId;
-    private final int score;
+    private final int authorityScore;
 
-    public LdbcSnbBiQuery7AuthoritativeUsersResult( long personId, int score )
+    public LdbcSnbBiQuery7AuthoritativeUsersResult( long personId, int authorityScore)
     {
         this.personId = personId;
-        this.score = score;
+        this.authorityScore = authorityScore;
     }
 
     public long personId()
@@ -18,7 +18,7 @@ public class LdbcSnbBiQuery7AuthoritativeUsersResult
 
     public int score()
     {
-        return score;
+        return authorityScore;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class LdbcSnbBiQuery7AuthoritativeUsersResult
     {
         return "LdbcSnbBiQuery7Result{" +
                "personId=" + personId +
-               ", score=" + score +
+               ", authorityScore=" + authorityScore +
                '}';
     }
 
@@ -42,7 +42,7 @@ public class LdbcSnbBiQuery7AuthoritativeUsersResult
 
         if ( personId != that.personId )
         { return false; }
-        return score == that.score;
+        return authorityScore == that.authorityScore;
 
     }
 
@@ -50,7 +50,7 @@ public class LdbcSnbBiQuery7AuthoritativeUsersResult
     public int hashCode()
     {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + score;
+        result = 31 * result + authorityScore;
         return result;
     }
 }

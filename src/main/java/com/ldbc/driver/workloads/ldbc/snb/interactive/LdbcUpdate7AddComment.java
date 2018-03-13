@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.util.ListUtils;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -16,6 +18,18 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1007;
+    public static final String COMMENT_ID = "commentId";
+    public static final String CREATION_DATE = "creationDate";
+    public static final String LOCATION_IP = "locationIp";
+    public static final String BROWSER_USED = "browserUsed";
+    public static final String CONTENT = "content";
+    public static final String LENGTH = "length";
+    public static final String AUTHOR_PERSON_ID = "authorPersonId";
+    public static final String COUNTRY_ID = "countryId";
+    public static final String REPLY_TO_POST_ID = "replyToPostId";
+    public static final String REPLY_TO_COMMENT_ID = "replyToCommentId";
+    public static final String TAG_IDS = "tagIds";
+
     private final long commentId;
     private final Date creationDate;
     private final String locationIp;
@@ -106,6 +120,23 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
     public List<Long> tagIds()
     {
         return tagIds;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(COMMENT_ID, commentId)
+                .put(CREATION_DATE, creationDate)
+                .put(LOCATION_IP, locationIp)
+                .put(BROWSER_USED, browserUsed)
+                .put(CONTENT, content)
+                .put(LENGTH, length)
+                .put(AUTHOR_PERSON_ID, authorPersonId)
+                .put(COUNTRY_ID, countryId)
+                .put(REPLY_TO_POST_ID, replyToPostId)
+                .put(REPLY_TO_COMMENT_ID, replyToCommentId)
+                .put(TAG_IDS, tagIds)
+                .build();
     }
 
     @Override

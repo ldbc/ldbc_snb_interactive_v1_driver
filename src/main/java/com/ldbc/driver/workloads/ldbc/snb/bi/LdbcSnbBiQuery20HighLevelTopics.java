@@ -1,15 +1,20 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQuery20HighLevelTopicsResult>>
 {
     public static final int TYPE = 20;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String TAG_CLASSES = "tagClasses";
+    public static final String LIMIT = "limit";
+
     private final List<String> tagClasses;
     private final int limit;
 
@@ -27,6 +32,14 @@ public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQue
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(TAG_CLASSES, tagClasses)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override
@@ -71,12 +84,12 @@ public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQue
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> row = resultsAsList.get( i );
-            String tagClass = (String) row.get( 0 );
-            int count = ((Number) row.get( 1 )).intValue();
+            String tagClassName = (String) row.get( 0 );
+            int messageCount = ((Number) row.get( 1 )).intValue();
             result.add(
                     new LdbcSnbBiQuery20HighLevelTopicsResult(
-                            tagClass,
-                            count
+                            tagClassName,
+                            messageCount
                     )
             );
         }
@@ -93,8 +106,8 @@ public class LdbcSnbBiQuery20HighLevelTopics extends Operation<List<LdbcSnbBiQue
         {
             LdbcSnbBiQuery20HighLevelTopicsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add( row.tagClass() );
-            resultFields.add( row.count() );
+            resultFields.add( row.tagClassName() );
+            resultFields.add( row.messageCount() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.util.ListUtils;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -16,6 +18,12 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1004;
+    public static final String FORUM_ID = "forumId";
+    public static final String FORUM_TITLE = "forumTitle";
+    public static final String CREATION_DATE = "creationDate";
+    public static final String MODERATOR_PERSON_ID = "moderatorPersonId";
+    public static final String TAG_IDS = "tagIds";
+
     private final long forumId;
     private final String forumTitle;
     private final Date creationDate;
@@ -55,6 +63,17 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
     public List<Long> tagIds()
     {
         return tagIds;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(FORUM_ID, forumId)
+                .put(FORUM_TITLE, forumTitle)
+                .put(CREATION_DATE, creationDate)
+                .put(MODERATOR_PERSON_ID, moderatorPersonId)
+                .put(TAG_IDS, tagIds)
+                .build();
     }
 
     @Override

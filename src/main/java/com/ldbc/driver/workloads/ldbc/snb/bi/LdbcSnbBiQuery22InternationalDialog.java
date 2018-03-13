@@ -1,34 +1,40 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbBiQuery22InternationalDialogResult>>
 {
     public static final int TYPE = 22;
     public static final int DEFAULT_LIMIT = 100;
-    private final String countryX;
-    private final String countryY;
+    public static final String COUNTRY1 = "country1";
+    public static final String COUNTRY2 = "country2";
+    public static final String LIMIT = "limit";
+
+    private final String country1;
+    private final String country2;
     private final int limit;
 
-    public LdbcSnbBiQuery22InternationalDialog( String countryX, String countryY, int limit )
+    public LdbcSnbBiQuery22InternationalDialog( String country1, String country2, int limit )
     {
-        this.countryX = countryX;
-        this.countryY = countryY;
+        this.country1 = country1;
+        this.country2 = country2;
         this.limit = limit;
     }
 
-    public String countryX()
+    public String country1()
     {
-        return countryX;
+        return country1;
     }
 
-    public String countryY()
+    public String country2()
     {
-        return countryY;
+        return country2;
     }
 
     public int limit()
@@ -37,11 +43,20 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(COUNTRY1, country1)
+                .put(COUNTRY2, country2)
+                .put(LIMIT, limit)
+                .build();
+    }
+
+    @Override
     public String toString()
     {
         return "LdbcSnbBiQuery22InternationalDialog{" +
-               "countryX='" + countryX + '\'' +
-               ", countryY='" + countryY + '\'' +
+               "country1='" + country1 + '\'' +
+               ", country2='" + country2 + '\'' +
                ", limit=" + limit +
                '}';
     }
@@ -58,17 +73,17 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
 
         if ( limit != that.limit )
         { return false; }
-        if ( countryX != null ? !countryX.equals( that.countryX ) : that.countryX != null )
+        if ( country1 != null ? !country1.equals( that.country1 ) : that.country1 != null )
         { return false; }
-        return !(countryY != null ? !countryY.equals( that.countryY ) : that.countryY != null);
+        return !(country2 != null ? !country2.equals( that.country2 ) : that.country2 != null);
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = countryX != null ? countryX.hashCode() : 0;
-        result = 31 * result + (countryY != null ? countryY.hashCode() : 0);
+        int result = country1 != null ? country1.hashCode() : 0;
+        result = 31 * result + (country2 != null ? country2.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }
@@ -84,11 +99,13 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
             List<Object> row = resultsAsList.get( i );
             long personId1 = ((Number) row.get( 0 )).longValue();
             long personId2 = ((Number) row.get( 1 )).longValue();
-            int score = ((Number) row.get( 2 )).intValue();
+            String city1Name = (String) row.get( 2 );
+            int score = ((Number) row.get( 3 )).intValue();
             result.add(
                     new LdbcSnbBiQuery22InternationalDialogResult(
                             personId1,
                             personId2,
+                            city1Name,
                             score
                     )
             );
@@ -108,6 +125,7 @@ public class LdbcSnbBiQuery22InternationalDialog extends Operation<List<LdbcSnbB
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.personId1() );
             resultFields.add( row.personId2() );
+            resultFields.add( row.city1Name() );
             resultFields.add( row.score() );
             resultsFields.add( resultFields );
         }

@@ -2,20 +2,25 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery23HolidayDestinationsResult
 {
-    private final String country;
+    private final int messageCount;
+    private final String destinationName;
     private final int month;
-    private final int count;
 
-    public LdbcSnbBiQuery23HolidayDestinationsResult( String country, int month, int count )
+    public LdbcSnbBiQuery23HolidayDestinationsResult(int messageCount, String destinationName, int month )
     {
-        this.country = country;
+        this.messageCount = messageCount;
+        this.destinationName = destinationName;
         this.month = month;
-        this.count = count;
     }
 
-    public String countryName()
+    public int messageCount()
     {
-        return country;
+        return messageCount;
+    }
+
+    public String destinationName()
+    {
+        return destinationName;
     }
 
     public int month()
@@ -23,45 +28,32 @@ public class LdbcSnbBiQuery23HolidayDestinationsResult
         return month;
     }
 
-    public int messageCount()
-    {
-        return count;
-    }
-
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "LdbcSnbBiQuery23HolidayDestinationsResult{" +
-               "country='" + country + '\'' +
-               ", month=" + month +
-               ", count=" + count +
-               '}';
+                "messageCount=" + messageCount +
+                ", destinationName='" + destinationName + '\'' +
+                ", month=" + month +
+                '}';
     }
 
     @Override
-    public boolean equals( Object o )
-    {
-        if ( this == o )
-        { return true; }
-        if ( o == null || getClass() != o.getClass() )
-        { return false; }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         LdbcSnbBiQuery23HolidayDestinationsResult that = (LdbcSnbBiQuery23HolidayDestinationsResult) o;
 
-        if ( month != that.month )
-        { return false; }
-        if ( count != that.count )
-        { return false; }
-        return country != null ? country.equals( that.country ) : that.country == null;
-
+        if (messageCount != that.messageCount) return false;
+        if (month != that.month) return false;
+        return destinationName != null ? destinationName.equals(that.destinationName) : that.destinationName == null;
     }
 
     @Override
-    public int hashCode()
-    {
-        int result = country != null ? country.hashCode() : 0;
+    public int hashCode() {
+        int result = messageCount;
+        result = 31 * result + (destinationName != null ? destinationName.hashCode() : 0);
         result = 31 * result + month;
-        result = 31 * result + count;
         return result;
     }
 }

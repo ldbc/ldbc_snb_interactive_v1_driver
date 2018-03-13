@@ -1,48 +1,40 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3TagEvolutionResult>>
 {
     public static final int TYPE = 3;
     public static final int DEFAULT_LIMIT = 100;
-    private final long range1Start;
-    private final long range1End;
-    private final long range2Start;
-    private final long range2End;
+    public static final String YEAR = "year";
+    public static final String MONTH = "month";
+    public static final String LIMIT = "limit";
+
+    private final int year;
+    private final int month;
     private final int limit;
 
-    public LdbcSnbBiQuery3TagEvolution( long range1Start, long range1End, long range2Start, long range2End, int limit )
+    public LdbcSnbBiQuery3TagEvolution( int year, int month, int limit )
     {
-        this.range1Start = range1Start;
-        this.range1End = range1End;
-        this.range2Start = range2Start;
-        this.range2End = range2End;
+        this.year = year;
+        this.month = month;
         this.limit = limit;
     }
 
-    public long range1Start()
+    public int year()
     {
-        return range1Start;
+        return year;
     }
 
-    public long range1End()
+    public int month()
     {
-        return range1End;
-    }
-
-    public long range2Start()
-    {
-        return range2Start;
-    }
-
-    public long range2End()
-    {
-        return range2End;
+        return month;
     }
 
     public int limit()
@@ -51,13 +43,20 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(YEAR, year)
+                .put(MONTH, month)
+                .put(LIMIT, limit)
+                .build();
+    }
+
+    @Override
     public String toString()
     {
         return "LdbcSnbBiQuery3TagEvolution{" +
-               "range1Start=" + range1Start +
-               ", range1End=" + range1End +
-               ", range2Start=" + range2Start +
-               ", range2End=" + range2End +
+               "year=" + year +
+               ", month=" + month +
                '}';
     }
 
@@ -71,23 +70,19 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
 
         LdbcSnbBiQuery3TagEvolution that = (LdbcSnbBiQuery3TagEvolution) o;
 
-        if ( range1Start != that.range1Start )
+        if ( year != that.year )
         { return false; }
-        if ( range1End != that.range1End )
+        if ( month != that.month )
         { return false; }
-        if ( range2Start != that.range2Start )
-        { return false; }
-        return range2End == that.range2End;
-
+        return limit == that.limit;
     }
 
     @Override
     public int hashCode()
     {
-        int result = (int) (range1Start ^ (range1Start >>> 32));
-        result = 31 * result + (int) (range1End ^ (range1End >>> 32));
-        result = 31 * result + (int) (range2Start ^ (range2Start >>> 32));
-        result = 31 * result + (int) (range2End ^ (range2End >>> 32));
+        int result = year;
+        result = 31 * result + month;
+        result = 31 * result + limit;
         return result;
     }
 
@@ -100,16 +95,16 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> row = resultsAsList.get( i );
-            String tag = (String) row.get( 0 );
-            int countA = ((Number) row.get( 1 )).intValue();
-            int countB = ((Number) row.get( 2 )).intValue();
-            int difference = ((Number) row.get( 3 )).intValue();
+            String tagName = (String) row.get( 0 );
+            int countMonth1 = ((Number) row.get( 1 )).intValue();
+            int countMonth2 = ((Number) row.get( 2 )).intValue();
+            int diff = ((Number) row.get( 3 )).intValue();
             result.add(
                     new LdbcSnbBiQuery3TagEvolutionResult(
-                            tag,
-                            countA,
-                            countB,
-                            difference
+                            tagName,
+                            countMonth1,
+                            countMonth2,
+                            diff
                     )
             );
         }
@@ -126,10 +121,10 @@ public class LdbcSnbBiQuery3TagEvolution extends Operation<List<LdbcSnbBiQuery3T
         {
             LdbcSnbBiQuery3TagEvolutionResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add( row.tag() );
-            resultFields.add( row.countA() );
-            resultFields.add( row.countB() );
-            resultFields.add( row.difference() );
+            resultFields.add( row.tagName() );
+            resultFields.add( row.countMonth1() );
+            resultFields.add( row.countMonth2() );
+            resultFields.add( row.diff() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

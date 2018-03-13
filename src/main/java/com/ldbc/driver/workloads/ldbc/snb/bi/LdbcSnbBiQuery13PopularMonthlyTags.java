@@ -1,16 +1,21 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBiQuery13PopularMonthlyTagsResult>>
 {
     public static final int TYPE = 13;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String COUNTRY = "country";
+    public static final String LIMIT = "limit";
+
     private final String country;
     private final int limit;
 
@@ -28,6 +33,14 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(COUNTRY, country)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override
@@ -74,10 +87,10 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
             List<Object> row = resultsAsList.get( i );
             int year = ((Number) row.get( 0 )).intValue();
             int month = ((Number) row.get( 1 )).intValue();
-            List<LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity> tagPopularities = new ArrayList<>();
+            List<LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity> popularTags = new ArrayList<>();
             for ( List tagPopularity : (List<List>) row.get( 2 ) )
             {
-                tagPopularities.add(
+                popularTags.add(
                         new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity(
                                 (String) tagPopularity.get( 0 ),
                                 (Integer) tagPopularity.get( 1 )
@@ -88,7 +101,7 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
                     new LdbcSnbBiQuery13PopularMonthlyTagsResult(
                             year,
                             month,
-                            tagPopularities
+                            popularTags
                     )
             );
         }
@@ -108,7 +121,7 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
             resultFields.add( row.year() );
             resultFields.add( row.month() );
             List<List> tagPopularitiesAsLists = new ArrayList<>();
-            for ( LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity tagPopularity : row.tagPopularities() )
+            for ( LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity tagPopularity : row.popularTags() )
             {
                 tagPopularitiesAsLists.add( Lists.newArrayList( tagPopularity.tagName(), tagPopularity.popularity() ) );
             }

@@ -11,3 +11,4 @@ plotting/*.pdf
 .idea/
 *.swp
 results/
+mvn.log

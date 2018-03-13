@@ -4,13 +4,13 @@ public class LdbcSnbBiQuery19StrangerInteractionResult
 {
     private final long personId;
     private final int strangerCount;
-    private final int count;
+    private final int interactionCount;
 
-    public LdbcSnbBiQuery19StrangerInteractionResult( long personId, int strangerCount, int count )
+    public LdbcSnbBiQuery19StrangerInteractionResult( long personId, int strangerCount, int interactionCount)
     {
         this.personId = personId;
         this.strangerCount = strangerCount;
-        this.count = count;
+        this.interactionCount = interactionCount;
     }
 
     public long personId()
@@ -25,7 +25,7 @@ public class LdbcSnbBiQuery19StrangerInteractionResult
 
     public int count()
     {
-        return count;
+        return interactionCount;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class LdbcSnbBiQuery19StrangerInteractionResult
         return "LdbcSnbBiQuery19Result{" +
                "personId=" + personId +
                ", strangerCount=" + strangerCount +
-               ", count=" + count +
+               ", interactionCount=" + interactionCount +
                '}';
     }
 
@@ -52,7 +52,7 @@ public class LdbcSnbBiQuery19StrangerInteractionResult
         { return false; }
         if ( strangerCount != that.strangerCount )
         { return false; }
-        return count == that.count;
+        return interactionCount == that.interactionCount;
 
     }
 
@@ -61,7 +61,7 @@ public class LdbcSnbBiQuery19StrangerInteractionResult
     {
         int result = (int) (personId ^ (personId >>> 32));
         result = 31 * result + strangerCount;
-        result = 31 * result + count;
+        result = 31 * result + interactionCount;
         return result;
     }
 }

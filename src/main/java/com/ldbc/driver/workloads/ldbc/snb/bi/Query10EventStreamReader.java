@@ -8,6 +8,7 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
@@ -28,7 +29,8 @@ public class Query10EventStreamReader extends BaseEventStreamReader
     {
         return new LdbcSnbBiQuery10TagPerson(
                 (String) parameters[0],
-                (int) parameters[1]
+                (long) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -37,10 +39,6 @@ public class Query10EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            Tag0|Tag1
-            a_tag,another_tag
-            */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
@@ -57,7 +55,16 @@ public class Query10EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{tag, LdbcSnbBiQuery10TagPerson.DEFAULT_LIMIT};
+                long date;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving date" );
+                }
+                return new Object[]{tag, date, LdbcSnbBiQuery10TagPerson.DEFAULT_LIMIT};
             }
         };
     }
@@ -65,6 +72,6 @@ public class Query10EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 2;
     }
 }

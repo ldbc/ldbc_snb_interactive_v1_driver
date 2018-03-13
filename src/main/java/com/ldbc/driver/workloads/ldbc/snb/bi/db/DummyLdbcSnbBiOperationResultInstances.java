@@ -91,7 +91,7 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery12TrendingPostsResult read12Result()
     {
-        return new LdbcSnbBiQuery12TrendingPostsResult( 1, "\u16a0", "\u3055", 2, 3 );
+        return new LdbcSnbBiQuery12TrendingPostsResult( 1, 2L, "\u16a0", "\u3055", 3 );
     }
 
     public static LdbcSnbBiQuery13PopularMonthlyTagsResult read13Result()
@@ -149,12 +149,12 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery22InternationalDialogResult read22Result()
     {
-        return new LdbcSnbBiQuery22InternationalDialogResult( 1, 2, 3 );
+        return new LdbcSnbBiQuery22InternationalDialogResult( 1, 2,  "Paris", 3 );
     }
 
     public static LdbcSnbBiQuery23HolidayDestinationsResult read23Result()
     {
-        return new LdbcSnbBiQuery23HolidayDestinationsResult( "\u3055", 2, 3 );
+        return new LdbcSnbBiQuery23HolidayDestinationsResult( 1, "Germany", 2 );
     }
 
     public static LdbcSnbBiQuery24MessagesByTopicResult read24Result()
@@ -164,6 +164,6 @@ public class DummyLdbcSnbBiOperationResultInstances
 
     public static LdbcSnbBiQuery25WeightedPathsResult read25Result()
     {
-        return new LdbcSnbBiQuery25WeightedPathsResult( Lists.newArrayList(1L, 2L));
+        return new LdbcSnbBiQuery25WeightedPathsResult( Lists.newArrayList(1L, 2L), 0.5);
     }
 }

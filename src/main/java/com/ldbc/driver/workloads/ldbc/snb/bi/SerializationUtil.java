@@ -16,22 +16,11 @@ public class SerializationUtil
             new TypeReference<List<List<Object>>>()
             {
             };
-    private static final TypeReference<List<List<List<Long>>>> LIST_OF_LISTS_TYPE_REFERENCE_FOR_LONGS =
-            new TypeReference<List<List<List<Long>>>>()
-            {
-            };
-
 
     public static synchronized List<List<Object>> marshalListOfLists( String serializedJson )
             throws SerializingMarshallingException
     {
         return marshalListOfLists( serializedJson, LIST_OF_LISTS_TYPE_REFERENCE );
-    }
-
-    public static synchronized List<List<Object>> marshalListOfListsLongs( String serializedJson )
-            throws SerializingMarshallingException
-    {
-        return marshalListOfLists( serializedJson, LIST_OF_LISTS_TYPE_REFERENCE_FOR_LONGS );
     }
 
     public static synchronized List<List<Object>> marshalListOfLists( String serializedJson,

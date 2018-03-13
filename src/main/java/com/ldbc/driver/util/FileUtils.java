@@ -2,16 +2,23 @@ package com.ldbc.driver.util;
 
 import com.google.common.collect.Lists;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public class FileUtils
@@ -37,25 +44,14 @@ public class FileUtils
 
     public static List<File> filesWithSuffixInDirectory( File directory, final String fileNameSuffix )
     {
-        return Lists.newArrayList(
-                directory.listFiles(
-                        new FilenameFilter()
-                        {
-                            @Override
-                            public boolean accept( File dir, String name )
-                            {
-                                return name.endsWith( fileNameSuffix );
-                            }
-                        }
-                )
-        );
+        return Lists.newArrayList( directory.listFiles( ( dir, name ) -> name.endsWith( fileNameSuffix ) ) );
     }
 
-    public static void assertDirectoryDoesNotExist( File dir )
+    public static void assertFileDoesNotExist( File file )
     {
-        if ( dir.exists() )
+        if ( file.exists() )
         {
-            throw new RuntimeException( "Directory already exists: " + dir.getAbsolutePath() );
+            throw new RuntimeException( "File already exists: " + file.getAbsolutePath() );
         }
     }
 
@@ -102,15 +98,48 @@ public class FileUtils
         }
     }
 
-    public static void tryCreateDir( File dir, boolean failIfExists )
+    public static void tryCreateFile( File file, boolean failIfExists )
     {
-        if ( dir.exists() && failIfExists )
+        try
         {
-            throw new RuntimeException( "Directory already exists: " + dir.getAbsolutePath() );
+            if ( file.exists() )
+            {
+                if ( failIfExists )
+                {
+                    throw new RuntimeException( "File already exists: " + file.getAbsolutePath() );
+                }
+                else if ( file.isDirectory() )
+                {
+                    throw new RuntimeException( "Is a directory: " + file.getAbsolutePath() );
+                }
+            }
+            else if ( !file.createNewFile() )
+            {
+                throw new RuntimeException( "Unable to create file: " + file.getAbsolutePath() );
+            }
         }
-        else if ( !dir.exists() && !dir.mkdir() )
+        catch ( IOException e )
         {
-            throw new RuntimeException( "Unable to create directory: " + dir.getAbsolutePath() );
+            throw new RuntimeException( "Unable to create file: " + file.getAbsolutePath(), e );
+        }
+    }
+
+    public static void tryCreateDirs( File dir, boolean failIfExists )
+    {
+        if ( dir.exists() )
+        {
+            if ( failIfExists )
+            {
+                throw new RuntimeException( "Directory already exists: " + dir.getAbsolutePath() );
+            }
+            else if ( !dir.isDirectory() )
+            {
+                throw new RuntimeException( "Is not a directory: " + dir.getAbsolutePath() );
+            }
+        }
+        else if ( !dir.mkdirs() )
+        {
+            throw new RuntimeException( "Unable to create directory structure: " + dir.getAbsolutePath() );
         }
     }
 
@@ -124,7 +153,7 @@ public class FileUtils
                     from.getAbsolutePath(),
                     to.getAbsolutePath() ) );
             FileUtils.assertDirectoryExists( from );
-            FileUtils.assertDirectoryDoesNotExist( to );
+            FileUtils.assertFileDoesNotExist( to );
             // Alternative method of copying database into working directory
             org.apache.commons.io.FileUtils.copyDirectory( from, to );
             FileUtils.assertDirectoryExists( from );
@@ -157,6 +186,28 @@ public class FileUtils
         catch ( IOException e )
         {
             throw new UncheckedIOException( e );
+        }
+    }
+
+    public static void printlnsToFile( File file, String... lines )
+    {
+        try ( PrintWriter printer = new PrintWriter( new FileOutputStream( file, true ) ) )
+        {
+            Arrays.stream( lines ).forEach( printer::println );
+        }
+        catch ( FileNotFoundException e )
+        {
+            throw new RuntimeException( "Error writing line to file\n" +
+                                        "Line: " + lines + "\n" +
+                                        "File: " + file.getAbsolutePath(), e );
+        }
+    }
+
+    public static String inputStringToString( InputStream is ) throws IOException
+    {
+        try ( BufferedReader buffer = new BufferedReader( new InputStreamReader( is ) ) )
+        {
+            return buffer.lines().collect( joining( "\n" ) );
         }
     }
 }

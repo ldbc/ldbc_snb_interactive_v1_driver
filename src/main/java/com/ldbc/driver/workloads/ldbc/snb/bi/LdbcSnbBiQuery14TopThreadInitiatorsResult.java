@@ -3,23 +3,23 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 public class LdbcSnbBiQuery14TopThreadInitiatorsResult
 {
     private final long personId;
-    private final String firstName;
-    private final String lastName;
-    private final int messageCount;
+    private final String personFirstName;
+    private final String personLastName;
     private final int threadCount;
+    private final int messageCount;
 
     public LdbcSnbBiQuery14TopThreadInitiatorsResult(
             long personId,
-            String firstName,
-            String lastName,
-            int messageCount,
-            int threadCount )
+            String personFirstName,
+            String personLastName,
+            int threadCount,
+            int messageCount)
     {
         this.personId = personId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.messageCount = messageCount;
+        this.personFirstName = personFirstName;
+        this.personLastName = personLastName;
         this.threadCount = threadCount;
+        this.messageCount = messageCount;
     }
 
     public long personId()
@@ -27,19 +27,14 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
         return personId;
     }
 
-    public String firstName()
+    public String personFirstName()
     {
-        return firstName;
+        return personFirstName;
     }
 
-    public String lastName()
+    public String personLastName()
     {
-        return lastName;
-    }
-
-    public int messageCount()
-    {
-        return messageCount;
+        return personLastName;
     }
 
     public int threadCount()
@@ -47,48 +42,44 @@ public class LdbcSnbBiQuery14TopThreadInitiatorsResult
         return threadCount;
     }
 
-    @Override
-    public String toString()
+    public int messageCount()
     {
-        return "LdbcSnbBiQuery14TopThreadInitiatorsResult{" +
-               "personId=" + personId +
-               ", firstName='" + firstName + '\'' +
-               ", lastName='" + lastName + '\'' +
-               ", messageCount=" + messageCount +
-               ", threadCount=" + threadCount +
-               '}';
+        return messageCount;
     }
 
     @Override
-    public boolean equals( Object o )
-    {
-        if ( this == o )
-        { return true; }
-        if ( o == null || getClass() != o.getClass() )
-        { return false; }
+    public String toString() {
+        return "LdbcSnbBiQuery14TopThreadInitiatorsResult{" +
+                "personId=" + personId +
+                ", personFirstName='" + personFirstName + '\'' +
+                ", personLastName='" + personLastName + '\'' +
+                ", threadCount=" + threadCount +
+                ", messageCount=" + messageCount +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         LdbcSnbBiQuery14TopThreadInitiatorsResult that = (LdbcSnbBiQuery14TopThreadInitiatorsResult) o;
 
-        if ( personId != that.personId )
-        { return false; }
-        if ( messageCount != that.messageCount )
-        { return false; }
-        if ( threadCount != that.threadCount )
-        { return false; }
-        if ( firstName != null ? !firstName.equals( that.firstName ) : that.firstName != null )
-        { return false; }
-        return !(lastName != null ? !lastName.equals( that.lastName ) : that.lastName != null);
-
+        if (personId != that.personId) return false;
+        if (threadCount != that.threadCount) return false;
+        if (messageCount != that.messageCount) return false;
+        if (personFirstName != null ? !personFirstName.equals(that.personFirstName) : that.personFirstName != null) return false;
+        return personLastName != null ? personLastName.equals(that.personLastName) : that.personLastName == null;
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
-        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-        result = 31 * result + messageCount;
+        result = 31 * result + (personFirstName != null ? personFirstName.hashCode() : 0);
+        result = 31 * result + (personLastName != null ? personLastName.hashCode() : 0);
         result = 31 * result + threadCount;
+        result = 31 * result + messageCount;
         return result;
     }
+
 }

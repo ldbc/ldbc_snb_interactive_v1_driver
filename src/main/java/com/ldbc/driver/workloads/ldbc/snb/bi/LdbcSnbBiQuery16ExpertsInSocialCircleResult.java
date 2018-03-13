@@ -3,14 +3,14 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 public class LdbcSnbBiQuery16ExpertsInSocialCircleResult
 {
     private final long personId;
-    private final String tag;
-    private final int count;
+    private final String tagName;
+    private final int messageCount;
 
-    public LdbcSnbBiQuery16ExpertsInSocialCircleResult( long personId, String tag, int count )
+    public LdbcSnbBiQuery16ExpertsInSocialCircleResult(long personId, String tagName, int messageCount)
     {
         this.personId = personId;
-        this.tag = tag;
-        this.count = count;
+        this.tagName = tagName;
+        this.messageCount = messageCount;
     }
 
     public long personId()
@@ -20,12 +20,12 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircleResult
 
     public String tag()
     {
-        return tag;
+        return tagName;
     }
 
     public int count()
     {
-        return count;
+        return messageCount;
     }
 
     @Override
@@ -33,8 +33,8 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircleResult
     {
         return "LdbcSnbBiQuery16Result{" +
                "personId=" + personId +
-               ", tag='" + tag + '\'' +
-               ", count=" + count +
+               ", tagName='" + tagName + '\'' +
+               ", messageCount=" + messageCount +
                '}';
     }
 
@@ -50,9 +50,9 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircleResult
 
         if ( personId != that.personId )
         { return false; }
-        if ( count != that.count )
+        if ( messageCount != that.messageCount)
         { return false; }
-        return !(tag != null ? !tag.equals( that.tag ) : that.tag != null);
+        return !(tagName != null ? !tagName.equals( that.tagName) : that.tagName != null);
 
     }
 
@@ -60,8 +60,8 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircleResult
     public int hashCode()
     {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (tag != null ? tag.hashCode() : 0);
-        result = 31 * result + count;
+        result = 31 * result + (tagName != null ? tagName.hashCode() : 0);
+        result = 31 * result + messageCount;
         return result;
     }
 }

@@ -1,15 +1,20 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQuery24MessagesByTopicResult>>
 {
     public static final int TYPE = 24;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String TAG_CLASS = "tagClass";
+    public static final String LIMIT = "limit";
+
     private final String tagClass;
     private final int limit;
 
@@ -27,6 +32,14 @@ public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQue
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(TAG_CLASS, tagClass)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override
@@ -75,14 +88,14 @@ public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQue
             int likeCount = ((Number) row.get( 1 )).intValue();
             int year = ((Number) row.get( 2 )).intValue();
             int month = ((Number) row.get( 3 )).intValue();
-            String continent = (String) row.get( 4 );
+            String continentName = (String) row.get( 4 );
             result.add(
                     new LdbcSnbBiQuery24MessagesByTopicResult(
                             messageCount,
                             likeCount,
                             year,
                             month,
-                            continent
+                            continentName
                     )
             );
         }
@@ -103,7 +116,7 @@ public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQue
             resultFields.add( row.likeCount() );
             resultFields.add( row.year() );
             resultFields.add( row.month() );
-            resultFields.add( row.continent() );
+            resultFields.add( row.continentName() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

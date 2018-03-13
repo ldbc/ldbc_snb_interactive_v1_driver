@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.util.ListUtils;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -16,6 +18,19 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1006;
+    public static final String POST_ID = "postId";
+    public static final String IMAGE_FILE = "imageFile";
+    public static final String CREATION_DATE = "creationDate";
+    public static final String LOCATION_IP = "locationIp";
+    public static final String BROWSER_USED = "browserUsed";
+    public static final String LANGUAGE = "language";
+    public static final String CONTENT = "content";
+    public static final String LENGTH = "length";
+    public static final String AUTHOR_PERSON_ID = "authorPersonId";
+    public static final String FORUM_ID = "forumId";
+    public static final String COUNTRY_ID = "countryId";
+    public static final String TAG_IDS = "tagIds";
+
     private final long postId;
     private final String imageFile;
     private final Date creationDate;
@@ -114,6 +129,24 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
     public List<Long> tagIds()
     {
         return tagIds;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(POST_ID, postId)
+                .put(IMAGE_FILE, imageFile)
+                .put(CREATION_DATE, creationDate)
+                .put(LOCATION_IP, locationIp)
+                .put(BROWSER_USED, browserUsed)
+                .put(LANGUAGE, language)
+                .put(CONTENT, content)
+                .put(LENGTH, length)
+                .put(AUTHOR_PERSON_ID, authorPersonId)
+                .put(FORUM_ID, forumId)
+                .put(COUNTRY_ID, countryId)
+                .put(TAG_IDS, tagIds)
+                .build();
     }
 
     @Override

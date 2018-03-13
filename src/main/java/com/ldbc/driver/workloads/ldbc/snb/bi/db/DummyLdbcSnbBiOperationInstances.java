@@ -41,12 +41,12 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery2TopTags read2()
     {
-        return new LdbcSnbBiQuery2TopTags( 1, 2, Lists.newArrayList( "3", "4" ), 5, 6, 7 );
+        return new LdbcSnbBiQuery2TopTags( 1, 2, "A", "B", 10 );
     }
 
     public static LdbcSnbBiQuery3TagEvolution read3()
     {
-        return new LdbcSnbBiQuery3TagEvolution( 1, 2, 3, 4, 5 );
+        return new LdbcSnbBiQuery3TagEvolution( 1, 2, 3 );
     }
 
     public static LdbcSnbBiQuery4PopularCountryTopics read4()
@@ -56,7 +56,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery5TopCountryPosters read5()
     {
-        return new LdbcSnbBiQuery5TopCountryPosters( "\u16a0", 1, 2 );
+        return new LdbcSnbBiQuery5TopCountryPosters( "\u16a0", 1 );
     }
 
     public static LdbcSnbBiQuery6ActivePosters read6()
@@ -81,7 +81,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery10TagPerson read10()
     {
-        return new LdbcSnbBiQuery10TagPerson( "\u3055", 1 );
+        return new LdbcSnbBiQuery10TagPerson( "\u3055", 1, 1 );
     }
 
     public static LdbcSnbBiQuery11UnrelatedReplies read11()
@@ -136,7 +136,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery21Zombies read21()
     {
-        return new LdbcSnbBiQuery21Zombies( "1", 2, 3, 4 );
+        return new LdbcSnbBiQuery21Zombies( "1", 2, 3 );
     }
 
     public static LdbcSnbBiQuery22InternationalDialog read22()

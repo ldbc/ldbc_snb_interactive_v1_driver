@@ -39,10 +39,6 @@ public class Query12EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            Date
-            1236219
-            */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
@@ -59,17 +55,17 @@ public class Query12EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                int likeCount;
+                int likeThreshold;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    likeCount = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    likeThreshold = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving like count" );
+                    throw new GeneratorException( "Error retrieving like threshold" );
                 }
 
-                return new Object[]{date, likeCount, LdbcSnbBiQuery12TrendingPosts.DEFAULT_LIMIT};
+                return new Object[]{date, likeThreshold, LdbcSnbBiQuery12TrendingPosts.DEFAULT_LIMIT};
             }
         };
     }

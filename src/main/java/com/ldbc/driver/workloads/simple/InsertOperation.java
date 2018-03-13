@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.simple;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 
 import java.util.Iterator;
@@ -8,6 +9,9 @@ import java.util.Map;
 public class InsertOperation extends Operation<Object>
 {
     public static final int TYPE = 2;
+    public static final String TABLE = "table";
+    public static final String KEY = "key";
+    public static final String VALUES = "VALUES";
 
     private final String table;
     private final String key;
@@ -34,6 +38,15 @@ public class InsertOperation extends Operation<Object>
     public Map<String,Iterator<Byte>> fields()
     {
         return values;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(TABLE, table)
+                .put(KEY, key)
+                .put(VALUES, values)
+                .build();
     }
 
     @Override

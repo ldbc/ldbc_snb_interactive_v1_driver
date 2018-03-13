@@ -39,19 +39,15 @@ public class Query14EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            Date
-            15393166495097
-            */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
                     throws IOException
             {
-                long beginDate;
+                long startDate;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    beginDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    startDate = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -69,7 +65,7 @@ public class Query14EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving end date" );
                 }
 
-                return new Object[]{beginDate, endDate, LdbcSnbBiQuery14TopThreadInitiators.DEFAULT_LIMIT};
+                return new Object[]{startDate, endDate, LdbcSnbBiQuery14TopThreadInitiators.DEFAULT_LIMIT};
             }
         };
     }

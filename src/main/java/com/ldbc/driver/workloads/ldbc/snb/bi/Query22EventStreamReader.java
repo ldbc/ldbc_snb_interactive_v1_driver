@@ -39,26 +39,11 @@ public class Query22EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            Country0|Country1
-            New Zealand| England
-            */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )
                     throws IOException
             {
-                String country0;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    country0 = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    // if first column of next row contains nothing it means the file is finished
-                    return null;
-                }
-
                 String country1;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
@@ -66,10 +51,21 @@ public class Query22EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country name" );
+                    // if first column of next row contains nothing it means the file is finished
+                    return null;
                 }
 
-                return new Object[]{country0, country1, LdbcSnbBiQuery22InternationalDialog.DEFAULT_LIMIT};
+                String country2;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    country2 = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving country2 name" );
+                }
+
+                return new Object[]{country1, country2, LdbcSnbBiQuery22InternationalDialog.DEFAULT_LIMIT};
             }
         };
     }

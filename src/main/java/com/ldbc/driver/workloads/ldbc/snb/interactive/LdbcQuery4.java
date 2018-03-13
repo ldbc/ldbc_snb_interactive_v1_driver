@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -18,6 +20,11 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
 
     public static final int TYPE = 4;
     public static final int DEFAULT_LIMIT = 10;
+    public static final String PERSON_ID = "personId";
+    public static final String START_DATE = "startDate";
+    public static final String DURATION_DAYS = "durationDays";
+    public static final String LIMIT = "limit";
+
     private final long personId;
     private final Date startDate;
     private final int durationDays;
@@ -49,6 +56,16 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON_ID, personId)
+                .put(START_DATE, startDate)
+                .put(DURATION_DAYS, durationDays)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override

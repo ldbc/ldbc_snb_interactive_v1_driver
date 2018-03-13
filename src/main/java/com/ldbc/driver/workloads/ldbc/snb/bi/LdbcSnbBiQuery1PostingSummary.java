@@ -1,14 +1,18 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery1PostingSummaryResult>>
 {
     public static final int TYPE = 1;
+    public static final String DATE = "date";
+
     private final long date;
 
     public LdbcSnbBiQuery1PostingSummary( long date )
@@ -19,6 +23,13 @@ public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery
     public long date()
     {
         return date;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(DATE, date)
+                .build();
     }
 
     @Override
@@ -58,23 +69,23 @@ public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> resultAsList = resultsAsList.get( i );
-            int year = ((Number) resultAsList.get( 0 )).intValue();
-            boolean isReply = (boolean) resultAsList.get( 1 );
-            int messageLengthCategory = ((Number) resultAsList.get( 2 )).intValue();
+            int messageYear = ((Number) resultAsList.get( 0 )).intValue();
+            boolean isComment = (boolean) resultAsList.get( 1 );
+            int lengthCategory = ((Number) resultAsList.get( 2 )).intValue();
             long messageCount = ((Number) resultAsList.get( 3 )).longValue();
-            long messageLengthMean = ((Number) resultAsList.get( 4 )).longValue();
-            long messageLengthSum = ((Number) resultAsList.get( 5 )).longValue();
-            float percentOfTotalMessageCount = ((Number) resultAsList.get( 6 )).floatValue();
+            long averageMessageLength = ((Number) resultAsList.get( 4 )).longValue();
+            long sumMessageLength = ((Number) resultAsList.get( 5 )).longValue();
+            float percentageOfMessages = ((Number) resultAsList.get( 6 )).floatValue();
 
             results.add(
                     new LdbcSnbBiQuery1PostingSummaryResult(
-                            year,
-                            isReply,
-                            messageLengthCategory,
+                            messageYear,
+                            isComment,
+                            lengthCategory,
                             messageCount,
-                            messageLengthMean,
-                            messageLengthSum,
-                            percentOfTotalMessageCount
+                            averageMessageLength,
+                            sumMessageLength,
+                            percentageOfMessages
                     )
             );
         }
@@ -90,13 +101,13 @@ public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery
         {
             LdbcSnbBiQuery1PostingSummaryResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add( row.year() );
+            resultFields.add( row.messageYear() );
             resultFields.add( row.isComment() );
-            resultFields.add( row.messageLengthCategory() );
+            resultFields.add( row.lengthCategory() );
             resultFields.add( row.messageCount() );
-            resultFields.add( row.messageLengthMean() );
-            resultFields.add( row.messageLengthSum() );
-            resultFields.add( row.percentOfTotalMessageCount() );
+            resultFields.add( row.averageMessageLength() );
+            resultFields.add( row.sumMessageLength() );
+            resultFields.add( row.percentOfMessages() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

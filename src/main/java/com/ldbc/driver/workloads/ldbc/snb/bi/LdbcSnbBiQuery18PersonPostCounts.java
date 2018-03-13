@@ -1,15 +1,22 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQuery18PersonPostCountsResult>>
 {
     public static final int TYPE = 18;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String DATE = "date";
+    public static final String LENGTH_THRESHOLD = "lengthThreshold";
+    public static final String LANGUAGES = "languages";
+    public static final String LIMIT = "limit";
+
     private final long date;
     private final int lengthThreshold;
     private final List<String> languages;
@@ -41,6 +48,16 @@ public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQu
     public int limit()
     {
         return limit;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(DATE, date)
+                .put(LENGTH_THRESHOLD, lengthThreshold)
+                .put(LANGUAGES, languages)
+                .put(LIMIT, limit)
+                .build();
     }
 
     @Override

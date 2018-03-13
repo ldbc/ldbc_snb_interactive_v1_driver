@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.simple;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 
 import java.util.Iterator;
@@ -10,6 +11,10 @@ import java.util.Vector;
 public class ScanOperation extends Operation<Vector<Map<String,Iterator<Byte>>>>
 {
     public static final int TYPE = 5;
+    public static final String TABLE = "table";
+    public static final String START_KEY = "startKey";
+    public static final String RECORD_COUNT = "recordCount";
+    public static final String FIELDS = "fields";
 
     private final String table;
     private final String startKey;
@@ -43,6 +48,16 @@ public class ScanOperation extends Operation<Vector<Map<String,Iterator<Byte>>>>
     public List<String> fields()
     {
         return fields;
+    }
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(TABLE, table)
+                .put(START_KEY, startKey)
+                .put(RECORD_COUNT, recordCount)
+                .put(FIELDS, fields)
+                .build();
     }
 
     @Override

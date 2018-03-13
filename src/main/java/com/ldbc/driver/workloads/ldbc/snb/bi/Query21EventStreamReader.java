@@ -30,8 +30,7 @@ public class Query21EventStreamReader extends BaseEventStreamReader
         return new LdbcSnbBiQuery21Zombies(
                 (String) parameters[0],
                 (long) parameters[1],
-                (int) parameters[2],
-                (int) parameters[3]
+                (int) parameters[2]
         );
     }
 
@@ -40,10 +39,6 @@ public class Query21EventStreamReader extends BaseEventStreamReader
     {
         return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
         {
-            /*
-            Country
-            Sweden
-            */
             @Override
             public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
                     Mark mark )

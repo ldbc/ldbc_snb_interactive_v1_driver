@@ -1,23 +1,29 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery12TrendingPostsResult>>
 {
     public static final int TYPE = 12;
     public static final int DEFAULT_LIMIT = 100;
+    public static final String DATE = "date";
+    public static final String LIKE_THRESHOLD = "likeThreshold";
+    public static final String LIMIT = "limit";
+
     private final long date;
-    private final int likeCount;
+    private final int likeThreshold;
     private final int limit;
 
-    public LdbcSnbBiQuery12TrendingPosts( long date, int likeCount, int limit )
+    public LdbcSnbBiQuery12TrendingPosts( long date, int likeThreshold, int limit )
     {
         this.date = date;
-        this.likeCount = likeCount;
+        this.likeThreshold = likeThreshold;
         this.limit = limit;
     }
 
@@ -26,9 +32,9 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
         return date;
     }
 
-    public int likeCount()
+    public int likeThreshold()
     {
-        return likeCount;
+        return likeThreshold;
     }
 
     public int limit()
@@ -37,11 +43,20 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(DATE, date)
+                .put(LIKE_THRESHOLD, likeThreshold)
+                .put(LIMIT, limit)
+                .build();
+    }
+
+    @Override
     public String toString()
     {
         return "LdbcSnbBiQuery12TrendingPosts{" +
                "date=" + date +
-               ", likeCount=" + likeCount +
+               ", likeThreshold=" + likeThreshold +
                ", limit=" + limit +
                '}';
     }
@@ -58,17 +73,16 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
 
         if ( date != that.date )
         { return false; }
-        if ( likeCount != that.likeCount )
+        if ( likeThreshold != that.likeThreshold )
         { return false; }
         return limit == that.limit;
-
     }
 
     @Override
     public int hashCode()
     {
         int result = (int) (date ^ (date >>> 32));
-        result = 31 * result + likeCount;
+        result = 31 * result + likeThreshold;
         result = 31 * result + limit;
         return result;
     }
@@ -82,18 +96,18 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
         for ( int i = 0; i < resultsAsList.size(); i++ )
         {
             List<Object> row = resultsAsList.get( i );
-            long postId = ((Number) row.get( 0 )).longValue();
-            String firstName = (String) row.get( 1 );
-            String lastName = (String) row.get( 2 );
-            long creationDate = ((Number) row.get( 3 )).longValue();
-            int count = ((Number) row.get( 4 )).intValue();
+            long messageId = ((Number) row.get( 0 )).longValue();
+            long messageCreationDate = ((Number) row.get( 1 )).longValue();
+            String creatorFirstName = (String) row.get( 2 );
+            String creatorLastName = (String) row.get( 3 );
+            int likeCount = ((Number) row.get( 4 )).intValue();
             result.add(
                     new LdbcSnbBiQuery12TrendingPostsResult(
-                            postId,
-                            firstName,
-                            lastName,
-                            creationDate,
-                            count
+                            messageId,
+                            messageCreationDate,
+                            creatorFirstName,
+                            creatorLastName,
+                            likeCount
                     )
             );
         }
@@ -110,9 +124,9 @@ public class LdbcSnbBiQuery12TrendingPosts extends Operation<List<LdbcSnbBiQuery
             LdbcSnbBiQuery12TrendingPostsResult row = result.get( i );
             List<Object> resultFields = new ArrayList<>();
             resultFields.add( row.messageId() );
-            resultFields.add( row.firstName() );
-            resultFields.add( row.lastName() );
-            resultFields.add( row.creationDate() );
+            resultFields.add( row.messageCreationDate() );
+            resultFields.add( row.creatorFirstName() );
+            resultFields.add( row.creatorLastName() );
             resultFields.add( row.likeCount() );
             resultsFields.add( resultFields );
         }

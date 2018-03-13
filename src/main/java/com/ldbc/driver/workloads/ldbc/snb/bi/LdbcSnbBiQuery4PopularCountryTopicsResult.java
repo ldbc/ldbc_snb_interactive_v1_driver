@@ -5,21 +5,21 @@ public class LdbcSnbBiQuery4PopularCountryTopicsResult
     private final long forumId;
     private final String forumTitle;
     private final long forumCreationDate;
-    private final long moderatorId;
-    private final int count;
+    private final long personId;
+    private final int postCount;
 
     public LdbcSnbBiQuery4PopularCountryTopicsResult(
             long forumId,
             String forumTitle,
             long forumCreationDate,
-            long moderatorId,
-            int count )
+            long personId,
+            int postCount)
     {
         this.forumId = forumId;
         this.forumTitle = forumTitle;
         this.forumCreationDate = forumCreationDate;
-        this.moderatorId = moderatorId;
-        this.count = count;
+        this.personId = personId;
+        this.postCount = postCount;
     }
 
     public long forumId()
@@ -37,14 +37,14 @@ public class LdbcSnbBiQuery4PopularCountryTopicsResult
         return forumCreationDate;
     }
 
-    public long moderatorId()
+    public long personId()
     {
-        return moderatorId;
+        return personId;
     }
 
-    public int count()
+    public int postCount()
     {
-        return count;
+        return postCount;
     }
 
     @Override
@@ -54,8 +54,8 @@ public class LdbcSnbBiQuery4PopularCountryTopicsResult
                "forumId=" + forumId +
                ", forumTitle='" + forumTitle + '\'' +
                ", forumCreationDate=" + forumCreationDate +
-               ", moderatorId=" + moderatorId +
-               ", count=" + count +
+               ", personId=" + personId +
+               ", postCount=" + postCount +
                '}';
     }
 
@@ -73,9 +73,9 @@ public class LdbcSnbBiQuery4PopularCountryTopicsResult
         { return false; }
         if ( forumCreationDate != that.forumCreationDate )
         { return false; }
-        if ( moderatorId != that.moderatorId )
+        if ( personId != that.personId)
         { return false; }
-        if ( count != that.count )
+        if ( postCount != that.postCount)
         { return false; }
         return !(forumTitle != null ? !forumTitle.equals( that.forumTitle ) : that.forumTitle != null);
 
@@ -87,8 +87,8 @@ public class LdbcSnbBiQuery4PopularCountryTopicsResult
         int result = (int) (forumId ^ (forumId >>> 32));
         result = 31 * result + (forumTitle != null ? forumTitle.hashCode() : 0);
         result = 31 * result + (int) (forumCreationDate ^ (forumCreationDate >>> 32));
-        result = 31 * result + (int) (moderatorId ^ (moderatorId >>> 32));
-        result = 31 * result + count;
+        result = 31 * result + (int) (personId ^ (personId >>> 32));
+        result = 31 * result + postCount;
         return result;
     }
 }
