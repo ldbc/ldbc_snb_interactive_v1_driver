@@ -1,8 +1,8 @@
 package com.ldbc.driver.validation;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Map;
