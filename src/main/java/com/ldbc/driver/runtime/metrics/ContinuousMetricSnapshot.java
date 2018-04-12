@@ -46,7 +46,9 @@ public class ContinuousMetricSnapshot
             double mean,
             long min,
             long max,
+            long percentile25,
             long percentile50,
+            long percentile75,
             long percentile90,
             long percentile95,
             long percentile99,
@@ -59,7 +61,9 @@ public class ContinuousMetricSnapshot
         this.mean = mean;
         this.min = min;
         this.max = max;
+        this.percentile25 = percentile25;
         this.percentile50 = percentile50;
+        this.percentile75 = percentile75;
         this.percentile90 = percentile90;
         this.percentile95 = percentile95;
         this.percentile99 = percentile99;
