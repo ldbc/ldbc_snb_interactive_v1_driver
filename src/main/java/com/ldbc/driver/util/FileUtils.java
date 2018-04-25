@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -148,8 +149,8 @@ public class FileUtils
         try
         {
             System.out.println( format( "Copying directory...\n" +
-                                        "From:     %s\n" +
-                                        "To:       %s",
+                            "From:     %s\n" +
+                            "To:       %s",
                     from.getAbsolutePath(),
                     to.getAbsolutePath() ) );
             FileUtils.assertDirectoryExists( from );
@@ -177,9 +178,13 @@ public class FileUtils
             for ( Path path : paths.collect( toList() ) )
             {
                 if ( path.toFile().isFile() )
-                { bytes += path.toFile().length(); }
+                {
+                    bytes += path.toFile().length();
+                }
                 else
-                { bytes += bytes( path ); }
+                {
+                    bytes += bytes( path );
+                }
             }
             return bytes;
         }
@@ -189,17 +194,17 @@ public class FileUtils
         }
     }
 
-    public static void printlnsToFile( File file, String... lines )
+    public static void printlnsToFile( File file, Instant timeStamp, String... lines )
     {
         try ( PrintWriter printer = new PrintWriter( new FileOutputStream( file, true ) ) )
         {
-            Arrays.stream( lines ).forEach( printer::println );
+            Arrays.stream( lines ).forEach( line -> printer.println( "[" + timeStamp + "] " + line ) );
         }
         catch ( FileNotFoundException e )
         {
             throw new RuntimeException( "Error writing line to file\n" +
-                                        "Line: " + lines + "\n" +
-                                        "File: " + file.getAbsolutePath(), e );
+                    "Line: " + lines + "\n" +
+                    "File: " + file.getAbsolutePath(), e );
         }
     }
 
