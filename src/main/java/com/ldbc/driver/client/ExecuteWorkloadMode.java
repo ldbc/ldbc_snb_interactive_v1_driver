@@ -42,6 +42,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -132,8 +134,10 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         try
         {
             loggingService.info( "Shutting down database connector..." );
+            Instant dbShutdownStart = Instant.now();
             database.close();
-            loggingService.info( "Database connector shutdown successfully" );
+            Duration shutdownDuration = Duration.between( dbShutdownStart, Instant.now() );
+            loggingService.info( "Database connector shutdown successfully in: " + shutdownDuration );
         }
         catch ( IOException e )
         {
