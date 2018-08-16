@@ -51,7 +51,7 @@ public class Query2EventStreamReader implements Iterator<Operation>
     public static class Query2Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Person|Date0
+        personId|maxDate
         1236219|1335225600
          */
         @Override

@@ -1,4 +1,4 @@
-Person|Tag
+personId|tagName
 1099511627985|Nas
 3298534883348|William_Howard_Taft
 1099511628500|Francis_Ford_Coppola

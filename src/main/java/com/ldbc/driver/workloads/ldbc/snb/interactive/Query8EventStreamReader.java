@@ -48,7 +48,7 @@ public class Query8EventStreamReader implements Iterator<Operation>
     public static class Query8Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Person
+        personId
         3298543733056
         */
         @Override

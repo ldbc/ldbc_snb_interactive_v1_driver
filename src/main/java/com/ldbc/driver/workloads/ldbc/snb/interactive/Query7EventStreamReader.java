@@ -48,7 +48,7 @@ public class Query7EventStreamReader implements Iterator<Operation>
     public static class Query7Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Person
+        personId
         3298543733056
         */
         @Override

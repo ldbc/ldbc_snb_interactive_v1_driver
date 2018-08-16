@@ -51,7 +51,7 @@ public class Query5EventStreamReader implements Iterator<Operation>
     public static class Query5Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Person|Date0
+        personId|minDate
         7696581543848|1343952000
         */
         @Override
