@@ -1,4 +1,4 @@
-Person|Date0|Duration|Country1|Country2
+personId|startDate|durationDays|countryXName|countryYName
 4398046511187|1285891200000|28|Mauritius|Slovakia
 1099511627944|1285891200000|28|Croatia|Malta
 4398046511296|1285891200000|28|Uruguay|Liberia

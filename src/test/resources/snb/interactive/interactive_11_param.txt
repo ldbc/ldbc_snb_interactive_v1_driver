@@ -1,4 +1,4 @@
-Person|Country|Year
+personId|countryName|workFromYear
 1099511627985|Mauritius|2000
 3298534883348|Croatia|2005
 1099511628500|Uruguay|1980

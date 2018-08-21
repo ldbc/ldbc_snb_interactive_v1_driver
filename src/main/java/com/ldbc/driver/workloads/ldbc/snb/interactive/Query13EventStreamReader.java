@@ -49,7 +49,7 @@ public class Query13EventStreamReader implements Iterator<Operation>
     public static class Query13Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Person1|Person2
+        person1Id|person2Id
         15393166495097|2199027958081
         */
         @Override

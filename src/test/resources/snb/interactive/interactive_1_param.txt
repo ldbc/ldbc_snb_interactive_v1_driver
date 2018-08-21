@@ -1,4 +1,4 @@
-Person|Name
+personId|firstName
 1099511627985|Lynn
 3298534883348|Moktar Ould
 1099511628500|Lynn

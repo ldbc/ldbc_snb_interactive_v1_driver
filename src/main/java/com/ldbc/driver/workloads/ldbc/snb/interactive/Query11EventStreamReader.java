@@ -51,7 +51,7 @@ public class Query11EventStreamReader implements Iterator<Operation>
     public static class Query11Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Person|Country|Year
+        personId|countryName|workFromYear
         2199032251700|Egypt|1995
         */
         @Override

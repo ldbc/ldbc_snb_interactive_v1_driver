@@ -50,7 +50,7 @@ public class Query1EventStreamReader implements Iterator<Operation>
     public static class Query1Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Person|Name
+        personId|firstName
         2199032251700|Andrea
          */
         @Override

@@ -50,7 +50,7 @@ public class Query12EventStreamReader implements Iterator<Operation>
     public static class Query12Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Person|TagType
+        personId|tagClassName
         1236219|Cyclist
         */
         @Override

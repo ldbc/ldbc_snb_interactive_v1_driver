@@ -52,7 +52,7 @@ public class Query4EventStreamReader implements Iterator<Operation>
     public static class Query4Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Person|Date0|Duration
+        personId|startDate|durationDays
         15393164964332|1349049600|34
         */
         @Override
