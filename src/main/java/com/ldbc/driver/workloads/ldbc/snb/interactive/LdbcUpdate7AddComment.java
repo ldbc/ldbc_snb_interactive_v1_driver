@@ -20,7 +20,7 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
     public static final int TYPE = 1007;
     public static final String COMMENT_ID = "commentId";
     public static final String CREATION_DATE = "creationDate";
-    public static final String LOCATION_IP = "locationIp";
+    public static final String LOCATION_IP = "locationIP";
     public static final String BROWSER_USED = "browserUsed";
     public static final String CONTENT = "content";
     public static final String LENGTH = "length";

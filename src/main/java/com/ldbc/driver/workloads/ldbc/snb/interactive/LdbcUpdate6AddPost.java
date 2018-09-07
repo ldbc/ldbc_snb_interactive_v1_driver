@@ -21,7 +21,7 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
     public static final String POST_ID = "postId";
     public static final String IMAGE_FILE = "imageFile";
     public static final String CREATION_DATE = "creationDate";
-    public static final String LOCATION_IP = "locationIp";
+    public static final String LOCATION_IP = "locationIP";
     public static final String BROWSER_USED = "browserUsed";
     public static final String LANGUAGE = "language";
     public static final String CONTENT = "content";
