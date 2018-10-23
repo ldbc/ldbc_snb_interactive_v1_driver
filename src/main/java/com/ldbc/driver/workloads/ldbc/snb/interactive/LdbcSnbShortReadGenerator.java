@@ -568,7 +568,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
                 {
                     LdbcQuery7Result typedResult = typedResults.get( i );
                     personIdBuffer.add( typedResult.personId() );
-                    messageIdBuffer.add( typedResult.commentOrPostId() );
+                    messageIdBuffer.add( typedResult.messageId() );
                 }
                 break;
             }
@@ -590,7 +590,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
                 {
                     LdbcQuery9Result typedResult = typedResults.get( i );
                     personIdBuffer.add( typedResult.personId() );
-                    messageIdBuffer.add( typedResult.commentOrPostId() );
+                    messageIdBuffer.add( typedResult.messageId() );
                 }
                 break;
             }

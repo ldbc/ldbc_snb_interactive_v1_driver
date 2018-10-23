@@ -5,18 +5,18 @@ public class LdbcQuery7Result {
     private final String personFirstName;
     private final String personLastName;
     private final long likeCreationDate;
-    private final long commentOrPostId;
-    private final String commentOrPostContent;
+    private final long messageId;
+    private final String messageContent;
     private final int minutesLatency;
     private final boolean isNew;
 
-    public LdbcQuery7Result(long personId, String personFirstName, String personLastName, long likeCreationDate, long commentOrPostId, String commentOrPostContent, int minutesLatency, boolean isNew) {
+    public LdbcQuery7Result(long personId, String personFirstName, String personLastName, long likeCreationDate, long messageId, String messageContent, int minutesLatency, boolean isNew) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
         this.likeCreationDate = likeCreationDate;
-        this.commentOrPostId = commentOrPostId;
-        this.commentOrPostContent = commentOrPostContent;
+        this.messageId = messageId;
+        this.messageContent = messageContent;
         this.minutesLatency = minutesLatency;
         this.isNew = isNew;
     }
@@ -37,12 +37,12 @@ public class LdbcQuery7Result {
         return likeCreationDate;
     }
 
-    public long commentOrPostId() {
-        return commentOrPostId;
+    public long messageId() {
+        return messageId;
     }
 
-    public String commentOrPostContent() {
-        return commentOrPostContent;
+    public String messageContent() {
+        return messageContent;
     }
 
     public int minutesLatency() {
@@ -60,12 +60,12 @@ public class LdbcQuery7Result {
 
         LdbcQuery7Result that = (LdbcQuery7Result) o;
 
-        if (commentOrPostId != that.commentOrPostId) return false;
+        if (messageId != that.messageId) return false;
         if (isNew != that.isNew) return false;
         if (likeCreationDate != that.likeCreationDate) return false;
         if (minutesLatency != that.minutesLatency) return false;
         if (personId != that.personId) return false;
-        if (commentOrPostContent != null ? !commentOrPostContent.equals(that.commentOrPostContent) : that.commentOrPostContent != null)
+        if (messageContent != null ? !messageContent.equals(that.messageContent) : that.messageContent != null)
             return false;
         if (personFirstName != null ? !personFirstName.equals(that.personFirstName) : that.personFirstName != null)
             return false;
@@ -82,8 +82,8 @@ public class LdbcQuery7Result {
                 ", personFirstName='" + personFirstName + '\'' +
                 ", personLastName='" + personLastName + '\'' +
                 ", likeCreationDate=" + likeCreationDate +
-                ", commentOrPostId=" + commentOrPostId +
-                ", commentOrPostContent='" + commentOrPostContent + '\'' +
+                ", messageId=" + messageId +
+                ", messageContent='" + messageContent + '\'' +
                 ", minutesLatency=" + minutesLatency +
                 ", isNew=" + isNew +
                 '}';
