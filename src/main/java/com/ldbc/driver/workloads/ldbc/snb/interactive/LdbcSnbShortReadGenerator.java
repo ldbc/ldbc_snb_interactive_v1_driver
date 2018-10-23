@@ -548,7 +548,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
                 {
                     LdbcQuery2Result typedResult = typedResults.get( i );
                     personIdBuffer.add( typedResult.personId() );
-                    messageIdBuffer.add( typedResult.postOrCommentId() );
+                    messageIdBuffer.add( typedResult.messageId() );
                 }
                 break;
             }
