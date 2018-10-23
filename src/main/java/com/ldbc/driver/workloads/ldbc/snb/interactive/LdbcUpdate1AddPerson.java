@@ -1,10 +1,10 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.util.ListUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -24,7 +24,7 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
     public static final String GENDER = "gender";
     public static final String BIRTHDAY = "birthday";
     public static final String CREATION_DATE = "creationDate";
-    public static final String LOCATION_IP = "locationIp";
+    public static final String LOCATION_IP = "locationIP";
     public static final String BROWSER_USED = "browserUsed";
     public static final String CITY_ID = "cityId";
     public static final String LANGUAGES = "languages";

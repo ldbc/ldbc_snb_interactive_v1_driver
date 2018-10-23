@@ -47,14 +47,17 @@ public class OperationTest
             {
                 throw new RuntimeException( e );
             }
-            Object actual = params.get( fieldName );
+            final String keyName = params.keySet().stream()
+                    .filter(k -> k.toLowerCase().equals(fieldName.toLowerCase()))
+                    .findFirst().get();
+            Object actual = params.get( keyName );
 
             assertThat(
-                    "Expected " + operation.getClass().getName() + " to have parameter named '" + fieldName + "'",
+                    "Expected " + operation.getClass().getName() + " to have parameter named (case-insensitive) '" + keyName + "'",
                     actual, is( notNullValue() ) );
 
             assertThat(
-                    "Expected value of parameter '" + fieldName + "' to be " + expected + ", " + "but was " + actual,
+                    "Expected value of parameter (case-insensitive) '" + keyName + "' to be " + expected + ", " + "but was " + actual,
                     actual, equalTo( expected ) );
         } );
     }
@@ -87,11 +90,15 @@ public class OperationTest
 
             nonStaticFields.forEach( field ->
             {
-                String expectedStaticFieldName =
-                        CaseFormat.LOWER_CAMEL.to( CaseFormat.UPPER_UNDERSCORE, field.getName() );
+                String fieldName = field.getName().toLowerCase();
                 assertTrue(
-                        clazz.getName() + " is missing field name declaration for parameter " + field.getName(),
-                        allFields.stream().anyMatch( f -> f.getName().equals( expectedStaticFieldName ) )
+                        clazz.getName() + " is missing field name declaration (case-insensitive) " + fieldName + " for parameter " + field.getName(),
+                        allFields.stream().anyMatch( f ->
+                                CaseFormat.UPPER_UNDERSCORE
+                                        .to( CaseFormat.LOWER_CAMEL, f.getName() )
+                                        .toLowerCase()
+                                        .equals(fieldName)
+                        )
                 );
             } );
         } );

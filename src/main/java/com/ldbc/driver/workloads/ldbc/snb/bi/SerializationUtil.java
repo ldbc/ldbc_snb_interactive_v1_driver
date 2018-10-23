@@ -1,8 +1,8 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ldbc.driver.SerializingMarshallingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 
 import java.io.IOException;
 import java.util.List;

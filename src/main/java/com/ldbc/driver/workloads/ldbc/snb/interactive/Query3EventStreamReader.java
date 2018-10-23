@@ -54,7 +54,7 @@ public class Query3EventStreamReader implements Iterator<Operation>
     public static class Query3Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Person|Date0|Duration|Country1|Country2
+        personId|startDate|durationDays|countryXName|countryYName
         7696581543848|1293840000|28|Egypt|Sri_Lanka
          */
         @Override

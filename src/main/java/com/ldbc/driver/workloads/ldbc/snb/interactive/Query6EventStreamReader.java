@@ -50,7 +50,7 @@ public class Query6EventStreamReader implements Iterator<Operation>
     public static class Query6Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Person|Tag
+        personId|tagName
         2199032251700|God_Hates_Us_All
         */
         @Override
