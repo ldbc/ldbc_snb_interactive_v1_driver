@@ -1,19 +1,21 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
-import com.ldbc.driver.util.MapUtils;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static com.ldbc.driver.util.FileUtils.removePrefix;
@@ -654,19 +656,22 @@ public class LdbcSnbBiWorkloadConfiguration
         }
     }
 
-    public static File defaultConfigFileSF1()
-    {
-        return org.apache.commons.io.FileUtils.toFile(
-                LdbcSnbBiWorkloadConfiguration.class.getResource( "/configuration/ldbc/snb/bi/ldbc_snb_bi_SF-0001.properties" ));
-    }
-
     public static Map<String,String> defaultConfigSF1() throws IOException
     {
+        String filename = "/configuration/ldbc/snb/bi/ldbc_snb_bi_SF-0001.properties";
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(
-                MapUtils.loadPropertiesToMap(
-                        defaultConfigFileSF1()
-                )
+                resourceToMap( filename )
         );
+    }
+
+    private static Map<String,String> resourceToMap( String filename ) throws IOException
+    {
+        try ( InputStream inputStream = LdbcSnbInteractiveWorkloadConfiguration.class.getResource( filename ).openStream() )
+        {
+            Properties properties = new Properties();
+            properties.load( inputStream );
+            return new HashMap<>( Maps.fromProperties( properties ) );
+        }
     }
 
     public static Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
