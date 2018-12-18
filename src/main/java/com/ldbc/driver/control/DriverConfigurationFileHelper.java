@@ -16,19 +16,15 @@ import static java.lang.String.format;
 
 public class DriverConfigurationFileHelper
 {
-    private static final String CONFIGURATION_DIR_NAME = "configuration";
-
     public static void main( String[] args ) throws IOException, DriverConfigurationException
     {
-        updateDefaultConfigurationFiles();
+        File baseConfigurationFilePublicLocation = new File( args[0] );
+        updateDefaultConfigurationFiles(baseConfigurationFilePublicLocation);
         print();
     }
 
-    private static void updateDefaultConfigurationFiles() throws DriverConfigurationException, IOException
+    private static void updateDefaultConfigurationFiles(File baseConfigurationFilePublicLocation) throws DriverConfigurationException, IOException
     {
-        File driverRootDirectory = getDriverRootDirectory();
-
-        File baseConfigurationFilePublicLocation = getBaseConfigurationFilePublicLocation( driverRootDirectory );
         createBaseConfigurationAt( baseConfigurationFilePublicLocation );
         if ( !readConfigurationFileAt( baseConfigurationFilePublicLocation ).equals( baseConfiguration() ) )
         {
@@ -88,7 +84,7 @@ public class DriverConfigurationFileHelper
         ldbcDriverDefaultConfigurationProperties.load( new FileInputStream( configurationFile ) );
         Map<String,String> ldbcDriverDefaultConfigurationAsParamsMap =
                 ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(
-                        MapUtils.<String,String>propertiesToMap( ldbcDriverDefaultConfigurationProperties )
+                        MapUtils.propertiesToMap( ldbcDriverDefaultConfigurationProperties )
                 );
 
         if ( !ldbcDriverDefaultConfigurationAsParamsMap
@@ -98,30 +94,10 @@ public class DriverConfigurationFileHelper
         return ConsoleAndFileDriverConfiguration.fromParamsMap( ldbcDriverDefaultConfigurationAsParamsMap );
     }
 
-    static File getBaseConfigurationFilePublicLocation() throws DriverConfigurationException
+    static File getBaseConfigurationFilePublicLocation()
     {
-        return getBaseConfigurationFilePublicLocation( getDriverRootDirectory() );
-    }
-
-    public static File getWorkloadsDirectory() throws DriverConfigurationException
-    {
-        File rootDirectory = getDriverRootDirectory();
-        return getWorkloadsDirectory( rootDirectory );
-    }
-
-    public static File getWorkloadsDirectory( File driverRootDirectory ) throws DriverConfigurationException
-    {
-        File workloadsDirectory = new File( driverRootDirectory, CONFIGURATION_DIR_NAME );
-        if ( !workloadsDirectory.exists() )
-        {
-            throw new DriverConfigurationException(
-                    "Directory does not exist: " + workloadsDirectory.getAbsolutePath() );
-        }
-        if ( !workloadsDirectory.isDirectory() )
-        {
-            throw new DriverConfigurationException( "Not a directory: " + workloadsDirectory.getAbsolutePath() );
-        }
-        return workloadsDirectory;
+        return org.apache.commons.io.FileUtils.toFile(
+                DriverConfigurationFileHelper.class.getResource( "/configuration/ldbc_driver_default.properties" ));
     }
 
     private static ConsoleAndFileDriverConfiguration baseConfiguration() throws DriverConfigurationException
@@ -130,24 +106,5 @@ public class DriverConfigurationFileHelper
         String workloadClassName = null;
         long operationCount = 0;
         return ConsoleAndFileDriverConfiguration.fromDefaults( databaseClassName, workloadClassName, operationCount );
-    }
-
-    private static File getDriverRootDirectory()
-    {
-        File resourcesDirectory = FileUtils.toFile( DriverConfigurationFileHelper.class.getResource( "/" ) );
-        File targetDirectory = resourcesDirectory.getParentFile();
-        return targetDirectory.getParentFile();
-    }
-
-    private static File getBaseConfigurationFilePublicLocation( File driverRootDirectory )
-            throws DriverConfigurationException
-    {
-        File workloadsDirectory = new File( driverRootDirectory, CONFIGURATION_DIR_NAME );
-        if ( !workloadsDirectory.exists() )
-        {
-            throw new DriverConfigurationException(
-                    "Directory does not exist: " + workloadsDirectory.getAbsolutePath() );
-        }
-        return new File( workloadsDirectory, "ldbc_driver_default.properties" );
     }
 }
