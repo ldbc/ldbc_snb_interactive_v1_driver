@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
-import com.ldbc.driver.control.DriverConfigurationException;
-import com.ldbc.driver.control.DriverConfigurationFileHelper;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.MapUtils;
@@ -656,27 +654,13 @@ public class LdbcSnbBiWorkloadConfiguration
         }
     }
 
-    public static File defaultConfigFileSF1() throws DriverConfigurationException
+    public static File defaultConfigFileSF1()
     {
-        return defaultConfigFileSF1FromWorkloadsDirectory(
-                DriverConfigurationFileHelper.getWorkloadsDirectory()
-        );
+        return org.apache.commons.io.FileUtils.toFile(
+                LdbcSnbBiWorkloadConfiguration.class.getResource( "/configuration/ldbc/snb/bi/ldbc_snb_bi_SF-0001.properties" ));
     }
 
-    public static File defaultConfigFileSF1( File driverRootDirectory ) throws DriverConfigurationException
-    {
-        return defaultConfigFileSF1FromWorkloadsDirectory(
-                DriverConfigurationFileHelper.getWorkloadsDirectory( driverRootDirectory )
-        );
-    }
-
-    private static File defaultConfigFileSF1FromWorkloadsDirectory( File workloadsDirectory )
-            throws DriverConfigurationException
-    {
-        return new File( workloadsDirectory, "ldbc/snb/bi/ldbc_snb_bi_SF-0001.properties" );
-    }
-
-    public static Map<String,String> defaultConfigSF1() throws DriverConfigurationException, IOException
+    public static Map<String,String> defaultConfigSF1() throws IOException
     {
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(
                 MapUtils.loadPropertiesToMap(

@@ -5,7 +5,6 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
-import com.ldbc.driver.control.DriverConfigurationFileHelper;
 import com.ldbc.driver.util.FileUtils;
 import com.ldbc.driver.util.MapUtils;
 
@@ -334,27 +333,13 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         return params;
     }
 
-    public static File defaultConfigFileSF1() throws DriverConfigurationException
+    public static File defaultConfigFileSF1()
     {
-        return defaultConfigFileSF1FromWorkloadsDirectory(
-                DriverConfigurationFileHelper.getWorkloadsDirectory()
-        );
+        return org.apache.commons.io.FileUtils.toFile(
+                LdbcSnbInteractiveWorkloadConfiguration.class.getResource( "/configuration/ldbc/snb/interactive/ldbc_snb_interactive_SF-0001.properties" ));
     }
 
-    public static File defaultConfigFileSF1( File driverRootDirectory ) throws DriverConfigurationException
-    {
-        return defaultConfigFileSF1FromWorkloadsDirectory(
-                DriverConfigurationFileHelper.getWorkloadsDirectory( driverRootDirectory )
-        );
-    }
-
-    private static File defaultConfigFileSF1FromWorkloadsDirectory( File workloadsDirectory )
-            throws DriverConfigurationException
-    {
-        return new File( workloadsDirectory, "ldbc/snb/interactive/ldbc_snb_interactive_SF-0001.properties" );
-    }
-
-    public static Map<String,String> defaultConfigSF1() throws DriverConfigurationException, IOException
+    public static Map<String,String> defaultConfigSF1() throws IOException
     {
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(
                 MapUtils.loadPropertiesToMap(
