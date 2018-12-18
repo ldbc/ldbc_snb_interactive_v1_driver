@@ -122,17 +122,17 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
             long personId = ((Number) resultAsList.get( 0 )).longValue();
             String personFirstName = (String) resultAsList.get( 1 );
             String personLastName = (String) resultAsList.get( 2 );
-            long postOrCommentId = ((Number) resultAsList.get( 3 )).longValue();
-            String postOrCommentContent = (String) resultAsList.get( 4 );
-            long postOrCommentCreationDate = ((Number) resultAsList.get( 5 )).longValue();
+            long messageId = ((Number) resultAsList.get( 3 )).longValue();
+            String messageContent = (String) resultAsList.get( 4 );
+            long messageCreationDate = ((Number) resultAsList.get( 5 )).longValue();
 
             results.add( new LdbcQuery2Result(
                     personId,
                     personFirstName,
                     personLastName,
-                    postOrCommentId,
-                    postOrCommentContent,
-                    postOrCommentCreationDate
+                    messageId,
+                    messageContent,
+                    messageCreationDate
             ) );
         }
 
@@ -151,9 +151,9 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
             resultFields.add( result.personId() );
             resultFields.add( result.personFirstName() );
             resultFields.add( result.personLastName() );
-            resultFields.add( result.postOrCommentId() );
-            resultFields.add( result.postOrCommentContent() );
-            resultFields.add( result.postOrCommentCreationDate() );
+            resultFields.add( result.messageId() );
+            resultFields.add( result.messageContent() );
+            resultFields.add( result.messageCreationDate() );
             resultsFields.add( resultFields );
         }
 

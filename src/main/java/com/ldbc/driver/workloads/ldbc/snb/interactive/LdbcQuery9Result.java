@@ -4,17 +4,17 @@ public class LdbcQuery9Result {
     private final long personId;
     private final String personFirstName;
     private final String personLastName;
-    private final long commentOrPostId;
-    private final String commentOrPostContent;
-    private final long commentOrPostCreationDate;
+    private final long messageId;
+    private final String messageContent;
+    private final long messageCreationDate;
 
-    public LdbcQuery9Result(long personId, String personFirstName, String personLastName, long commentOrPostId, String commentOrPostContent, long commentOrPostCreationDate) {
+    public LdbcQuery9Result(long personId, String personFirstName, String personLastName, long messageId, String messageContent, long messageCreationDate) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
-        this.commentOrPostId = commentOrPostId;
-        this.commentOrPostContent = commentOrPostContent;
-        this.commentOrPostCreationDate = commentOrPostCreationDate;
+        this.messageId = messageId;
+        this.messageContent = messageContent;
+        this.messageCreationDate = messageCreationDate;
     }
 
     public long personId() {
@@ -29,16 +29,16 @@ public class LdbcQuery9Result {
         return personLastName;
     }
 
-    public long commentOrPostId() {
-        return commentOrPostId;
+    public long messageId() {
+        return messageId;
     }
 
-    public String commentOrPostContent() {
-        return commentOrPostContent;
+    public String messageContent() {
+        return messageContent;
     }
 
-    public long commentOrPostCreationDate() {
-        return commentOrPostCreationDate;
+    public long messageCreationDate() {
+        return messageCreationDate;
     }
 
     @Override
@@ -48,10 +48,10 @@ public class LdbcQuery9Result {
 
         LdbcQuery9Result that = (LdbcQuery9Result) o;
 
-        if (commentOrPostCreationDate != that.commentOrPostCreationDate) return false;
-        if (commentOrPostId != that.commentOrPostId) return false;
+        if (messageCreationDate != that.messageCreationDate) return false;
+        if (messageId != that.messageId) return false;
         if (personId != that.personId) return false;
-        if (commentOrPostContent != null ? !commentOrPostContent.equals(that.commentOrPostContent) : that.commentOrPostContent != null)
+        if (messageContent != null ? !messageContent.equals(that.messageContent) : that.messageContent != null)
             return false;
         if (personFirstName != null ? !personFirstName.equals(that.personFirstName) : that.personFirstName != null)
             return false;
@@ -67,9 +67,9 @@ public class LdbcQuery9Result {
                 "personId=" + personId +
                 ", personFirstName='" + personFirstName + '\'' +
                 ", personLastName='" + personLastName + '\'' +
-                ", commentOrPostId=" + commentOrPostId +
-                ", commentOrPostContent='" + commentOrPostContent + '\'' +
-                ", commentOrPostCreationDate=" + commentOrPostCreationDate +
+                ", messageId=" + messageId +
+                ", messageContent='" + messageContent + '\'' +
+                ", messageCreationDate=" + messageCreationDate +
                 '}';
     }
 }
