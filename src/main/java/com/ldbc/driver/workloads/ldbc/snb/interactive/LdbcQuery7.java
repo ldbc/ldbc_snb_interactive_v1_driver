@@ -109,8 +109,8 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
             String personFirstName = (String) row.get( 1 );
             String personLastName = (String) row.get( 2 );
             long likeCreationDate = ((Number) row.get( 3 )).longValue();
-            long commentOrPostId = ((Number) row.get( 4 )).longValue();
-            String commentOrPostContent = (String) row.get( 5 );
+            long messageId = ((Number) row.get( 4 )).longValue();
+            String messageContent = (String) row.get( 5 );
             int minutesLatency = ((Number) row.get( 6 )).intValue();
             boolean isNew = (Boolean) row.get( 7 );
 
@@ -119,8 +119,8 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
                     personFirstName,
                     personLastName,
                     likeCreationDate,
-                    commentOrPostId,
-                    commentOrPostContent,
+                    messageId,
+                    messageContent,
                     minutesLatency,
                     isNew
             ) );
@@ -142,8 +142,8 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
             resultFields.add( result.personFirstName() );
             resultFields.add( result.personLastName() );
             resultFields.add( result.likeCreationDate() );
-            resultFields.add( result.commentOrPostId() );
-            resultFields.add( result.commentOrPostContent() );
+            resultFields.add( result.messageId() );
+            resultFields.add( result.messageContent() );
             resultFields.add( result.minutesLatency() );
             resultFields.add( result.isNew() );
             resultsFields.add( resultFields );

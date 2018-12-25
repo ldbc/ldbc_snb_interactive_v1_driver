@@ -1,21 +1,23 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
-import com.ldbc.driver.control.DriverConfigurationFileHelper;
 import com.ldbc.driver.util.FileUtils;
 import com.ldbc.driver.util.MapUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -334,33 +336,20 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         return params;
     }
 
-    public static File defaultConfigFileSF1() throws DriverConfigurationException
+    public static Map<String,String> defaultConfigSF1() throws IOException
     {
-        return defaultConfigFileSF1FromWorkloadsDirectory(
-                DriverConfigurationFileHelper.getWorkloadsDirectory()
-        );
+        String filename = "/configuration/ldbc/snb/interactive/ldbc_snb_interactive_SF-0001.properties";
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( resourceToMap( filename ) );
     }
 
-    public static File defaultConfigFileSF1( File driverRootDirectory ) throws DriverConfigurationException
+    private static Map<String,String> resourceToMap( String filename ) throws IOException
     {
-        return defaultConfigFileSF1FromWorkloadsDirectory(
-                DriverConfigurationFileHelper.getWorkloadsDirectory( driverRootDirectory )
-        );
-    }
-
-    private static File defaultConfigFileSF1FromWorkloadsDirectory( File workloadsDirectory )
-            throws DriverConfigurationException
-    {
-        return new File( workloadsDirectory, "ldbc/snb/interactive/ldbc_snb_interactive_SF-0001.properties" );
-    }
-
-    public static Map<String,String> defaultConfigSF1() throws DriverConfigurationException, IOException
-    {
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(
-                MapUtils.loadPropertiesToMap(
-                        defaultConfigFileSF1()
-                )
-        );
+        try ( InputStream inputStream = LdbcSnbInteractiveWorkloadConfiguration.class.getResource( filename ).openStream() )
+        {
+            Properties properties = new Properties();
+            properties.load( inputStream );
+            return new HashMap<>( Maps.fromProperties( properties ) );
+        }
     }
 
     public static Map<String,String> defaultReadOnlyConfigSF1() throws DriverConfigurationException, IOException

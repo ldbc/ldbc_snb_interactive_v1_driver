@@ -4,17 +4,17 @@ public class LdbcQuery2Result {
     private final long personId;
     private final String personFirstName;
     private final String personLastName;
-    private final long postOrCommentId;
-    private final String postOrCommentContent;
-    private final long postOrCommentCreationDate;
+    private final long messageId;
+    private final String messageContent;
+    private final long messageCreationDate;
 
-    public LdbcQuery2Result(long personId, String personFirstName, String personLastName, long postOrCommentId, String postOrCommentContent, long postOrCommentCreationDate) {
+    public LdbcQuery2Result(long personId, String personFirstName, String personLastName, long messageId, String messageContent, long messageCreationDate) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
-        this.postOrCommentId = postOrCommentId;
-        this.postOrCommentContent = postOrCommentContent;
-        this.postOrCommentCreationDate = postOrCommentCreationDate;
+        this.messageId = messageId;
+        this.messageContent = messageContent;
+        this.messageCreationDate = messageCreationDate;
     }
 
     public long personId() {
@@ -29,16 +29,16 @@ public class LdbcQuery2Result {
         return personLastName;
     }
 
-    public long postOrCommentId() {
-        return postOrCommentId;
+    public long messageId() {
+        return messageId;
     }
 
-    public String postOrCommentContent() {
-        return postOrCommentContent;
+    public String messageContent() {
+        return messageContent;
     }
 
-    public long postOrCommentCreationDate() {
-        return postOrCommentCreationDate;
+    public long messageCreationDate() {
+        return messageCreationDate;
     }
 
     @Override
@@ -49,13 +49,13 @@ public class LdbcQuery2Result {
         LdbcQuery2Result result = (LdbcQuery2Result) o;
 
         if (personId != result.personId) return false;
-        if (postOrCommentCreationDate != result.postOrCommentCreationDate) return false;
-        if (postOrCommentId != result.postOrCommentId) return false;
+        if (messageCreationDate != result.messageCreationDate) return false;
+        if (messageId != result.messageId) return false;
         if (personFirstName != null ? !personFirstName.equals(result.personFirstName) : result.personFirstName != null)
             return false;
         if (personLastName != null ? !personLastName.equals(result.personLastName) : result.personLastName != null)
             return false;
-        if (postOrCommentContent != null ? !postOrCommentContent.equals(result.postOrCommentContent) : result.postOrCommentContent != null)
+        if (messageContent != null ? !messageContent.equals(result.messageContent) : result.messageContent != null)
             return false;
 
         return true;
@@ -67,9 +67,9 @@ public class LdbcQuery2Result {
                 "personId=" + personId +
                 ", personFirstName='" + personFirstName + '\'' +
                 ", personLastName='" + personLastName + '\'' +
-                ", postOrCommentId=" + postOrCommentId +
-                ", postOrCommentContent='" + postOrCommentContent + '\'' +
-                ", postOrCommentCreationDate=" + postOrCommentCreationDate +
+                ", messageId=" + messageId +
+                ", messageContent='" + messageContent + '\'' +
+                ", messageCreationDate=" + messageCreationDate +
                 '}';
     }
 }
