@@ -12,3 +12,4 @@ plotting/*.pdf
 *.swp
 results/
 mvn.log
+dependency-reduced-pom.xml
