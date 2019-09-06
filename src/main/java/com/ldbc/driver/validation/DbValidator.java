@@ -63,6 +63,7 @@ public class DbValidator
                         numberFormat.format( validationParamsIncorrectSoFar ),
                         operation.getClass().getSimpleName()
                 ) );
+                System.out.flush();
                 handler.executeOperation( operation, dbConnectionState, resultReporter );
                 if ( null == resultReporter.result() )
                 {
