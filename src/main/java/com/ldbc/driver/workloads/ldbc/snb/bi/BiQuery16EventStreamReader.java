@@ -14,9 +14,9 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Query2EventStreamReader extends BaseEventStreamReader
+public class BiQuery16EventStreamReader extends BaseEventStreamReader
 {
-    public Query2EventStreamReader(
+    public BiQuery16EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -27,12 +27,13 @@ public class Query2EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery2TopTags(
+        return new LdbcSnbBiQuery16ExpertsInSocialCircle(
                 (long) parameters[0],
-                (long) parameters[1],
+                (String) parameters[1],
                 (String) parameters[2],
-                (String) parameters[3],
-                (int) parameters[4]
+                (int) parameters[3],
+                (int) parameters[4],
+                (int) parameters[5]
         );
     }
 
@@ -46,10 +47,10 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long startDate;
+                long personId;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    startDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    personId = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -57,43 +58,48 @@ public class Query2EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                long endDate;
+                String country;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    endDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    country = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving endDate" );
+                    throw new GeneratorException( "Error retrieving country name" );
                 }
 
-                String country1;
+                String tagClass;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    country1 = charSeeker.extract( mark, extractors.string() ).value();
+                    tagClass = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country1" );
+                    throw new GeneratorException( "Error retrieving tag class" );
                 }
 
-                String country2;
+                int minPathDistance;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    country2 = charSeeker.extract( mark, extractors.string() ).value();
+                    minPathDistance = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country2" );
+                    throw new GeneratorException( "Error retrieving min path distance" );
                 }
 
-                return new Object[]{
-                        startDate,
-                        endDate,
-                        country1,
-                        country2,
-                        LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT,
-                };
+                int maxPathDistance;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    maxPathDistance = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving max path distance" );
+                }
+
+                return new Object[]{personId, country, tagClass, minPathDistance, maxPathDistance,
+                        LdbcSnbBiQuery16ExpertsInSocialCircle.DEFAULT_LIMIT};
             }
         };
     }
@@ -101,6 +107,6 @@ public class Query2EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 4;
+        return 5;
     }
 }

@@ -273,7 +273,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 1
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery1PostingSummary.class ) )
         {
-            Query1EventStreamReader operation1StreamWithoutTimes = new Query1EventStreamReader(
+            BiQuery1EventStreamReader operation1StreamWithoutTimes = new BiQuery1EventStreamReader(
                     readOperation1FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -293,7 +293,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 2
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery2TopTags.class ) )
         {
-            Query2EventStreamReader operation2StreamWithoutTimes = new Query2EventStreamReader(
+            BiQuery2EventStreamReader operation2StreamWithoutTimes = new BiQuery2EventStreamReader(
                     readOperation2FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -313,7 +313,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 3
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery3TagEvolution.class ) )
         {
-            Query3EventStreamReader operation3StreamWithoutTimes = new Query3EventStreamReader(
+            BiQuery3EventStreamReader operation3StreamWithoutTimes = new BiQuery3EventStreamReader(
                     readOperation3FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -333,8 +333,8 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 4
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery4PopularCountryTopics.class ) )
         {
-            Query4EventStreamReader operation4StreamWithoutTimes = null;
-            operation4StreamWithoutTimes = new Query4EventStreamReader(
+            BiQuery4EventStreamReader operation4StreamWithoutTimes = null;
+            operation4StreamWithoutTimes = new BiQuery4EventStreamReader(
                     readOperation4FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -354,7 +354,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 5
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery5TopCountryPosters.class ) )
         {
-            Query5EventStreamReader operation5StreamWithoutTimes = new Query5EventStreamReader(
+            BiQuery5EventStreamReader operation5StreamWithoutTimes = new BiQuery5EventStreamReader(
                     readOperation5FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -374,7 +374,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 6
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery6ActivePosters.class ) )
         {
-            Query6EventStreamReader operation6StreamWithoutTimes = new Query6EventStreamReader(
+            BiQuery6EventStreamReader operation6StreamWithoutTimes = new BiQuery6EventStreamReader(
                     readOperation6FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -394,7 +394,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 7
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery7AuthoritativeUsers.class ) )
         {
-            Query7EventStreamReader operation7StreamWithoutTimes = new Query7EventStreamReader(
+            BiQuery7EventStreamReader operation7StreamWithoutTimes = new BiQuery7EventStreamReader(
                     readOperation7FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -414,7 +414,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 8
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery8RelatedTopics.class ) )
         {
-            Query8EventStreamReader operation8StreamWithoutTimes = new Query8EventStreamReader(
+            BiQuery8EventStreamReader operation8StreamWithoutTimes = new BiQuery8EventStreamReader(
                     readOperation8FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -434,7 +434,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 9
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery9RelatedForums.class ) )
         {
-            Query9EventStreamReader operation9StreamWithoutTimes = new Query9EventStreamReader(
+            BiQuery9EventStreamReader operation9StreamWithoutTimes = new BiQuery9EventStreamReader(
                     readOperation9FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -454,7 +454,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 10
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery10TagPerson.class ) )
         {
-            Query10EventStreamReader operation10StreamWithoutTimes = new Query10EventStreamReader(
+            BiQuery10EventStreamReader operation10StreamWithoutTimes = new BiQuery10EventStreamReader(
                     readOperation10FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -474,7 +474,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 11
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery11UnrelatedReplies.class ) )
         {
-            Query11EventStreamReader operation11StreamWithoutTimes = new Query11EventStreamReader(
+            BiQuery11EventStreamReader operation11StreamWithoutTimes = new BiQuery11EventStreamReader(
                     readOperation11FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -494,7 +494,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 12
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery12TrendingPosts.class ) )
         {
-            Query12EventStreamReader operation12StreamWithoutTimes = new Query12EventStreamReader(
+            BiQuery12EventStreamReader operation12StreamWithoutTimes = new BiQuery12EventStreamReader(
                     readOperation12FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -514,7 +514,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 13
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery13PopularMonthlyTags.class ) )
         {
-            Query13EventStreamReader operation13StreamWithoutTimes = new Query13EventStreamReader(
+            BiQuery13EventStreamReader operation13StreamWithoutTimes = new BiQuery13EventStreamReader(
                     readOperation13FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -534,7 +534,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 14
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery14TopThreadInitiators.class ) )
         {
-            Query14EventStreamReader operation14StreamWithoutTimes = new Query14EventStreamReader(
+            BiQuery14EventStreamReader operation14StreamWithoutTimes = new BiQuery14EventStreamReader(
                     readOperation14FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -554,7 +554,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 15
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery15SocialNormals.class ) )
         {
-            Query15EventStreamReader operation15StreamWithoutTimes = new Query15EventStreamReader(
+            BiQuery15EventStreamReader operation15StreamWithoutTimes = new BiQuery15EventStreamReader(
                     readOperation15FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -574,7 +574,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 16
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery16ExpertsInSocialCircle.class ) )
         {
-            Query16EventStreamReader operation16StreamWithoutTimes = new Query16EventStreamReader(
+            BiQuery16EventStreamReader operation16StreamWithoutTimes = new BiQuery16EventStreamReader(
                     readOperation16FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -594,7 +594,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 17
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery17FriendshipTriangles.class ) )
         {
-            Query17EventStreamReader operation17StreamWithoutTimes = new Query17EventStreamReader(
+            BiQuery17EventStreamReader operation17StreamWithoutTimes = new BiQuery17EventStreamReader(
                     readOperation17FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -614,7 +614,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 18
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery18PersonPostCounts.class ) )
         {
-            Query18EventStreamReader operation18StreamWithoutTimes = new Query18EventStreamReader(
+            BiQuery18EventStreamReader operation18StreamWithoutTimes = new BiQuery18EventStreamReader(
                     readOperation18FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -634,7 +634,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 19
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery19StrangerInteraction.class ) )
         {
-            Query19EventStreamReader operation19StreamWithoutTimes = new Query19EventStreamReader(
+            BiQuery19EventStreamReader operation19StreamWithoutTimes = new BiQuery19EventStreamReader(
                     readOperation19FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -654,7 +654,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 20
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery20HighLevelTopics.class ) )
         {
-            Query20EventStreamReader operation20StreamWithoutTimes = new Query20EventStreamReader(
+            BiQuery20EventStreamReader operation20StreamWithoutTimes = new BiQuery20EventStreamReader(
                     readOperation20FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -674,7 +674,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 21
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery21Zombies.class ) )
         {
-            Query21EventStreamReader operation21StreamWithoutTimes = new Query21EventStreamReader(
+            BiQuery21EventStreamReader operation21StreamWithoutTimes = new BiQuery21EventStreamReader(
                     readOperation21FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -694,7 +694,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 22
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery22InternationalDialog.class ) )
         {
-            Query22EventStreamReader operation22StreamWithoutTimes = new Query22EventStreamReader(
+            BiQuery22EventStreamReader operation22StreamWithoutTimes = new BiQuery22EventStreamReader(
                     readOperation22FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -714,7 +714,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 23
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery23HolidayDestinations.class ) )
         {
-            Query23EventStreamReader operation23StreamWithoutTimes = new Query23EventStreamReader(
+            BiQuery23EventStreamReader operation23StreamWithoutTimes = new BiQuery23EventStreamReader(
                     readOperation23FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -734,7 +734,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 24
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery24MessagesByTopic.class ) )
         {
-            Query24EventStreamReader operation24StreamWithoutTimes = new Query24EventStreamReader(
+            BiQuery24EventStreamReader operation24StreamWithoutTimes = new BiQuery24EventStreamReader(
                     readOperation24FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -754,7 +754,7 @@ public class LdbcSnbBiWorkload extends Workload
         // Query 25
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery25WeightedPaths.class ) )
         {
-            Query25EventStreamReader operation25StreamWithoutTimes = new Query25EventStreamReader(
+            BiQuery25EventStreamReader operation25StreamWithoutTimes = new BiQuery25EventStreamReader(
                     readOperation25FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf

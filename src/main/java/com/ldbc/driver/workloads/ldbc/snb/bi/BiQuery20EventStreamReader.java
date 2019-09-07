@@ -1,6 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -8,15 +9,15 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
-import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
-public class Query22EventStreamReader extends BaseEventStreamReader
+public class BiQuery20EventStreamReader extends BaseEventStreamReader
 {
-    public Query22EventStreamReader(
+    public BiQuery20EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -27,10 +28,9 @@ public class Query22EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery22InternationalDialog(
-                (String) parameters[0],
-                (String) parameters[1],
-                (int) parameters[2]
+        return new LdbcSnbBiQuery20HighLevelTopics(
+                (List<String>) parameters[0],
+                (int) parameters[1]
         );
     }
 
@@ -44,10 +44,10 @@ public class Query22EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String country1;
+                List<String> tagClasses;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    country1 = charSeeker.extract( mark, extractors.string() ).value();
+                    tagClasses = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
                 }
                 else
                 {
@@ -55,17 +55,7 @@ public class Query22EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                String country2;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    country2 = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving country2 name" );
-                }
-
-                return new Object[]{country1, country2, LdbcSnbBiQuery22InternationalDialog.DEFAULT_LIMIT};
+                return new Object[]{tagClasses, LdbcSnbBiQuery10TagPerson.DEFAULT_LIMIT};
             }
         };
     }
@@ -73,6 +63,6 @@ public class Query22EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 1;
     }
 }

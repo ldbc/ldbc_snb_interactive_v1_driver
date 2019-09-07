@@ -1,7 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
-import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -9,15 +8,15 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
-public class Query20EventStreamReader extends BaseEventStreamReader
+public class BiQuery9EventStreamReader extends BaseEventStreamReader
 {
-    public Query20EventStreamReader(
+    public BiQuery9EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -28,9 +27,11 @@ public class Query20EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery20HighLevelTopics(
-                (List<String>) parameters[0],
-                (int) parameters[1]
+        return new LdbcSnbBiQuery9RelatedForums(
+                (String) parameters[0],
+                (String) parameters[1],
+                (int) parameters[2],
+                (int) parameters[3]
         );
     }
 
@@ -44,10 +45,10 @@ public class Query20EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                List<String> tagClasses;
+                String tagClass1;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tagClasses = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
+                    tagClass1 = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -55,7 +56,27 @@ public class Query20EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{tagClasses, LdbcSnbBiQuery10TagPerson.DEFAULT_LIMIT};
+                String tagClass2;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    tagClass2 = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving country name" );
+                }
+
+                int threshold;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    threshold = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving threshold" );
+                }
+
+                return new Object[]{tagClass1, tagClass2, threshold, LdbcSnbBiQuery9RelatedForums.DEFAULT_LIMIT};
             }
         };
     }
@@ -63,6 +84,6 @@ public class Query20EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 3;
     }
 }

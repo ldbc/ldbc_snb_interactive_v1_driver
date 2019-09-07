@@ -14,9 +14,9 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Query25EventStreamReader extends BaseEventStreamReader
+public class BiQuery2EventStreamReader extends BaseEventStreamReader
 {
-    public Query25EventStreamReader(
+    public BiQuery2EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -27,11 +27,12 @@ public class Query25EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery25WeightedPaths(
+        return new LdbcSnbBiQuery2TopTags(
                 (long) parameters[0],
                 (long) parameters[1],
-                (long) parameters[2],
-                (long) parameters[3]
+                (String) parameters[2],
+                (String) parameters[3],
+                (int) parameters[4]
         );
     }
 
@@ -45,27 +46,6 @@ public class Query25EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long person1Id;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    person1Id = charSeeker.extract( mark, extractors.long_() ).longValue();
-                }
-                else
-                {
-                    // if first column of next row contains nothing it means the file is finished
-                    return null;
-                }
-
-                long person2Id;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    person2Id = charSeeker.extract( mark, extractors.long_() ).longValue();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving person 2" );
-                }
-
                 long startDate;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
@@ -73,7 +53,8 @@ public class Query25EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving start date" );
+                    // if first column of next row contains nothing it means the file is finished
+                    return null;
                 }
 
                 long endDate;
@@ -83,10 +64,36 @@ public class Query25EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving end date" );
+                    throw new GeneratorException( "Error retrieving endDate" );
                 }
 
-                return new Object[]{person1Id, person2Id, startDate, endDate};
+                String country1;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    country1 = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving country1" );
+                }
+
+                String country2;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    country2 = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving country2" );
+                }
+
+                return new Object[]{
+                        startDate,
+                        endDate,
+                        country1,
+                        country2,
+                        LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT,
+                };
             }
         };
     }

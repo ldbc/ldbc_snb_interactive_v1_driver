@@ -13,9 +13,9 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Query15EventStreamReader extends BaseEventStreamReader
+public class BiQuery1EventStreamReader extends BaseEventStreamReader
 {
-    public Query15EventStreamReader(
+    public BiQuery1EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -26,9 +26,8 @@ public class Query15EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery15SocialNormals(
-                (String) parameters[0],
-                (int) parameters[1]
+        return new LdbcSnbBiQuery1PostingSummary(
+                (long) parameters[0]
         );
     }
 
@@ -42,10 +41,10 @@ public class Query15EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String country;
+                long date;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    country = charSeeker.extract( mark, extractors.string() ).value();
+                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -53,7 +52,7 @@ public class Query15EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{country, LdbcSnbBiQuery15SocialNormals.DEFAULT_LIMIT};
+                return new Object[]{date};
             }
         };
     }

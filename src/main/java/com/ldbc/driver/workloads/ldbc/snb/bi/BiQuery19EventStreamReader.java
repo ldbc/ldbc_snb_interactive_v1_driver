@@ -1,7 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
-import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -14,11 +13,10 @@ import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
-public class Query18EventStreamReader extends BaseEventStreamReader
+public class BiQuery19EventStreamReader extends BaseEventStreamReader
 {
-    public Query18EventStreamReader(
+    public BiQuery19EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -29,10 +27,10 @@ public class Query18EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery18PersonPostCounts(
+        return new LdbcSnbBiQuery19StrangerInteraction(
                 (long) parameters[0],
-                (int) parameters[1],
-                (List<String>) parameters[2],
+                (String) parameters[1],
+                (String) parameters[2],
                 (int) parameters[3]
         );
     }
@@ -58,27 +56,27 @@ public class Query18EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                int lengthThreshold;
+                String tagClass1;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    lengthThreshold = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    tagClass1 = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving lengthThreshold" );
+                    throw new GeneratorException( "Error retrieving tag class 0" );
                 }
 
-                List<String> languages;
+                String tagClass2;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    languages = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
+                    tagClass2 = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving languages" );
+                    throw new GeneratorException( "Error retrieving tag class 1" );
                 }
 
-                return new Object[]{date, lengthThreshold, languages, LdbcSnbBiQuery18PersonPostCounts.DEFAULT_LIMIT};
+                return new Object[]{date, tagClass1, tagClass2, LdbcSnbBiQuery19StrangerInteraction.DEFAULT_LIMIT};
             }
         };
     }

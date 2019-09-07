@@ -13,9 +13,9 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Query17EventStreamReader extends BaseEventStreamReader
+public class BiQuery17EventStreamReader extends BaseEventStreamReader
 {
-    public Query17EventStreamReader(
+    public BiQuery17EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException

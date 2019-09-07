@@ -8,15 +8,14 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
-import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Query12EventStreamReader extends BaseEventStreamReader
+public class BiQuery7EventStreamReader extends BaseEventStreamReader
 {
-    public Query12EventStreamReader(
+    public BiQuery7EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -27,10 +26,9 @@ public class Query12EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery12TrendingPosts(
-                (long) parameters[0],
-                (int) parameters[1],
-                (int) parameters[2]
+        return new LdbcSnbBiQuery7AuthoritativeUsers(
+                (String) parameters[0],
+                (int) parameters[1]
         );
     }
 
@@ -44,10 +42,10 @@ public class Query12EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long date;
+                String tag;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    tag = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -55,17 +53,7 @@ public class Query12EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                int likeThreshold;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    likeThreshold = charSeeker.extract( mark, extractors.int_() ).intValue();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving like threshold" );
-                }
-
-                return new Object[]{date, likeThreshold, LdbcSnbBiQuery12TrendingPosts.DEFAULT_LIMIT};
+                return new Object[]{tag, LdbcSnbBiQuery7AuthoritativeUsers.DEFAULT_LIMIT};
             }
         };
     }
@@ -73,6 +61,6 @@ public class Query12EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 1;
     }
 }
