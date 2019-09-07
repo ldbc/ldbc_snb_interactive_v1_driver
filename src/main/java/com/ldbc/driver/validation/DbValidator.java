@@ -33,10 +33,27 @@ public class DbValidator
         int validationParamsCrashedSoFar = 0;
         int validationParamsIncorrectSoFar = 0;
 
-        while ( validationParameters.hasNext() )
+        Operation operation = null;
+        while ( true )
         {
+            if (null != operation) {
+                System.out.print(format(
+                        "Processed %s / %s -- Crashed %s -- Incorrect %s -- Currently processing %s...\r",
+                        numberFormat.format(validationParamsProcessedSoFar),
+                        numberFormat.format(validationParamsCount),
+                        numberFormat.format(validationParamsCrashedSoFar),
+                        numberFormat.format(validationParamsIncorrectSoFar),
+                        operation.getClass().getSimpleName()
+                ));
+                System.out.flush();
+            }
+
+            if (!validationParameters.hasNext()) {
+                break;
+            }
+
             ValidationParam validationParam = validationParameters.next();
-            Operation operation = validationParam.operation();
+            operation = validationParam.operation();
             Object expectedOperationResult = validationParam.operationResult();
 
             OperationHandlerRunnableContext handlerRunner;
@@ -55,15 +72,6 @@ public class DbValidator
             {
                 OperationHandler handler = handlerRunner.operationHandler();
                 DbConnectionState dbConnectionState = handlerRunner.dbConnectionState();
-                System.out.print( format(
-                        "Processed %s / %s -- Crashed %s -- Incorrect %s -- Currently processing %s...\r",
-                        numberFormat.format( validationParamsProcessedSoFar ),
-                        numberFormat.format( validationParamsCount ),
-                        numberFormat.format( validationParamsCrashedSoFar ),
-                        numberFormat.format( validationParamsIncorrectSoFar ),
-                        operation.getClass().getSimpleName()
-                ) );
-                System.out.flush();
                 handler.executeOperation( operation, dbConnectionState, resultReporter );
                 if ( null == resultReporter.result() )
                 {
@@ -98,7 +106,7 @@ public class DbValidator
 
             dbValidationResult.reportSuccessfulExecution( operation );
         }
-        System.out.println( "----" );
+        System.out.println( "\n----" );
         return dbValidationResult;
     }
 }
