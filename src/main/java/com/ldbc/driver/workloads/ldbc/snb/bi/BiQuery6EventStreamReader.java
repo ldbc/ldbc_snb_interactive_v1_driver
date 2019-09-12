@@ -1,7 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
-import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -9,16 +8,14 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
-import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
-public class Query11EventStreamReader extends BaseEventStreamReader
+public class BiQuery6EventStreamReader extends BaseEventStreamReader
 {
-    public Query11EventStreamReader(
+    public BiQuery6EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -29,10 +26,9 @@ public class Query11EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery11UnrelatedReplies(
+        return new LdbcSnbBiQuery6ActivePosters(
                 (String) parameters[0],
-                (List<String>) parameters[1],
-                (int) parameters[2]
+                (int) parameters[1]
         );
     }
 
@@ -46,10 +42,10 @@ public class Query11EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String country;
+                String tag;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    country = charSeeker.extract( mark, extractors.string() ).value();
+                    tag = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -57,17 +53,7 @@ public class Query11EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                List<String> blacklist;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    blacklist = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving black list" );
-                }
-
-                return new Object[]{country, blacklist, LdbcSnbBiQuery11UnrelatedReplies.DEFAULT_LIMIT};
+                return new Object[]{tag, LdbcSnbBiQuery6ActivePosters.DEFAULT_LIMIT};
             }
         };
     }
@@ -75,6 +61,6 @@ public class Query11EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 1;
     }
 }

@@ -8,14 +8,15 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Query6EventStreamReader extends BaseEventStreamReader
+public class BiQuery22EventStreamReader extends BaseEventStreamReader
 {
-    public Query6EventStreamReader(
+    public BiQuery22EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -26,9 +27,10 @@ public class Query6EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery6ActivePosters(
+        return new LdbcSnbBiQuery22InternationalDialog(
                 (String) parameters[0],
-                (int) parameters[1]
+                (String) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -42,10 +44,10 @@ public class Query6EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String tag;
+                String country1;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tag = charSeeker.extract( mark, extractors.string() ).value();
+                    country1 = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -53,7 +55,17 @@ public class Query6EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{tag, LdbcSnbBiQuery6ActivePosters.DEFAULT_LIMIT};
+                String country2;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    country2 = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving country2 name" );
+                }
+
+                return new Object[]{country1, country2, LdbcSnbBiQuery22InternationalDialog.DEFAULT_LIMIT};
             }
         };
     }
@@ -61,6 +73,6 @@ public class Query6EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 2;
     }
 }

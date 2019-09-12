@@ -28,7 +28,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_1_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query1EventStreamReader reader = new Query1EventStreamReader(
+        BiQuery1EventStreamReader reader = new BiQuery1EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -60,7 +60,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_2_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query2EventStreamReader reader = new Query2EventStreamReader(
+        BiQuery2EventStreamReader reader = new BiQuery2EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -107,7 +107,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_3_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query3EventStreamReader reader = new Query3EventStreamReader(
+        BiQuery3EventStreamReader reader = new BiQuery3EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -142,7 +142,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_4_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query4EventStreamReader reader = new Query4EventStreamReader(
+        BiQuery4EventStreamReader reader = new BiQuery4EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -185,7 +185,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_5_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query5EventStreamReader reader = new Query5EventStreamReader(
+        BiQuery5EventStreamReader reader = new BiQuery5EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -223,7 +223,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_6_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query6EventStreamReader reader = new Query6EventStreamReader(
+        BiQuery6EventStreamReader reader = new BiQuery6EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -261,7 +261,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_7_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query7EventStreamReader reader = new Query7EventStreamReader(
+        BiQuery7EventStreamReader reader = new BiQuery7EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -299,7 +299,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_8_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query8EventStreamReader reader = new Query8EventStreamReader(
+        BiQuery8EventStreamReader reader = new BiQuery8EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -337,7 +337,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_9_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query9EventStreamReader reader = new Query9EventStreamReader(
+        BiQuery9EventStreamReader reader = new BiQuery9EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -385,7 +385,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_10_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query10EventStreamReader reader = new Query10EventStreamReader(
+        BiQuery10EventStreamReader reader = new BiQuery10EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -423,7 +423,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_11_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query11EventStreamReader reader = new Query11EventStreamReader(
+        BiQuery11EventStreamReader reader = new BiQuery11EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -466,7 +466,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_12_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query12EventStreamReader reader = new Query12EventStreamReader(
+        BiQuery12EventStreamReader reader = new BiQuery12EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -498,7 +498,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_13_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query13EventStreamReader reader = new Query13EventStreamReader(
+        BiQuery13EventStreamReader reader = new BiQuery13EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -536,7 +536,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_14_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query14EventStreamReader reader = new Query14EventStreamReader(
+        BiQuery14EventStreamReader reader = new BiQuery14EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -571,7 +571,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_15_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query15EventStreamReader reader = new Query15EventStreamReader(
+        BiQuery15EventStreamReader reader = new BiQuery15EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -609,7 +609,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_16_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query16EventStreamReader reader = new Query16EventStreamReader(
+        BiQuery16EventStreamReader reader = new BiQuery16EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -657,7 +657,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_17_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query17EventStreamReader reader = new Query17EventStreamReader(
+        BiQuery17EventStreamReader reader = new BiQuery17EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -695,7 +695,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_18_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query18EventStreamReader reader = new Query18EventStreamReader(
+        BiQuery18EventStreamReader reader = new BiQuery18EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -727,7 +727,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_19_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query19EventStreamReader reader = new Query19EventStreamReader(
+        BiQuery19EventStreamReader reader = new BiQuery19EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -775,7 +775,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_20_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query20EventStreamReader reader = new Query20EventStreamReader(
+        BiQuery20EventStreamReader reader = new BiQuery20EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -811,7 +811,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_21_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query21EventStreamReader reader = new Query21EventStreamReader(
+        BiQuery21EventStreamReader reader = new BiQuery21EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -854,7 +854,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_22_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query22EventStreamReader reader = new Query22EventStreamReader(
+        BiQuery22EventStreamReader reader = new BiQuery22EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -897,7 +897,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_23_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query23EventStreamReader reader = new Query23EventStreamReader(
+        BiQuery23EventStreamReader reader = new BiQuery23EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -935,7 +935,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_24_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query24EventStreamReader reader = new Query24EventStreamReader(
+        BiQuery24EventStreamReader reader = new BiQuery24EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -973,7 +973,7 @@ public class BiReadEventStreamReadersTest
         // Given
         String data = BiReadEventStreamReadersTestData.QUERY_25_CSV_ROWS();
         System.out.println( data + "\n" );
-        Query25EventStreamReader reader = new Query25EventStreamReader(
+        BiQuery25EventStreamReader reader = new BiQuery25EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY

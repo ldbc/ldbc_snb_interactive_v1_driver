@@ -14,9 +14,9 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Query4EventStreamReader extends BaseEventStreamReader
+public class BiQuery12EventStreamReader extends BaseEventStreamReader
 {
-    public Query4EventStreamReader(
+    public BiQuery12EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -27,9 +27,9 @@ public class Query4EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery4PopularCountryTopics(
-                (String) parameters[0],
-                (String) parameters[1],
+        return new LdbcSnbBiQuery12TrendingPosts(
+                (long) parameters[0],
+                (int) parameters[1],
                 (int) parameters[2]
         );
     }
@@ -44,10 +44,10 @@ public class Query4EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String tagClass;
+                long date;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tagClass = charSeeker.extract( mark, extractors.string() ).value();
+                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -55,17 +55,17 @@ public class Query4EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                String country;
+                int likeThreshold;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    country = charSeeker.extract( mark, extractors.string() ).value();
+                    likeThreshold = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country name" );
+                    throw new GeneratorException( "Error retrieving like threshold" );
                 }
 
-                return new Object[]{tagClass, country, LdbcSnbBiQuery4PopularCountryTopics.DEFAULT_LIMIT};
+                return new Object[]{date, likeThreshold, LdbcSnbBiQuery12TrendingPosts.DEFAULT_LIMIT};
             }
         };
     }
