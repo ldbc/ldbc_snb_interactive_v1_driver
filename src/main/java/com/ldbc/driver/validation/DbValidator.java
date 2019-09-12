@@ -45,6 +45,7 @@ public class DbValidator
                         numberFormat.format(validationParamsIncorrectSoFar),
                         operation.getClass().getSimpleName()
                 ));
+                System.out.flush();
             }
 
             if (!validationParameters.hasNext()) {
