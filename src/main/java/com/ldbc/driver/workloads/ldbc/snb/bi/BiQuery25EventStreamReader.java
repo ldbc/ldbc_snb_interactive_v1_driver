@@ -14,9 +14,9 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Query16EventStreamReader extends BaseEventStreamReader
+public class BiQuery25EventStreamReader extends BaseEventStreamReader
 {
-    public Query16EventStreamReader(
+    public BiQuery25EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -27,13 +27,11 @@ public class Query16EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery16ExpertsInSocialCircle(
+        return new LdbcSnbBiQuery25WeightedPaths(
                 (long) parameters[0],
-                (String) parameters[1],
-                (String) parameters[2],
-                (int) parameters[3],
-                (int) parameters[4],
-                (int) parameters[5]
+                (long) parameters[1],
+                (long) parameters[2],
+                (long) parameters[3]
         );
     }
 
@@ -47,10 +45,10 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long personId;
+                long person1Id;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    personId = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    person1Id = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -58,48 +56,37 @@ public class Query16EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                String country;
+                long person2Id;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    country = charSeeker.extract( mark, extractors.string() ).value();
+                    person2Id = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country name" );
+                    throw new GeneratorException( "Error retrieving person 2" );
                 }
 
-                String tagClass;
+                long startDate;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tagClass = charSeeker.extract( mark, extractors.string() ).value();
+                    startDate = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving tag class" );
+                    throw new GeneratorException( "Error retrieving start date" );
                 }
 
-                int minPathDistance;
+                long endDate;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    minPathDistance = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    endDate = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving min path distance" );
+                    throw new GeneratorException( "Error retrieving end date" );
                 }
 
-                int maxPathDistance;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    maxPathDistance = charSeeker.extract( mark, extractors.int_() ).intValue();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving max path distance" );
-                }
-
-                return new Object[]{personId, country, tagClass, minPathDistance, maxPathDistance,
-                        LdbcSnbBiQuery16ExpertsInSocialCircle.DEFAULT_LIMIT};
+                return new Object[]{person1Id, person2Id, startDate, endDate};
             }
         };
     }
@@ -107,6 +94,6 @@ public class Query16EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 5;
+        return 4;
     }
 }

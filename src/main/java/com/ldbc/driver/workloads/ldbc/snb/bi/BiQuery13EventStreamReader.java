@@ -8,15 +8,14 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
-import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Query19EventStreamReader extends BaseEventStreamReader
+public class BiQuery13EventStreamReader extends BaseEventStreamReader
 {
-    public Query19EventStreamReader(
+    public BiQuery13EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -27,11 +26,9 @@ public class Query19EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery19StrangerInteraction(
-                (long) parameters[0],
-                (String) parameters[1],
-                (String) parameters[2],
-                (int) parameters[3]
+        return new LdbcSnbBiQuery13PopularMonthlyTags(
+                (String) parameters[0],
+                (int) parameters[1]
         );
     }
 
@@ -45,10 +42,10 @@ public class Query19EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long date;
+                String country;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    country = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -56,27 +53,7 @@ public class Query19EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                String tagClass1;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    tagClass1 = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving tag class 0" );
-                }
-
-                String tagClass2;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    tagClass2 = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving tag class 1" );
-                }
-
-                return new Object[]{date, tagClass1, tagClass2, LdbcSnbBiQuery19StrangerInteraction.DEFAULT_LIMIT};
+                return new Object[]{country, LdbcSnbBiQuery13PopularMonthlyTags.DEFAULT_LIMIT};
             }
         };
     }
@@ -84,6 +61,6 @@ public class Query19EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 3;
+        return 1;
     }
 }

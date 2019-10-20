@@ -8,15 +8,14 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
-import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Query10EventStreamReader extends BaseEventStreamReader
+public class BiQuery8EventStreamReader extends BaseEventStreamReader
 {
-    public Query10EventStreamReader(
+    public BiQuery8EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -27,10 +26,9 @@ public class Query10EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery10TagPerson(
+        return new LdbcSnbBiQuery8RelatedTopics(
                 (String) parameters[0],
-                (long) parameters[1],
-                (int) parameters[2]
+                (int) parameters[1]
         );
     }
 
@@ -55,16 +53,7 @@ public class Query10EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                long date;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving date" );
-                }
-                return new Object[]{tag, date, LdbcSnbBiQuery10TagPerson.DEFAULT_LIMIT};
+                return new Object[]{tag, LdbcSnbBiQuery8RelatedTopics.DEFAULT_LIMIT};
             }
         };
     }
@@ -72,6 +61,6 @@ public class Query10EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 1;
     }
 }

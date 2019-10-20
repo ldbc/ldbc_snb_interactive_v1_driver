@@ -8,14 +8,15 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Query24EventStreamReader extends BaseEventStreamReader
+public class BiQuery4EventStreamReader extends BaseEventStreamReader
 {
-    public Query24EventStreamReader(
+    public BiQuery4EventStreamReader(
             InputStream parametersInputStream,
             CharSeekerParams charSeekerParams,
             GeneratorFactory gf ) throws WorkloadException
@@ -26,9 +27,10 @@ public class Query24EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery24MessagesByTopic(
+        return new LdbcSnbBiQuery4PopularCountryTopics(
                 (String) parameters[0],
-                (int) parameters[1]
+                (String) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -53,7 +55,17 @@ public class Query24EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{tagClass, LdbcSnbBiQuery24MessagesByTopic.DEFAULT_LIMIT};
+                String country;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    country = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving country name" );
+                }
+
+                return new Object[]{tagClass, country, LdbcSnbBiQuery4PopularCountryTopics.DEFAULT_LIMIT};
             }
         };
     }
@@ -61,6 +73,6 @@ public class Query24EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 2;
     }
 }
