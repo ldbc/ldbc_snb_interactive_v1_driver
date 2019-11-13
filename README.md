@@ -15,8 +15,8 @@ This driver is being developed as part of the Linked Data Benchmark Council EU-f
 ### User Guide
 
 ```bash
-git clone https://github.com/ldbc/ldbc_driver.git
-cd ldbc_driver
+git clone https://github.com/ldbc/ldbc_snb_driver.git
+cd ldbc_snb_driver
 mvn clean package -DskipTests
 ```
 
