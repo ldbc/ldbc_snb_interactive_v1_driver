@@ -63,7 +63,7 @@ public class LdbcSnbBiQuery25WeightedPaths extends Operation<List<LdbcSnbBiQuery
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery25{" +
+        return "LdbcSnbBiQuery25WeightedPaths{" +
                "person1Id=" + person1Id +
                ", person2Id=" + person2Id +
                ", startDate=" + startDate +

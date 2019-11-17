@@ -42,7 +42,7 @@ public class LdbcSnbBiQuery3TagEvolutionResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery3Result{" +
+        return "LdbcSnbBiQuery3TagEvolutionResult{" +
                "tagName='" + tagName + '\'' +
                ", countMonth1=" + countMonth1 +
                ", countMonth2=" + countMonth2 +

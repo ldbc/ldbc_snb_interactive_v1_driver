@@ -24,7 +24,7 @@ public class LdbcSnbBiQuery20HighLevelTopicsResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery20Result{" +
+        return "LdbcSnbBiQuery20HighLevelTopicsResult{" +
                "tagClassName='" + tagClassName + '\'' +
                ", messageCount=" + messageCount +
                '}';

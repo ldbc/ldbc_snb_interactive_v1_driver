@@ -54,7 +54,7 @@ public class LdbcSnbBiQuery10TagPerson extends Operation<List<LdbcSnbBiQuery10Ta
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery10{" +
+        return "LdbcSnbBiQuery10TagPersonResult{" +
                "tag='" + tag + '\'' +
                "date='" + date + '\'' +
                ", limit=" + limit +

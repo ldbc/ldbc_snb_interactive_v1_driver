@@ -45,7 +45,7 @@ public class LdbcSnbBiQuery23HolidayDestinations extends Operation<List<LdbcSnbB
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery23{" +
+        return "LdbcSnbBiQuery23HolidayDestinations{" +
                "destinationName='" + country + '\'' +
                ", limit=" + limit +
                '}';

@@ -24,7 +24,7 @@ public class LdbcSnbBiQuery7AuthoritativeUsersResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery7Result{" +
+        return "LdbcSnbBiQuery7AuthoritativeUsersResult{" +
                "personId=" + personId +
                ", authorityScore=" + authorityScore +
                '}';

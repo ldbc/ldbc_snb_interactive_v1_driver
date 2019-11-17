@@ -38,7 +38,7 @@ public class LdbcSnbBiQuery11UnrelatedRepliesResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery11Result{" +
+        return "LdbcSnbBiQuery11UnrelatedRepliesResult{" +
                "personId=" + personId +
                ", tagName='" + tagName + '\'' +
                ", likeCount=" + likeCount +

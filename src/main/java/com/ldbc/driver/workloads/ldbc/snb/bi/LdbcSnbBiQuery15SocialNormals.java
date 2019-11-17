@@ -45,7 +45,7 @@ public class LdbcSnbBiQuery15SocialNormals extends Operation<List<LdbcSnbBiQuery
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery15{" +
+        return "LdbcSnbBiQuery15SocialNormals{" +
                "country='" + country + '\'' +
                ", limit=" + limit +
                '}';

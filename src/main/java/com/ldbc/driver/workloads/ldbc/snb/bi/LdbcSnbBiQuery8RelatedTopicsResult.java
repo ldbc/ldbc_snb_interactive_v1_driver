@@ -24,7 +24,7 @@ public class LdbcSnbBiQuery8RelatedTopicsResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery8Result{" +
+        return "LdbcSnbBiQuery8RelatedTopicsResult{" +
                "relatedTagName='" + relatedTagName + '\'' +
                ", count=" + count +
                '}';

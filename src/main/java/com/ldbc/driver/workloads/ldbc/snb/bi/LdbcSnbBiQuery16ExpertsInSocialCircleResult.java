@@ -31,7 +31,7 @@ public class LdbcSnbBiQuery16ExpertsInSocialCircleResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery16Result{" +
+        return "LdbcSnbBiQuery16ExpertsInSocialCircleResult{" +
                "personId=" + personId +
                ", tagName='" + tagName + '\'' +
                ", messageCount=" + messageCount +
