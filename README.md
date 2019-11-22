@@ -8,11 +8,15 @@ This driver is being developed as part of the Linked Data Benchmark Council EU-f
 * [LDBC Twitter Account](https://twitter.com/LDBCouncil)
 * [LDBC Facebook Page](https://www.facebook.com/ldbcouncil/)
 
-### Try it
+### Branches
+
+:warning: The development of this repository happens on the [`dev` branch](https://github.com/ldbc/ldbc_snb_driver/tree/dev) which contains the current `SNAPSHOT` version. The work-in-progress LDBC implementations typically depend on the this version.
+
+### User Guide
 
 ```bash
-git clone https://github.com/ldbc/ldbc_driver.git
-cd ldbc_driver
+git clone https://github.com/ldbc/ldbc_snb_driver.git
+cd ldbc_snb_driver
 mvn clean package -DskipTests
 ```
 
