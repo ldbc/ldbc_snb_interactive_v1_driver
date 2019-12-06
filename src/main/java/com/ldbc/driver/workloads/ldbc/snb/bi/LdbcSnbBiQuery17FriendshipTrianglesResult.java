@@ -17,7 +17,7 @@ public class LdbcSnbBiQuery17FriendshipTrianglesResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery17Result{" +
+        return "LdbcSnbBiQuery17FriendshipTrianglesResult{" +
                "count=" + count +
                '}';
     }

@@ -46,7 +46,7 @@ public class LdbcSnbBiQuery13PopularMonthlyTags extends Operation<List<LdbcSnbBi
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery13{" +
+        return "LdbcSnbBiQuery13PopularMonthlyTags{" +
                "country='" + country + '\'' +
                ", limit=" + limit +
                '}';

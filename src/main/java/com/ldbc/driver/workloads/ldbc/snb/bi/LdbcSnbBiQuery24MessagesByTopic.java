@@ -45,7 +45,7 @@ public class LdbcSnbBiQuery24MessagesByTopic extends Operation<List<LdbcSnbBiQue
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery24{" +
+        return "LdbcSnbBiQuery24MessagesByTopic{" +
                "tagClass='" + tagClass + '\'' +
                ", limit=" + limit +
                '}';

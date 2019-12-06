@@ -63,7 +63,7 @@ public class LdbcSnbBiQuery18PersonPostCounts extends Operation<List<LdbcSnbBiQu
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery18{" +
+        return "LdbcSnbBiQuery18PersonPostCounts{" +
                "date=" + date +
                "lengthThreshold=" + lengthThreshold +
                "languages=" + languages +

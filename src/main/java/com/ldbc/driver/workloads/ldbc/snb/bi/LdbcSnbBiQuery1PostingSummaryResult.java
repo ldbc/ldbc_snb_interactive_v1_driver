@@ -71,7 +71,7 @@ public class LdbcSnbBiQuery1PostingSummaryResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery1Result{" +
+        return "LdbcSnbBiQuery1PostingSummaryResult{" +
                "messageYear=" + messageYear +
                ", isComment=" + isComment +
                ", lengthCategory=" + lengthCategory +

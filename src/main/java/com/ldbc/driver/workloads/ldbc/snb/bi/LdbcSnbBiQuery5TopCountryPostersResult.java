@@ -50,7 +50,7 @@ public class LdbcSnbBiQuery5TopCountryPostersResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery5Result{" +
+        return "LdbcSnbBiQuery5TopCountryPostersResult{" +
                "personId=" + personId +
                ", personFirstName='" + personFirstName + '\'' +
                ", personLastName='" + personLastName + '\'' +

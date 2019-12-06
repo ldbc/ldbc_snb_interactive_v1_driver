@@ -31,7 +31,7 @@ public class LdbcSnbBiQuery19StrangerInteractionResult
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery19Result{" +
+        return "LdbcSnbBiQuery19StrangerInteractionResult{" +
                "personId=" + personId +
                ", strangerCount=" + strangerCount +
                ", interactionCount=" + interactionCount +
