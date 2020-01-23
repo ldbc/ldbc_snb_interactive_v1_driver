@@ -2268,6 +2268,138 @@ public class LdbcSnbInteractiveWorkload extends Workload
                         format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
             }
         }
+        case LdbcDelete1RemovePerson.TYPE:
+        {
+            LdbcDelete1RemovePerson ldbcQuery = (LdbcDelete1RemovePerson) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add( ldbcQuery.getClass().getName() );
+            operationAsList.add( ldbcQuery.personId() );
+            try
+            {
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            catch ( IOException e )
+            {
+                throw new SerializingMarshallingException(
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+            }
+        }
+        case LdbcDelete2RemovePostLike.TYPE:
+        {
+            LdbcDelete2RemovePostLike ldbcQuery = (LdbcDelete2RemovePostLike) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add( ldbcQuery.getClass().getName() );
+            operationAsList.add( ldbcQuery.personId() );
+            operationAsList.add( ldbcQuery.postId() );
+            try
+            {
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            catch ( IOException e )
+            {
+                throw new SerializingMarshallingException(
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+            }
+        }
+        case LdbcDelete3RemoveCommentLike.TYPE:
+        {
+            LdbcDelete3RemoveCommentLike ldbcQuery = (LdbcDelete3RemoveCommentLike) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add( ldbcQuery.getClass().getName() );
+            operationAsList.add( ldbcQuery.personId() );
+            operationAsList.add( ldbcQuery.commentId() );
+            try
+            {
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            catch ( IOException e )
+            {
+                throw new SerializingMarshallingException(
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+            }
+        }
+        case LdbcDelete4RemoveForum.TYPE:
+        {
+            LdbcDelete4RemoveForum ldbcQuery = (LdbcDelete4RemoveForum) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add( ldbcQuery.getClass().getName() );
+            operationAsList.add( ldbcQuery.forumId() );
+            try
+            {
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            catch ( IOException e )
+            {
+                throw new SerializingMarshallingException(
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+            }
+        }
+        case LdbcDelete5RemoveForumMembership.TYPE:
+        {
+            LdbcDelete5RemoveForumMembership ldbcQuery = (LdbcDelete5RemoveForumMembership) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add( ldbcQuery.getClass().getName() );
+            operationAsList.add( ldbcQuery.forumId() );
+            operationAsList.add( ldbcQuery.personId() );
+            try
+            {
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            catch ( IOException e )
+            {
+                throw new SerializingMarshallingException(
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+            }
+        }
+        case LdbcDelete6RemovePost.TYPE:
+        {
+            LdbcDelete6RemovePost ldbcQuery = (LdbcDelete6RemovePost) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add( ldbcQuery.getClass().getName() );
+            operationAsList.add( ldbcQuery.postId() );
+            try
+            {
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            catch ( IOException e )
+            {
+                throw new SerializingMarshallingException(
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+            }
+        }
+        case LdbcDelete7RemoveComment.TYPE:
+        {
+            LdbcDelete7RemoveComment ldbcQuery = (LdbcDelete7RemoveComment) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add( ldbcQuery.getClass().getName() );
+            operationAsList.add( ldbcQuery.commentId() );
+            try
+            {
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            catch ( IOException e )
+            {
+                throw new SerializingMarshallingException(
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+            }
+        }
+        case LdbcDelete8RemoveFriendship.TYPE:
+        {
+            LdbcDelete8RemoveFriendship ldbcQuery = (LdbcDelete8RemoveFriendship) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add( ldbcQuery.getClass().getName() );
+            operationAsList.add( ldbcQuery.person1Id() );
+            operationAsList.add( ldbcQuery.person2Id() );
+            try
+            {
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            catch ( IOException e )
+            {
+                throw new SerializingMarshallingException(
+                        format( "Error while trying to serialize result\n%s", operationAsList.toString() ), e );
+            }
+        }
         default:
         {
             throw new SerializingMarshallingException(
