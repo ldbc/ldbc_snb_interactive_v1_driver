@@ -1,30 +1,24 @@
 package com.ldbc.driver.client;
 
-import com.ldbc.driver.ClientException;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.LoggingService;
 
-public class PrintHelpMode implements ClientMode<Object>
+public class PrintHelpMode extends ClientMode
 {
     private final ControlService controlService;
     private final LoggingService loggingService;
 
-    public PrintHelpMode( ControlService controlService )
+
+    public PrintHelpMode(ControlService controlService)
     {
+        super(ClientModeType.PRINT_HELP);
         this.controlService = controlService;
-        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
+        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor(getClass().getSimpleName());
     }
 
     @Override
-    public void init() throws ClientException
-    {
-    }
-
-    @Override
-    public Object startExecutionAndAwaitCompletion() throws ClientException
-    {
-        loggingService.info( controlService.configuration().helpString() );
-        return null;
+    public void startExecutionAndAwaitCompletion() {
+        loggingService.info(controlService.configuration().helpString());
     }
 
 }

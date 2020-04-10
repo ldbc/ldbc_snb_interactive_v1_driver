@@ -18,8 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
-public class CalculateWorkloadStatisticsMode implements ClientMode<WorkloadStatistics>
-{
+public class CalculateWorkloadStatisticsMode extends ClientMode {
     private final ControlService controlService;
     private final LoggingService loggingService;
     private final long randomSeed;
@@ -29,6 +28,7 @@ public class CalculateWorkloadStatisticsMode implements ClientMode<WorkloadStati
 
     public CalculateWorkloadStatisticsMode( ControlService controlService, long randomSeed ) throws ClientException
     {
+        super(ClientModeType.CALCULATE_WORKLOAD_STATS);
         this.controlService = controlService;
         this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
         this.randomSeed = randomSeed;
@@ -82,7 +82,7 @@ public class CalculateWorkloadStatisticsMode implements ClientMode<WorkloadStati
     }
 
     @Override
-    public WorkloadStatistics startExecutionAndAwaitCompletion() throws ClientException
+    public void startExecutionAndAwaitCompletion() throws ClientException
     {
         loggingService.info(
                 format( "Calculating workload statistics for: %s", workload.getClass().getSimpleName() ) );
@@ -98,14 +98,9 @@ public class CalculateWorkloadStatisticsMode implements ClientMode<WorkloadStati
             );
             loggingService.info( "Calculation complete\n" + workloadStatistics );
         }
-        catch ( MetricsCollectionException e )
+        catch ( MetricsCollectionException | IOException e )
         {
             throw new ClientException( "Error while calculating workload statistics", e );
         }
-        catch ( IOException e )
-        {
-            throw new ClientException( "Error while calculating workload statistics", e );
-        }
-        return null;
     }
 }

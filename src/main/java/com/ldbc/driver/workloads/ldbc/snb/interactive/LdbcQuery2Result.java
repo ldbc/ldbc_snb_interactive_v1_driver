@@ -1,5 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import java.util.Objects;
+
 public class LdbcQuery2Result {
     private final long personId;
     private final String personFirstName;
@@ -51,11 +53,11 @@ public class LdbcQuery2Result {
         if (personId != result.personId) return false;
         if (messageCreationDate != result.messageCreationDate) return false;
         if (messageId != result.messageId) return false;
-        if (personFirstName != null ? !personFirstName.equals(result.personFirstName) : result.personFirstName != null)
+        if (!Objects.equals(personFirstName, result.personFirstName))
             return false;
-        if (personLastName != null ? !personLastName.equals(result.personLastName) : result.personLastName != null)
+        if (!Objects.equals(personLastName, result.personLastName))
             return false;
-        if (messageContent != null ? !messageContent.equals(result.messageContent) : result.messageContent != null)
+        if (!Objects.equals(messageContent, result.messageContent))
             return false;
 
         return true;

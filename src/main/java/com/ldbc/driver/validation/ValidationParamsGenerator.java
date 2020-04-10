@@ -63,7 +63,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
                 operation = injectedOperations.remove( 0 );
             }
 
-            if ( false == dbValidationParametersFilter.useOperation( operation ) )
+            if (!dbValidationParametersFilter.useOperation(operation))
             { continue; }
 
             OperationHandlerRunnableContext operationHandlerRunner;

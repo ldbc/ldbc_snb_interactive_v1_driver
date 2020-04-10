@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime;
 
 import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.*;
+import com.ldbc.driver.client.ClientModeType;
 import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
@@ -81,14 +82,17 @@ public class QueuePerformanceTests
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean calculateWorkloadStatistics = false;
-        long spinnerSleepDuration = 0l;
+        long spinnerSleepDuration = 0L;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 0;
         long skipCount = 0;
+        ClientModeType driverMode = ClientModeType.EXECUTE_WORKLOAD; // TODO: check if this is the correct mode for this test
+
 
         DriverConfiguration config = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
+                driverMode,
                 name,
                 dbClassName,
                 workloadClassName,

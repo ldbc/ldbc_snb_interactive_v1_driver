@@ -6,6 +6,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
+import com.ldbc.driver.client.ClientModeType;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -362,9 +363,11 @@ public class TimeMappingOperationGeneratorTest
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 0;
         long skipCount = 0;
+        ClientModeType driverMode = ClientModeType.EXECUTE_WORKLOAD; // TODO: check if this is the correct mode for this test
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
+                driverMode,
                 name,
                 dbClassName,
                 workloadClassName,

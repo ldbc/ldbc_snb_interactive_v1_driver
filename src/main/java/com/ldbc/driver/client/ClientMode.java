@@ -2,9 +2,23 @@ package com.ldbc.driver.client;
 
 import com.ldbc.driver.ClientException;
 
-public interface ClientMode<T>
+public abstract class ClientMode
 {
-    void init() throws ClientException;
+    private ClientModeType clientModeType;
 
-    T startExecutionAndAwaitCompletion() throws ClientException;
+    public ClientMode(ClientModeType clientModeType) {
+        this.clientModeType = clientModeType;
+
+    }
+
+    public ClientModeType getClientModeType() {
+        return clientModeType;
+    }
+
+    public void init() throws ClientException {
+
+    }
+
+    public void startExecutionAndAwaitCompletion() throws ClientException {
+    }
 }

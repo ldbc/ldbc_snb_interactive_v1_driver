@@ -1,10 +1,15 @@
 package com.ldbc.driver.control;
 
+import com.ldbc.driver.client.ClientModeType;
+
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public interface DriverConfiguration
 {
+
+    ClientModeType getDriverMode();
+
     String name();
 
     String dbClassName();

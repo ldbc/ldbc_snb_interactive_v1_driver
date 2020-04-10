@@ -8,6 +8,8 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
+import com.ldbc.driver.client.ClientModeFactory;
+import com.ldbc.driver.client.ClientModeType;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfigurationException;
@@ -114,9 +116,11 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
+            ClientModeType driverMode = ClientModeType.PRINT_HELP;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    driverMode,
                     name,
                     dbClassName,
                     workloadClassName,
@@ -315,9 +319,12 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
+            ClientModeType driverMode = ClientModeType.EXECUTE_WORKLOAD; // TODO: check if this is the correct mode for this test
+
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    driverMode,
                     name,
                     dbClassName,
                     workloadClassName,
@@ -534,9 +541,11 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
+            ClientModeType driverMode = ClientModeType.PRINT_HELP;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    driverMode,
                     name,
                     dbClassName,
                     workloadClassName,
@@ -799,9 +808,11 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = true;
             long warmupCount = 100;
             long skipCount = 10;
+            ClientModeType driverMode = ClientModeType.PRINT_HELP;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    driverMode,
                     name,
                     dbClassName,
                     workloadClassName,

@@ -7,6 +7,7 @@ import com.ldbc.driver.DbException;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.client.ClientMode;
+import com.ldbc.driver.client.ClientModeType;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfigurationException;
@@ -121,9 +122,11 @@ public class InteractiveWorkloadPerformanceTest
             boolean ignoreScheduledStartTimes = true;
             long warmupCount = 0;
             long skipCount = 0;
+            ClientModeType driverMode = ClientModeType.PRINT_HELP;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    driverMode,
                     name,
                     dbClassName,
                     workloadClassName,
@@ -285,9 +288,11 @@ public class InteractiveWorkloadPerformanceTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 0;
             long skipCount = 0;
+            ClientModeType driverMode = ClientModeType.PRINT_HELP;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    driverMode,
                     name,
                     dbClassName,
                     workloadClassName,

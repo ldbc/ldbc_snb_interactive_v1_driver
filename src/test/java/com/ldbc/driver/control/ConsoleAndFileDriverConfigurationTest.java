@@ -1,6 +1,7 @@
 package com.ldbc.driver.control;
 
 import com.google.common.collect.Lists;
+import com.ldbc.driver.client.ClientModeType;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -17,10 +18,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ConsoleAndFileDriverConfigurationTest
@@ -107,9 +105,12 @@ public class ConsoleAndFileDriverConfigurationTest
         long warmupCount = 5;
         long skipCount = 6;
         Map<String,String> paramsMap = new HashMap<>();
+        ClientModeType driverMode = ClientModeType.PRINT_HELP;
+
 
         ConsoleAndFileDriverConfiguration configurationBefore = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
+                driverMode,
                 name,
                 DummyLdbcSnbInteractiveDb.class.getName(),
                 LdbcSnbInteractiveWorkload.class.getName(),
@@ -565,9 +566,12 @@ public class ConsoleAndFileDriverConfigurationTest
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 10;
         long skipCount = 100;
+        ClientModeType driverMode = ClientModeType.PRINT_HELP;
+
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
+                driverMode,
                 name,
                 dbClassName,
                 workloadClassName,
@@ -588,6 +592,7 @@ public class ConsoleAndFileDriverConfigurationTest
         );
 
         assertThat( params.asMap(), equalTo( paramsMap ) );
+        assertThat( params.getDriverMode(), equalTo( driverMode));
         assertThat( params.name(), equalTo( name ) );
         assertThat( params.dbClassName(), equalTo( dbClassName ) );
         assertThat( params.workloadClassName(), equalTo( workloadClassName ) );

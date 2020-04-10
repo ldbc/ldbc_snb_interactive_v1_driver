@@ -26,16 +26,16 @@ import java.util.Iterator;
 
 import static java.lang.String.format;
 
-public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
-{
+public class ValidateDatabaseMode extends ClientMode {
     private final ControlService controlService;
     private final LoggingService loggingService;
 
     private Workload workload = null;
     private Db database = null;
 
-    public ValidateDatabaseMode( ControlService controlService ) throws ClientException
+    public ValidateDatabaseMode( ControlService controlService )
     {
+        super(ClientModeType.VALIDATE_DATABASE);
         this.controlService = controlService;
         this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
     }
@@ -76,7 +76,7 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
     }
 
     @Override
-    public DbValidationResult startExecutionAndAwaitCompletion() throws ClientException
+    public void startExecutionAndAwaitCompletion() throws ClientException
     {
         try ( Workload w = workload; Db db = database )
         {
@@ -134,7 +134,6 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
             {
                 writer.write( databaseValidationResult.actualResultsForFailedOperationsAsJsonString( w ) );
                 writer.flush();
-                writer.close();
             }
             catch ( Exception e )
             {
@@ -157,7 +156,6 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
             {
                 writer.write( databaseValidationResult.expectedResultsForFailedOperationsAsJsonString( w ) );
                 writer.flush();
-                writer.close();
             }
             catch ( Exception e )
             {
@@ -174,7 +172,6 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
                     failedValidationOperationsFile.getAbsolutePath(),
                     expectedResultsForFailedValidationOperationsFile.getAbsolutePath()
             ) );
-            return databaseValidationResult;
         }
         catch ( IOException e )
         {

@@ -48,8 +48,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
-public class ExecuteWorkloadMode implements ClientMode<Object>
-{
+public class ExecuteWorkloadMode extends ClientMode{
     private final ControlService controlService;
     private final TimeSource timeSource;
     private final LoggingService loggingService;
@@ -69,6 +68,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             TimeSource timeSource,
             long randomSeed ) throws ClientException
     {
+        super(ClientModeType.EXECUTE_WORKLOAD);
         this.controlService = controlService;
         this.timeSource = timeSource;
         this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
@@ -81,20 +81,19 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     TODO clientMode.init()
     TODO clientMode
      */
-    public WorkloadStatusSnapshot status() throws MetricsCollectionException
-    {
+    public WorkloadStatusSnapshot status() {
         throw new UnsupportedOperationException( "Not yet implemented" );
     }
 
     @Override
-    public void init() throws ClientException
+    public void init()
     {
         loggingService.info( "Driver Configuration" );
         loggingService.info( controlService.toString() );
     }
 
     @Override
-    public Object startExecutionAndAwaitCompletion() throws ClientException
+    public void startExecutionAndAwaitCompletion() throws ClientException
     {
         if ( controlService.configuration().warmupCount() > 0 )
         {
@@ -144,7 +143,6 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             throw new ClientException( "Error shutting down database", e );
         }
         loggingService.info( "Workload completed successfully" );
-        return null;
     }
 
     private void doInit( boolean warmup ) throws ClientException

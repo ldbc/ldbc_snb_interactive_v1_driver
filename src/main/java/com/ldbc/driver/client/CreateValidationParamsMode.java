@@ -19,14 +19,12 @@ import com.ldbc.driver.validation.ValidationParamsGenerator;
 import com.ldbc.driver.validation.ValidationParamsToCsvRows;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 
 import static java.lang.String.format;
 
-public class CreateValidationParamsMode implements ClientMode<Object>
-{
+public class CreateValidationParamsMode extends ClientMode {
     private final ControlService controlService;
     private final LoggingService loggingService;
     private final long randomSeed;
@@ -35,8 +33,8 @@ public class CreateValidationParamsMode implements ClientMode<Object>
     private Db database = null;
     private Iterator<Operation> timeMappedOperations = null;
 
-    public CreateValidationParamsMode( ControlService controlService, long randomSeed ) throws ClientException
-    {
+    public CreateValidationParamsMode( ControlService controlService, long randomSeed ) {
+        super(ClientModeType.CREATE_VALIDATION_PARAMS);
         this.controlService = controlService;
         this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
         this.randomSeed = randomSeed;
@@ -104,7 +102,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
     }
 
     @Override
-    public Object startExecutionAndAwaitCompletion() throws ClientException
+    public void startExecutionAndAwaitCompletion() throws ClientException
     {
         try ( Workload w = workload; Db db = database )
         {
@@ -136,8 +134,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
                     SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR ) )
             {
                 DecimalFormat decimalFormat = new DecimalFormat( "###,###,##0" );
-                while ( csvRows.hasNext() )
-                {
+                while ( csvRows.hasNext() ) {
                     String[] csvRow = csvRows.next();
                     simpleCsvFileWriter.writeRow( csvRow );
                     rowsWrittenSoFar++;
@@ -168,6 +165,5 @@ public class CreateValidationParamsMode implements ClientMode<Object>
         {
             throw new ClientException( "Error encountered duration validation parameter creation", e );
         }
-        return null;
     }
 }

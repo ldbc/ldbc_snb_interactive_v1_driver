@@ -1,11 +1,6 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.client.CalculateWorkloadStatisticsMode;
-import com.ldbc.driver.client.ClientMode;
-import com.ldbc.driver.client.CreateValidationParamsMode;
-import com.ldbc.driver.client.ExecuteWorkloadMode;
-import com.ldbc.driver.client.PrintHelpMode;
-import com.ldbc.driver.client.ValidateDatabaseMode;
+import com.ldbc.driver.client.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfiguration;
@@ -30,7 +25,7 @@ public class Client
 {
     private static final long RANDOM_SEED = 42;
 
-    public static void main( String[] args ) throws ClientException
+    public static void main( String[] args )
     {
         ControlService controlService = null;
         boolean detailedStatus = false;
@@ -47,10 +42,12 @@ public class Client
                     configuration,
                     loggingServiceFactory,
                     systemTimeSource );
-            Client client = new Client();
-            ClientMode clientMode = client.getClientModeFor( controlService );
+
+            ClientModeType driverMode = controlService.configuration().getDriverMode();
+            ClientMode clientMode = ClientModeFactory.buildClientMode(driverMode,controlService);
             clientMode.init();
             clientMode.startExecutionAndAwaitCompletion();
+
         }
         catch ( DriverConfigurationException e )
         {
@@ -72,6 +69,7 @@ public class Client
         }
     }
 
+    // NO LONGER USED - BUT USED IN TESTS/NEED TO UPDATE TESTS
     // TODO should not be doing things like ConsoleAndFileDriverConfiguration.DB_ARG
     // TODO ConsoleAndFileDriverConfiguration could maybe have a DriverParam(enum)-to-String(arg) method?
     public ClientMode getClientModeFor( ControlService controlService ) throws ClientException

@@ -3,6 +3,7 @@ package com.ldbc.driver.control;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.ldbc.driver.Client;
+import com.ldbc.driver.client.ClientModeType;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
@@ -43,6 +44,16 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private static final DecimalFormat FLOAT_FORMAT = new DecimalFormat( "###,###,###,###,##0.0000000" );
 
     // --- REQUIRED ---
+
+    public static final String DRIVER_MODE_ARG = "dm";
+    public static final ClientModeType DRIVER_MODE_DEFAULT = ClientModeType.PRINT_HELP;
+    public static final String DRIVER_MODE_DEFAULT_STRING = DRIVER_MODE_DEFAULT.toString();
+    private static final String DRIVER_MODE_ARG_LONG = "driver_mode";
+    private static final String DRIVER_MODE_DESCRIPTION =
+            "driver execution mode. default:" +
+                    "PRINT_HELP, valid:[CREATE_VALIDATION_PARAMS, VALIDATE_DATABASE, " +
+                    "CALCULATE_WORKLOAD_STATS, EXECUTE_WORKLOAD]";
+
     public static final String OPERATION_COUNT_ARG = "oc";
     public static final long OPERATION_COUNT_DEFAULT = 0;
     public static final String OPERATION_COUNT_DEFAULT_STRING = Long.toString( OPERATION_COUNT_DEFAULT );
@@ -180,7 +191,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private static final char COMMANDLINE_SEPARATOR_CHAR = '|';
     private static final String COMMANDLINE_SEPARATOR_REGEX_STRING = "\\|";
 
-    public static Map<String,String> defaultsAsMap() throws DriverConfigurationException
+    public static Map<String,String> defaultsAsMap()
     {
         Map<String,String> defaultParamsMap = new HashMap<>();
         defaultParamsMap.put( IGNORE_SCHEDULED_START_TIMES_ARG, IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING );
@@ -192,6 +203,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         defaultParamsMap.put( RESULT_DIR_PATH_ARG, RESULT_DIR_PATH_DEFAULT_STRING );
         defaultParamsMap.put( THREADS_ARG, THREADS_DEFAULT_STRING );
         defaultParamsMap.put( SHOW_STATUS_ARG, SHOW_STATUS_DEFAULT_STRING );
+        defaultParamsMap.put( DRIVER_MODE_ARG, DRIVER_MODE_DEFAULT_STRING);
         if ( null != DB_VALIDATION_FILE_PATH_DEFAULT_STRING )
         {
             defaultParamsMap.put( DB_VALIDATION_FILE_PATH_ARG, DB_VALIDATION_FILE_PATH_DEFAULT_STRING );
@@ -258,6 +270,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             paramsMap = MapUtils.mergeMaps( paramsMap, defaultsAsMap(), false );
 
             String name = paramsMap.get( NAME_ARG );
+            ClientModeType driverMode = ClientModeType.valueOf(paramsMap.get( DRIVER_MODE_ARG ));
             String dbClassName = paramsMap.get( DB_ARG );
             String workloadClassName = paramsMap.get( WORKLOAD_ARG );
             long operationCount = Long.parseLong( paramsMap.get( OPERATION_COUNT_ARG ) );
@@ -282,6 +295,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     Boolean.parseBoolean( paramsMap.get( IGNORE_SCHEDULED_START_TIMES_ARG ) );
             return new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    driverMode,
                     name,
                     dbClassName,
                     workloadClassName,
@@ -327,7 +341,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     }
 
     private static Map<String,String> parseArgs( String[] args, Options options )
-            throws ParseException, DriverConfigurationException
+            throws ParseException
     {
         Map<String,String> cmdParams = new HashMap<>();
         Map<String,String> fileParams = new HashMap<>();
@@ -342,6 +356,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         if ( cmd.hasOption( DB_ARG ) )
         {
             cmdParams.put( DB_ARG, cmd.getOptionValue( DB_ARG ) );
+        }
+
+        if ( cmd.hasOption( DRIVER_MODE_ARG ) )
+        {
+            cmdParams.put( DRIVER_MODE_ARG, cmd.getOptionValue( DRIVER_MODE_ARG ) );
         }
 
         if ( cmd.hasOption( WORKLOAD_ARG ) )
@@ -482,6 +501,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
     public static Map<String,String> convertLongKeysToShortKeys( Map<String,String> paramsMap )
     {
+        paramsMap = replaceKey( paramsMap, DRIVER_MODE_ARG_LONG, DRIVER_MODE_ARG );
         paramsMap = replaceKey( paramsMap, OPERATION_COUNT_ARG_LONG, OPERATION_COUNT_ARG );
         paramsMap = replaceKey( paramsMap, NAME_ARG_LONG, NAME_ARG );
         paramsMap = replaceKey( paramsMap, WORKLOAD_ARG_LONG, WORKLOAD_ARG );
@@ -521,6 +541,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         /*
          * Required
          */
+
+        Option driverModeOption =
+                OptionBuilder.hasArgs( 1 ).withArgName( "mode" ).withDescription( DRIVER_MODE_DESCRIPTION ).withLongOpt(
+                        DRIVER_MODE_ARG_LONG ).create( DRIVER_MODE_ARG );
+        options.addOption( driverModeOption );
+
         Option dbOption =
                 OptionBuilder.hasArgs( 1 ).withArgName( "classname" ).withDescription( DB_DESCRIPTION ).withLongOpt(
                         DB_ARG_LONG ).create( DB_ARG );
@@ -626,6 +652,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private static Set<String> coreConfigurationParameterKeys()
     {
         return Sets.newHashSet(
+                DRIVER_MODE_ARG,
                 NAME_ARG,
                 DB_ARG,
                 WORKLOAD_ARG,
@@ -667,6 +694,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     }
 
     private final Map<String,String> paramsMap;
+    private final ClientModeType driverMode;
     private final String name;
     private final String dbClassName;
     private final String workloadClassName;
@@ -686,6 +714,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private final long skipCount;
 
     public ConsoleAndFileDriverConfiguration( Map<String,String> paramsMap,
+            ClientModeType driverMode,
             String name,
             String dbClassName,
             String workloadClassName,
@@ -709,6 +738,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             paramsMap = new HashMap<>();
         }
         this.paramsMap = paramsMap;
+        this.driverMode = driverMode;
         this.name = name;
         this.dbClassName = dbClassName;
         this.workloadClassName = workloadClassName;
@@ -762,6 +792,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         paramsMap.put( IGNORE_SCHEDULED_START_TIMES_ARG, Boolean.toString( ignoreScheduledStartTimes ) );
         paramsMap.put( WARMUP_COUNT_ARG, Long.toString( warmupCount ) );
         paramsMap.put( SKIP_COUNT_ARG, Long.toString( skipCount ) );
+    }
+
+    @Override
+    public ClientModeType getDriverMode() {
+        return driverMode;
     }
 
     @Override
@@ -936,6 +971,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         Map<String,String> newParamsMapWithShortKeys = convertLongKeysToShortKeys( newParamsMap );
         Map<String,String> newOtherParams = MapUtils.mergeMaps( this.paramsMap, newParamsMapWithShortKeys, true );
 
+        ClientModeType newDriverMode = (newParamsMapWithShortKeys.containsKey( DRIVER_MODE_ARG )) ?
+                ClientModeType.valueOf(newParamsMapWithShortKeys.get( DRIVER_MODE_ARG )) :
+                driverMode;
+
         String newName = (newParamsMapWithShortKeys.containsKey( NAME_ARG )) ?
                          newParamsMapWithShortKeys.get( NAME_ARG ) :
                          name;
@@ -998,6 +1037,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
         return new ConsoleAndFileDriverConfiguration(
                 newOtherParams,
+                newDriverMode,
                 newName,
                 newDbClassName,
                 newWorkloadClassName,
@@ -1018,7 +1058,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         );
     }
 
-    public String[] toArgs() throws DriverConfigurationException
+    public String[] toArgs()
     {
         List<String> argsList = new ArrayList<>();
         // required core parameters
