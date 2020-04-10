@@ -93,7 +93,7 @@ public class ExecuteWorkloadMode extends ClientMode{
     }
 
     @Override
-    public void startExecutionAndAwaitCompletion() throws ClientException
+    public Object startExecutionAndAwaitCompletion() throws ClientException
     {
         if ( controlService.configuration().warmupCount() > 0 )
         {
@@ -143,6 +143,7 @@ public class ExecuteWorkloadMode extends ClientMode{
             throw new ClientException( "Error shutting down database", e );
         }
         loggingService.info( "Workload completed successfully" );
+        return null;
     }
 
     private void doInit( boolean warmup ) throws ClientException

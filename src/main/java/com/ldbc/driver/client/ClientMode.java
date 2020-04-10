@@ -19,6 +19,7 @@ public abstract class ClientMode
 
     }
 
-    public void startExecutionAndAwaitCompletion() throws ClientException {
+    public Object startExecutionAndAwaitCompletion() throws ClientException {
+        return null;
     }
 }

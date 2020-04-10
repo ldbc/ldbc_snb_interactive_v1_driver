@@ -17,8 +17,9 @@ public class PrintHelpMode extends ClientMode
     }
 
     @Override
-    public void startExecutionAndAwaitCompletion() {
+    public Object startExecutionAndAwaitCompletion() {
         loggingService.info(controlService.configuration().helpString());
+        return null;
     }
 
 }

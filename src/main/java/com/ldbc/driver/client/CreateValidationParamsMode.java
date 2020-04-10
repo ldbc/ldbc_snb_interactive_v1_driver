@@ -2,10 +2,8 @@ package com.ldbc.driver.client;
 
 import com.ldbc.driver.ClientException;
 import com.ldbc.driver.Db;
-import com.ldbc.driver.DbException;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
-import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.LoggingService;
@@ -14,6 +12,7 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.Tuple3;
+import com.ldbc.driver.validation.DbValidationResult;
 import com.ldbc.driver.validation.ValidationParam;
 import com.ldbc.driver.validation.ValidationParamsGenerator;
 import com.ldbc.driver.validation.ValidationParamsToCsvRows;
@@ -102,7 +101,7 @@ public class CreateValidationParamsMode extends ClientMode {
     }
 
     @Override
-    public void startExecutionAndAwaitCompletion() throws ClientException
+    public Object startExecutionAndAwaitCompletion() throws ClientException
     {
         try ( Workload w = workload; Db db = database )
         {
@@ -118,7 +117,7 @@ public class CreateValidationParamsMode extends ClientMode {
             loggingService.info(
                     format( "Generating database validation file: %s", validationFileToGenerate.getAbsolutePath() ) );
 
-            Iterator<ValidationParam> validationParamsGenerator = new ValidationParamsGenerator(
+            ValidationParamsGenerator validationParamsGenerator = new ValidationParamsGenerator(
                     db,
                     w.dbValidationParametersFilter( validationSetSize ),
                     timeMappedOperations );
@@ -156,7 +155,7 @@ public class CreateValidationParamsMode extends ClientMode {
             }
 
             int validationParametersGenerated =
-                    ((ValidationParamsGenerator) validationParamsGenerator).entriesWrittenSoFar();
+                    validationParamsGenerator.entriesWrittenSoFar();
 
             loggingService.info( format( "Successfully generated %s database validation parameters",
                     validationParametersGenerated ) );
@@ -165,5 +164,6 @@ public class CreateValidationParamsMode extends ClientMode {
         {
             throw new ClientException( "Error encountered duration validation parameter creation", e );
         }
+        return null;
     }
 }

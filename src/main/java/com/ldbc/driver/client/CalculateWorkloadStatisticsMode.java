@@ -26,7 +26,7 @@ public class CalculateWorkloadStatisticsMode extends ClientMode {
     private Workload workload = null;
     private WorkloadStreams timeMappedWorkloadStreams = null;
 
-    public CalculateWorkloadStatisticsMode( ControlService controlService, long randomSeed ) throws ClientException
+    public CalculateWorkloadStatisticsMode( ControlService controlService, long randomSeed )
     {
         super(ClientModeType.CALCULATE_WORKLOAD_STATS);
         this.controlService = controlService;
@@ -82,7 +82,7 @@ public class CalculateWorkloadStatisticsMode extends ClientMode {
     }
 
     @Override
-    public void startExecutionAndAwaitCompletion() throws ClientException
+    public Object startExecutionAndAwaitCompletion() throws ClientException
     {
         loggingService.info(
                 format( "Calculating workload statistics for: %s", workload.getClass().getSimpleName() ) );
@@ -102,5 +102,6 @@ public class CalculateWorkloadStatisticsMode extends ClientMode {
         {
             throw new ClientException( "Error while calculating workload statistics", e );
         }
+        return null;
     }
 }

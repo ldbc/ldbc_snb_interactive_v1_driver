@@ -82,7 +82,7 @@ public abstract class WorkloadTest
     }
 
     private List<DriverConfiguration> withWarmup( List<DriverConfiguration> configurations )
-            throws IOException, DriverConfigurationException
+            throws DriverConfigurationException
     {
         List<DriverConfiguration> configurationsWithSkip = new ArrayList<>();
         for ( DriverConfiguration configuration : configurations )
@@ -97,7 +97,7 @@ public abstract class WorkloadTest
     }
 
     private List<DriverConfiguration> withSkip( List<DriverConfiguration> configurations )
-            throws IOException, DriverConfigurationException
+            throws DriverConfigurationException
     {
         List<DriverConfiguration> configurationsWithSkip = new ArrayList<>();
         for ( DriverConfiguration configuration : configurations )
@@ -329,10 +329,10 @@ public abstract class WorkloadTest
         {
             DriverConfiguration configuration = configurationWithExpectedQueryMix._1();
             Histogram<Class,Double> expectedQueryMix = configurationWithExpectedQueryMix._2();
-            Histogram<Class,Long> actualQueryMix = new Histogram<>( 0l );
+            Histogram<Class,Long> actualQueryMix = new Histogram<>( 0L );
             for ( Map.Entry<Bucket<Class>,Double> bucketEntry : expectedQueryMix.getAllBuckets() )
             {
-                actualQueryMix.addBucket( bucketEntry.getKey(), 0l );
+                actualQueryMix.addBucket( bucketEntry.getKey(), 0L );
             }
             WorkloadFactory workloadFactory = new ClassNameWorkloadFactory( configuration.workloadClassName() );
             try ( Workload workload = workloadFactory.createWorkload() )
@@ -559,7 +559,7 @@ public abstract class WorkloadTest
             // where validation parameters should be written (ensure file does not yet exist)
             // **************************************************
             File validationParamsFile = temporaryFolder.newFile();
-            assertThat( validationParamsFile.length(), is( 0l ) );
+            assertThat( validationParamsFile.length(), is( 0L ) );
 
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
                     new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions(
@@ -622,8 +622,7 @@ public abstract class WorkloadTest
             ValidateDatabaseMode clientModeForDatabaseValidation =
                     (ValidateDatabaseMode) clientForDatabaseValidation.getClientModeFor( controlService );
             clientModeForDatabaseValidation.init();
-            DbValidationResult dbValidationResult =
-                    clientModeForDatabaseValidation.startExecutionAndAwaitCompletion();
+            DbValidationResult dbValidationResult = clientModeForDatabaseValidation.startExecutionAndAwaitCompletion();
 
             // **************************************************
             // check that validation was successful

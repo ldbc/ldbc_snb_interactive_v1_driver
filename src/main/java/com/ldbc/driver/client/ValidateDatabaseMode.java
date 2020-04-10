@@ -76,8 +76,9 @@ public class ValidateDatabaseMode extends ClientMode {
     }
 
     @Override
-    public void startExecutionAndAwaitCompletion() throws ClientException
+    public DbValidationResult startExecutionAndAwaitCompletion() throws ClientException
     {
+        DbValidationResult databaseValidationResult;
         try ( Workload w = workload; Db db = database )
         {
             File validationParamsFile = new File( controlService.configuration().databaseValidationFilePath() );
@@ -102,7 +103,7 @@ public class ValidateDatabaseMode extends ClientMode {
                 throw new ClientException( "Error encountered trying to create CSV file reader", e );
             }
 
-            DbValidationResult databaseValidationResult;
+//            DbValidationResult databaseValidationResult;
             try
             {
                 Iterator<ValidationParam> validationParams =
@@ -177,11 +178,14 @@ public class ValidateDatabaseMode extends ClientMode {
         {
             throw new ClientException( "Error occurred during database validation", e );
         }
+
+        return databaseValidationResult;
+
     }
 
     String removeExtension( String filename )
     {
-        return (filename.indexOf( "." ) == -1) ? filename : filename.substring( 0, filename.lastIndexOf( "." ) );
+        return (!filename.contains(".")) ? filename : filename.substring( 0, filename.lastIndexOf( "." ) );
     }
 
 }
