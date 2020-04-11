@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
-public class ExecuteWorkloadMode extends ClientMode{
+public class ExecuteWorkloadMode extends ClientMode {
     private final ControlService controlService;
     private final TimeSource timeSource;
     private final LoggingService loggingService;

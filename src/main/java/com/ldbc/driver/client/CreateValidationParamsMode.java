@@ -164,6 +164,6 @@ public class CreateValidationParamsMode extends ClientMode {
         {
             throw new ClientException( "Error encountered duration validation parameter creation", e );
         }
-        return null;
+        return new Object();
     }
 }

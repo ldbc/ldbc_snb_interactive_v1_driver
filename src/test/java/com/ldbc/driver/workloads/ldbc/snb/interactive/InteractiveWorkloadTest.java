@@ -59,7 +59,7 @@ public class InteractiveWorkloadTest extends WorkloadTest
     }
 
     @Override
-    public List<Tuple2<Operation,Object>> operationsAndResults() throws Exception
+    public List<Tuple2<Operation,Object>> operationsAndResults()
     {
         return Lists.newArrayList(
                 Tuple.<Operation,Object>tuple2(
@@ -185,6 +185,16 @@ public class InteractiveWorkloadTest extends WorkloadTest
         );
     }
 
+    /**
+     * Driver configurations
+     * i) LONG READS ONLY, NO SHORT READS AND NO WRITES
+     * ii) SHORT AND LONG READS, NO WRITES
+     * iii) WRITES ONLY
+     * iv) FULL WORKLOAD A
+     * v) FULL WORKLOAD B
+     * @return list of driver configurations
+     * @throws Exception exception
+     */
     @Override
     public List<DriverConfiguration> configurations() throws Exception
     {
@@ -326,20 +336,20 @@ public class InteractiveWorkloadTest extends WorkloadTest
             throws Exception
     {
         Histogram<Class,Double> expectedQueryMixHistogram = new Histogram<>( 0d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery1.class ), 1d / 100 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery2.class ), 1d / 200 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery3.class ), 1d / 400 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery4.class ), 1d / 800 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery5.class ), 1d / 1600 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery6.class ), 1d / 1600 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery7.class ), 1d / 800 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery8.class ), 1d / 800 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery9.class ), 1d / 400 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery10.class ), 1d / 200 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery11.class ), 1d / 200 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery12.class ), 1d / 200 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery13.class ), 1d / 100 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery14.class ), 1d / 100 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery1.class), 1d / 100 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery2.class), 1d / 200 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery3.class), 1d / 400 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery4.class), 1d / 800 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery5.class), 1d / 1600 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery6.class), 1d / 1600 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery7.class), 1d / 800 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery8.class), 1d / 800 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery9.class), 1d / 400 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery10.class), 1d / 200 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery11.class), 1d / 200 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery12.class), 1d / 200 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery13.class), 1d / 100 );
+        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create(LdbcQuery14.class), 1d / 100 );
 
         Map<String,String> defaultSnbInteractiveParams =
                 LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
@@ -779,34 +789,34 @@ public class InteractiveWorkloadTest extends WorkloadTest
     {
         // Given
         Map<String,Long> operationMixMap = new HashMap<>();
-//        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY, 1l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY, 2l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY, 3l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY, 4l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY, 5l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY, 6l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY, 7l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY, 8l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY, 9l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY, 10l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY, 11l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY, 12l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY, 13l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY, 14l );
+//        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY, 1L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY, 2L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY, 3L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY, 4L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY, 5L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY, 6L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY, 7L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY, 8L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY, 9L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY, 10L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY, 11L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY, 12L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY, 13L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY, 14L );
 //        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY, 1l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY, 2l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY, 3l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY, 4l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_FREQUENCY_KEY, 5l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_FREQUENCY_KEY, 6l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_FREQUENCY_KEY, 7l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_FREQUENCY_KEY, 8l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_FREQUENCY_KEY, 9l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_FREQUENCY_KEY, 10l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_FREQUENCY_KEY, 11l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY, 12l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY, 13l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY, 14l );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY, 2L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY, 3L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY, 4L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_FREQUENCY_KEY, 5L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_FREQUENCY_KEY, 6L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_FREQUENCY_KEY, 7L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_FREQUENCY_KEY, 8L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_FREQUENCY_KEY, 9L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_FREQUENCY_KEY, 10L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_FREQUENCY_KEY, 11L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY, 12L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY, 13L );
+        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY, 14L );
 
         Map<String,String> defaultSnbInteractiveParams = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
         defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY );

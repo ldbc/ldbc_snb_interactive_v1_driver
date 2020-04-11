@@ -9,9 +9,7 @@ import com.ldbc.driver.Client;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.client.ClientMode;
-import com.ldbc.driver.client.ResultsDirectory;
-import com.ldbc.driver.client.ValidateDatabaseMode;
+import com.ldbc.driver.client.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfiguration;
@@ -197,29 +195,28 @@ public abstract class WorkloadTest
         // When
 
         // Then
-        for ( int i = 0; i < operationsAndResults.size(); i++ )
-        {
+        for (Tuple2<Operation, Object> operationsAndResult : operationsAndResults) {
             assertThat(
-                    format( "original != marshal(serialize(original))\n" +
-                            "Original: %s\n"                             +
-                            "Serialized: %s\n"                           +
-                            "Marshaled: %s",
-                            operationsAndResults.get( i )._2(),
-                            operationsAndResults.get( i )._1().serializeResult(
-                                    operationsAndResults.get( i )._2()
+                    format("original != marshal(serialize(original))\n" +
+                                    "Original: %s\n" +
+                                    "Serialized: %s\n" +
+                                    "Marshaled: %s",
+                            operationsAndResult._2(),
+                            operationsAndResult._1().serializeResult(
+                                    operationsAndResult._2()
                             ),
-                            operationsAndResults.get( i )._1().marshalResult(
-                                    operationsAndResults.get( i )._1().serializeResult(
-                                            operationsAndResults.get( i )._2()
+                            operationsAndResult._1().marshalResult(
+                                    operationsAndResult._1().serializeResult(
+                                            operationsAndResult._2()
                                     )
                             )
                     ),
-                    operationsAndResults.get( i )._1().marshalResult(
-                            operationsAndResults.get( i )._1().serializeResult(
-                                    operationsAndResults.get( i )._2()
+                    operationsAndResult._1().marshalResult(
+                            operationsAndResult._1().serializeResult(
+                                    operationsAndResult._2()
                             )
                     ),
-                    equalTo( operationsAndResults.get( i )._2() ) );
+                    equalTo(operationsAndResult._2()));
         }
     }
 
@@ -403,14 +400,14 @@ public abstract class WorkloadTest
             }
 
             // When
-            Client client = new Client();
             ControlService controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
                     configuration,
                     new Log4jLoggingServiceFactory( false ),
                     timeSource
             );
-            ClientMode clientMode = client.getClientModeFor( controlService );
+
+            ClientMode clientMode = ClientModeFactory.buildClientMode(ClientModeType.EXECUTE_WORKLOAD,controlService);
             clientMode.init();
             clientMode.startExecutionAndAwaitCompletion();
 
@@ -499,14 +496,16 @@ public abstract class WorkloadTest
                 assertFalse( format( "Did not expect file to exist %s", file.getAbsolutePath() ), file.exists() );
             }
 
-            Client client = new Client();
             ControlService controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
                     configuration,
                     new Log4jLoggingServiceFactory( false ),
                     timeSource
             );
-            ClientMode clientMode = client.getClientModeFor( controlService );
+//            ClientModeType driverMode = controlService.configuration().getDriverMode();
+            ClientModeType driverMode = ClientModeType.EXECUTE_WORKLOAD;
+
+            ClientMode clientMode = ClientModeFactory.buildClientMode(driverMode,controlService);
             clientMode.init();
             clientMode.startExecutionAndAwaitCompletion();
 
@@ -570,6 +569,9 @@ public abstract class WorkloadTest
             configuration = configuration.applyArg(
                     ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
                     validationParams.toCommandlineString()
+            ).applyArg(
+                    ConsoleAndFileDriverConfiguration.DRIVER_MODE_ARG,
+                    ClientModeType.CREATE_VALIDATION_PARAMS.toString()
             );
 
             ResultsDirectory resultsDirectory = new ResultsDirectory( configuration );
@@ -582,17 +584,17 @@ public abstract class WorkloadTest
             // **************************************************
             // create validation parameters file
             // **************************************************
-            Client clientForValidationFileCreation = new Client();
             ControlService controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
                     configuration,
                     new Log4jLoggingServiceFactory( false ),
                     timeSource
             );
-            ClientMode clientModeForValidationFileCreation =
-                    clientForValidationFileCreation.getClientModeFor( controlService );
-            clientModeForValidationFileCreation.init();
-            clientModeForValidationFileCreation.startExecutionAndAwaitCompletion();
+
+            ClientModeType driverMode = controlService.configuration().getDriverMode();
+            ClientMode clientForValidationFileCreation = ClientModeFactory.buildClientMode(driverMode,controlService);
+            clientForValidationFileCreation.init();
+            clientForValidationFileCreation.startExecutionAndAwaitCompletion();
 
             // **************************************************
             // check that validation file creation worked
@@ -607,22 +609,25 @@ public abstract class WorkloadTest
                     .applyArg(
                             ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG,
                             validationParamsFile.getAbsolutePath()
+                    ).applyArg(
+                            ConsoleAndFileDriverConfiguration.DRIVER_MODE_ARG,
+                            ClientModeType.VALIDATE_DATABASE.toString()
                     );
 
             // **************************************************
             // validate the database
             // **************************************************
-            Client clientForDatabaseValidation = new Client();
             controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
                     configuration,
                     new Log4jLoggingServiceFactory( false ),
                     timeSource
             );
-            ValidateDatabaseMode clientModeForDatabaseValidation =
-                    (ValidateDatabaseMode) clientForDatabaseValidation.getClientModeFor( controlService );
+
+            ClientModeType driverModeForDatabaseValidation = controlService.configuration().getDriverMode();
+            ClientMode clientModeForDatabaseValidation = ClientModeFactory.buildClientMode(driverModeForDatabaseValidation,controlService);
             clientModeForDatabaseValidation.init();
-            DbValidationResult dbValidationResult = clientModeForDatabaseValidation.startExecutionAndAwaitCompletion();
+            DbValidationResult dbValidationResult = (DbValidationResult) clientModeForDatabaseValidation.startExecutionAndAwaitCompletion();
 
             // **************************************************
             // check that validation was successful

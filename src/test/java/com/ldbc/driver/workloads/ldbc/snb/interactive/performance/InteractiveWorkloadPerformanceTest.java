@@ -7,6 +7,7 @@ import com.ldbc.driver.DbException;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.client.ClientMode;
+import com.ldbc.driver.client.ClientModeFactory;
 import com.ldbc.driver.client.ClientModeType;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
@@ -50,8 +51,7 @@ public class InteractiveWorkloadPerformanceTest
     @Ignore
     @Test
     public void ignoreTimesPerformanceTest()
-            throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
-            CompletionTimeException, DriverConfigurationException
+            throws IOException, MetricsCollectionException
     {
         File parentStreamsDir = new File(
                 "/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf10" +
@@ -89,9 +89,7 @@ public class InteractiveWorkloadPerformanceTest
             String resultsDir,
             String name,
             String updateStreamPropertiesPath )
-            throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
-            CompletionTimeException, DriverConfigurationException
-    {
+            throws IOException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ControlService controlService = null;
         Db db = null;
@@ -112,7 +110,6 @@ public class InteractiveWorkloadPerformanceTest
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             int statusDisplayInterval = 2;
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
-            String resultDirPath = resultsDir;
             double timeCompressionRatio = 0.0000001;
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
@@ -134,7 +131,7 @@ public class InteractiveWorkloadPerformanceTest
                     threadCount,
                     statusDisplayInterval,
                     timeUnit,
-                    resultDirPath,
+                    resultsDir,
                     timeCompressionRatio,
                     validationParams,
                     dbValidationFilePath,
@@ -150,16 +147,17 @@ public class InteractiveWorkloadPerformanceTest
                     .applyArgs( MapUtils.loadPropertiesToMap( new File( updateStreamPropertiesPath ) ) );
 
             // When
-            Client client = new Client();
             controlService = new LocalControlService(
                     timeSource.nowAsMilli() + 3000,
                     configuration,
                     new Log4jLoggingServiceFactory( false ),
                     timeSource
             );
-            ClientMode clientMode = client.getClientModeFor( controlService );
+
+            ClientMode clientMode = ClientModeFactory.buildClientMode(controlService.configuration().getDriverMode(),controlService);
             clientMode.init();
             clientMode.startExecutionAndAwaitCompletion();
+
 
             // Then
             File resultsFile = new File( resultsDir, name + "-results.json" );
@@ -252,8 +250,7 @@ public class InteractiveWorkloadPerformanceTest
             String resultsDir,
             String name,
             String updateStreamPropertiesPath )
-            throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
-            CompletionTimeException, DriverConfigurationException
+            throws  IOException, MetricsCollectionException
     {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ControlService controlService = null;
@@ -316,14 +313,14 @@ public class InteractiveWorkloadPerformanceTest
                     .applyArgs( MapUtils.loadPropertiesToMap( new File( updateStreamPropertiesPath ) ) );
 
             // When
-            Client client = new Client();
             controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
                     configuration,
                     new Log4jLoggingServiceFactory( false ),
                     timeSource
             );
-            ClientMode clientMode = client.getClientModeFor( controlService );
+
+            ClientMode clientMode = ClientModeFactory.buildClientMode(controlService.configuration().getDriverMode(),controlService);
             clientMode.init();
             clientMode.startExecutionAndAwaitCompletion();
 
