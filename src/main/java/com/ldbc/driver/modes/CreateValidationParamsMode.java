@@ -35,7 +35,7 @@ public class CreateValidationParamsMode extends DriverMode {
 
     private Workload workload = null;
     private Db database = null;
-    private Iterator<Operation> timeMappedOperations = null; // what is a time mapped operation?
+    private Iterator<Operation> timeMappedOperations = null;
 
     public CreateValidationParamsMode(ControlService controlService, long randomSeed) {
         super(DriverModeType.CREATE_VALIDATION_PARAMS);
@@ -44,9 +44,13 @@ public class CreateValidationParamsMode extends DriverMode {
         this.randomSeed = randomSeed;
     }
 
+    /**
+     * Initialize the workload (Interactive/BI), initialize the database connection and create operation streams.
+     * @throws ClientException client exception
+     */
     @Override
     public void init() throws ClientException {
-        // step 1) init workload
+
         try {
             workload = ClassLoaderHelper.loadWorkload(controlService.getConfiguration().getWorkloadClassName());
             workload.init(controlService.getConfiguration());
@@ -56,7 +60,6 @@ public class CreateValidationParamsMode extends DriverMode {
         }
         loggingService.info(format("Loaded Workload: %s", workload.getClass().getName()));
 
-        // step 2) init database
         try {
             database = ClassLoaderHelper.loadDb(controlService.getConfiguration().getDbClassName());
             database.init(
@@ -70,12 +73,10 @@ public class CreateValidationParamsMode extends DriverMode {
         }
         loggingService.info(format("Loaded DB: %s", database.getClass().getName()));
 
-        // random generator?
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(randomSeed));
-
         loggingService.info(
                 format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
-        // step 3) create operation streams for workload
+
         try {
             boolean returnStreamsWithDbConnector = false;
             Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload =
@@ -99,6 +100,11 @@ public class CreateValidationParamsMode extends DriverMode {
         loggingService.info(controlService.toString());
     }
 
+    /**
+     * Execute operation streams, collect and results
+     * @return Object used in tests
+     * @throws ClientException client exception
+     */
     @Override
     public Object startExecutionAndAwaitCompletion() throws ClientException {
         try (Workload w = workload; Db db = database) {

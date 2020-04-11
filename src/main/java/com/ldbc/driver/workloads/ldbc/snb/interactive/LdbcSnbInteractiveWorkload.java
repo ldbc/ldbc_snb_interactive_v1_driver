@@ -57,12 +57,14 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.String.format;
 
 public class LdbcSnbInteractiveWorkload extends Workload {
+
     private List<Closeable> forumUpdateOperationsFileReaders = new ArrayList<>();
-    private List<File> forumUpdateOperationFiles = new ArrayList<>();
     private List<Closeable> personUpdateOperationsFileReaders = new ArrayList<>();
+    private List<Closeable> readOperationFileReaders = new ArrayList<>();
+
+    private List<File> forumUpdateOperationFiles = new ArrayList<>();
     private List<File> personUpdateOperationFiles = new ArrayList<>();
 
-    private List<Closeable> readOperationFileReaders = new ArrayList<>();
     private File readOperation1File;
     private File readOperation2File;
     private File readOperation3File;
@@ -92,7 +94,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private long readOperation12InterleaveAsMilli;
     private long readOperation13InterleaveAsMilli;
     private long readOperation14InterleaveAsMilli;
-
     private long updateInterleaveAsMilli;
     private double compressionRatio;
     private double shortReadDissipationFactor;
@@ -109,6 +110,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     @Override
     public void onInit(Map<String, String> params) throws WorkloadException {
+
         List<String> compulsoryKeys = Lists.newArrayList(
                 LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY);
 
@@ -146,14 +148,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         File parametersDir =
                 new File(params.get(LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY).trim());
-        if (false == parametersDir.exists()) {
+        if (!parametersDir.exists()) {
             throw new WorkloadException(
                     format("Parameters directory does not exist: %s", parametersDir.getAbsolutePath()));
         }
         for (String readOperationParamsFilename :
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES) {
             File readOperationParamsFile = new File(parametersDir, readOperationParamsFilename);
-            if (false == readOperationParamsFile.exists()) {
+            if (!readOperationParamsFile.exists()) {
                 throw new WorkloadException(
                         format("Read operation parameters file does not exist: %s",
                                 readOperationParamsFile.getAbsolutePath()));
@@ -192,7 +194,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         for (String longReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration
                 .LONG_READ_OPERATION_ENABLE_KEYS) {
             String longReadOperationEnabledString = params.get(longReadOperationEnableKey).trim();
-            Boolean longReadOperationEnabled = Boolean.parseBoolean(longReadOperationEnabledString);
+            boolean longReadOperationEnabled = Boolean.parseBoolean(longReadOperationEnabledString);
             String longReadOperationClassName =
                     LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
                             LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
@@ -222,7 +224,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         for (String shortReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration
                 .SHORT_READ_OPERATION_ENABLE_KEYS) {
             String shortReadOperationEnabledString = params.get(shortReadOperationEnableKey).trim();
-            Boolean shortReadOperationEnabled = Boolean.parseBoolean(shortReadOperationEnabledString);
+            boolean shortReadOperationEnabled = Boolean.parseBoolean(shortReadOperationEnabledString);
             String shortReadOperationClassName =
                     LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
                             LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
@@ -265,7 +267,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         enabledWriteOperationTypes = new HashSet<>();
         for (String writeOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS) {
             String writeOperationEnabledString = params.get(writeOperationEnableKey).trim();
-            Boolean writeOperationEnabled = Boolean.parseBoolean(writeOperationEnabledString);
+            boolean writeOperationEnabled = Boolean.parseBoolean(writeOperationEnabledString);
             String writeOperationClassName = LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
                     LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
                             LdbcSnbInteractiveWorkloadConfiguration.removeSuffix(
@@ -295,14 +297,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Set<String> missingFrequencyKeys = LdbcSnbInteractiveWorkloadConfiguration
                 .missingParameters(params, frequencyKeys);
         if (enabledWriteOperationTypes.isEmpty() &&
-                false == params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE)) {
+                !params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE)) {
             // if UPDATE_INTERLEAVE is missing and writes are disabled set it to DEFAULT
             params.put(
                     LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE,
                     LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE
             );
         }
-        if (false == params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE)) {
+        if (!params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE)) {
             // if UPDATE_INTERLEAVE is missing but writes are enabled it is an error
             throw new WorkloadException(
                     format("Workload could not initialize. Missing parameter: %s",
@@ -319,7 +321,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     params,
                     LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_INTERLEAVE_KEYS
             );
-            if (false == missingInterleaveKeys.isEmpty()) {
+            if (!missingInterleaveKeys.isEmpty()) {
                 throw new WorkloadException(format(
                         "Workload could not initialize. One of the following groups of parameters should be set: %s " +
                                 "or %s",
@@ -364,7 +366,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         if (null == parserString) {
             parserString = LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_STREAM_PARSER.name();
         }
-        if (false == LdbcSnbInteractiveWorkloadConfiguration.isValidParser(parserString)) {
+        if (!LdbcSnbInteractiveWorkloadConfiguration.isValidParser(parserString)) {
             throw new WorkloadException("Invalid parser: " + parserString);
         }
         this.parser = LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser.valueOf(parserString.trim());
@@ -466,7 +468,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     throw new WorkloadException(
                             "Unable to open person update stream: " + personUpdateOperationFile.getAbsolutePath(), e);
                 }
-                if (false == personUpdateOperationsParser.hasNext()) {
+                if (!personUpdateOperationsParser.hasNext()) {
                     // Update stream is empty
                     System.out.println(
                             format(""
@@ -504,7 +506,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
                 Set<Class<? extends Operation>> dependentPersonUpdateOperationTypes = Sets.newHashSet();
                 Set<Class<? extends Operation>> dependencyPersonUpdateOperationTypes =
-                        Sets.<Class<? extends Operation>>newHashSet(
+                        Sets.newHashSet(
                                 LdbcUpdate1AddPerson.class
                         );
 
@@ -514,7 +516,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                         dependentPersonUpdateOperationTypes,
                         dependencyPersonUpdateOperationTypes,
                         filteredPersonUpdateOperations,
-                        Collections.<Operation>emptyIterator(),
+                        Collections.emptyIterator(),
                         personUpdateChildOperationGenerator
                 );
             }
@@ -542,7 +544,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     throw new WorkloadException(
                             "Unable to open forum update stream: " + forumUpdateOperationFile.getAbsolutePath(), e);
                 }
-                if (false == forumUpdateOperationsParser.hasNext()) {
+                if (!forumUpdateOperationsParser.hasNext()) {
                     // Update stream is empty
                     System.out.println(
                             format(""
@@ -578,7 +580,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                         Iterators.filter(unfilteredForumUpdateOperations, enabledWriteOperationsFilter);
 
                 Set<Class<? extends Operation>> dependentForumUpdateOperationTypes =
-                        Sets.<Class<? extends Operation>>newHashSet(
+                        Sets.newHashSet(
                                 LdbcUpdate2AddPostLike.class,
                                 LdbcUpdate3AddCommentLike.class,
                                 LdbcUpdate4AddForum.class,
@@ -594,7 +596,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
                         dependentForumUpdateOperationTypes,
                         dependencyForumUpdateOperationTypes,
-                        Collections.<Operation>emptyIterator(),
+                        Collections.emptyIterator(),
                         filteredForumUpdateOperations,
                         forumUpdateChildOperationGenerator
                 );
@@ -616,7 +618,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         /*
          * Create read operation streams, with specified interleaves
          */
-        int bufferSize = 1 * 1024 * 1024;
+        int bufferSize = 1024 * 1024;
         char columnDelimiter = '|';
         char arrayDelimiter = ';';
         char tupleDelimiter = ',';
@@ -1418,7 +1420,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          * *******/
 
         ChildOperationGenerator shortReadsChildGenerator = null;
-        if (false == enabledShortReadOperationTypes.isEmpty()) {
+        if (!enabledShortReadOperationTypes.isEmpty()) {
             Map<Integer, Long> longReadInterleavesAsMilli = new HashMap<>();
             longReadInterleavesAsMilli.put(LdbcQuery1.TYPE, readOperation1InterleaveAsMilli);
             longReadInterleavesAsMilli.put(LdbcQuery2.TYPE, readOperation2InterleaveAsMilli);
@@ -1490,7 +1492,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     @Override
     public LdbcSnbInteractiveDbValidationParametersFilter getDbValidationParametersFilter(int requiredValidationParameterCount) {
-        final Set<Class> multiResultOperations = Sets.<Class>newHashSet(
+        final Set<Class> multiResultOperations = Sets.newHashSet(
                 LdbcShortQuery2PersonPosts.class,
                 LdbcShortQuery3PersonFriends.class,
                 LdbcShortQuery7MessageReplies.class,
@@ -2473,7 +2475,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     return false;
                 }
 
-                if (false == CollectionUtils
+                if (!CollectionUtils
                         .isEqualCollection(results1ByWeight.get(weight), results2ByWeight.get(weight),
                                 LDBC_QUERY_14_RESULT_EQUATOR)) {
                     return false;

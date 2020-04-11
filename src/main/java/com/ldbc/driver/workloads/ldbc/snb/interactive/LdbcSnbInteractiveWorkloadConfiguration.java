@@ -287,49 +287,49 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
     public final static String PIPE_SEPARATOR_REGEX = "\\|";
 
     public static Map<String, String> convertFrequenciesToInterleaves(Map<String, String> params) {
-        Integer updateDistance = Integer.parseInt(params.get(UPDATE_INTERLEAVE));
+        int updateDistance = Integer.parseInt(params.get(UPDATE_INTERLEAVE));
 
-        Integer interleave = Integer.parseInt(params.get(READ_OPERATION_1_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_1_INTERLEAVE_KEY, interleave.toString());
+        int interleave = Integer.parseInt(params.get(READ_OPERATION_1_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_1_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_2_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_2_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_2_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_3_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_3_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_3_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_4_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_4_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_4_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_5_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_5_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_5_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_6_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_6_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_6_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_7_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_7_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_7_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_8_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_8_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_8_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_9_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_9_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_9_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_10_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_10_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_10_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_11_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_11_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_11_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_12_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_12_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_12_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_13_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_13_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_13_INTERLEAVE_KEY, Integer.toString(interleave));
 
         interleave = Integer.parseInt(params.get(READ_OPERATION_14_FREQUENCY_KEY)) * updateDistance;
-        params.put(READ_OPERATION_14_INTERLEAVE_KEY, interleave.toString());
+        params.put(READ_OPERATION_14_INTERLEAVE_KEY, Integer.toString(interleave));
 
         return params;
     }
@@ -491,14 +491,14 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
         operationTypeToClassMapping.put(LdbcUpdate7AddComment.TYPE, LdbcUpdate7AddComment.class);
         operationTypeToClassMapping.put(LdbcUpdate8AddFriendship.TYPE, LdbcUpdate8AddFriendship.class);
         // deletes
-        operationTypeToClassMapping.put(LdbcDelete1RemovePerson.TYPE, LdbcDelete1RemovePerson.class);
-        operationTypeToClassMapping.put(LdbcDelete2RemovePostLike.TYPE, LdbcDelete2RemovePostLike.class);
-        operationTypeToClassMapping.put(LdbcDelete3RemoveCommentLike.TYPE, LdbcDelete3RemoveCommentLike.class);
-        operationTypeToClassMapping.put(LdbcDelete4RemoveForum.TYPE, LdbcDelete4RemoveForum.class);
-        operationTypeToClassMapping.put(LdbcDelete5RemoveForumMembership.TYPE, LdbcDelete5RemoveForumMembership.class);
-        operationTypeToClassMapping.put(LdbcDelete6RemovePost.TYPE, LdbcDelete6RemovePost.class);
-        operationTypeToClassMapping.put(LdbcDelete7RemoveComment.TYPE, LdbcDelete7RemoveComment.class);
-        operationTypeToClassMapping.put(LdbcDelete8RemoveFriendship.TYPE, LdbcDelete8RemoveFriendship.class);
+//        operationTypeToClassMapping.put(LdbcDelete1RemovePerson.TYPE, LdbcDelete1RemovePerson.class);
+//        operationTypeToClassMapping.put(LdbcDelete2RemovePostLike.TYPE, LdbcDelete2RemovePostLike.class);
+//        operationTypeToClassMapping.put(LdbcDelete3RemoveCommentLike.TYPE, LdbcDelete3RemoveCommentLike.class);
+//        operationTypeToClassMapping.put(LdbcDelete4RemoveForum.TYPE, LdbcDelete4RemoveForum.class);
+//        operationTypeToClassMapping.put(LdbcDelete5RemoveForumMembership.TYPE, LdbcDelete5RemoveForumMembership.class);
+//        operationTypeToClassMapping.put(LdbcDelete6RemovePost.TYPE, LdbcDelete6RemovePost.class);
+//        operationTypeToClassMapping.put(LdbcDelete7RemoveComment.TYPE, LdbcDelete7RemoveComment.class);
+//        operationTypeToClassMapping.put(LdbcDelete8RemoveFriendship.TYPE, LdbcDelete8RemoveFriendship.class);
 
         return operationTypeToClassMapping;
     }
@@ -525,8 +525,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
     static boolean isValidParser(String parserString) throws WorkloadException {
         try {
             UpdateStreamParser parser = UpdateStreamParser.valueOf(parserString);
-            Set<UpdateStreamParser> validParsers = new HashSet<>();
-            validParsers.addAll(Arrays.asList(UpdateStreamParser.values()));
+            Set<UpdateStreamParser> validParsers = new HashSet<>(Arrays.asList(UpdateStreamParser.values()));
             return validParsers.contains(parser);
         } catch (IllegalArgumentException e) {
             throw new WorkloadException(format("Unsupported parser value: %s", parserString), e);

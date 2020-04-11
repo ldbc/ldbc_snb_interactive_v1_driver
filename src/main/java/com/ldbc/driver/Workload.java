@@ -12,13 +12,15 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public abstract class Workload implements Closeable {
-    public static final long DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI = TimeUnit.HOURS.toMillis(1);
 
+    public static final long DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI = TimeUnit.HOURS.toMillis(1);
     private boolean isInitialized = false;
     private boolean isClosed = false;
 
+
     public abstract Map<Integer, Class<? extends Operation>> operationTypeToClassMapping();
 
+    // TODO: something for result log?
     public ResultsLogValidationTolerances resultsLogValidationTolerances(
             DriverConfiguration configuration,
             boolean warmup
@@ -39,7 +41,6 @@ public abstract class Workload implements Closeable {
                 toleratedExcessiveDelayCountPerType
         );
     }
-
 
     /**
      * Called once to initialize state for workload
