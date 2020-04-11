@@ -1,16 +1,18 @@
-package com.ldbc.driver.client;
+package com.ldbc.driver.modes;
 
 import com.google.common.base.Charsets;
 import com.ldbc.driver.ClientException;
 import com.ldbc.driver.Db;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.Workload;
-import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
+import com.ldbc.driver.modes.DriverMode;
+import com.ldbc.driver.modes.DriverModeType;
+import com.ldbc.driver.modes.ResultsDirectory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.WorkloadRunner;
@@ -48,7 +50,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
-public class ExecuteWorkloadMode extends ClientMode {
+public class ExecuteWorkloadMode extends DriverMode {
     private final ControlService controlService;
     private final TimeSource timeSource;
     private final LoggingService loggingService;
@@ -68,13 +70,13 @@ public class ExecuteWorkloadMode extends ClientMode {
             TimeSource timeSource,
             long randomSeed ) throws ClientException
     {
-        super(ClientModeType.EXECUTE_WORKLOAD);
+        super(DriverModeType.EXECUTE_WORKLOAD);
         this.controlService = controlService;
         this.timeSource = timeSource;
-        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
+        this.loggingService = controlService.getLoggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
         this.randomSeed = randomSeed;
         this.temporalUtil = new TemporalUtil();
-        this.resultsDirectory = new ResultsDirectory( controlService.configuration() );
+        this.resultsDirectory = new ResultsDirectory( controlService.getConfiguration() );
     }
 
     /*
@@ -95,7 +97,7 @@ public class ExecuteWorkloadMode extends ClientMode {
     @Override
     public Object startExecutionAndAwaitCompletion() throws ClientException
     {
-        if ( controlService.configuration().warmupCount() > 0 )
+        if ( controlService.getConfiguration().warmupCount() > 0 )
         {
             loggingService.info( "\n" +
                                  " --------------------\n" +
@@ -159,7 +161,7 @@ public class ExecuteWorkloadMode extends ClientMode {
         {
             resultsLogWriter = (null == resultsLog)
                                ? new NullResultsLogWriter()
-                               : new SimpleResultsLogWriter( resultsLog, controlService.configuration().timeUnit() );
+                               : new SimpleResultsLogWriter( resultsLog, controlService.getConfiguration().timeUnit() );
         }
         catch ( IOException e )
         {
@@ -173,11 +175,11 @@ public class ExecuteWorkloadMode extends ClientMode {
         loggingService.info( "Scanning workload streams to calculate their limits..." );
 
         long offset = (warmup)
-                      ? controlService.configuration().skipCount()
-                      : controlService.configuration().skipCount() + controlService.configuration().warmupCount();
+                      ? controlService.getConfiguration().skipCount()
+                      : controlService.getConfiguration().skipCount() + controlService.getConfiguration().warmupCount();
         long limit = (warmup)
-                     ? controlService.configuration().warmupCount()
-                     : controlService.configuration().operationCount();
+                     ? controlService.getConfiguration().warmupCount()
+                     : controlService.getConfiguration().getOperationCount();
 
         WorkloadStreams workloadStreams;
         long minimumTimeStamp;
@@ -186,40 +188,33 @@ public class ExecuteWorkloadMode extends ClientMode {
             boolean returnStreamsWithDbConnector = true;
             Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkloadAndMinimumTimeStamp =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
-                            controlService.configuration(),
+                            controlService.getConfiguration(),
                             gf,
                             returnStreamsWithDbConnector,
                             offset,
                             limit,
-                            controlService.loggingServiceFactory()
+                            controlService.getLoggingServiceFactory()
                     );
-            workloadStreams = streamsAndWorkloadAndMinimumTimeStamp._1();
-            workload = streamsAndWorkloadAndMinimumTimeStamp._2();
-            minimumTimeStamp = streamsAndWorkloadAndMinimumTimeStamp._3();
+            workloadStreams = streamsAndWorkloadAndMinimumTimeStamp.getElement1();
+            workload = streamsAndWorkloadAndMinimumTimeStamp.getElement2();
+            minimumTimeStamp = streamsAndWorkloadAndMinimumTimeStamp.getElement3();
         }
         catch ( Exception e )
         {
             throw new ClientException( format( "Error loading workload class: %s",
-                    controlService.configuration().workloadClassName() ), e );
+                    controlService.getConfiguration().getWorkloadClassName() ), e );
         }
         loggingService.info( format( "Loaded workload: %s", workload.getClass().getName() ) );
 
         loggingService.info( format( "Retrieving workload stream: %s", workload.getClass().getSimpleName() ) );
         controlService.setWorkloadStartTimeAsMilli( System.currentTimeMillis() + TimeUnit.SECONDS.toMillis( 5 ) );
         WorkloadStreams timeMappedWorkloadStreams;
-        try
-        {
-            timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
-                    workloadStreams,
-                    controlService.workloadStartTimeAsMilli(),
-                    controlService.configuration().timeCompressionRatio(),
-                    gf
-            );
-        }
-        catch ( WorkloadException e )
-        {
-            throw new ClientException( "Error while retrieving operation stream for workload", e );
-        }
+        timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
+                workloadStreams,
+                controlService.workloadStartTimeAsMilli(),
+                controlService.getConfiguration().timeCompressionRatio(),
+                gf
+        );
 
         //  ================
         //  =====  DB  =====
@@ -228,17 +223,17 @@ public class ExecuteWorkloadMode extends ClientMode {
         {
             try
             {
-                database = ClassLoaderHelper.loadDb( controlService.configuration().dbClassName() );
+                database = ClassLoaderHelper.loadDb( controlService.getConfiguration().getDbClassName() );
                 database.init(
-                        controlService.configuration().asMap(),
-                        controlService.loggingServiceFactory().loggingServiceFor( database.getClass().getSimpleName() ),
+                        controlService.getConfiguration().asMap(),
+                        controlService.getLoggingServiceFactory().loggingServiceFor( database.getClass().getSimpleName() ),
                         workload.operationTypeToClassMapping()
                 );
             }
             catch ( DbException e )
             {
                 throw new ClientException(
-                        format( "Error initializing DB: %s", controlService.configuration().dbClassName() ), e );
+                        format( "Error initializing DB: %s", controlService.getConfiguration().getDbClassName() ), e );
             }
             loggingService.info( format( "Loaded DB: %s", database.getClass().getName() ) );
         }
@@ -252,11 +247,11 @@ public class ExecuteWorkloadMode extends ClientMode {
             metricsService = new DisruptorSbeMetricsService(
                     timeSource,
                     errorReporter,
-                    controlService.configuration().timeUnit(),
+                    controlService.getConfiguration().timeUnit(),
                     DisruptorSbeMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     resultsLogWriter,
                     workload.operationTypeToClassMapping(),
-                    controlService.loggingServiceFactory()
+                    controlService.getLoggingServiceFactory()
             );
         }
         catch ( MetricsCollectionException e )
@@ -295,11 +290,11 @@ public class ExecuteWorkloadMode extends ClientMode {
                     metricsService,
                     errorReporter,
                     completionTimeService,
-                    controlService.loggingServiceFactory(),
-                    controlService.configuration().threadCount(),
-                    controlService.configuration().statusDisplayIntervalAsSeconds(),
-                    controlService.configuration().spinnerSleepDurationAsMilli(),
-                    controlService.configuration().ignoreScheduledStartTimes(),
+                    controlService.getLoggingServiceFactory(),
+                    controlService.getConfiguration().getThreadCount(),
+                    controlService.getConfiguration().statusDisplayIntervalAsSeconds(),
+                    controlService.getConfiguration().spinnerSleepDurationAsMilli(),
+                    controlService.getConfiguration().ignoreScheduledStartTimes(),
                     operationHandlerExecutorsBoundedQueueSize );
         }
         catch ( Exception e )
@@ -429,16 +424,16 @@ public class ExecuteWorkloadMode extends ClientMode {
                 File configurationFile = resultsDirectory.getOrCreateConfigurationFile( warmup );
                 Files.write(
                         configurationFile.toPath(),
-                        controlService.configuration().toPropertiesString().getBytes( StandardCharsets.UTF_8 )
+                        controlService.getConfiguration().toPropertiesString().getBytes( StandardCharsets.UTF_8 )
                 );
                 resultsLogWriter.close();
-                if ( !controlService.configuration().ignoreScheduledStartTimes() )
+                if ( !controlService.getConfiguration().ignoreScheduledStartTimes() )
                 {
                     loggingService.info( "Validating workload results..." );
                     // TODO make this feature accessible directly
                     ResultsLogValidator resultsLogValidator = new ResultsLogValidator();
                     ResultsLogValidationTolerances resultsLogValidationTolerances =
-                            workload.resultsLogValidationTolerances( controlService.configuration(), warmup );
+                            workload.resultsLogValidationTolerances( controlService.getConfiguration(), warmup );
                     ResultsLogValidationSummary resultsLogValidationSummary = resultsLogValidator.compute(
                             resultsDirectory.getOrCreateResultsLogFile( warmup ),
                             resultsLogValidationTolerances.excessiveDelayThresholdAsMilli()

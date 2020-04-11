@@ -48,7 +48,7 @@ public class BiWorkloadTest extends WorkloadTest
                 LdbcSnbBiWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/snb/bi/" ).getAbsolutePath()
         );
-        Workload workload = new ClassNameWorkloadFactory( configuration.workloadClassName() ).createWorkload();
+        Workload workload = new ClassNameWorkloadFactory( configuration.getWorkloadClassName() ).createWorkload();
         workload.init( configuration );
         return workload;
     }

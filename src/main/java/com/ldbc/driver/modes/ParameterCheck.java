@@ -1,4 +1,4 @@
-package com.ldbc.driver.client;
+package com.ldbc.driver.modes;
 
 import com.ldbc.driver.ClientException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
@@ -7,7 +7,7 @@ import com.ldbc.driver.control.DriverConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ldbc.driver.client.ClientModeType.*;
+import static com.ldbc.driver.modes.DriverModeType.*;
 import static java.lang.String.format;
 
 /**
@@ -15,26 +15,26 @@ import static java.lang.String.format;
  */
 public class ParameterCheck {
 
-    public static void missingParameters(DriverConfiguration configuration, ClientModeType clientModeType) throws ClientException {
+    public static void missingParameters(DriverConfiguration configuration, DriverModeType driverModeType) throws ClientException {
 
         List<String> missingParams = new ArrayList<>();
 
-        if (null == configuration.workloadClassName()) {
+        if (null == configuration.getWorkloadClassName()) {
             missingParams.add(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG);
         }
 
-        if (clientModeType == CREATE_VALIDATION_PARAMS ||
-                clientModeType == VALIDATE_DATABASE ||
-                clientModeType == EXECUTE_WORKLOAD) {
-            if (null == configuration.dbClassName()) {
+        if (driverModeType == CREATE_VALIDATION_PARAMS ||
+                driverModeType == VALIDATE_DATABASE ||
+                driverModeType == EXECUTE_WORKLOAD) {
+            if (null == configuration.getDbClassName()) {
                 missingParams.add(ConsoleAndFileDriverConfiguration.DB_ARG);
             }
         }
 
-        if (clientModeType == CREATE_VALIDATION_PARAMS ||
-                clientModeType == CALCULATE_WORKLOAD_STATS ||
-                clientModeType == EXECUTE_WORKLOAD) {
-            if (null == configuration.dbClassName()) {
+        if (driverModeType == CREATE_VALIDATION_PARAMS ||
+                driverModeType == CALCULATE_WORKLOAD_STATS ||
+                driverModeType == EXECUTE_WORKLOAD) {
+            if (null == configuration.getDbClassName()) {
                 missingParams.add(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG);
             }
         }

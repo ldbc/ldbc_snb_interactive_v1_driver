@@ -1,16 +1,18 @@
-package com.ldbc.driver.workloads.ldbc.snb.interactive;
+package com.ldbc.driver.validation;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.Workload.DbValidationParametersFilter;
-import com.ldbc.driver.Workload.DbValidationParametersFilterAcceptance;
-import com.ldbc.driver.Workload.DbValidationParametersFilterResult;
+import com.ldbc.driver.validation.DbValidationParametersFilter;
+import com.ldbc.driver.validation.DbValidationParametersFilterResult;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationParametersFilter {
+import static com.ldbc.driver.validation.DbValidationParametersFilterAcceptanceType.*;
+
+public class LdbcSnbInteractiveDbValidationParametersFilter extends DbValidationParametersFilter {
     private final Set<Class> multiResultOperations;
     private final Map<Class, Long> remainingRequiredResultsPerWriteType;
     private final Map<Class, Long> remainingRequiredResultsPerLongReadType;
@@ -18,7 +20,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     private long writeAddPersonOperationCount;
     private int uncompletedShortReads;
 
-    LdbcSnbInteractiveDbValidationParametersFilter(Set<Class> multiResultOperations,
+    public LdbcSnbInteractiveDbValidationParametersFilter(Set<Class> multiResultOperations,
                                                    long writeAddPersonOperationCount,
                                                    Map<Class, Long> remainingRequiredResultsPerWriteType,
                                                    Map<Class, Long> remainingRequiredResultsPerLongReadType,
@@ -40,7 +42,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
         } else if (operationType.equals(LdbcUpdate1AddPerson.class)) {
             return writeAddPersonOperationCount > 0;
         } else if (remainingRequiredResultsPerWriteType.containsKey(operationType)) {
-            return false == haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType);
+            return !haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType);
         } else if (remainingRequiredResultsPerLongReadType.containsKey(operationType)) {
             return remainingRequiredResultsPerLongReadType.get(operationType) > 0;
         } else {
@@ -57,7 +59,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
 
         // do not use empty results for validation
         if (multiResultOperations.contains(operationType) && ((List) operationResult).isEmpty()) {
-            return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.REJECT_AND_CONTINUE, injectedOperations);
+            return new DbValidationParametersFilterResult(REJECT_AND_CONTINUE, injectedOperations);
         }
 
         injectedOperations.addAll(generateOperationsToInject(operation));
@@ -80,19 +82,19 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
         }
 
         if (validationParameterGenerationFinished()) {
-            return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.ACCEPT_AND_FINISH, injectedOperations);
+            return new DbValidationParametersFilterResult(ACCEPT_AND_FINISH, injectedOperations);
         } else {
-            return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.ACCEPT_AND_CONTINUE, injectedOperations);
+            return new DbValidationParametersFilterResult(ACCEPT_AND_CONTINUE, injectedOperations);
         }
     }
 
     private boolean validationParameterGenerationFinished() {
         // check that all writes have completed
-        if (false == haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType)) {
+        if (!haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType)) {
             return false;
         }
         // check that all long reads have completed
-        if (false == haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerLongReadType)) {
+        if (!haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerLongReadType)) {
             return false;
         }
         // check that all Add Person writes have completed

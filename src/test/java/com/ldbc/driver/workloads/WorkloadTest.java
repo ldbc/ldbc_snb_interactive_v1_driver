@@ -5,11 +5,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.ldbc.driver.Client;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.client.*;
+import com.ldbc.driver.modes.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfiguration;
@@ -228,7 +227,7 @@ public abstract class WorkloadTest
             long operationCount = 1_000_000;
             long timeoutAsMilli = TimeUnit.SECONDS.toMillis( 5 );
 
-            try ( Workload workload = new ClassNameWorkloadFactory( configuration.workloadClassName() )
+            try ( Workload workload = new ClassNameWorkloadFactory( configuration.getWorkloadClassName() )
                     .createWorkload() )
             {
                 workload.init( configuration );
@@ -253,7 +252,7 @@ public abstract class WorkloadTest
     {
         for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )
         {
-            WorkloadFactory workloadFactory = new ClassNameWorkloadFactory( configuration.workloadClassName() );
+            WorkloadFactory workloadFactory = new ClassNameWorkloadFactory( configuration.getWorkloadClassName() );
             GeneratorFactory gf1 = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
             GeneratorFactory gf2 = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
             try ( Workload workloadA = workloadFactory.createWorkload();
@@ -269,7 +268,7 @@ public abstract class WorkloadTest
                                                 gf1,
                                                 workloadA.streams( gf1, true )
                                         ),
-                                        configuration.operationCount()
+                                        configuration.getOperationCount()
                                 ),
                                 new Function<Operation,Class>()
                                 {
@@ -289,7 +288,7 @@ public abstract class WorkloadTest
                                                 gf2,
                                                 workloadB.streams( gf2, true )
                                         ),
-                                        configuration.operationCount()
+                                        configuration.getOperationCount()
                                 ),
                                 new Function<Operation,Class>()
                                 {
@@ -331,7 +330,7 @@ public abstract class WorkloadTest
             {
                 actualQueryMix.addBucket( bucketEntry.getKey(), 0L );
             }
-            WorkloadFactory workloadFactory = new ClassNameWorkloadFactory( configuration.workloadClassName() );
+            WorkloadFactory workloadFactory = new ClassNameWorkloadFactory( configuration.getWorkloadClassName() );
             try ( Workload workload = workloadFactory.createWorkload() )
             {
                 workload.init( configuration );
@@ -345,7 +344,7 @@ public abstract class WorkloadTest
                                         gf,
                                         workload.streams( gf, true )
                                 ),
-                                configuration.operationCount()
+                                configuration.getOperationCount()
                         ),
                         new Function<Operation,Class>()
                         {
@@ -407,9 +406,9 @@ public abstract class WorkloadTest
                     timeSource
             );
 
-            ClientMode clientMode = ClientModeFactory.buildClientMode(ClientModeType.EXECUTE_WORKLOAD,controlService);
-            clientMode.init();
-            clientMode.startExecutionAndAwaitCompletion();
+            DriverMode driverMode = DriverModeFactory.buildDriverMode(DriverModeType.EXECUTE_WORKLOAD,controlService);
+            driverMode.init();
+            driverMode.startExecutionAndAwaitCompletion();
 
             // Then
             for ( File file : resultsDirectory.expectedFiles() )
@@ -438,15 +437,15 @@ public abstract class WorkloadTest
             long resultsLogSize = resultsDirectory.getResultsLogFileLength( false );
             assertThat(
                     format( "Expected %s <= entries in results log <= %s\nFound %s\nResults Log: %s",
-                            operationCountLower( configuration.operationCount() ),
-                            operationCountUpper( configuration.operationCount() ),
+                            operationCountLower( configuration.getOperationCount() ),
+                            operationCountUpper( configuration.getOperationCount() ),
                             resultsLogSize,
                             resultsDirectory.getResultsLogFile( false ).getAbsolutePath()
                     ),
                     resultsLogSize,
                     allOf(
-                            greaterThanOrEqualTo( operationCountLower( configuration.operationCount() ) ),
-                            lessThanOrEqualTo( operationCountUpper( configuration.operationCount() ) )
+                            greaterThanOrEqualTo( operationCountLower( configuration.getOperationCount() ) ),
+                            lessThanOrEqualTo( operationCountUpper( configuration.getOperationCount() ) )
                     )
             );
         }
@@ -460,7 +459,7 @@ public abstract class WorkloadTest
         for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )
         {
             try ( Workload workload =
-                          new ClassNameWorkloadFactory( configuration.workloadClassName() ).createWorkload() )
+                          new ClassNameWorkloadFactory( configuration.getWorkloadClassName() ).createWorkload() )
             {
                 workload.init( configuration );
 
@@ -470,7 +469,7 @@ public abstract class WorkloadTest
                                         gf,
                                         workload.streams( gf, true )
                                 ),
-                                configuration.operationCount()
+                                configuration.getOperationCount()
                         )
                 );
 
@@ -503,9 +502,9 @@ public abstract class WorkloadTest
                     timeSource
             );
 //            ClientModeType driverMode = controlService.configuration().getDriverMode();
-            ClientModeType driverMode = ClientModeType.EXECUTE_WORKLOAD;
+            DriverModeType driverMode = DriverModeType.EXECUTE_WORKLOAD;
 
-            ClientMode clientMode = ClientModeFactory.buildClientMode(driverMode,controlService);
+            DriverMode clientMode = DriverModeFactory.buildDriverMode(driverMode,controlService);
             clientMode.init();
             clientMode.startExecutionAndAwaitCompletion();
 
@@ -535,15 +534,15 @@ public abstract class WorkloadTest
             long resultsLogSize = resultsDirectory.getResultsLogFileLength( false );
             assertThat(
                     format( "Expected %s <= entries in results log <= %s\nFound %s\nResults Log: %s",
-                            operationCountLower( configuration.operationCount() ),
-                            operationCountUpper( configuration.operationCount() ),
+                            operationCountLower( configuration.getOperationCount() ),
+                            operationCountUpper( configuration.getOperationCount() ),
                             resultsLogSize,
                             resultsDirectory.getResultsLogFile( false ).getAbsolutePath()
                     ),
                     resultsLogSize,
                     allOf(
-                            greaterThanOrEqualTo( operationCountLower( configuration.operationCount() ) ),
-                            lessThanOrEqualTo( operationCountUpper( configuration.operationCount() ) )
+                            greaterThanOrEqualTo( operationCountLower( configuration.getOperationCount() ) ),
+                            lessThanOrEqualTo( operationCountUpper( configuration.getOperationCount() ) )
                     )
             );
         }
@@ -571,7 +570,7 @@ public abstract class WorkloadTest
                     validationParams.toCommandlineString()
             ).applyArg(
                     ConsoleAndFileDriverConfiguration.DRIVER_MODE_ARG,
-                    ClientModeType.CREATE_VALIDATION_PARAMS.toString()
+                    DriverModeType.CREATE_VALIDATION_PARAMS.toString()
             );
 
             ResultsDirectory resultsDirectory = new ResultsDirectory( configuration );
@@ -591,8 +590,8 @@ public abstract class WorkloadTest
                     timeSource
             );
 
-            ClientModeType driverMode = controlService.configuration().getDriverMode();
-            ClientMode clientForValidationFileCreation = ClientModeFactory.buildClientMode(driverMode,controlService);
+            DriverModeType driverMode = controlService.getConfiguration().getDriverMode();
+            DriverMode clientForValidationFileCreation = DriverModeFactory.buildDriverMode(driverMode,controlService);
             clientForValidationFileCreation.init();
             clientForValidationFileCreation.startExecutionAndAwaitCompletion();
 
@@ -611,7 +610,7 @@ public abstract class WorkloadTest
                             validationParamsFile.getAbsolutePath()
                     ).applyArg(
                             ConsoleAndFileDriverConfiguration.DRIVER_MODE_ARG,
-                            ClientModeType.VALIDATE_DATABASE.toString()
+                            DriverModeType.VALIDATE_DATABASE.toString()
                     );
 
             // **************************************************
@@ -624,8 +623,8 @@ public abstract class WorkloadTest
                     timeSource
             );
 
-            ClientModeType driverModeForDatabaseValidation = controlService.configuration().getDriverMode();
-            ClientMode clientModeForDatabaseValidation = ClientModeFactory.buildClientMode(driverModeForDatabaseValidation,controlService);
+            DriverModeType driverModeForDatabaseValidation = controlService.getConfiguration().getDriverMode();
+            DriverMode clientModeForDatabaseValidation = DriverModeFactory.buildDriverMode(driverModeForDatabaseValidation,controlService);
             clientModeForDatabaseValidation.init();
             DbValidationResult dbValidationResult = (DbValidationResult) clientModeForDatabaseValidation.startExecutionAndAwaitCompletion();
 
@@ -646,7 +645,7 @@ public abstract class WorkloadTest
         {
             WorkloadValidator workloadValidator = new WorkloadValidator();
             WorkloadValidationResult workloadValidationResult = workloadValidator.validate(
-                    new ClassNameWorkloadFactory( configuration.workloadClassName() ),
+                    new ClassNameWorkloadFactory( configuration.getWorkloadClassName() ),
                     configuration,
                     new Log4jLoggingServiceFactory( true )
             );

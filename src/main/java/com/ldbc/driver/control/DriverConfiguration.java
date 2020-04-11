@@ -1,6 +1,6 @@
 package com.ldbc.driver.control;
 
-import com.ldbc.driver.client.ClientModeType;
+import com.ldbc.driver.modes.DriverModeType;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -8,17 +8,17 @@ import java.util.concurrent.TimeUnit;
 public interface DriverConfiguration
 {
 
-    ClientModeType getDriverMode();
+    DriverModeType getDriverMode();
 
-    String name();
+    String getName();
 
-    String dbClassName();
+    String getDbClassName();
 
-    String workloadClassName();
+    String getWorkloadClassName();
 
-    long operationCount();
+    long getOperationCount();
 
-    int threadCount();
+    int getThreadCount();
 
     int statusDisplayIntervalAsSeconds();
 
@@ -28,7 +28,7 @@ public interface DriverConfiguration
 
     double timeCompressionRatio();
 
-    ValidationParamOptions validationParamsCreationOptions();
+    ValidationParamOptions getValidationParamsCreationOptions();
 
     String databaseValidationFilePath();
 
@@ -58,8 +58,8 @@ public interface DriverConfiguration
 
     interface ValidationParamOptions
     {
-        String filePath();
+        String getFilePath();
 
-        int validationSetSize();
+        int getValidationSetSize();
     }
 }

@@ -3,6 +3,7 @@ package com.ldbc.driver;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.ldbc.driver.validation.DbValidationParametersFilter;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.Log4jLoggingServiceFactory;
@@ -289,11 +290,11 @@ public class WorkloadStreamsTest
                         gf,
                         returnStreamsWithDbConnector,
                         0,
-                        configuration.operationCount(),
+                        configuration.getOperationCount(),
                         loggingServiceFactory
                 );
-        WorkloadStreams workloadStreams = limitedWorkloadStreamsAndWorkload._1();
-        Workload workload = limitedWorkloadStreamsAndWorkload._2();
+        WorkloadStreams workloadStreams = limitedWorkloadStreamsAndWorkload.getElement1();
+        Workload workload = limitedWorkloadStreamsAndWorkload.getElement2();
         assertThat( Iterators
                         .size( WorkloadStreams
                                 .mergeSortedByStartTimeExcludingChildOperationGenerators( gf, workloadStreams ) ),
@@ -327,11 +328,11 @@ public class WorkloadStreamsTest
                         gf,
                         returnStreamsWithDbConnector,
                         configuration.warmupCount(),
-                        configuration.operationCount(),
+                        configuration.getOperationCount(),
                         loggingServiceFactory
                 );
-        WorkloadStreams workloadStreams = limitedWorkloadStreamsAndWorkload._1();
-        Workload workload = limitedWorkloadStreamsAndWorkload._2();
+        WorkloadStreams workloadStreams = limitedWorkloadStreamsAndWorkload.getElement1();
+        Workload workload = limitedWorkloadStreamsAndWorkload.getElement2();
         assertThat( Iterators
                         .size( WorkloadStreams
                                 .mergeSortedByStartTimeExcludingChildOperationGenerators( gf, workloadStreams ) ),
@@ -408,9 +409,9 @@ public class WorkloadStreamsTest
                         childOperationGenerators,
                         loggingServiceFactory
                 );
-        long[] startForIterator = kForIteratorAndMinimums._1();
-        long[] countForIterator = kForIteratorAndMinimums._2();
-        long minimumTimeStamp = kForIteratorAndMinimums._3();
+        long[] startForIterator = kForIteratorAndMinimums.getElement1();
+        long[] countForIterator = kForIteratorAndMinimums.getElement2();
+        long minimumTimeStamp = kForIteratorAndMinimums.getElement3();
 
         List<Operation> topK = Lists.newArrayList(
                 gf.mergeSortOperationsByTimeStamp(
@@ -523,9 +524,9 @@ public class WorkloadStreamsTest
                         childOperationGenerators,
                         loggingServiceFactory
                 );
-        long[] startForIterator = kForIteratorAndMinimums._1();
-        long[] countForIterator = kForIteratorAndMinimums._2();
-        long minimumTimeStamp = kForIteratorAndMinimums._3();
+        long[] startForIterator = kForIteratorAndMinimums.getElement1();
+        long[] countForIterator = kForIteratorAndMinimums.getElement2();
+        long minimumTimeStamp = kForIteratorAndMinimums.getElement3();
 
         List<Operation> topK = Lists.newArrayList(
                 gf.mergeSortOperationsByTimeStamp(
@@ -644,9 +645,9 @@ public class WorkloadStreamsTest
                         childOperationGenerators,
                         loggingServiceFactory
                 );
-        long[] startForIterator = kForIteratorAndMinimums._1();
-        long[] countForIterator = kForIteratorAndMinimums._2();
-        long minimumTimeStamp = kForIteratorAndMinimums._3();
+        long[] startForIterator = kForIteratorAndMinimums.getElement1();
+        long[] countForIterator = kForIteratorAndMinimums.getElement2();
+        long minimumTimeStamp = kForIteratorAndMinimums.getElement3();
 
         List<Iterator<Operation>> offsetStreams = Lists.newArrayList(
                 stream0.iterator(),
@@ -790,9 +791,9 @@ public class WorkloadStreamsTest
                         childOperationGenerators,
                         loggingServiceFactory
                 );
-        long[] startForIterator = kForIteratorAndMinimums._1();
-        long[] countForIterator = kForIteratorAndMinimums._2();
-        long minimumTimeStamp = kForIteratorAndMinimums._3();
+        long[] startForIterator = kForIteratorAndMinimums.getElement1();
+        long[] countForIterator = kForIteratorAndMinimums.getElement2();
+        long minimumTimeStamp = kForIteratorAndMinimums.getElement3();
 
         List<Iterator<Operation>> offsetStreams = Lists.newArrayList(
                 stream0.iterator(),
@@ -907,9 +908,14 @@ public class WorkloadStreamsTest
 
         @Override
         protected WorkloadStreams getStreams( GeneratorFactory generators, boolean hasDbConnected )
-                throws WorkloadException
+
         {
             return getWorkloadStreams();
+        }
+
+        @Override
+        public DbValidationParametersFilter getDbValidationParametersFilter(int requiredValidationParameterCount) {
+            return null;
         }
 
         @Override

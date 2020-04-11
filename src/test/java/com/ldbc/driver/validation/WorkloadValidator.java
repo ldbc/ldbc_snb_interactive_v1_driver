@@ -62,7 +62,7 @@ public class WorkloadValidator
         try
         {
             long offset = 0;
-            long limit = configuration.operationCount();
+            long limit = configuration.getOperationCount();
             boolean returnStreamsWithDbConnector = false;
             Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
@@ -76,9 +76,9 @@ public class WorkloadValidator
                     );
             operationsPass1 = WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
                     gf,
-                    streamsAndWorkload._1()
+                    streamsAndWorkload.getElement1()
             );
-            workloadPass1 = streamsAndWorkload._2();
+            workloadPass1 = streamsAndWorkload.getElement2();
         }
         catch ( Exception e )
         {
@@ -173,7 +173,7 @@ public class WorkloadValidator
         try
         {
             long offset = 0;
-            long limit = configuration.operationCount();
+            long limit = configuration.getOperationCount();
             boolean returnStreamsWithDbConnector = false;
             Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
@@ -185,11 +185,11 @@ public class WorkloadValidator
                             limit,
                             loggingServiceFactory
                     );
-            workloadPass2 = streamsAndWorkload._2();
+            workloadPass2 = streamsAndWorkload.getElement2();
             operationsPass2 = gf.timeOffsetAndCompress(
                     WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
                             gf,
-                            streamsAndWorkload._1()
+                            streamsAndWorkload.getElement1()
                     ),
                     nowAsMilli,
                     configuration.timeCompressionRatio()
@@ -432,13 +432,13 @@ public class WorkloadValidator
                             new GeneratorFactory( new RandomDataGeneratorFactory( 42l ) ),
                             returnStreamsWithDbConnector,
                             0,
-                            configuration.operationCount(),
+                            configuration.getOperationCount(),
                             loggingServiceFactory
                     );
-            workload1 = streamsAndWorkload1._2();
+            workload1 = streamsAndWorkload1.getElement2();
             operationStream1 = gf.timeOffsetAndCompress(
                     WorkloadStreams
-                            .mergeSortedByStartTimeExcludingChildOperationGenerators( gf, streamsAndWorkload1._1() ),
+                            .mergeSortedByStartTimeExcludingChildOperationGenerators( gf, streamsAndWorkload1.getElement1() ),
                     nowAsMilli,
                     configuration.timeCompressionRatio()
             );
@@ -450,13 +450,13 @@ public class WorkloadValidator
                             new GeneratorFactory( new RandomDataGeneratorFactory( 42l ) ),
                             returnStreamsWithDbConnector,
                             0,
-                            configuration.operationCount(),
+                            configuration.getOperationCount(),
                             loggingServiceFactory
                     );
-            workload2 = streamsAndWorkload2._2();
+            workload2 = streamsAndWorkload2.getElement2();
             operationStream2 = gf.timeOffsetAndCompress(
                     WorkloadStreams
-                            .mergeSortedByStartTimeExcludingChildOperationGenerators( gf, streamsAndWorkload2._1() ),
+                            .mergeSortedByStartTimeExcludingChildOperationGenerators( gf, streamsAndWorkload2.getElement1() ),
                     nowAsMilli,
                     configuration.timeCompressionRatio()
             );

@@ -53,7 +53,7 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                         TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
                 );
-        Workload workload = new ClassNameWorkloadFactory( configuration.workloadClassName() ).createWorkload();
+        Workload workload = new ClassNameWorkloadFactory( configuration.getWorkloadClassName() ).createWorkload();
         workload.init( configuration );
         return workload;
     }

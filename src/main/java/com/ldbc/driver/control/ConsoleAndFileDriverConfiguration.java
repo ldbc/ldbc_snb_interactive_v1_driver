@@ -3,7 +3,7 @@ package com.ldbc.driver.control;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.ldbc.driver.Client;
-import com.ldbc.driver.client.ClientModeType;
+import com.ldbc.driver.modes.DriverModeType;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
@@ -46,7 +46,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     // --- REQUIRED ---
 
     public static final String DRIVER_MODE_ARG = "dm";
-    public static final ClientModeType DRIVER_MODE_DEFAULT = ClientModeType.PRINT_HELP;
+    public static final DriverModeType DRIVER_MODE_DEFAULT = DriverModeType.PRINT_HELP;
     public static final String DRIVER_MODE_DEFAULT_STRING = DRIVER_MODE_DEFAULT.toString();
     private static final String DRIVER_MODE_ARG_LONG = "driver_mode";
     private static final String DRIVER_MODE_DESCRIPTION =
@@ -270,7 +270,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             paramsMap = MapUtils.mergeMaps( paramsMap, defaultsAsMap(), false );
 
             String name = paramsMap.get( NAME_ARG );
-            ClientModeType driverMode = ClientModeType.valueOf(paramsMap.get( DRIVER_MODE_ARG ));
+            DriverModeType driverMode = DriverModeType.valueOf(paramsMap.get( DRIVER_MODE_ARG ));
             String dbClassName = paramsMap.get( DB_ARG );
             String workloadClassName = paramsMap.get( WORKLOAD_ARG );
             long operationCount = Long.parseLong( paramsMap.get( OPERATION_COUNT_ARG ) );
@@ -694,7 +694,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     }
 
     private final Map<String,String> paramsMap;
-    private final ClientModeType driverMode;
+    private final DriverModeType driverMode;
     private final String name;
     private final String dbClassName;
     private final String workloadClassName;
@@ -714,7 +714,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private final long skipCount;
 
     public ConsoleAndFileDriverConfiguration( Map<String,String> paramsMap,
-            ClientModeType driverMode,
+            DriverModeType driverMode,
             String name,
             String dbClassName,
             String workloadClassName,
@@ -795,36 +795,36 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     }
 
     @Override
-    public ClientModeType getDriverMode() {
+    public DriverModeType getDriverMode() {
         return driverMode;
     }
 
     @Override
-    public String name()
+    public String getName()
     {
         return name;
     }
 
     @Override
-    public String dbClassName()
+    public String getDbClassName()
     {
         return dbClassName;
     }
 
     @Override
-    public String workloadClassName()
+    public String getWorkloadClassName()
     {
         return workloadClassName;
     }
 
     @Override
-    public long operationCount()
+    public long getOperationCount()
     {
         return operationCount;
     }
 
     @Override
-    public int threadCount()
+    public int getThreadCount()
     {
         return threadCount;
     }
@@ -861,7 +861,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     }
 
     @Override
-    public ValidationParamOptions validationParamsCreationOptions()
+    public ValidationParamOptions getValidationParamsCreationOptions()
     {
         return validationCreationParams;
     }
@@ -971,8 +971,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         Map<String,String> newParamsMapWithShortKeys = convertLongKeysToShortKeys( newParamsMap );
         Map<String,String> newOtherParams = MapUtils.mergeMaps( this.paramsMap, newParamsMapWithShortKeys, true );
 
-        ClientModeType newDriverMode = (newParamsMapWithShortKeys.containsKey( DRIVER_MODE_ARG )) ?
-                ClientModeType.valueOf(newParamsMapWithShortKeys.get( DRIVER_MODE_ARG )) :
+        DriverModeType newDriverMode = (newParamsMapWithShortKeys.containsKey( DRIVER_MODE_ARG )) ?
+                DriverModeType.valueOf(newParamsMapWithShortKeys.get( DRIVER_MODE_ARG )) :
                 driverMode;
 
         String newName = (newParamsMapWithShortKeys.containsKey( NAME_ARG )) ?
@@ -1353,7 +1353,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         String validationCreationParamsString = (null == validationCreationParams) ?
                                                 null :
                                                 format( "File (%s) Validation Set Size (%s)",
-                                                        validationCreationParams.filePath(),
+                                                        validationCreationParams.getFilePath(),
                                                         validationCreationParams.validationSetSize );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Validation Creation Params:" ) )
                 .append( validationCreationParamsString ).append( "\n" );
@@ -1524,13 +1524,13 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         }
 
         @Override
-        public String filePath()
+        public String getFilePath()
         {
             return filePath;
         }
 
         @Override
-        public int validationSetSize()
+        public int getValidationSetSize()
         {
             return validationSetSize;
         }

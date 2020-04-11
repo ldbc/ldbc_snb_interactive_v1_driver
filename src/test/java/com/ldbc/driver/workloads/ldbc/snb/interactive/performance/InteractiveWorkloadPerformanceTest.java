@@ -1,14 +1,13 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive.performance;
 
 import com.google.common.collect.Lists;
-import com.ldbc.driver.Client;
 import com.ldbc.driver.Db;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.client.ClientMode;
-import com.ldbc.driver.client.ClientModeFactory;
-import com.ldbc.driver.client.ClientModeType;
+import com.ldbc.driver.modes.DriverMode;
+import com.ldbc.driver.modes.DriverModeFactory;
+import com.ldbc.driver.modes.DriverModeType;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfigurationException;
@@ -119,7 +118,7 @@ public class InteractiveWorkloadPerformanceTest
             boolean ignoreScheduledStartTimes = true;
             long warmupCount = 0;
             long skipCount = 0;
-            ClientModeType driverMode = ClientModeType.PRINT_HELP;
+            DriverModeType driverMode = DriverModeType.PRINT_HELP;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -154,7 +153,7 @@ public class InteractiveWorkloadPerformanceTest
                     timeSource
             );
 
-            ClientMode clientMode = ClientModeFactory.buildClientMode(controlService.configuration().getDriverMode(),controlService);
+            DriverMode clientMode = DriverModeFactory.buildDriverMode(controlService.getConfiguration().getDriverMode(),controlService);
             clientMode.init();
             clientMode.startExecutionAndAwaitCompletion();
 
@@ -285,7 +284,7 @@ public class InteractiveWorkloadPerformanceTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 0;
             long skipCount = 0;
-            ClientModeType driverMode = ClientModeType.PRINT_HELP;
+            DriverModeType driverMode = DriverModeType.PRINT_HELP;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -320,7 +319,7 @@ public class InteractiveWorkloadPerformanceTest
                     timeSource
             );
 
-            ClientMode clientMode = ClientModeFactory.buildClientMode(controlService.configuration().getDriverMode(),controlService);
+            DriverMode clientMode = DriverModeFactory.buildDriverMode(controlService.getConfiguration().getDriverMode(),controlService);
             clientMode.init();
             clientMode.startExecutionAndAwaitCompletion();
 

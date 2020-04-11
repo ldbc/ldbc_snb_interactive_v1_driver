@@ -37,7 +37,7 @@ public class SimpleWorkloadTest extends WorkloadTest
                 ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
                 "true"
         );
-        Workload workload = new ClassNameWorkloadFactory( configuration.workloadClassName() ).createWorkload();
+        Workload workload = new ClassNameWorkloadFactory( configuration.getWorkloadClassName() ).createWorkload();
         workload.init( configuration );
         return workload;
     }

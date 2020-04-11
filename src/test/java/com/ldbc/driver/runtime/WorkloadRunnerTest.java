@@ -8,8 +8,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.client.ClientModeFactory;
-import com.ldbc.driver.client.ClientModeType;
+import com.ldbc.driver.modes.DriverModeType;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfigurationException;
@@ -116,7 +115,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
-            ClientModeType driverMode = ClientModeType.PRINT_HELP;
+            DriverModeType driverMode = DriverModeType.PRINT_HELP;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -160,14 +159,14 @@ public class WorkloadRunnerTest
                             gf,
                             returnStreamsWithDbConnector,
                             configuration.warmupCount(),
-                            configuration.operationCount(),
+                            configuration.getOperationCount(),
                             LOGGING_SERVICE_FACTORY
                     );
 
-            workload = workloadStreamsAndWorkload._2();
+            workload = workloadStreamsAndWorkload.getElement2();
 
             WorkloadStreams workloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
-                    workloadStreamsAndWorkload._1(),
+                    workloadStreamsAndWorkload.getElement1(),
                     controlService.workloadStartTimeAsMilli(),
                     configuration.timeCompressionRatio(),
                     gf
@@ -205,11 +204,11 @@ public class WorkloadRunnerTest
                     metricsService,
                     errorReporter,
                     completionTimeService,
-                    controlService.loggingServiceFactory(),
-                    controlService.configuration().threadCount(),
-                    controlService.configuration().statusDisplayIntervalAsSeconds(),
-                    controlService.configuration().spinnerSleepDurationAsMilli(),
-                    controlService.configuration().ignoreScheduledStartTimes(),
+                    controlService.getLoggingServiceFactory(),
+                    controlService.getConfiguration().getThreadCount(),
+                    controlService.getConfiguration().statusDisplayIntervalAsSeconds(),
+                    controlService.getConfiguration().spinnerSleepDurationAsMilli(),
+                    controlService.getConfiguration().ignoreScheduledStartTimes(),
                     boundedQueueSize );
 
             runner.getFuture().get();
@@ -319,7 +318,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
-            ClientModeType driverMode = ClientModeType.EXECUTE_WORKLOAD; // TODO: check if this is the correct mode for this test
+            DriverModeType driverMode = DriverModeType.EXECUTE_WORKLOAD; // TODO: check if this is the correct mode for this test
 
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
@@ -364,14 +363,14 @@ public class WorkloadRunnerTest
                             gf,
                             returnStreamsWithDbConnector,
                             configuration.warmupCount(),
-                            configuration.operationCount(),
+                            configuration.getOperationCount(),
                             LOGGING_SERVICE_FACTORY
                     );
 
-            workload = workloadStreamsAndWorkload._2();
+            workload = workloadStreamsAndWorkload.getElement2();
 
             WorkloadStreams workloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
-                    workloadStreamsAndWorkload._1(),
+                    workloadStreamsAndWorkload.getElement1(),
                     controlService.workloadStartTimeAsMilli(),
                     configuration.timeCompressionRatio(),
                     gf
@@ -407,11 +406,11 @@ public class WorkloadRunnerTest
                     metricsService,
                     errorReporter,
                     completionTimeService,
-                    controlService.loggingServiceFactory(),
-                    controlService.configuration().threadCount(),
-                    controlService.configuration().statusDisplayIntervalAsSeconds(),
-                    controlService.configuration().spinnerSleepDurationAsMilli(),
-                    controlService.configuration().ignoreScheduledStartTimes(),
+                    controlService.getLoggingServiceFactory(),
+                    controlService.getConfiguration().getThreadCount(),
+                    controlService.getConfiguration().statusDisplayIntervalAsSeconds(),
+                    controlService.getConfiguration().spinnerSleepDurationAsMilli(),
+                    controlService.getConfiguration().ignoreScheduledStartTimes(),
                     boundedQueueSize );
 
             runner.getFuture().get();
@@ -446,8 +445,8 @@ public class WorkloadRunnerTest
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
             assertThat(
                     (long) Iterators.size( csvResultsLogReader ),
-                    allOf( greaterThanOrEqualTo( percent( configuration.operationCount(), 0.9 ) ),
-                            lessThanOrEqualTo( percent( configuration.operationCount(), 1.1 ) ) )
+                    allOf( greaterThanOrEqualTo( percent( configuration.getOperationCount(), 0.9 ) ),
+                            lessThanOrEqualTo( percent( configuration.getOperationCount(), 1.1 ) ) )
             );
             csvResultsLogReader.close();
 
@@ -541,7 +540,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
-            ClientModeType driverMode = ClientModeType.PRINT_HELP;
+            DriverModeType driverMode = DriverModeType.PRINT_HELP;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -585,14 +584,14 @@ public class WorkloadRunnerTest
                             gf,
                             returnStreamsWithDbConnector,
                             configuration.warmupCount(),
-                            configuration.operationCount(),
+                            configuration.getOperationCount(),
                             LOGGING_SERVICE_FACTORY
                     );
 
-            workload = workloadStreamsAndWorkload._2();
+            workload = workloadStreamsAndWorkload.getElement2();
 
             WorkloadStreams workloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
-                    workloadStreamsAndWorkload._1(),
+                    workloadStreamsAndWorkload.getElement1(),
                     controlService.workloadStartTimeAsMilli(),
                     configuration.timeCompressionRatio(),
                     gf
@@ -628,11 +627,11 @@ public class WorkloadRunnerTest
                     metricsService,
                     errorReporter,
                     completionTimeService,
-                    controlService.loggingServiceFactory(),
-                    controlService.configuration().threadCount(),
-                    controlService.configuration().statusDisplayIntervalAsSeconds(),
-                    controlService.configuration().spinnerSleepDurationAsMilli(),
-                    controlService.configuration().ignoreScheduledStartTimes(),
+                    controlService.getLoggingServiceFactory(),
+                    controlService.getConfiguration().getThreadCount(),
+                    controlService.getConfiguration().statusDisplayIntervalAsSeconds(),
+                    controlService.getConfiguration().spinnerSleepDurationAsMilli(),
+                    controlService.getConfiguration().ignoreScheduledStartTimes(),
                     boundedQueueSize );
 
             runner.getFuture().get();
@@ -668,8 +667,8 @@ public class WorkloadRunnerTest
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
             assertThat(
                     (long) Iterators.size( csvResultsLogReader ),
-                    allOf( greaterThanOrEqualTo( percent( configuration.operationCount(), 0.9 ) ),
-                            lessThanOrEqualTo( percent( configuration.operationCount(), 1.1 ) ) )
+                    allOf( greaterThanOrEqualTo( percent( configuration.getOperationCount(), 0.9 ) ),
+                            lessThanOrEqualTo( percent( configuration.getOperationCount(), 1.1 ) ) )
             );
             csvResultsLogReader.close();
 
@@ -808,7 +807,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = true;
             long warmupCount = 100;
             long skipCount = 10;
-            ClientModeType driverMode = ClientModeType.PRINT_HELP;
+            DriverModeType driverMode = DriverModeType.PRINT_HELP;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -855,7 +854,7 @@ public class WorkloadRunnerTest
             Iterator<Operation> operations = gf.limit(
                     WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators( gf,
                             workload.streams( gf, true ) ),
-                    configuration.operationCount()
+                    configuration.getOperationCount()
             );
             Iterator<Operation> timeMappedOperations =
                     gf.timeOffsetAndCompress( operations, controlService.workloadStartTimeAsMilli(), 1.0 );
@@ -889,11 +888,11 @@ public class WorkloadRunnerTest
                     metricsService,
                     errorReporter,
                     completionTimeService,
-                    controlService.loggingServiceFactory(),
-                    controlService.configuration().threadCount(),
-                    controlService.configuration().statusDisplayIntervalAsSeconds(),
-                    controlService.configuration().spinnerSleepDurationAsMilli(),
-                    controlService.configuration().ignoreScheduledStartTimes(),
+                    controlService.getLoggingServiceFactory(),
+                    controlService.getConfiguration().getThreadCount(),
+                    controlService.getConfiguration().statusDisplayIntervalAsSeconds(),
+                    controlService.getConfiguration().spinnerSleepDurationAsMilli(),
+                    controlService.getConfiguration().ignoreScheduledStartTimes(),
                     boundedQueueSize );
 
             runner.getFuture().get();
@@ -922,7 +921,7 @@ public class WorkloadRunnerTest
             SimpleCsvFileReader csvResultsLogReader =
                     new SimpleCsvFileReader( resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
             assertThat( (long) Iterators.size( csvResultsLogReader ),
-                    is( configuration.operationCount() ) ); // NOT + 1 because I didn't add csv headers
+                    is( configuration.getOperationCount() ) ); // NOT + 1 because I didn't add csv headers
             csvResultsLogReader.close();
 
             operationCount = metricsService.getWriter().results().totalOperationCount();

@@ -897,8 +897,8 @@ public class GeneratorFactory
                 new ArrayList<Tuple2<Double,Tuple2<K,Iterator<V>>>>();
         for ( Tuple3<Double,K,Iterator<V>> item : items )
         {
-            double thingProbability = item._1();
-            Tuple2<K,Iterator<V>> thingGeneratorPair = Tuple.tuple2( item._2(), item._3() );
+            double thingProbability = item.getElement1();
+            Tuple2<K,Iterator<V>> thingGeneratorPair = Tuple.tuple2( item.getElement2(), item.getElement3() );
             probabilityItems.add( Tuple.tuple2( thingProbability, thingGeneratorPair ) );
         }
 

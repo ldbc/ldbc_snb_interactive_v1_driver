@@ -1,4 +1,4 @@
-package com.ldbc.driver.client;
+package com.ldbc.driver.modes;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
@@ -20,12 +20,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.INITIALIZING;
-import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.MEASUREMENT;
-import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.MEASUREMENT_FINISHED;
-import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.NOT_FOUND;
-import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.WARMUP;
-import static com.ldbc.driver.client.ResultsDirectory.BenchmarkPhase.WARMUP_FINISHED;
+import static com.ldbc.driver.modes.ResultsDirectory.BenchmarkPhase.INITIALIZING;
+import static com.ldbc.driver.modes.ResultsDirectory.BenchmarkPhase.MEASUREMENT;
+import static com.ldbc.driver.modes.ResultsDirectory.BenchmarkPhase.MEASUREMENT_FINISHED;
+import static com.ldbc.driver.modes.ResultsDirectory.BenchmarkPhase.NOT_FOUND;
+import static com.ldbc.driver.modes.ResultsDirectory.BenchmarkPhase.WARMUP;
+import static com.ldbc.driver.modes.ResultsDirectory.BenchmarkPhase.WARMUP_FINISHED;
 import static java.util.stream.Collectors.joining;
 
 public class ResultsDirectory
@@ -96,7 +96,7 @@ public class ResultsDirectory
         return null != resultsDir;
     }
 
-    File getOrCreateResultsLogFile( boolean warmup ) throws ClientException
+    public File getOrCreateResultsLogFile(boolean warmup) throws ClientException
     {
         File resultsLog = getResultsLogFile( resultsDir, configuration, warmup );
         if ( !resultsLog.exists() )
@@ -156,7 +156,7 @@ public class ResultsDirectory
         return getResultsSummaryFile( resultsDir, configuration, warmup );
     }
 
-    File getOrCreateConfigurationFile( boolean warmup ) throws ClientException
+    public File getOrCreateConfigurationFile(boolean warmup) throws ClientException
     {
         File configurationFile = getConfigurationFile( warmup );
         if ( !configurationFile.exists() )
@@ -179,7 +179,7 @@ public class ResultsDirectory
         return new File( resultsDir, configurationFilename( configuration, warmup ) );
     }
 
-    File getOrCreateResultsValidationFile( boolean warmup ) throws ClientException
+    public File getOrCreateResultsValidationFile(boolean warmup) throws ClientException
     {
         File resultsValidationFile = getResultsValidationFile( warmup );
         if ( !resultsValidationFile.exists() )
@@ -356,25 +356,25 @@ public class ResultsDirectory
 
     private static String resultsValidationFilename( DriverConfiguration configuration, boolean warmup )
     {
-        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER + RESULTS_VALIDATION_FILENAME_SUFFIX
-                        : configuration.name() + RESULTS_VALIDATION_FILENAME_SUFFIX;
+        return (warmup) ? configuration.getName() + WARMUP_IDENTIFIER + RESULTS_VALIDATION_FILENAME_SUFFIX
+                        : configuration.getName() + RESULTS_VALIDATION_FILENAME_SUFFIX;
     }
 
     private static String resultsLogFilename( DriverConfiguration configuration, boolean warmup )
     {
-        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER + RESULTS_LOG_FILENAME_SUFFIX
-                        : configuration.name() + RESULTS_LOG_FILENAME_SUFFIX;
+        return (warmup) ? configuration.getName() + WARMUP_IDENTIFIER + RESULTS_LOG_FILENAME_SUFFIX
+                        : configuration.getName() + RESULTS_LOG_FILENAME_SUFFIX;
     }
 
     private static String resultsSummaryFilename( DriverConfiguration configuration, boolean warmup )
     {
-        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER + RESULTS_METRICS_FILENAME_SUFFIX
-                        : configuration.name() + RESULTS_METRICS_FILENAME_SUFFIX;
+        return (warmup) ? configuration.getName() + WARMUP_IDENTIFIER + RESULTS_METRICS_FILENAME_SUFFIX
+                        : configuration.getName() + RESULTS_METRICS_FILENAME_SUFFIX;
     }
 
     private static String configurationFilename( DriverConfiguration configuration, boolean warmup )
     {
-        return (warmup) ? configuration.name() + WARMUP_IDENTIFIER + RESULTS_CONFIGURATION_FILENAME_SUFFIX
-                        : configuration.name() + RESULTS_CONFIGURATION_FILENAME_SUFFIX;
+        return (warmup) ? configuration.getName() + WARMUP_IDENTIFIER + RESULTS_CONFIGURATION_FILENAME_SUFFIX
+                        : configuration.getName() + RESULTS_CONFIGURATION_FILENAME_SUFFIX;
     }
 }

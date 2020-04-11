@@ -1,9 +1,8 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.client.*;
+import com.ldbc.driver.modes.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
-import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.control.Log4jLoggingServiceFactory;
@@ -13,8 +12,6 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -39,10 +36,10 @@ public class Client {
                     loggingServiceFactory,
                     systemTimeSource);
 
-            ClientModeType driverMode = controlService.configuration().getDriverMode();
-            ClientMode clientMode = ClientModeFactory.buildClientMode(driverMode, controlService);
-            clientMode.init();
-            clientMode.startExecutionAndAwaitCompletion();
+            DriverModeType driverModeType = controlService.getConfiguration().getDriverMode();
+            DriverMode driverMode = DriverModeFactory.buildDriverMode(driverModeType, controlService);
+            driverMode.init();
+            driverMode.startExecutionAndAwaitCompletion();
 
         } catch (DriverConfigurationException e) {
             String errMsg = format("Error parsing parameters: %s", e.getMessage());

@@ -4,9 +4,9 @@ import com.ldbc.driver.temporal.TimeSource;
 
 public interface ControlService
 {
-    DriverConfiguration configuration();
+    DriverConfiguration getConfiguration();
 
-    LoggingServiceFactory loggingServiceFactory();
+    LoggingServiceFactory getLoggingServiceFactory();
 
     TimeSource timeSource();
 

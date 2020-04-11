@@ -1,13 +1,14 @@
-package com.ldbc.driver.client;
+package com.ldbc.driver.modes;
 
 import com.ldbc.driver.ClientException;
 import com.ldbc.driver.Workload;
-import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
+import com.ldbc.driver.modes.DriverMode;
+import com.ldbc.driver.modes.DriverModeType;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.statistics.WorkloadStatistics;
 import com.ldbc.driver.statistics.WorkloadStatisticsCalculator;
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
-public class CalculateWorkloadStatisticsMode extends ClientMode {
+public class CalculateWorkloadStatisticsMode extends DriverMode {
     private final ControlService controlService;
     private final LoggingService loggingService;
     private final long randomSeed;
@@ -28,9 +29,9 @@ public class CalculateWorkloadStatisticsMode extends ClientMode {
 
     public CalculateWorkloadStatisticsMode( ControlService controlService, long randomSeed )
     {
-        super(ClientModeType.CALCULATE_WORKLOAD_STATS);
+        super(DriverModeType.CALCULATE_WORKLOAD_STATS);
         this.controlService = controlService;
-        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
+        this.loggingService = controlService.getLoggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
         this.randomSeed = randomSeed;
     }
 
@@ -44,38 +45,31 @@ public class CalculateWorkloadStatisticsMode extends ClientMode {
             boolean returnStreamsWithDbConnector = false;
             Tuple3<WorkloadStreams,Workload,Long> workloadStreamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
-                            controlService.configuration(),
+                            controlService.getConfiguration(),
                             gf,
                             returnStreamsWithDbConnector,
                             0,
-                            controlService.configuration().operationCount(),
-                            controlService.loggingServiceFactory()
+                            controlService.getConfiguration().getOperationCount(),
+                            controlService.getLoggingServiceFactory()
                     );
-            workloadStreams = workloadStreamsAndWorkload._1();
-            workload = workloadStreamsAndWorkload._2();
+            workloadStreams = workloadStreamsAndWorkload.getElement1();
+            workload = workloadStreamsAndWorkload.getElement2();
         }
         catch ( Exception e )
         {
             throw new ClientException( format( "Error loading Workload class: %s",
-                    controlService.configuration().workloadClassName() ), e );
+                    controlService.getConfiguration().getWorkloadClassName() ), e );
         }
         loggingService.info( format( "Loaded Workload: %s", workload.getClass().getName() ) );
 
         loggingService.info(
                 format( "Retrieving operation stream for workload: %s", workload.getClass().getSimpleName() ) );
-        try
-        {
-            timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
-                    workloadStreams,
-                    controlService.workloadStartTimeAsMilli(),
-                    controlService.configuration().timeCompressionRatio(),
-                    gf
-            );
-        }
-        catch ( WorkloadException e )
-        {
-            throw new ClientException( "Error while retrieving operation stream for workload", e );
-        }
+        timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
+                workloadStreams,
+                controlService.workloadStartTimeAsMilli(),
+                controlService.getConfiguration().timeCompressionRatio(),
+                gf
+        );
 
         loggingService.info( "Driver Configuration" );
         loggingService.info( controlService.toString() );

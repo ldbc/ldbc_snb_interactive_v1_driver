@@ -22,14 +22,17 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-public abstract class LdbcSnbInteractiveWorkloadConfiguration
-{
+// TODO: this could be seaerated into Interactive, Interactive-D, BI
+public abstract class LdbcSnbInteractiveWorkloadConfiguration {
     public static final int WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT = -1;
     public final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";
     // directory that contains the substitution parameters files
     public final static String PARAMETERS_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "parameters_dir";
     // directory containing forum and person update event streams
     public final static String UPDATES_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "updates_dir";
+
+    public final static String INSERTS_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "inserts_dir";
+    public final static String DELETES_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "deletes_dir";
 
     // Short reads random walk dissipation rate, in the interval [1.0-0.0]
     // Higher values translate to shorter walks and therefore fewer short reads
@@ -40,8 +43,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     public final static String UPDATE_INTERLEAVE = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_interleave";
 
     // The parser implementation to use when reading update events
-    public enum UpdateStreamParser
-    {
+    public enum UpdateStreamParser {
         REGEX,
         CHAR_SEEKER,
         CHAR_SEEKER_THREAD
@@ -50,7 +52,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     public final static String UPDATE_STREAM_PARSER = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_parser";
     public final static UpdateStreamParser DEFAULT_UPDATE_STREAM_PARSER = UpdateStreamParser.CHAR_SEEKER;
     public final static String LDBC_INTERACTIVE_PACKAGE_PREFIX =
-            removeSuffix( LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName() );
+            removeSuffix(LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName());
 
     /*
      * Operation Interleave
@@ -98,7 +100,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             READ_OPERATION_11_INTERLEAVE_KEY,
             READ_OPERATION_12_INTERLEAVE_KEY,
             READ_OPERATION_13_INTERLEAVE_KEY,
-            READ_OPERATION_14_INTERLEAVE_KEY );
+            READ_OPERATION_14_INTERLEAVE_KEY);
 
     /*
      * Operation frequency
@@ -149,27 +151,26 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             READ_OPERATION_14_FREQUENCY_KEY
     );
 
-    private static Map<Integer,String> typeToInterleaveKeyMapping()
-    {
-        Map<Integer,String> mapping = new HashMap<>();
-        mapping.put( LdbcQuery1.TYPE, READ_OPERATION_1_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery2.TYPE, READ_OPERATION_2_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery3.TYPE, READ_OPERATION_3_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery4.TYPE, READ_OPERATION_4_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery5.TYPE, READ_OPERATION_5_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery6.TYPE, READ_OPERATION_6_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery7.TYPE, READ_OPERATION_7_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery8.TYPE, READ_OPERATION_8_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery9.TYPE, READ_OPERATION_9_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery10.TYPE, READ_OPERATION_10_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery11.TYPE, READ_OPERATION_11_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery12.TYPE, READ_OPERATION_12_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery13.TYPE, READ_OPERATION_13_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery14.TYPE, READ_OPERATION_14_INTERLEAVE_KEY );
+    private static Map<Integer, String> typeToInterleaveKeyMapping() {
+        Map<Integer, String> mapping = new HashMap<>();
+        mapping.put(LdbcQuery1.TYPE, READ_OPERATION_1_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery2.TYPE, READ_OPERATION_2_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery3.TYPE, READ_OPERATION_3_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery4.TYPE, READ_OPERATION_4_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery5.TYPE, READ_OPERATION_5_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery6.TYPE, READ_OPERATION_6_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery7.TYPE, READ_OPERATION_7_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery8.TYPE, READ_OPERATION_8_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery9.TYPE, READ_OPERATION_9_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery10.TYPE, READ_OPERATION_10_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery11.TYPE, READ_OPERATION_11_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery12.TYPE, READ_OPERATION_12_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery13.TYPE, READ_OPERATION_13_INTERLEAVE_KEY);
+        mapping.put(LdbcQuery14.TYPE, READ_OPERATION_14_INTERLEAVE_KEY);
         return mapping;
     }
 
-    public final static Map<Integer,String> OPERATION_TYPE_TO_INTERLEAVE_KEY_MAPPING = typeToInterleaveKeyMapping();
+    public final static Map<Integer, String> OPERATION_TYPE_TO_INTERLEAVE_KEY_MAPPING = typeToInterleaveKeyMapping();
 
     // Default value in case there is no update stream
     public final static String DEFAULT_UPDATE_INTERLEAVE = "1";
@@ -178,20 +179,20 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
      * Operation Enable
      */
     public final static String ENABLE_SUFFIX = "_enable";
-    public final static String LONG_READ_OPERATION_1_ENABLE_KEY = asEnableKey( LdbcQuery1.class );
-    public final static String LONG_READ_OPERATION_2_ENABLE_KEY = asEnableKey( LdbcQuery2.class );
-    public final static String LONG_READ_OPERATION_3_ENABLE_KEY = asEnableKey( LdbcQuery3.class );
-    public final static String LONG_READ_OPERATION_4_ENABLE_KEY = asEnableKey( LdbcQuery4.class );
-    public final static String LONG_READ_OPERATION_5_ENABLE_KEY = asEnableKey( LdbcQuery5.class );
-    public final static String LONG_READ_OPERATION_6_ENABLE_KEY = asEnableKey( LdbcQuery6.class );
-    public final static String LONG_READ_OPERATION_7_ENABLE_KEY = asEnableKey( LdbcQuery7.class );
-    public final static String LONG_READ_OPERATION_8_ENABLE_KEY = asEnableKey( LdbcQuery8.class );
-    public final static String LONG_READ_OPERATION_9_ENABLE_KEY = asEnableKey( LdbcQuery9.class );
-    public final static String LONG_READ_OPERATION_10_ENABLE_KEY = asEnableKey( LdbcQuery10.class );
-    public final static String LONG_READ_OPERATION_11_ENABLE_KEY = asEnableKey( LdbcQuery11.class );
-    public final static String LONG_READ_OPERATION_12_ENABLE_KEY = asEnableKey( LdbcQuery12.class );
-    public final static String LONG_READ_OPERATION_13_ENABLE_KEY = asEnableKey( LdbcQuery13.class );
-    public final static String LONG_READ_OPERATION_14_ENABLE_KEY = asEnableKey( LdbcQuery14.class );
+    public final static String LONG_READ_OPERATION_1_ENABLE_KEY = asEnableKey(LdbcQuery1.class);
+    public final static String LONG_READ_OPERATION_2_ENABLE_KEY = asEnableKey(LdbcQuery2.class);
+    public final static String LONG_READ_OPERATION_3_ENABLE_KEY = asEnableKey(LdbcQuery3.class);
+    public final static String LONG_READ_OPERATION_4_ENABLE_KEY = asEnableKey(LdbcQuery4.class);
+    public final static String LONG_READ_OPERATION_5_ENABLE_KEY = asEnableKey(LdbcQuery5.class);
+    public final static String LONG_READ_OPERATION_6_ENABLE_KEY = asEnableKey(LdbcQuery6.class);
+    public final static String LONG_READ_OPERATION_7_ENABLE_KEY = asEnableKey(LdbcQuery7.class);
+    public final static String LONG_READ_OPERATION_8_ENABLE_KEY = asEnableKey(LdbcQuery8.class);
+    public final static String LONG_READ_OPERATION_9_ENABLE_KEY = asEnableKey(LdbcQuery9.class);
+    public final static String LONG_READ_OPERATION_10_ENABLE_KEY = asEnableKey(LdbcQuery10.class);
+    public final static String LONG_READ_OPERATION_11_ENABLE_KEY = asEnableKey(LdbcQuery11.class);
+    public final static String LONG_READ_OPERATION_12_ENABLE_KEY = asEnableKey(LdbcQuery12.class);
+    public final static String LONG_READ_OPERATION_13_ENABLE_KEY = asEnableKey(LdbcQuery13.class);
+    public final static String LONG_READ_OPERATION_14_ENABLE_KEY = asEnableKey(LdbcQuery14.class);
     public final static List<String> LONG_READ_OPERATION_ENABLE_KEYS = Lists.newArrayList(
             LONG_READ_OPERATION_1_ENABLE_KEY,
             LONG_READ_OPERATION_2_ENABLE_KEY,
@@ -208,13 +209,13 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             LONG_READ_OPERATION_13_ENABLE_KEY,
             LONG_READ_OPERATION_14_ENABLE_KEY
     );
-    public final static String SHORT_READ_OPERATION_1_ENABLE_KEY = asEnableKey( LdbcShortQuery1PersonProfile.class );
-    public final static String SHORT_READ_OPERATION_2_ENABLE_KEY = asEnableKey( LdbcShortQuery2PersonPosts.class );
-    public final static String SHORT_READ_OPERATION_3_ENABLE_KEY = asEnableKey( LdbcShortQuery3PersonFriends.class );
-    public final static String SHORT_READ_OPERATION_4_ENABLE_KEY = asEnableKey( LdbcShortQuery4MessageContent.class );
-    public final static String SHORT_READ_OPERATION_5_ENABLE_KEY = asEnableKey( LdbcShortQuery5MessageCreator.class );
-    public final static String SHORT_READ_OPERATION_6_ENABLE_KEY = asEnableKey( LdbcShortQuery6MessageForum.class );
-    public final static String SHORT_READ_OPERATION_7_ENABLE_KEY = asEnableKey( LdbcShortQuery7MessageReplies.class );
+    public final static String SHORT_READ_OPERATION_1_ENABLE_KEY = asEnableKey(LdbcShortQuery1PersonProfile.class);
+    public final static String SHORT_READ_OPERATION_2_ENABLE_KEY = asEnableKey(LdbcShortQuery2PersonPosts.class);
+    public final static String SHORT_READ_OPERATION_3_ENABLE_KEY = asEnableKey(LdbcShortQuery3PersonFriends.class);
+    public final static String SHORT_READ_OPERATION_4_ENABLE_KEY = asEnableKey(LdbcShortQuery4MessageContent.class);
+    public final static String SHORT_READ_OPERATION_5_ENABLE_KEY = asEnableKey(LdbcShortQuery5MessageCreator.class);
+    public final static String SHORT_READ_OPERATION_6_ENABLE_KEY = asEnableKey(LdbcShortQuery6MessageForum.class);
+    public final static String SHORT_READ_OPERATION_7_ENABLE_KEY = asEnableKey(LdbcShortQuery7MessageReplies.class);
     public final static List<String> SHORT_READ_OPERATION_ENABLE_KEYS = Lists.newArrayList(
             SHORT_READ_OPERATION_1_ENABLE_KEY,
             SHORT_READ_OPERATION_2_ENABLE_KEY,
@@ -224,14 +225,22 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             SHORT_READ_OPERATION_6_ENABLE_KEY,
             SHORT_READ_OPERATION_7_ENABLE_KEY
     );
-    public final static String WRITE_OPERATION_1_ENABLE_KEY = asEnableKey( LdbcUpdate1AddPerson.class );
-    public final static String WRITE_OPERATION_2_ENABLE_KEY = asEnableKey( LdbcUpdate2AddPostLike.class );
-    public final static String WRITE_OPERATION_3_ENABLE_KEY = asEnableKey( LdbcUpdate3AddCommentLike.class );
-    public final static String WRITE_OPERATION_4_ENABLE_KEY = asEnableKey( LdbcUpdate4AddForum.class );
-    public final static String WRITE_OPERATION_5_ENABLE_KEY = asEnableKey( LdbcUpdate5AddForumMembership.class );
-    public final static String WRITE_OPERATION_6_ENABLE_KEY = asEnableKey( LdbcUpdate6AddPost.class );
-    public final static String WRITE_OPERATION_7_ENABLE_KEY = asEnableKey( LdbcUpdate7AddComment.class );
-    public final static String WRITE_OPERATION_8_ENABLE_KEY = asEnableKey( LdbcUpdate8AddFriendship.class );
+    public final static String WRITE_OPERATION_1_ENABLE_KEY = asEnableKey(LdbcUpdate1AddPerson.class);
+    public final static String WRITE_OPERATION_2_ENABLE_KEY = asEnableKey(LdbcUpdate2AddPostLike.class);
+    public final static String WRITE_OPERATION_3_ENABLE_KEY = asEnableKey(LdbcUpdate3AddCommentLike.class);
+    public final static String WRITE_OPERATION_4_ENABLE_KEY = asEnableKey(LdbcUpdate4AddForum.class);
+    public final static String WRITE_OPERATION_5_ENABLE_KEY = asEnableKey(LdbcUpdate5AddForumMembership.class);
+    public final static String WRITE_OPERATION_6_ENABLE_KEY = asEnableKey(LdbcUpdate6AddPost.class);
+    public final static String WRITE_OPERATION_7_ENABLE_KEY = asEnableKey(LdbcUpdate7AddComment.class);
+    public final static String WRITE_OPERATION_8_ENABLE_KEY = asEnableKey(LdbcUpdate8AddFriendship.class);
+    public final static String DELETE_OPERATION_1_ENABLE_KEY = asEnableKey(LdbcDelete1RemovePerson.class);
+    public final static String DELETE_OPERATION_2_ENABLE_KEY = asEnableKey(LdbcDelete2RemovePostLike.class);
+    public final static String DELETE_OPERATION_3_ENABLE_KEY = asEnableKey(LdbcDelete3RemoveCommentLike.class);
+    public final static String DELETE_OPERATION_4_ENABLE_KEY = asEnableKey(LdbcDelete4RemoveForum.class);
+    public final static String DELETE_OPERATION_5_ENABLE_KEY = asEnableKey(LdbcDelete5RemoveForumMembership.class);
+    public final static String DELETE_OPERATION_6_ENABLE_KEY = asEnableKey(LdbcDelete6RemovePost.class);
+    public final static String DELETE_OPERATION_7_ENABLE_KEY = asEnableKey(LdbcDelete7RemoveComment.class);
+    public final static String DELETE_OPERATION_8_ENABLE_KEY = asEnableKey(LdbcDelete8RemoveFriendship.class);
     public final static List<String> WRITE_OPERATION_ENABLE_KEYS = Lists.newArrayList(
             WRITE_OPERATION_1_ENABLE_KEY,
             WRITE_OPERATION_2_ENABLE_KEY,
@@ -240,11 +249,20 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             WRITE_OPERATION_5_ENABLE_KEY,
             WRITE_OPERATION_6_ENABLE_KEY,
             WRITE_OPERATION_7_ENABLE_KEY,
-            WRITE_OPERATION_8_ENABLE_KEY
+            WRITE_OPERATION_8_ENABLE_KEY,
+            DELETE_OPERATION_1_ENABLE_KEY,
+            DELETE_OPERATION_2_ENABLE_KEY,
+            DELETE_OPERATION_3_ENABLE_KEY,
+            DELETE_OPERATION_4_ENABLE_KEY,
+            DELETE_OPERATION_5_ENABLE_KEY,
+            DELETE_OPERATION_6_ENABLE_KEY,
+            DELETE_OPERATION_7_ENABLE_KEY,
+            DELETE_OPERATION_8_ENABLE_KEY
     );
 
-    private static String asEnableKey( Class<? extends Operation> operation )
-    {
+
+
+    private static String asEnableKey(Class<? extends Operation> operation) {
         return LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + operation.getSimpleName() + ENABLE_SUFFIX;
     }
 
@@ -287,98 +305,90 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
      */
     public final static String PIPE_SEPARATOR_REGEX = "\\|";
 
-    public static Map<String,String> convertFrequenciesToInterleaves( Map<String,String> params )
-    {
-        Integer updateDistance = Integer.parseInt( params.get( UPDATE_INTERLEAVE ) );
+    public static Map<String, String> convertFrequenciesToInterleaves(Map<String, String> params) {
+        Integer updateDistance = Integer.parseInt(params.get(UPDATE_INTERLEAVE));
 
-        Integer interleave = Integer.parseInt( params.get( READ_OPERATION_1_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_1_INTERLEAVE_KEY, interleave.toString() );
+        Integer interleave = Integer.parseInt(params.get(READ_OPERATION_1_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_1_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_2_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_2_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_2_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_2_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_3_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_3_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_3_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_3_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_4_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_4_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_4_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_4_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_5_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_5_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_5_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_5_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_6_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_6_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_6_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_6_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_7_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_7_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_7_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_7_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_8_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_8_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_8_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_8_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_9_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_9_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_9_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_9_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_10_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_10_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_10_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_10_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_11_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_11_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_11_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_11_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_12_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_12_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_12_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_12_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_13_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_13_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_13_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_13_INTERLEAVE_KEY, interleave.toString());
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_14_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_14_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt(params.get(READ_OPERATION_14_FREQUENCY_KEY)) * updateDistance;
+        params.put(READ_OPERATION_14_INTERLEAVE_KEY, interleave.toString());
 
         return params;
     }
 
-    public static Map<String,String> defaultConfigSF1() throws IOException
-    {
+    public static Map<String, String> defaultConfigSF1() throws IOException {
         String filename = "/configuration/ldbc/snb/interactive/ldbc_snb_interactive_SF-0001.properties";
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( resourceToMap( filename ) );
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(resourceToMap(filename));
     }
 
-    private static Map<String,String> resourceToMap( String filename ) throws IOException
-    {
-        try ( InputStream inputStream = LdbcSnbInteractiveWorkloadConfiguration.class.getResource( filename ).openStream() )
-        {
+    private static Map<String, String> resourceToMap(String filename) throws IOException {
+        try (InputStream inputStream = LdbcSnbInteractiveWorkloadConfiguration.class.getResource(filename).openStream()) {
             Properties properties = new Properties();
-            properties.load( inputStream );
-            return new HashMap<>( Maps.fromProperties( properties ) );
+            properties.load(inputStream);
+            return new HashMap<>(Maps.fromProperties(properties));
         }
     }
 
-    public static Map<String,String> defaultReadOnlyConfigSF1() throws DriverConfigurationException, IOException
-    {
-        Map<String,String> params = withoutWrites(
+    public static Map<String, String> defaultReadOnlyConfigSF1() throws DriverConfigurationException, IOException {
+        Map<String, String> params = withoutWrites(
                 defaultConfigSF1()
         );
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( params );
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    public static Map<String,String> withOnly(
-            Map<String,String> originalParams,
-            Class<? extends Operation>... operationClasses )
-            throws DriverConfigurationException, IOException
-    {
-        Map<String,String> params = withoutWrites(
+    public static Map<String, String> withOnly(
+            Map<String, String> originalParams,
+            Class<? extends Operation>... operationClasses)
+            throws DriverConfigurationException, IOException {
+        Map<String, String> params = withoutWrites(
                 withoutShortReads(
-                        withoutLongReads( originalParams )
+                        withoutLongReads(originalParams)
                 )
         );
-        for ( Class<? extends Operation> operationClass : operationClasses )
-        {
-            params.put( asEnableKey( operationClass ), "true" );
+        for (Class<? extends Operation> operationClass : operationClasses) {
+            params.put(asEnableKey(operationClass), "true");
         }
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( params );
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    public static boolean hasReads( Map<String,String> params )
-    {
+    public static boolean hasReads(Map<String, String> params) {
         return Lists.newArrayList(
                 LONG_READ_OPERATION_1_ENABLE_KEY,
                 LONG_READ_OPERATION_2_ENABLE_KEY,
@@ -393,11 +403,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
                 LONG_READ_OPERATION_11_ENABLE_KEY,
                 LONG_READ_OPERATION_12_ENABLE_KEY,
                 LONG_READ_OPERATION_13_ENABLE_KEY,
-                LONG_READ_OPERATION_14_ENABLE_KEY ).stream().anyMatch( key -> isSet( params, key ) );
+                LONG_READ_OPERATION_14_ENABLE_KEY).stream().anyMatch(key -> isSet(params, key));
     }
 
-    public static boolean hasWrites( Map<String,String> params )
-    {
+    public static boolean hasWrites(Map<String, String> params) {
         return Lists.newArrayList(
                 WRITE_OPERATION_1_ENABLE_KEY,
                 WRITE_OPERATION_2_ENABLE_KEY,
@@ -406,152 +415,148 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
                 WRITE_OPERATION_5_ENABLE_KEY,
                 WRITE_OPERATION_6_ENABLE_KEY,
                 WRITE_OPERATION_7_ENABLE_KEY,
-                WRITE_OPERATION_8_ENABLE_KEY ).stream().anyMatch( key -> isSet( params, key ) );
+                WRITE_OPERATION_8_ENABLE_KEY).stream().anyMatch(key -> isSet(params, key));
     }
 
-    private static boolean isSet( Map<String,String> params, String key )
-    {
-        return params.containsKey( key ) &&
-               null != params.get( key ) &&
-               Boolean.parseBoolean( params.get( key ) );
+    private static boolean isSet(Map<String, String> params, String key) {
+        return params.containsKey(key) &&
+                null != params.get(key) &&
+                Boolean.parseBoolean(params.get(key));
     }
 
-    public static Map<String,String> withoutShortReads( Map<String,String> originalParams )
-            throws DriverConfigurationException, IOException
-    {
-        Map<String,String> params = MapUtils.copyExcludingKeys( originalParams, new HashSet<>() );
-        params.put( SHORT_READ_OPERATION_1_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_2_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_3_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_4_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_5_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_6_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_7_ENABLE_KEY, "false" );
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( params );
+    public static Map<String, String> withoutShortReads(Map<String, String> originalParams)
+            throws DriverConfigurationException, IOException {
+        Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<>());
+        params.put(SHORT_READ_OPERATION_1_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_2_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_3_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_4_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_5_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_6_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_7_ENABLE_KEY, "false");
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    public static Map<String,String> withoutWrites( Map<String,String> originalParams )
-            throws DriverConfigurationException, IOException
-    {
-        Map<String,String> params = MapUtils.copyExcludingKeys( originalParams, new HashSet<>() );
-        params.put( WRITE_OPERATION_1_ENABLE_KEY, "false" );
-        params.put( WRITE_OPERATION_2_ENABLE_KEY, "false" );
-        params.put( WRITE_OPERATION_3_ENABLE_KEY, "false" );
-        params.put( WRITE_OPERATION_4_ENABLE_KEY, "false" );
-        params.put( WRITE_OPERATION_5_ENABLE_KEY, "false" );
-        params.put( WRITE_OPERATION_6_ENABLE_KEY, "false" );
-        params.put( WRITE_OPERATION_7_ENABLE_KEY, "false" );
-        params.put( WRITE_OPERATION_8_ENABLE_KEY, "false" );
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( params );
+    public static Map<String, String> withoutWrites(Map<String, String> originalParams)
+            throws DriverConfigurationException, IOException {
+        Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<>());
+        params.put(WRITE_OPERATION_1_ENABLE_KEY, "false");
+        params.put(WRITE_OPERATION_2_ENABLE_KEY, "false");
+        params.put(WRITE_OPERATION_3_ENABLE_KEY, "false");
+        params.put(WRITE_OPERATION_4_ENABLE_KEY, "false");
+        params.put(WRITE_OPERATION_5_ENABLE_KEY, "false");
+        params.put(WRITE_OPERATION_6_ENABLE_KEY, "false");
+        params.put(WRITE_OPERATION_7_ENABLE_KEY, "false");
+        params.put(WRITE_OPERATION_8_ENABLE_KEY, "false");
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    public static Map<String,String> withoutLongReads( Map<String,String> originalParams )
-            throws DriverConfigurationException, IOException
-    {
-        Map<String,String> params = MapUtils.copyExcludingKeys( originalParams, new HashSet<String>() );
-        params.put( LONG_READ_OPERATION_1_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_2_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_3_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_4_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_5_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_6_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_7_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_8_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_9_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_10_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_11_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_12_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_13_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_14_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_1_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_2_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_3_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_4_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_5_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_6_ENABLE_KEY, "false" );
-        params.put( SHORT_READ_OPERATION_7_ENABLE_KEY, "false" );
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( params );
+    public static Map<String, String> withoutLongReads(Map<String, String> originalParams)
+            throws DriverConfigurationException, IOException {
+        Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<String>());
+        params.put(LONG_READ_OPERATION_1_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_2_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_3_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_4_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_5_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_6_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_7_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_8_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_9_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_10_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_11_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_12_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_13_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_14_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_1_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_2_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_3_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_4_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_5_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_6_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_7_ENABLE_KEY, "false");
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    public static Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
-    {
-        Map<Integer,Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
-        operationTypeToClassMapping.put( LdbcQuery1.TYPE, LdbcQuery1.class );
-        operationTypeToClassMapping.put( LdbcQuery2.TYPE, LdbcQuery2.class );
-        operationTypeToClassMapping.put( LdbcQuery3.TYPE, LdbcQuery3.class );
-        operationTypeToClassMapping.put( LdbcQuery4.TYPE, LdbcQuery4.class );
-        operationTypeToClassMapping.put( LdbcQuery5.TYPE, LdbcQuery5.class );
-        operationTypeToClassMapping.put( LdbcQuery6.TYPE, LdbcQuery6.class );
-        operationTypeToClassMapping.put( LdbcQuery7.TYPE, LdbcQuery7.class );
-        operationTypeToClassMapping.put( LdbcQuery8.TYPE, LdbcQuery8.class );
-        operationTypeToClassMapping.put( LdbcQuery9.TYPE, LdbcQuery9.class );
-        operationTypeToClassMapping.put( LdbcQuery10.TYPE, LdbcQuery10.class );
-        operationTypeToClassMapping.put( LdbcQuery11.TYPE, LdbcQuery11.class );
-        operationTypeToClassMapping.put( LdbcQuery12.TYPE, LdbcQuery12.class );
-        operationTypeToClassMapping.put( LdbcQuery13.TYPE, LdbcQuery13.class );
-        operationTypeToClassMapping.put( LdbcQuery14.TYPE, LdbcQuery14.class );
-        operationTypeToClassMapping.put( LdbcShortQuery1PersonProfile.TYPE, LdbcShortQuery1PersonProfile.class );
-        operationTypeToClassMapping.put( LdbcShortQuery2PersonPosts.TYPE, LdbcShortQuery2PersonPosts.class );
-        operationTypeToClassMapping.put( LdbcShortQuery3PersonFriends.TYPE, LdbcShortQuery3PersonFriends.class );
-        operationTypeToClassMapping.put( LdbcShortQuery4MessageContent.TYPE, LdbcShortQuery4MessageContent.class );
-        operationTypeToClassMapping.put( LdbcShortQuery5MessageCreator.TYPE, LdbcShortQuery5MessageCreator.class );
-        operationTypeToClassMapping.put( LdbcShortQuery6MessageForum.TYPE, LdbcShortQuery6MessageForum.class );
-        operationTypeToClassMapping.put( LdbcShortQuery7MessageReplies.TYPE, LdbcShortQuery7MessageReplies.class );
-        operationTypeToClassMapping.put( LdbcUpdate1AddPerson.TYPE, LdbcUpdate1AddPerson.class );
-        operationTypeToClassMapping.put( LdbcUpdate2AddPostLike.TYPE, LdbcUpdate2AddPostLike.class );
-        operationTypeToClassMapping.put( LdbcUpdate3AddCommentLike.TYPE, LdbcUpdate3AddCommentLike.class );
-        operationTypeToClassMapping.put( LdbcUpdate4AddForum.TYPE, LdbcUpdate4AddForum.class );
-        operationTypeToClassMapping.put( LdbcUpdate5AddForumMembership.TYPE, LdbcUpdate5AddForumMembership.class );
-        operationTypeToClassMapping.put( LdbcUpdate6AddPost.TYPE, LdbcUpdate6AddPost.class );
-        operationTypeToClassMapping.put( LdbcUpdate7AddComment.TYPE, LdbcUpdate7AddComment.class );
-        operationTypeToClassMapping.put( LdbcUpdate8AddFriendship.TYPE, LdbcUpdate8AddFriendship.class );
+    public static Map<Integer, Class<? extends Operation>> operationTypeToClassMapping() {
+        Map<Integer, Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
+        operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
+        operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
+        operationTypeToClassMapping.put(LdbcQuery3.TYPE, LdbcQuery3.class);
+        operationTypeToClassMapping.put(LdbcQuery4.TYPE, LdbcQuery4.class);
+        operationTypeToClassMapping.put(LdbcQuery5.TYPE, LdbcQuery5.class);
+        operationTypeToClassMapping.put(LdbcQuery6.TYPE, LdbcQuery6.class);
+        operationTypeToClassMapping.put(LdbcQuery7.TYPE, LdbcQuery7.class);
+        operationTypeToClassMapping.put(LdbcQuery8.TYPE, LdbcQuery8.class);
+        operationTypeToClassMapping.put(LdbcQuery9.TYPE, LdbcQuery9.class);
+        operationTypeToClassMapping.put(LdbcQuery10.TYPE, LdbcQuery10.class);
+        operationTypeToClassMapping.put(LdbcQuery11.TYPE, LdbcQuery11.class);
+        operationTypeToClassMapping.put(LdbcQuery12.TYPE, LdbcQuery12.class);
+        operationTypeToClassMapping.put(LdbcQuery13.TYPE, LdbcQuery13.class);
+        operationTypeToClassMapping.put(LdbcQuery14.TYPE, LdbcQuery14.class);
+        operationTypeToClassMapping.put(LdbcShortQuery1PersonProfile.TYPE, LdbcShortQuery1PersonProfile.class);
+        operationTypeToClassMapping.put(LdbcShortQuery2PersonPosts.TYPE, LdbcShortQuery2PersonPosts.class);
+        operationTypeToClassMapping.put(LdbcShortQuery3PersonFriends.TYPE, LdbcShortQuery3PersonFriends.class);
+        operationTypeToClassMapping.put(LdbcShortQuery4MessageContent.TYPE, LdbcShortQuery4MessageContent.class);
+        operationTypeToClassMapping.put(LdbcShortQuery5MessageCreator.TYPE, LdbcShortQuery5MessageCreator.class);
+        operationTypeToClassMapping.put(LdbcShortQuery6MessageForum.TYPE, LdbcShortQuery6MessageForum.class);
+        operationTypeToClassMapping.put(LdbcShortQuery7MessageReplies.TYPE, LdbcShortQuery7MessageReplies.class);
+        operationTypeToClassMapping.put(LdbcUpdate1AddPerson.TYPE, LdbcUpdate1AddPerson.class);
+        operationTypeToClassMapping.put(LdbcUpdate2AddPostLike.TYPE, LdbcUpdate2AddPostLike.class);
+        operationTypeToClassMapping.put(LdbcUpdate3AddCommentLike.TYPE, LdbcUpdate3AddCommentLike.class);
+        operationTypeToClassMapping.put(LdbcUpdate4AddForum.TYPE, LdbcUpdate4AddForum.class);
+        operationTypeToClassMapping.put(LdbcUpdate5AddForumMembership.TYPE, LdbcUpdate5AddForumMembership.class);
+        operationTypeToClassMapping.put(LdbcUpdate6AddPost.TYPE, LdbcUpdate6AddPost.class);
+        operationTypeToClassMapping.put(LdbcUpdate7AddComment.TYPE, LdbcUpdate7AddComment.class);
+        operationTypeToClassMapping.put(LdbcUpdate8AddFriendship.TYPE, LdbcUpdate8AddFriendship.class);
+        // deletes
+        operationTypeToClassMapping.put(LdbcDelete1RemovePerson.TYPE, LdbcDelete1RemovePerson.class);
+        operationTypeToClassMapping.put(LdbcDelete2RemovePostLike.TYPE, LdbcDelete2RemovePostLike.class);
+        operationTypeToClassMapping.put(LdbcDelete3RemoveCommentLike.TYPE, LdbcDelete3RemoveCommentLike.class);
+        operationTypeToClassMapping.put(LdbcDelete4RemoveForum.TYPE, LdbcDelete4RemoveForum.class);
+        operationTypeToClassMapping.put(LdbcDelete5RemoveForumMembership.TYPE, LdbcDelete5RemoveForumMembership.class);
+        operationTypeToClassMapping.put(LdbcDelete6RemovePost.TYPE, LdbcDelete6RemovePost.class);
+        operationTypeToClassMapping.put(LdbcDelete7RemoveComment.TYPE, LdbcDelete7RemoveComment.class);
+        operationTypeToClassMapping.put(LdbcDelete8RemoveFriendship.TYPE, LdbcDelete8RemoveFriendship.class);
+
         return operationTypeToClassMapping;
     }
 
-    static String removeSuffix( String original, String suffix )
-    {
-        return (!original.contains( suffix )) ? original : original.substring( 0, original.lastIndexOf( suffix ) );
+    static String removeSuffix(String original, String suffix) {
+        return (!original.contains(suffix)) ? original : original.substring(0, original.lastIndexOf(suffix));
     }
 
-    static String removePrefix( String original, String prefix )
-    {
-        return (!original.contains( prefix )) ? original : original
-                .substring( original.lastIndexOf( prefix ) + prefix.length(), original.length() );
+    static String removePrefix(String original, String prefix) {
+        return (!original.contains(prefix)) ? original : original
+                .substring(original.lastIndexOf(prefix) + prefix.length(), original.length());
     }
 
-    static Set<String> missingParameters( Map<String,String> properties, Iterable<String> compulsoryPropertyKeys )
-    {
+    static Set<String> missingParameters(Map<String, String> properties, Iterable<String> compulsoryPropertyKeys) {
         Set<String> missingPropertyKeys = new HashSet<>();
-        for ( String compulsoryKey : compulsoryPropertyKeys )
-        {
-            if ( null == properties.get( compulsoryKey ) )
-            { missingPropertyKeys.add( compulsoryKey ); }
+        for (String compulsoryKey : compulsoryPropertyKeys) {
+            if (null == properties.get(compulsoryKey)) {
+                missingPropertyKeys.add(compulsoryKey);
+            }
         }
         return missingPropertyKeys;
     }
 
-    static boolean isValidParser( String parserString ) throws WorkloadException
-    {
-        try
-        {
-            UpdateStreamParser parser = UpdateStreamParser.valueOf( parserString );
+    static boolean isValidParser(String parserString) throws WorkloadException {
+        try {
+            UpdateStreamParser parser = UpdateStreamParser.valueOf(parserString);
             Set<UpdateStreamParser> validParsers = new HashSet<>();
-            validParsers.addAll( Arrays.asList( UpdateStreamParser.values() ) );
-            return validParsers.contains( parser );
-        }
-        catch ( IllegalArgumentException e )
-        {
-            throw new WorkloadException( format( "Unsupported parser value: %s", parserString ), e );
+            validParsers.addAll(Arrays.asList(UpdateStreamParser.values()));
+            return validParsers.contains(parser);
+        } catch (IllegalArgumentException e) {
+            throw new WorkloadException(format("Unsupported parser value: %s", parserString), e);
         }
     }
 
-    public static List<File> forumUpdateFilesInDirectory( File directory )
-    {
-        return FileUtils.filesWithSuffixInDirectory( directory, "_forum.csv" );
+    public static List<File> forumUpdateFilesInDirectory(File directory) {
+        return FileUtils.filesWithSuffixInDirectory(directory, "_forum.csv");
     }
 
-    public static List<File> personUpdateFilesInDirectory( File directory )
-    {
-        return FileUtils.filesWithSuffixInDirectory( directory, "_person.csv" );
+    public static List<File> personUpdateFilesInDirectory(File directory) {
+        return FileUtils.filesWithSuffixInDirectory(directory, "_person.csv");
     }
 }

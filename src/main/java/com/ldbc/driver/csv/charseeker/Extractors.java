@@ -437,7 +437,7 @@ public class Extractors {
 
         @Override
         public Double value() {
-            return Double.valueOf(value);
+            return value;
         }
 
         public double doubleValue() {

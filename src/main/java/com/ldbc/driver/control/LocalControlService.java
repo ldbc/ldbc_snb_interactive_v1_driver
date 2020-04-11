@@ -24,13 +24,13 @@ public class LocalControlService implements ControlService
     }
 
     @Override
-    public DriverConfiguration configuration()
+    public DriverConfiguration getConfiguration()
     {
         return configuration;
     }
 
     @Override
-    public LoggingServiceFactory loggingServiceFactory()
+    public LoggingServiceFactory getLoggingServiceFactory()
     {
         return loggingServiceFactory;
     }

@@ -8,6 +8,7 @@ import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
+import com.ldbc.driver.validation.LdbcSnbBiDbValidationParametersFilter;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -802,43 +803,51 @@ public class LdbcSnbBiWorkload extends Workload
     }
 
     @Override
-    public DbValidationParametersFilter dbValidationParametersFilter( final Integer requiredValidationParameterCount )
-    {
-        // TODO may need to treat different operation types differently, or insert other logic
-        return new DbValidationParametersFilter()
-        {
-            private final List<Operation> injectedOperations = new ArrayList<>();
-            int validationParameterCount = 0;
+    public LdbcSnbBiDbValidationParametersFilter getDbValidationParametersFilter(int requiredValidationParameterCount) {
+        return new LdbcSnbBiDbValidationParametersFilter(requiredValidationParameterCount);
 
-            @Override
-            public boolean useOperation( Operation operation )
-            {
-                return true;
-            }
-
-            @Override
-            public DbValidationParametersFilterResult useOperationAndResultForValidation(
-                    Operation operation,
-                    Object operationResult )
-            {
-                if ( validationParameterCount < requiredValidationParameterCount )
-                {
-                    validationParameterCount++;
-                    return new DbValidationParametersFilterResult(
-                            DbValidationParametersFilterAcceptance.ACCEPT_AND_CONTINUE,
-                            injectedOperations
-                    );
-                }
-                else
-                {
-                    return new DbValidationParametersFilterResult(
-                            DbValidationParametersFilterAcceptance.REJECT_AND_FINISH,
-                            injectedOperations
-                    );
-                }
-            }
-        };
     }
+
+//    @Override
+//    public LdbcSnbBiDbValidationParametersFilter dbValidationParametersFilter(final Integer requiredValidationParameterCount )
+//    {
+//
+//        return new LdbcSnbBiDbValidationParametersFilter(requiredValidationParameterCount);
+//        // TODO may need to treat different operation types differently, or insert other logic
+////        return new DbValidationParametersFilter()
+////        {
+////            private final List<Operation> injectedOperations = new ArrayList<>();
+////            int validationParameterCount = 0;
+////
+////            @Override
+////            public boolean useOperation( Operation operation )
+////            {
+////                return true;
+////            }
+////
+////            @Override
+////            public DbValidationParametersFilterResult useOperationAndResultForValidation(
+////                    Operation operation,
+////                    Object operationResult )
+////            {
+////                if ( validationParameterCount < requiredValidationParameterCount )
+////                {
+////                    validationParameterCount++;
+////                    return new DbValidationParametersFilterResult(
+////                            DbValidationParametersFilterAcceptance.ACCEPT_AND_CONTINUE,
+////                            injectedOperations
+////                    );
+////                }
+////                else
+////                {
+////                    return new DbValidationParametersFilterResult(
+////                            DbValidationParametersFilterAcceptance.REJECT_AND_FINISH,
+////                            injectedOperations
+////                    );
+////                }
+////            }
+////        };
+//    }
 
     @Override
     public long maxExpectedInterleaveAsMilli()

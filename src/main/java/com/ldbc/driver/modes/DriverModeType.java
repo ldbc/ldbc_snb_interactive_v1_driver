@@ -1,6 +1,6 @@
-package com.ldbc.driver.client;
+package com.ldbc.driver.modes;
 
-public enum ClientModeType {
+public enum DriverModeType {
     PRINT_HELP,
     CREATE_VALIDATION_PARAMS,
     VALIDATE_DATABASE,

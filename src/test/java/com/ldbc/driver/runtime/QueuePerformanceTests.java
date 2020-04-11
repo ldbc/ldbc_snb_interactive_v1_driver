@@ -1,8 +1,7 @@
 package com.ldbc.driver.runtime;
 
-import com.google.common.collect.ImmutableMap;
 import com.ldbc.driver.*;
-import com.ldbc.driver.client.ClientModeType;
+import com.ldbc.driver.modes.DriverModeType;
 import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
@@ -87,7 +86,7 @@ public class QueuePerformanceTests
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 0;
         long skipCount = 0;
-        ClientModeType driverMode = ClientModeType.EXECUTE_WORKLOAD; // TODO: check if this is the correct mode for this test
+        DriverModeType driverMode = DriverModeType.EXECUTE_WORKLOAD; // TODO: check if this is the correct mode for this test
 
 
         DriverConfiguration config = new ConsoleAndFileDriverConfiguration(
@@ -121,11 +120,11 @@ public class QueuePerformanceTests
                         gf,
                         returnStreamsWithDbConnector,
                         0,
-                        config.operationCount(),
+                        config.getOperationCount(),
                         loggingServiceFactory
                 );
-        WorkloadStreams workloadStreams = workloadStreamsAndWorkload._1();
-        Workload workload = workloadStreamsAndWorkload._2();
+        WorkloadStreams workloadStreams = workloadStreamsAndWorkload.getElement1();
+        Workload workload = workloadStreamsAndWorkload.getElement2();
 
         Iterator<Operation> operations =
                 WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators( gf, workloadStreams );
@@ -137,9 +136,9 @@ public class QueuePerformanceTests
         long duration =
                 doOperationQueuePerformanceTest( operations, DefaultQueues.<Operation>newBlockingBounded( 10000 ) );
         long opsPerSecond = Math.round(
-                ((double) config.operationCount() / TimeUnit.MILLISECONDS.toNanos( duration )) * 1000000000 );
+                ((double) config.getOperationCount() / TimeUnit.MILLISECONDS.toNanos( duration )) * 1000000000 );
         System.out.println(
-                format( "%s operations in %s: %s op/sec", config.operationCount(), duration, opsPerSecond ) );
+                format( "%s operations in %s: %s op/sec", config.getOperationCount(), duration, opsPerSecond ) );
         workload.close();
     }
 

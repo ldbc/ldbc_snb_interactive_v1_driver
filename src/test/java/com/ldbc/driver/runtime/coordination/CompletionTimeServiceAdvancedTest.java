@@ -180,7 +180,7 @@ public class CompletionTimeServiceAdvancedTest
                 WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
                         gf,
                         workload.streams( gf, true ) ),
-                configuration.operationCount() );
+                configuration.getOperationCount() );
 
         // measure duration of experiment
         long startTimeAsMilli = timeSource.nowAsMilli();

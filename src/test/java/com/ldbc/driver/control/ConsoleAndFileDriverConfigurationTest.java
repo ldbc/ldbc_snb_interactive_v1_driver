@@ -1,7 +1,7 @@
 package com.ldbc.driver.control;
 
 import com.google.common.collect.Lists;
-import com.ldbc.driver.client.ClientModeType;
+import com.ldbc.driver.modes.DriverModeType;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -29,21 +29,21 @@ public class ConsoleAndFileDriverConfigurationTest
         ConsoleAndFileDriverConfiguration configuration =
                 ConsoleAndFileDriverConfiguration.fromDefaults( "db1", "workload1", 1 );
 
-        assertThat( configuration.dbClassName(), equalTo( "db1" ) );
-        assertThat( configuration.workloadClassName(), equalTo( "workload1" ) );
-        assertThat( configuration.operationCount(), equalTo( 1L ) );
+        assertThat( configuration.getDbClassName(), equalTo( "db1" ) );
+        assertThat( configuration.getWorkloadClassName(), equalTo( "workload1" ) );
+        assertThat( configuration.getOperationCount(), equalTo( 1L ) );
 
         configuration = (ConsoleAndFileDriverConfiguration) configuration
                 .applyArg( ConsoleAndFileDriverConfiguration.DB_ARG, "db2" );
-        assertThat( configuration.dbClassName(), equalTo( "db2" ) );
+        assertThat( configuration.getDbClassName(), equalTo( "db2" ) );
 
         configuration = (ConsoleAndFileDriverConfiguration) configuration
                 .applyArg( ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, "workload2" );
-        assertThat( configuration.workloadClassName(), equalTo( "workload2" ) );
+        assertThat( configuration.getWorkloadClassName(), equalTo( "workload2" ) );
 
         configuration = (ConsoleAndFileDriverConfiguration) configuration
                 .applyArg( ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "2" );
-        assertThat( configuration.operationCount(), equalTo( 2L ) );
+        assertThat( configuration.getOperationCount(), equalTo( 2L ) );
     }
 
     @Test
@@ -52,9 +52,9 @@ public class ConsoleAndFileDriverConfigurationTest
         ConsoleAndFileDriverConfiguration configuration1 =
                 ConsoleAndFileDriverConfiguration.fromDefaults( "db1", "workload1", 1 );
 
-        assertThat( configuration1.dbClassName(), equalTo( "db1" ) );
-        assertThat( configuration1.workloadClassName(), equalTo( "workload1" ) );
-        assertThat( configuration1.operationCount(), equalTo( 1L ) );
+        assertThat( configuration1.getDbClassName(), equalTo( "db1" ) );
+        assertThat( configuration1.getWorkloadClassName(), equalTo( "workload1" ) );
+        assertThat( configuration1.getOperationCount(), equalTo( 1L ) );
 
         Map<String,String> configurationUpdate2 = new HashMap<>();
         configurationUpdate2.put( ConsoleAndFileDriverConfiguration.DB_ARG, "db2" );
@@ -64,9 +64,9 @@ public class ConsoleAndFileDriverConfigurationTest
         ConsoleAndFileDriverConfiguration configuration2 =
                 (ConsoleAndFileDriverConfiguration) configuration1.applyArgs( configurationUpdate2 );
 
-        assertThat( configuration2.dbClassName(), equalTo( "db2" ) );
-        assertThat( configuration2.workloadClassName(), equalTo( "workload2" ) );
-        assertThat( configuration2.operationCount(), equalTo( 2L ) );
+        assertThat( configuration2.getDbClassName(), equalTo( "db2" ) );
+        assertThat( configuration2.getWorkloadClassName(), equalTo( "workload2" ) );
+        assertThat( configuration2.getOperationCount(), equalTo( 2L ) );
     }
 
     @Test
@@ -105,7 +105,7 @@ public class ConsoleAndFileDriverConfigurationTest
         long warmupCount = 5;
         long skipCount = 6;
         Map<String,String> paramsMap = new HashMap<>();
-        ClientModeType driverMode = ClientModeType.PRINT_HELP;
+        DriverModeType driverMode = DriverModeType.PRINT_HELP;
 
 
         ConsoleAndFileDriverConfiguration configurationBefore = new ConsoleAndFileDriverConfiguration(
@@ -270,9 +270,9 @@ public class ConsoleAndFileDriverConfigurationTest
         long operationCount = 0;
         DriverConfiguration configuration =
                 ConsoleAndFileDriverConfiguration.fromDefaults( databaseClassName, workloadClassName, operationCount );
-        assertThat( configuration.dbClassName(), is( nullValue() ) );
-        assertThat( configuration.workloadClassName(), is( nullValue() ) );
-        assertThat( configuration.operationCount(), is( 0L ) );
+        assertThat( configuration.getDbClassName(), is( nullValue() ) );
+        assertThat( configuration.getWorkloadClassName(), is( nullValue() ) );
+        assertThat( configuration.getOperationCount(), is( 0L ) );
     }
 
     @Test
@@ -294,9 +294,9 @@ public class ConsoleAndFileDriverConfigurationTest
         }
         assertThat( exceptionThrown, is( false ) );
         assertThat( configuration, is( notNullValue() ) );
-        assertThat( configuration.dbClassName(), is( nullValue() ) );
-        assertThat( configuration.workloadClassName(), is( nullValue() ) );
-        assertThat( configuration.operationCount(), is( 0L ) );
+        assertThat( configuration.getDbClassName(), is( nullValue() ) );
+        assertThat( configuration.getWorkloadClassName(), is( nullValue() ) );
+        assertThat( configuration.getOperationCount(), is( 0L ) );
     }
 
     @Test
@@ -515,11 +515,11 @@ public class ConsoleAndFileDriverConfigurationTest
                 ConsoleAndFileDriverConfiguration.fromParamsMap( requiredParams );
 
         // Then
-        assertThat( configurationFromParams.name(), equalTo( ConsoleAndFileDriverConfiguration.NAME_DEFAULT ) );
-        assertThat( configurationFromParams.dbClassName(), equalTo( "db class name" ) );
-        assertThat( configurationFromParams.workloadClassName(), equalTo( "workload class name" ) );
-        assertThat( configurationFromParams.operationCount(), is( 1L ) );
-        assertThat( configurationFromParams.threadCount(), is( ConsoleAndFileDriverConfiguration.THREADS_DEFAULT ) );
+        assertThat( configurationFromParams.getName(), equalTo( ConsoleAndFileDriverConfiguration.NAME_DEFAULT ) );
+        assertThat( configurationFromParams.getDbClassName(), equalTo( "db class name" ) );
+        assertThat( configurationFromParams.getWorkloadClassName(), equalTo( "workload class name" ) );
+        assertThat( configurationFromParams.getOperationCount(), is( 1L ) );
+        assertThat( configurationFromParams.getThreadCount(), is( ConsoleAndFileDriverConfiguration.THREADS_DEFAULT ) );
         assertThat( configurationFromParams.statusDisplayIntervalAsSeconds(),
                 is( ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT ) );
         assertThat( configurationFromParams.timeUnit(), is( ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT ) );
@@ -527,7 +527,7 @@ public class ConsoleAndFileDriverConfigurationTest
                 is( ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT ) );
         assertThat( configurationFromParams.timeCompressionRatio(),
                 is( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT ) );
-        assertThat( configurationFromParams.validationParamsCreationOptions(),
+        assertThat( configurationFromParams.getValidationParamsCreationOptions(),
                 is( (DriverConfiguration.ValidationParamOptions) ConsoleAndFileDriverConfiguration
                         .CREATE_VALIDATION_PARAMS_DEFAULT ) );
         assertThat( configurationFromParams.databaseValidationFilePath(),
@@ -566,7 +566,7 @@ public class ConsoleAndFileDriverConfigurationTest
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 10;
         long skipCount = 100;
-        ClientModeType driverMode = ClientModeType.PRINT_HELP;
+        DriverModeType driverMode = DriverModeType.PRINT_HELP;
 
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
@@ -593,16 +593,16 @@ public class ConsoleAndFileDriverConfigurationTest
 
         assertThat( params.asMap(), equalTo( paramsMap ) );
         assertThat( params.getDriverMode(), equalTo( driverMode));
-        assertThat( params.name(), equalTo( name ) );
-        assertThat( params.dbClassName(), equalTo( dbClassName ) );
-        assertThat( params.workloadClassName(), equalTo( workloadClassName ) );
-        assertThat( params.operationCount(), equalTo( operationCount ) );
-        assertThat( params.threadCount(), equalTo( threadCount ) );
+        assertThat( params.getName(), equalTo( name ) );
+        assertThat( params.getDbClassName(), equalTo( dbClassName ) );
+        assertThat( params.getWorkloadClassName(), equalTo( workloadClassName ) );
+        assertThat( params.getOperationCount(), equalTo( operationCount ) );
+        assertThat( params.getThreadCount(), equalTo( threadCount ) );
         assertThat( params.statusDisplayIntervalAsSeconds(), equalTo( statusDisplayInterval ) );
         assertThat( params.timeUnit(), equalTo( timeUnit ) );
         assertThat( params.resultDirPath(), equalTo( resultDirPath ) );
         assertThat( params.timeCompressionRatio(), equalTo( timeCompressionRatio ) );
-        assertThat( params.validationParamsCreationOptions(),
+        assertThat( params.getValidationParamsCreationOptions(),
                 equalTo( (DriverConfiguration.ValidationParamOptions) validationParams ) );
         assertThat( params.databaseValidationFilePath(), equalTo( dbValidationFilePath ) );
         assertThat( params.calculateWorkloadStatistics(), equalTo( calculateWorkloadStatistics ) );

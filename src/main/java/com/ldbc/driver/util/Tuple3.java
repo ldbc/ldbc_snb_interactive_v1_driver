@@ -13,17 +13,17 @@ public class Tuple3<T1, T2, T3>
         thing3 = t3;
     }
 
-    public T1 _1()
+    public T1 getElement1()
     {
         return thing1;
     }
 
-    public T2 _2()
+    public T2 getElement2()
     {
         return thing2;
     }
 
-    public T3 _3()
+    public T3 getElement3()
     {
         return thing3;
     }

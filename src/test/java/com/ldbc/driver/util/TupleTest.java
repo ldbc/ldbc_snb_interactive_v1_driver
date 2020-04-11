@@ -70,8 +70,8 @@ public class TupleTest
         // When
 
         // Then
-        assertEquals( "1", t._1() );
-        assertEquals( new Integer( 1 ), t._2() );
-        assertEquals( true, t._3() );
+        assertEquals( "1", t.getElement1() );
+        assertEquals( new Integer( 1 ), t.getElement2() );
+        assertEquals( true, t.getElement3() );
     }
 }

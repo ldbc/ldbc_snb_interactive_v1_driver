@@ -1,4 +1,4 @@
-package com.ldbc.driver.client;
+package com.ldbc.driver.modes;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterators;
@@ -10,6 +10,8 @@ import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
+import com.ldbc.driver.modes.DriverMode;
+import com.ldbc.driver.modes.DriverModeType;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.validation.DbValidationResult;
 import com.ldbc.driver.validation.DbValidator;
@@ -26,7 +28,7 @@ import java.util.Iterator;
 
 import static java.lang.String.format;
 
-public class ValidateDatabaseMode extends ClientMode {
+public class ValidateDatabaseMode extends DriverMode {
     private final ControlService controlService;
     private final LoggingService loggingService;
 
@@ -35,9 +37,9 @@ public class ValidateDatabaseMode extends ClientMode {
 
     public ValidateDatabaseMode( ControlService controlService )
     {
-        super(ClientModeType.VALIDATE_DATABASE);
+        super(DriverModeType.VALIDATE_DATABASE);
         this.controlService = controlService;
-        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
+        this.loggingService = controlService.getLoggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
     }
 
     @Override
@@ -45,29 +47,29 @@ public class ValidateDatabaseMode extends ClientMode {
     {
         try
         {
-            workload = ClassLoaderHelper.loadWorkload( controlService.configuration().workloadClassName() );
-            workload.init( controlService.configuration() );
+            workload = ClassLoaderHelper.loadWorkload( controlService.getConfiguration().getWorkloadClassName() );
+            workload.init( controlService.getConfiguration() );
         }
         catch ( Exception e )
         {
             throw new ClientException( format( "Error loading Workload class: %s",
-                    controlService.configuration().workloadClassName() ), e );
+                    controlService.getConfiguration().getWorkloadClassName() ), e );
         }
         loggingService.info( format( "Loaded Workload: %s", workload.getClass().getName() ) );
 
         try
         {
-            database = ClassLoaderHelper.loadDb( controlService.configuration().dbClassName() );
+            database = ClassLoaderHelper.loadDb( controlService.getConfiguration().getDbClassName() );
             database.init(
-                    controlService.configuration().asMap(),
-                    controlService.loggingServiceFactory().loggingServiceFor( database.getClass().getSimpleName() ),
+                    controlService.getConfiguration().asMap(),
+                    controlService.getLoggingServiceFactory().loggingServiceFor( database.getClass().getSimpleName() ),
                     workload.operationTypeToClassMapping()
             );
         }
         catch ( DbException e )
         {
             throw new ClientException(
-                    format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
+                    format( "Error loading DB class: %s", controlService.getConfiguration().getDbClassName() ), e );
         }
         loggingService.info( format( "Loaded DB: %s", database.getClass().getName() ) );
 
@@ -81,7 +83,7 @@ public class ValidateDatabaseMode extends ClientMode {
         DbValidationResult databaseValidationResult;
         try ( Workload w = workload; Db db = database )
         {
-            File validationParamsFile = new File( controlService.configuration().databaseValidationFilePath() );
+            File validationParamsFile = new File( controlService.getConfiguration().databaseValidationFilePath() );
 
             loggingService.info(
                     format( "Validating database against expected results\n * Db: %s\n * Validation Params File: %s",

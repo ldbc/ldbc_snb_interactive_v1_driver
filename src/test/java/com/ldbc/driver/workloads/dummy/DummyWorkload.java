@@ -5,9 +5,9 @@ import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
+import com.ldbc.driver.validation.DbValidationParametersFilter;
 import com.ldbc.driver.generator.GeneratorFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,12 +43,12 @@ public class DummyWorkload extends Workload
     }
 
     @Override
-    public void onInit( Map<String,String> params ) throws WorkloadException
+    public void onInit( Map<String,String> params )
     {
     }
 
     @Override
-    protected void onClose() throws IOException
+    protected void onClose()
     {
     }
 
@@ -56,6 +56,11 @@ public class DummyWorkload extends Workload
     protected WorkloadStreams getStreams( GeneratorFactory generators, boolean hasDbConnected ) throws WorkloadException
     {
         return newCopyOfWorkloadStreams();
+    }
+
+    @Override
+    public DbValidationParametersFilter getDbValidationParametersFilter(int requiredValidationParameterCount) {
+        return null;
     }
 
     private WorkloadStreams newCopyOfWorkloadStreams()

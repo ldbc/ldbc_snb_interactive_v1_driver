@@ -107,7 +107,7 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
 
         // (1) params
         List<ValidationParam> validationParamsBeforeSerializing =
-                buildParams( workload.dbValidationParametersFilter( 0 ) );
+                buildParams( workload.getDbValidationParametersFilter(0));
 
         // (2) original->csv_rows
         List<String[]> serializedValidationParamsAsCsvRows = Lists.newArrayList(
@@ -163,7 +163,8 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
                 equalTo( validationParamsAfterSerializingAndMarshallingAndSerializingAndMarshalling ) );
     }
 
-    List<ValidationParam> buildParams( Workload.DbValidationParametersFilter dbValidationParametersFilter )
+
+    List<ValidationParam> buildParams( DbValidationParametersFilter dbValidationParametersFilter )
     {
         LdbcQuery1 read1 = DummyLdbcSnbInteractiveOperationInstances.read1();
         List<LdbcQuery1Result> readResult1 = Lists.newArrayList(

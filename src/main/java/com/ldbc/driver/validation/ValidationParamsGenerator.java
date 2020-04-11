@@ -7,9 +7,6 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationHandlerRunnableContext;
 import com.ldbc.driver.ResultReporter;
-import com.ldbc.driver.Workload;
-import com.ldbc.driver.Workload.DbValidationParametersFilter;
-import com.ldbc.driver.Workload.DbValidationParametersFilterResult;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
@@ -124,7 +121,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
             default:
                 throw new GeneratorException(
                         format( "Unrecognized %s value: %s",
-                                Workload.DbValidationParametersFilterAcceptance.class.getSimpleName(),
+                                DbValidationParametersFilterAcceptanceType.class.getSimpleName(),
                                 dbValidationParametersFilterResult.acceptance().name()
                         )
                 );
