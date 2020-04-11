@@ -31,9 +31,6 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
     // directory containing forum and person update event streams
     public final static String UPDATES_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "updates_dir";
 
-    public final static String INSERTS_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "inserts_dir";
-    public final static String DELETES_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "deletes_dir";
-
     // Short reads random walk dissipation rate, in the interval [1.0-0.0]
     // Higher values translate to shorter walks and therefore fewer short reads
     public final static String SHORT_READ_DISSIPATION =
@@ -233,14 +230,6 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
     public final static String WRITE_OPERATION_6_ENABLE_KEY = asEnableKey(LdbcUpdate6AddPost.class);
     public final static String WRITE_OPERATION_7_ENABLE_KEY = asEnableKey(LdbcUpdate7AddComment.class);
     public final static String WRITE_OPERATION_8_ENABLE_KEY = asEnableKey(LdbcUpdate8AddFriendship.class);
-    public final static String DELETE_OPERATION_1_ENABLE_KEY = asEnableKey(LdbcDelete1RemovePerson.class);
-    public final static String DELETE_OPERATION_2_ENABLE_KEY = asEnableKey(LdbcDelete2RemovePostLike.class);
-    public final static String DELETE_OPERATION_3_ENABLE_KEY = asEnableKey(LdbcDelete3RemoveCommentLike.class);
-    public final static String DELETE_OPERATION_4_ENABLE_KEY = asEnableKey(LdbcDelete4RemoveForum.class);
-    public final static String DELETE_OPERATION_5_ENABLE_KEY = asEnableKey(LdbcDelete5RemoveForumMembership.class);
-    public final static String DELETE_OPERATION_6_ENABLE_KEY = asEnableKey(LdbcDelete6RemovePost.class);
-    public final static String DELETE_OPERATION_7_ENABLE_KEY = asEnableKey(LdbcDelete7RemoveComment.class);
-    public final static String DELETE_OPERATION_8_ENABLE_KEY = asEnableKey(LdbcDelete8RemoveFriendship.class);
     public final static List<String> WRITE_OPERATION_ENABLE_KEYS = Lists.newArrayList(
             WRITE_OPERATION_1_ENABLE_KEY,
             WRITE_OPERATION_2_ENABLE_KEY,
@@ -249,15 +238,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
             WRITE_OPERATION_5_ENABLE_KEY,
             WRITE_OPERATION_6_ENABLE_KEY,
             WRITE_OPERATION_7_ENABLE_KEY,
-            WRITE_OPERATION_8_ENABLE_KEY,
-            DELETE_OPERATION_1_ENABLE_KEY,
-            DELETE_OPERATION_2_ENABLE_KEY,
-            DELETE_OPERATION_3_ENABLE_KEY,
-            DELETE_OPERATION_4_ENABLE_KEY,
-            DELETE_OPERATION_5_ENABLE_KEY,
-            DELETE_OPERATION_6_ENABLE_KEY,
-            DELETE_OPERATION_7_ENABLE_KEY,
-            DELETE_OPERATION_8_ENABLE_KEY
+            WRITE_OPERATION_8_ENABLE_KEY
     );
 
 
