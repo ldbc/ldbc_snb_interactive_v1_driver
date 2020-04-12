@@ -63,4 +63,7 @@ public class InteractiveWriteEventStreamReaderTestData
 
     public static final String UPDATE_8_ADD_FRIENDSHIP =
             "42|666|8|1920|655|1234567890";
+
+    public static final String DELETE_1_REMOVE_PERSON =
+            "42|666|9|69";
 }

@@ -23,8 +23,34 @@ public class WriteEventStreamReaderCharSeeker {
         decoders.put(6, new EventDecoderAddPost());
         decoders.put(7, new EventDecoderAddComment());
         decoders.put(8, new EventDecoderAddFriendship());
+        decoders.put(9, new EventDecoderDelete());
         return new CsvEventStreamReaderTimedTypedCharSeeker<>(charSeeker, extractors, decoders, columnDelimiter);
     }
+
+    public static class EventDecoderDelete implements EventDecoder<Operation> {
+
+        @Override
+        public Operation decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+            try {
+                long personId;
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    personId = charSeeker.extract(mark, extractors.long_()).longValue();
+                } else {
+                    throw new GeneratorException("Error retrieving person id");
+                }
+
+                Operation operation = new LdbcDelete1RemovePerson(
+                        personId);
+                operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+                operation.setTimeStamp(scheduledStartTimeAsMilli);
+                operation.setDependencyTimeStamp(dependencyTimeAsMilli);
+                return operation;
+            } catch (IOException e) {
+                throw new GeneratorException("Error parsing delete person event", e);
+            }
+        }
+    }
+
 
     public static class EventDecoderAddPerson implements EventDecoder<Operation> {
 

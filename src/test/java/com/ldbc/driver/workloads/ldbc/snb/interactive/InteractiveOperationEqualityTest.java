@@ -749,4 +749,24 @@ public class InteractiveOperationEqualityTest
         assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate3a)));
         assertThat(ldbcUpdate2a, not(equalTo(ldbcUpdate3a)));
     }
+
+    @Test
+    public void ldbcDelete1ShouldDoEqualsCorrectly() {
+        // Given
+        long person1Id1 = 1;
+
+        long person1Id2 = 4;
+
+
+        // When
+        LdbcDelete1RemovePerson ldbcDelete1a = new LdbcDelete1RemovePerson(person1Id1);
+        LdbcDelete1RemovePerson ldbcDelete1b = new LdbcDelete1RemovePerson(person1Id2);
+        LdbcDelete1RemovePerson ldbcDelete1c = new LdbcDelete1RemovePerson(person1Id2);
+
+
+        // Then
+        assertThat(ldbcDelete1b, equalTo(ldbcDelete1c));
+        assertThat(ldbcDelete1c, not(equalTo(ldbcDelete1a)));
+
+    }
 }

@@ -1026,4 +1026,29 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addFriendship.creationDate(), equalTo(creationDate));
         assertThat(writeEventStreamReader.hasNext(), is(false));
     }
+
+    @Test
+    public void shouldParseDeletePerson1WithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
+        String data = InteractiveWriteEventStreamReaderTestData.DELETE_1_REMOVE_PERSON;
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
+        int columnDelimiter = '|';
+        Extractors extractors = new Extractors(';', ',');
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        doShouldParseDelete1RemovePerson(writeEventStreamReader);
+        charSeeker.close();
+    }
+
+    public void doShouldParseDelete1RemovePerson(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
+        LdbcDelete1RemovePerson removePerson = (LdbcDelete1RemovePerson) writeEventStreamReader.next();
+
+        // Then
+//        Date deletionDate = new Date(1234567890L);
+
+        assertThat(removePerson.scheduledStartTimeAsMilli(), is(42L));
+        assertThat(removePerson.timeStamp(), is(42L));
+        assertThat(removePerson.dependencyTimeStamp(), is(666L));
+        assertThat(removePerson.personId(), is(69L));
+        assertThat(writeEventStreamReader.hasNext(), is(false));
+    }
+
 }

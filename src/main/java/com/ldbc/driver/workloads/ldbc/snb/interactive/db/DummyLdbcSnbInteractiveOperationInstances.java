@@ -137,4 +137,10 @@ public class DummyLdbcSnbInteractiveOperationInstances {
     public static LdbcUpdate8AddFriendship write8() {
         return new LdbcUpdate8AddFriendship(1, 2, new Date(3));
     }
+
+    public static LdbcDelete1RemovePerson delete1() {
+        return new LdbcDelete1RemovePerson(1);
+    }
+
+
 }

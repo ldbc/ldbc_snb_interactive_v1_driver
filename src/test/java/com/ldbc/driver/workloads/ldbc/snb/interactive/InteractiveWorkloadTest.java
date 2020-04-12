@@ -181,6 +181,10 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 Tuple.<Operation,Object>tuple2(
                         DummyLdbcSnbInteractiveOperationInstances.write8(),
                         LdbcNoResult.INSTANCE
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbInteractiveOperationInstances.delete1(),
+                        LdbcNoResult.INSTANCE
                 )
         );
     }

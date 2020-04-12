@@ -22,14 +22,18 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-// TODO: this could be seaerated into Interactive, Interactive-D, BI
+// TODO: this could be separated into Interactive, Interactive-D, BI
 public abstract class LdbcSnbInteractiveWorkloadConfiguration {
+
     public static final int WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT = -1;
     public final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";
     // directory that contains the substitution parameters files
     public final static String PARAMETERS_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "parameters_dir";
     // directory containing forum and person update event streams
     public final static String UPDATES_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "updates_dir";
+    // directory containing delete stream
+//    public final static String DELETES_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "deletes_dir";
+
 
     // Short reads random walk dissipation rate, in the interval [1.0-0.0]
     // Higher values translate to shorter walks and therefore fewer short reads
@@ -222,6 +226,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
             SHORT_READ_OPERATION_6_ENABLE_KEY,
             SHORT_READ_OPERATION_7_ENABLE_KEY
     );
+
     public final static String WRITE_OPERATION_1_ENABLE_KEY = asEnableKey(LdbcUpdate1AddPerson.class);
     public final static String WRITE_OPERATION_2_ENABLE_KEY = asEnableKey(LdbcUpdate2AddPostLike.class);
     public final static String WRITE_OPERATION_3_ENABLE_KEY = asEnableKey(LdbcUpdate3AddCommentLike.class);
@@ -230,6 +235,8 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
     public final static String WRITE_OPERATION_6_ENABLE_KEY = asEnableKey(LdbcUpdate6AddPost.class);
     public final static String WRITE_OPERATION_7_ENABLE_KEY = asEnableKey(LdbcUpdate7AddComment.class);
     public final static String WRITE_OPERATION_8_ENABLE_KEY = asEnableKey(LdbcUpdate8AddFriendship.class);
+    public final static String DELETE_OPERATION_1_ENABLE_KEY = asEnableKey(LdbcDelete1RemovePerson.class);
+
     public final static List<String> WRITE_OPERATION_ENABLE_KEYS = Lists.newArrayList(
             WRITE_OPERATION_1_ENABLE_KEY,
             WRITE_OPERATION_2_ENABLE_KEY,
@@ -238,10 +245,13 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
             WRITE_OPERATION_5_ENABLE_KEY,
             WRITE_OPERATION_6_ENABLE_KEY,
             WRITE_OPERATION_7_ENABLE_KEY,
-            WRITE_OPERATION_8_ENABLE_KEY
+            WRITE_OPERATION_8_ENABLE_KEY,
+            DELETE_OPERATION_1_ENABLE_KEY
     );
 
-
+//    public final static List<String> DELETE_OPERATION_ENABLE_KEYS = Lists.newArrayList(
+//            DELETE_OPERATION_1_ENABLE_KEY
+//    );
 
     private static String asEnableKey(Class<? extends Operation> operation) {
         return LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + operation.getSimpleName() + ENABLE_SUFFIX;
@@ -347,7 +357,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
         }
     }
 
-    public static Map<String, String> defaultReadOnlyConfigSF1() throws DriverConfigurationException, IOException {
+    public static Map<String, String> defaultReadOnlyConfigSF1() throws IOException {
         Map<String, String> params = withoutWrites(
                 defaultConfigSF1()
         );
@@ -357,7 +367,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
     public static Map<String, String> withOnly(
             Map<String, String> originalParams,
             Class<? extends Operation>... operationClasses)
-            throws DriverConfigurationException, IOException {
+             {
         Map<String, String> params = withoutWrites(
                 withoutShortReads(
                         withoutLongReads(originalParams)
@@ -406,7 +416,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
     }
 
     public static Map<String, String> withoutShortReads(Map<String, String> originalParams)
-            throws DriverConfigurationException, IOException {
+    {
         Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<>());
         params.put(SHORT_READ_OPERATION_1_ENABLE_KEY, "false");
         params.put(SHORT_READ_OPERATION_2_ENABLE_KEY, "false");
@@ -419,7 +429,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
     }
 
     public static Map<String, String> withoutWrites(Map<String, String> originalParams)
-            throws DriverConfigurationException, IOException {
+    {
         Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<>());
         params.put(WRITE_OPERATION_1_ENABLE_KEY, "false");
         params.put(WRITE_OPERATION_2_ENABLE_KEY, "false");
@@ -429,12 +439,13 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
         params.put(WRITE_OPERATION_6_ENABLE_KEY, "false");
         params.put(WRITE_OPERATION_7_ENABLE_KEY, "false");
         params.put(WRITE_OPERATION_8_ENABLE_KEY, "false");
+        params.put(DELETE_OPERATION_1_ENABLE_KEY, "false");
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
     public static Map<String, String> withoutLongReads(Map<String, String> originalParams)
-            throws DriverConfigurationException, IOException {
-        Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<String>());
+    {
+        Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<>());
         params.put(LONG_READ_OPERATION_1_ENABLE_KEY, "false");
         params.put(LONG_READ_OPERATION_2_ENABLE_KEY, "false");
         params.put(LONG_READ_OPERATION_3_ENABLE_KEY, "false");
@@ -491,7 +502,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
         operationTypeToClassMapping.put(LdbcUpdate7AddComment.TYPE, LdbcUpdate7AddComment.class);
         operationTypeToClassMapping.put(LdbcUpdate8AddFriendship.TYPE, LdbcUpdate8AddFriendship.class);
         // deletes
-//        operationTypeToClassMapping.put(LdbcDelete1RemovePerson.TYPE, LdbcDelete1RemovePerson.class);
+        operationTypeToClassMapping.put(LdbcDelete1RemovePerson.TYPE, LdbcDelete1RemovePerson.class);
 //        operationTypeToClassMapping.put(LdbcDelete2RemovePostLike.TYPE, LdbcDelete2RemovePostLike.class);
 //        operationTypeToClassMapping.put(LdbcDelete3RemoveCommentLike.TYPE, LdbcDelete3RemoveCommentLike.class);
 //        operationTypeToClassMapping.put(LdbcDelete4RemoveForum.TYPE, LdbcDelete4RemoveForum.class);
@@ -539,4 +550,9 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
     public static List<File> personUpdateFilesInDirectory(File directory) {
         return FileUtils.filesWithSuffixInDirectory(directory, "_person.csv");
     }
+
+//    public static List<File> deleteFilesInDirectory(File directory) {
+//        return FileUtils.filesWithSuffixInDirectory(directory, "_deletes.csv");
+//
+//    }
 }

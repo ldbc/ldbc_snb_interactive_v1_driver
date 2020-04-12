@@ -17,7 +17,7 @@ import static java.lang.String.*;
 public class LdbcDelete1RemovePerson extends Operation<LdbcNoResult>
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    public static final int TYPE = 2001;
+    public static final int TYPE = 1009;
     public static final String PERSON_ID = "personId";
 
     private final long personId;

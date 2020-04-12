@@ -61,9 +61,11 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private List<Closeable> forumUpdateOperationsFileReaders = new ArrayList<>();
     private List<Closeable> personUpdateOperationsFileReaders = new ArrayList<>();
     private List<Closeable> readOperationFileReaders = new ArrayList<>();
+//    private List<Closeable> deleteOperationFileReaders = new ArrayList<>();
 
     private List<File> forumUpdateOperationFiles = new ArrayList<>();
     private List<File> personUpdateOperationFiles = new ArrayList<>();
+//    private List<File> deleteOperationFiles = new ArrayList<>();
 
     private File readOperation1File;
     private File readOperation2File;
@@ -101,6 +103,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private Set<Class> enabledLongReadOperationTypes;
     private Set<Class> enabledShortReadOperationTypes;
     private Set<Class> enabledWriteOperationTypes;
+//    private Set<Class> enabledDeleteOperationTypes;
     private LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser parser;
 
     @Override
@@ -117,6 +120,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         compulsoryKeys.addAll(LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_ENABLE_KEYS);
         compulsoryKeys.addAll(LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS);
         compulsoryKeys.addAll(LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_ENABLE_KEYS);
+//        compulsoryKeys.addAll(LdbcSnbInteractiveWorkloadConfiguration.DELETE_OPERATION_ENABLE_KEYS);
 
         Set<String> missingPropertyParameters =
                 LdbcSnbInteractiveWorkloadConfiguration.missingParameters(params, compulsoryKeys);
@@ -145,6 +149,24 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             forumUpdateOperationFiles = new ArrayList<>();
             personUpdateOperationFiles = new ArrayList<>();
         }
+
+//        if (params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.DELETES_DIRECTORY)) {
+//            String deletesDirectoryPath =
+//                    params.get(LdbcSnbInteractiveWorkloadConfiguration.DELETES_DIRECTORY).trim();
+//            File deletesDirectory = new File(deletesDirectoryPath);
+//            if (!deletesDirectory.exists()) {
+//                throw new WorkloadException(format("Deletes directory does not exist\nDirectory: %s",
+//                        deletesDirectory.getAbsolutePath()));
+//            }
+//            if (!deletesDirectory.isDirectory()) {
+//                throw new WorkloadException(format("Deletes directory is not a directory\nDirectory: %s",
+//                        deletesDirectory.getAbsolutePath()));
+//            }
+//            deleteOperationFiles = LdbcSnbInteractiveWorkloadConfiguration
+//                    .deleteFilesInDirectory(deletesDirectory);
+//        } else {
+//            deleteOperationFiles = new ArrayList<>();
+//        }
 
         File parametersDir =
                 new File(params.get(LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY).trim());
@@ -292,6 +314,35 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
         }
 
+//        enabledDeleteOperationTypes = new HashSet<>();
+//        for (String deleteOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration.DELETE_OPERATION_ENABLE_KEYS) {
+//            String deleteOperationEnabledString = params.get(deleteOperationEnableKey).trim();
+//            boolean deleteOperationEnabled = Boolean.parseBoolean(deleteOperationEnabledString);
+//            String deleteOperationClassName = LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
+//                    LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
+//                            LdbcSnbInteractiveWorkloadConfiguration.removeSuffix(
+//                                    deleteOperationEnableKey,
+//                                    LdbcSnbInteractiveWorkloadConfiguration.ENABLE_SUFFIX
+//                            ),
+//                            LdbcSnbInteractiveWorkloadConfiguration
+//                                    .LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
+//                    );
+//            try {
+//                Class deleteOperationClass = ClassLoaderHelper.loadClass(deleteOperationClassName);
+//                if (deleteOperationEnabled) {
+//                    enabledDeleteOperationTypes.add(deleteOperationClass);
+//                }
+//            } catch (ClassLoadingException e) {
+//                throw new WorkloadException(
+//                        format(
+//                                "Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
+//                                deleteOperationEnableKey, deleteOperationClassName),
+//                        e
+//                );
+//            }
+//        }
+
+
         List<String> frequencyKeys =
                 Lists.newArrayList(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_FREQUENCY_KEYS);
         Set<String> missingFrequencyKeys = LdbcSnbInteractiveWorkloadConfiguration
@@ -388,6 +439,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         for (Closeable readOperationFileReader : readOperationFileReaders) {
             readOperationFileReader.close();
         }
+
+//        for (Closeable deleteOperationFileReader: deleteOperationFileReaders) {
+//            deleteOperationFileReader.close();
+//        }
     }
 
     private Tuple2<Iterator<Operation>, Closeable> fileToWriteStreamParser(File updateOperationsFile,
@@ -522,6 +577,73 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
         }
 
+//        if (enabledDeleteOperationTypes.contains(LdbcDelete1RemovePerson.class)) {
+//            for (File personDeleteOperationFile : deleteOperationFiles) {
+//                Iterator<Operation> personDeleteOperationsParser;
+//                try {
+//                    Tuple2<Iterator<Operation>, Closeable> parserAndCloseable =
+//                            fileToWriteStreamParser(personDeleteOperationFile, parser);
+//                    personDeleteOperationsParser = parserAndCloseable._1();
+//                    deleteOperationFileReaders.add(parserAndCloseable._2());
+//                } catch (IOException e) {
+//                    throw new WorkloadException(
+//                            "Unable to open delete stream: " + personDeleteOperationFile.getAbsolutePath(), e);
+//                }
+//                if (!personDeleteOperationsParser.hasNext()) {
+//                    // Update stream is empty
+//                    System.out.println(
+//                            format(""
+//                                            + "***********************************************\n"
+//                                            + "  !! WARMING !!\n"
+//                                            + "  Update stream is empty: %s\n"
+//                                            + "  Check that data generation process completed successfully\n"
+//                                            + "***********************************************",
+//                                    personDeleteOperationFile.getAbsolutePath()
+//                            )
+//                    );
+//                    continue;
+//                }
+//                PeekingIterator<Operation> unfilteredPersonDeleteOperations =
+//                        Iterators.peekingIterator(personDeleteOperationsParser);
+//
+//                try {
+//                    if (unfilteredPersonDeleteOperations.peek().scheduledStartTimeAsMilli() <
+//                            workloadStartTimeAsMilli) {
+//                        workloadStartTimeAsMilli = unfilteredPersonDeleteOperations.peek().scheduledStartTimeAsMilli();
+//                    }
+//                } catch (NoSuchElementException e) {
+//                    // do nothing, exception just means that stream was empty
+//                }
+//
+//                // Filter Write Operations
+//                Predicate<Operation> enabledDeleteOperationsFilter = new Predicate<Operation>() {
+//                    @Override
+//                    public boolean apply(Operation operation) {
+//                        return enabledDeleteOperationTypes.contains(operation.getClass());
+//                    }
+//                };
+//                Iterator<Operation> filteredPersonDeleteOperations =
+//                        Iterators.filter(unfilteredPersonDeleteOperations, enabledDeleteOperationsFilter);
+//
+//                Set<Class<? extends Operation>> dependentPersonDeleteOperationTypes = Sets.newHashSet();
+//                Set<Class<? extends Operation>> dependencyPersonDeleteOperationTypes =
+//                        Sets.newHashSet(
+//                                LdbcDelete1RemovePerson.class
+//                        );
+//
+//                ChildOperationGenerator personDeleteChildOperationGenerator = null;
+//
+//                ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
+//                        dependentPersonDeleteOperationTypes,
+//                        dependencyPersonDeleteOperationTypes,
+//                        filteredPersonDeleteOperations,
+//                        Collections.emptyIterator(),
+//                        personDeleteChildOperationGenerator
+//                );
+//            }
+//        }
+
+
         /*
          * Create forum write operation streams
          */
@@ -531,7 +653,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 enabledWriteOperationTypes.contains(LdbcUpdate5AddForumMembership.class) ||
                 enabledWriteOperationTypes.contains(LdbcUpdate6AddPost.class) ||
                 enabledWriteOperationTypes.contains(LdbcUpdate7AddComment.class) ||
-                enabledWriteOperationTypes.contains(LdbcUpdate8AddFriendship.class)
+                enabledWriteOperationTypes.contains(LdbcUpdate8AddFriendship.class) ||
+                enabledWriteOperationTypes.contains(LdbcDelete1RemovePerson.class)
         ) {
             for (File forumUpdateOperationFile : forumUpdateOperationFiles) {
                 Iterator<Operation> forumUpdateOperationsParser;
@@ -587,7 +710,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                                 LdbcUpdate5AddForumMembership.class,
                                 LdbcUpdate6AddPost.class,
                                 LdbcUpdate7AddComment.class,
-                                LdbcUpdate8AddFriendship.class
+                                LdbcUpdate8AddFriendship.class,
+                                LdbcDelete1RemovePerson.class
                         );
                 Set<Class<? extends Operation>> dependencyForumUpdateOperationTypes = Sets.newHashSet();
 
@@ -2402,6 +2526,12 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Date creationDate = new Date(((Number) operationAsList.get(3)).longValue());
 
             return new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
+        }
+
+        if (operationTypeName.equals(LdbcDelete1RemovePerson.class.getName())) {
+            long person1Id = ((Number) operationAsList.get(1)).longValue();
+
+            return new LdbcDelete1RemovePerson(person1Id);
         }
 
         throw new SerializingMarshallingException(
