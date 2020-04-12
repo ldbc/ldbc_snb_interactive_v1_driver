@@ -28,9 +28,11 @@ public class DriverModeFactory {
                 TimeSource systemTimeSource = new SystemTimeSource();
                 driverMode = new ExecuteWorkloadMode(controlService, systemTimeSource, RANDOM_SEED);
                 break;
-            default:
+            case PRINT_HELP:
                 driverMode = new PrintHelpMode(controlService);
                 break;
+            default:
+                throw new IllegalStateException("Specified mode not supported.");
         }
         return driverMode;
     }
