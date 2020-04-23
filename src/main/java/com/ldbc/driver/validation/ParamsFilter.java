@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public interface   ParamsFilter {
+public interface ParamsFilter {
 
 
-     boolean useOp(Operation operation);
+    boolean useOp(Operation operation);
 
-     FilterResult useOpAndRes(Operation operation, Object operationResult);
+    FilterResult useOpAndRes(Operation operation, Object operationResult);
 }
 
 

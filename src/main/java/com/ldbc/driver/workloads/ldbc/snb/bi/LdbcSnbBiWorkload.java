@@ -804,7 +804,7 @@ public class LdbcSnbBiWorkload extends Workload
 
     @Override
     public LdbcSnbBiParamsFilter getValidationParamsFilter(int requiredValidationParameterCount) {
-        return new LdbcSnbBiParamsFilter(requiredValidationParameterCount);
+        return new LdbcSnbBiParamsFilter();
 
     }
 
