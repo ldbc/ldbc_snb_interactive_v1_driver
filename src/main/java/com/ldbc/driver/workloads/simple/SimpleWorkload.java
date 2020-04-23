@@ -9,7 +9,7 @@ import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.validation.DbValidationParametersFilter;
+import com.ldbc.driver.validation.ParamsFilter;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.MinMaxGenerator;
 import com.ldbc.driver.util.Tuple;
@@ -212,7 +212,7 @@ public class SimpleWorkload extends Workload {
     }
 
     @Override
-    public DbValidationParametersFilter getDbValidationParametersFilter(int requiredValidationParameterCount) {
+    public ParamsFilter getValidationParamsFilter(int requiredValidationParameterCount) {
         return null;
     }
 

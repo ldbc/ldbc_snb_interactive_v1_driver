@@ -3,7 +3,7 @@ package com.ldbc.driver;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.ldbc.driver.validation.DbValidationParametersFilter;
+import com.ldbc.driver.validation.ParamsFilter;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.Log4jLoggingServiceFactory;
@@ -914,7 +914,7 @@ public class WorkloadStreamsTest
         }
 
         @Override
-        public DbValidationParametersFilter getDbValidationParametersFilter(int requiredValidationParameterCount) {
+        public ParamsFilter getValidationParamsFilter(int requiredValidationParameterCount) {
             return null;
         }
 

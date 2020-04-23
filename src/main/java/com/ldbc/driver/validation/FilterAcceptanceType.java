@@ -1,6 +1,6 @@
 package com.ldbc.driver.validation;
 
-public enum DbValidationParametersFilterAcceptanceType {
+public enum FilterAcceptanceType {
     ACCEPT_AND_CONTINUE,
     ACCEPT_AND_FINISH,
     REJECT_AND_CONTINUE,

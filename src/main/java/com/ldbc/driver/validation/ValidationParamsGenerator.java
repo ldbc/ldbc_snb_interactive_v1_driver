@@ -17,117 +17,99 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public class ValidationParamsGenerator extends Generator<ValidationParam>
-{
+public class ValidationParamsGenerator extends Generator<ValidationParam> {
     private final Db db;
-    private final DbValidationParametersFilter dbValidationParametersFilter;
+    private final ParamsFilter paramsFilter;
     private final Iterator<Operation> operations;
     private final ResultReporter resultReporter;
     private int entriesWrittenSoFar;
     private boolean needMoreValidationParameters;
     private final List<Operation> injectedOperations;
 
-    public ValidationParamsGenerator( Db db,
-            DbValidationParametersFilter dbValidationParametersFilter,
-            Iterator<Operation> operations )
-    {
+    public ValidationParamsGenerator(Db db, ParamsFilter paramsFilter, Iterator<Operation> operations) {
         this.db = db;
-        this.dbValidationParametersFilter = dbValidationParametersFilter;
+        this.paramsFilter = paramsFilter;
         this.operations = operations;
-        this.resultReporter = new ResultReporter.SimpleResultReporter( new ConcurrentErrorReporter() );
+        this.resultReporter = new ResultReporter.SimpleResultReporter(new ConcurrentErrorReporter());
         this.entriesWrittenSoFar = 0;
         this.needMoreValidationParameters = true;
         this.injectedOperations = new ArrayList<>();
     }
 
-    public int entriesWrittenSoFar()
-    {
+    public int entriesWrittenSoFar() {
         return entriesWrittenSoFar;
     }
 
     @Override
-    protected ValidationParam doNext() throws GeneratorException
-    {
-        while ( (injectedOperations.size() > 0 || operations.hasNext()) && needMoreValidationParameters )
-        {
+    protected ValidationParam doNext() throws GeneratorException {
+
+        while ((injectedOperations.size() > 0 || operations.hasNext()) && needMoreValidationParameters) {
             Operation operation;
-            if ( injectedOperations.isEmpty() )
-            {
+            if (injectedOperations.isEmpty()) {
                 operation = operations.next();
-            }
-            else
-            {
-                operation = injectedOperations.remove( 0 );
+            } else {
+                operation = injectedOperations.remove(0);
             }
 
-            if (!dbValidationParametersFilter.useOperation(operation))
-            { continue; }
+            if (!paramsFilter.useOp(operation)) {
+                continue;
+            }
 
             OperationHandlerRunnableContext operationHandlerRunner;
-            try
-            {
-                operationHandlerRunner = db.getOperationHandlerRunnableContext( operation );
-            }
-            catch ( DbException e )
-            {
+            try {
+                operationHandlerRunner = db.getOperationHandlerRunnableContext(operation);
+            } catch (DbException e) {
                 throw new GeneratorException(
                         format(
                                 "Error retrieving operation handler for operation\n"
-                                + "Db: %s\n"
-                                + "Operation: %s",
-                                db.getClass().getName(), operation ),
-                        e );
+                                        + "Db: %s\n"
+                                        + "Operation: %s",
+                                db.getClass().getName(), operation),
+                        e);
             }
-            try
-            {
+            try {
                 OperationHandler operationHandler = operationHandlerRunner.operationHandler();
                 DbConnectionState dbConnectionState = operationHandlerRunner.dbConnectionState();
-                operationHandler.executeOperation( operation, dbConnectionState, resultReporter );
-            }
-            catch ( DbException e )
-            {
+                operationHandler.executeOperation(operation, dbConnectionState, resultReporter);
+            } catch (DbException e) {
                 throw new GeneratorException(
-                        format( ""
-                                + "Error executing operation to retrieve validation result\n"
-                                + "Db: %s\n"
-                                + "Operation: %s",
-                                db.getClass().getName(), operation ),
-                        e );
-            }
-            finally
-            {
+                        format(""
+                                        + "Error executing operation to retrieve validation result\n"
+                                        + "Db: %s\n"
+                                        + "Operation: %s",
+                                db.getClass().getName(), operation),
+                        e);
+            } finally {
                 operationHandlerRunner.cleanup();
             }
 
             Object result = resultReporter.result();
-            DbValidationParametersFilterResult dbValidationParametersFilterResult =
-                    dbValidationParametersFilter.useOperationAndResultForValidation( operation, result );
-            injectedOperations.addAll( dbValidationParametersFilterResult.injectedOperations() );
-
-            switch ( dbValidationParametersFilterResult.acceptance() )
-            {
-            case REJECT_AND_CONTINUE:
-                continue;
-            case REJECT_AND_FINISH:
-                needMoreValidationParameters = false;
-                continue;
-            case ACCEPT_AND_CONTINUE:
-                entriesWrittenSoFar++;
-                return ValidationParam.createUntyped( operation, result );
-            case ACCEPT_AND_FINISH:
-                entriesWrittenSoFar++;
-                needMoreValidationParameters = false;
-                return ValidationParam.createUntyped( operation, result );
-            default:
-                throw new GeneratorException(
-                        format( "Unrecognized %s value: %s",
-                                DbValidationParametersFilterAcceptanceType.class.getSimpleName(),
-                                dbValidationParametersFilterResult.acceptance().name()
-                        )
-                );
+            FilterResult filterResult = paramsFilter.useOpAndRes(operation, result);
+            injectedOperations.addAll(filterResult.injectedOperations());
+            System.out.println("Decision: " + filterResult.acceptance());
+            switch (filterResult.acceptance()) {
+                case REJECT_AND_CONTINUE:
+                    continue;
+                case REJECT_AND_FINISH:
+                    needMoreValidationParameters = false;
+                    continue;
+                case ACCEPT_AND_CONTINUE:
+                    entriesWrittenSoFar++;
+                    return ValidationParam.createUntyped(operation, result);
+                case ACCEPT_AND_FINISH:
+                    entriesWrittenSoFar++;
+                    needMoreValidationParameters = false;
+                    return ValidationParam.createUntyped(operation, result);
+                default:
+                    throw new GeneratorException(
+                            format("Unrecognized %s value: %s",
+                                    FilterAcceptanceType.class.getSimpleName(),
+                                    filterResult.acceptance().name()
+                            )
+                    );
             }
         }
         // ran out of operations OR validation set size has been reached
-        return null;
+                return null;
     }
 }

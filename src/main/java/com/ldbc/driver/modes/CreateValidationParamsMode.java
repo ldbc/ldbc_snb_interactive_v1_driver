@@ -5,18 +5,13 @@ import com.ldbc.driver.Db;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.modes.DriverMode;
-import com.ldbc.driver.modes.DriverModeType;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
-import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.generator.RandomDataGeneratorFactory;
+import com.ldbc.driver.generator.*;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.Tuple3;
-import com.ldbc.driver.validation.DbValidationParametersFilter;
-import com.ldbc.driver.validation.ValidationParamsGenerator;
-import com.ldbc.driver.validation.ValidationParamsToCsvRows;
+import com.ldbc.driver.validation.*;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -90,8 +85,7 @@ public class CreateValidationParamsMode extends DriverMode {
                     );
             workload = streamsAndWorkload.getElement2();
             WorkloadStreams workloadStreams = streamsAndWorkload.getElement1();
-            timeMappedOperations =
-                    WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workloadStreams);
+            timeMappedOperations = WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workloadStreams);
         } catch (Exception e) {
             throw new ClientException("Error while retrieving operation stream for workload", e);
         }
@@ -120,10 +114,10 @@ public class CreateValidationParamsMode extends DriverMode {
             loggingService.info(
                     format("Generating database validation file: %s", validationFileToGenerate.getAbsolutePath()));
 
-            DbValidationParametersFilter dbValidationParametersFilter = w.getDbValidationParametersFilter(validationSetSize);
+            ParamsFilter paramsFilter = w.getValidationParamsFilter(validationSetSize);
             ValidationParamsGenerator validationParamsGenerator = new ValidationParamsGenerator(
                     db,
-                    dbValidationParametersFilter,
+                    paramsFilter,
                     timeMappedOperations);
 
             Iterator<String[]> csvRows = new ValidationParamsToCsvRows(

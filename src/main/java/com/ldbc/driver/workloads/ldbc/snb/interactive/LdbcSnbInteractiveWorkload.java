@@ -16,7 +16,7 @@ import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.validation.LdbcSnbInteractiveDbValidationParametersFilter;
+import com.ldbc.driver.validation.InteractiveParamsFilter;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.csv.charseeker.BufferedCharSeeker;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -53,6 +53,7 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -100,10 +101,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private double compressionRatio;
     private double shortReadDissipationFactor;
 
-    private Set<Class> enabledLongReadOperationTypes;
-    private Set<Class> enabledShortReadOperationTypes;
-    private Set<Class> enabledWriteOperationTypes;
-//    private Set<Class> enabledDeleteOperationTypes;
+    private Set<Class> enabledComplexReadOpTypes;
+    private Set<Class> enabledShortReadOpTypes;
+    private Set<Class> enabledWriteOpTypes;
+    //    private Set<Class> enabledDeleteOperationTypes;
     private LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser parser;
 
     @Override
@@ -212,7 +213,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         readOperation14File =
                 new File(parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_PARAMS_FILENAME);
 
-        enabledLongReadOperationTypes = new HashSet<>();
+        enabledComplexReadOpTypes = new HashSet<>();
         for (String longReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration
                 .LONG_READ_OPERATION_ENABLE_KEYS) {
             String longReadOperationEnabledString = params.get(longReadOperationEnableKey).trim();
@@ -230,7 +231,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             try {
                 Class longReadOperationClass = ClassLoaderHelper.loadClass(longReadOperationClassName);
                 if (longReadOperationEnabled) {
-                    enabledLongReadOperationTypes.add(longReadOperationClass);
+                    enabledComplexReadOpTypes.add(longReadOperationClass);
                 }
             } catch (ClassLoadingException e) {
                 throw new WorkloadException(
@@ -242,7 +243,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
         }
 
-        enabledShortReadOperationTypes = new HashSet<>();
+        enabledShortReadOpTypes = new HashSet<>();
         for (String shortReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration
                 .SHORT_READ_OPERATION_ENABLE_KEYS) {
             String shortReadOperationEnabledString = params.get(shortReadOperationEnableKey).trim();
@@ -260,7 +261,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             try {
                 Class shortReadOperationClass = ClassLoaderHelper.loadClass(shortReadOperationClassName);
                 if (shortReadOperationEnabled) {
-                    enabledShortReadOperationTypes.add(shortReadOperationClass);
+                    enabledShortReadOpTypes.add(shortReadOperationClass);
                 }
             } catch (ClassLoadingException e) {
                 throw new WorkloadException(
@@ -271,7 +272,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 );
             }
         }
-        if (!enabledShortReadOperationTypes.isEmpty()) {
+        if (!enabledShortReadOpTypes.isEmpty()) {
             if (!params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION)) {
                 throw new WorkloadException(format("Configuration parameter missing: %s",
                         LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION));
@@ -286,7 +287,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
         }
 
-        enabledWriteOperationTypes = new HashSet<>();
+        enabledWriteOpTypes = new HashSet<>();
         for (String writeOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS) {
             String writeOperationEnabledString = params.get(writeOperationEnableKey).trim();
             boolean writeOperationEnabled = Boolean.parseBoolean(writeOperationEnabledString);
@@ -302,7 +303,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             try {
                 Class writeOperationClass = ClassLoaderHelper.loadClass(writeOperationClassName);
                 if (writeOperationEnabled) {
-                    enabledWriteOperationTypes.add(writeOperationClass);
+                    enabledWriteOpTypes.add(writeOperationClass);
                 }
             } catch (ClassLoadingException e) {
                 throw new WorkloadException(
@@ -347,7 +348,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 Lists.newArrayList(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_FREQUENCY_KEYS);
         Set<String> missingFrequencyKeys = LdbcSnbInteractiveWorkloadConfiguration
                 .missingParameters(params, frequencyKeys);
-        if (enabledWriteOperationTypes.isEmpty() &&
+        if (enabledWriteOpTypes.isEmpty() &&
                 !params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE)) {
             // if UPDATE_INTERLEAVE is missing and writes are disabled set it to DEFAULT
             params.put(
@@ -511,7 +512,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         /*
          * Create person write operation streams
          */
-        if (enabledWriteOperationTypes.contains(LdbcUpdate1AddPerson.class)) {
+        if (enabledWriteOpTypes.contains(LdbcUpdate1AddPerson.class)) {
             for (File personUpdateOperationFile : personUpdateOperationFiles) {
                 Iterator<Operation> personUpdateOperationsParser;
                 try {
@@ -553,7 +554,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>() {
                     @Override
                     public boolean apply(Operation operation) {
-                        return enabledWriteOperationTypes.contains(operation.getClass());
+                        return enabledWriteOpTypes.contains(operation.getClass());
                     }
                 };
                 Iterator<Operation> filteredPersonUpdateOperations =
@@ -647,14 +648,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         /*
          * Create forum write operation streams
          */
-        if (enabledWriteOperationTypes.contains(LdbcUpdate2AddPostLike.class) ||
-                enabledWriteOperationTypes.contains(LdbcUpdate3AddCommentLike.class) ||
-                enabledWriteOperationTypes.contains(LdbcUpdate4AddForum.class) ||
-                enabledWriteOperationTypes.contains(LdbcUpdate5AddForumMembership.class) ||
-                enabledWriteOperationTypes.contains(LdbcUpdate6AddPost.class) ||
-                enabledWriteOperationTypes.contains(LdbcUpdate7AddComment.class) ||
-                enabledWriteOperationTypes.contains(LdbcUpdate8AddFriendship.class) ||
-                enabledWriteOperationTypes.contains(LdbcDelete1RemovePerson.class)
+        if (enabledWriteOpTypes.contains(LdbcUpdate2AddPostLike.class) ||
+                enabledWriteOpTypes.contains(LdbcUpdate3AddCommentLike.class) ||
+                enabledWriteOpTypes.contains(LdbcUpdate4AddForum.class) ||
+                enabledWriteOpTypes.contains(LdbcUpdate5AddForumMembership.class) ||
+                enabledWriteOpTypes.contains(LdbcUpdate6AddPost.class) ||
+                enabledWriteOpTypes.contains(LdbcUpdate7AddComment.class) ||
+                enabledWriteOpTypes.contains(LdbcUpdate8AddFriendship.class) ||
+                enabledWriteOpTypes.contains(LdbcDelete1RemovePerson.class)
         ) {
             for (File forumUpdateOperationFile : forumUpdateOperationFiles) {
                 Iterator<Operation> forumUpdateOperationsParser;
@@ -696,7 +697,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>() {
                     @Override
                     public boolean apply(Operation operation) {
-                        return enabledWriteOperationTypes.contains(operation.getClass());
+                        return enabledWriteOpTypes.contains(operation.getClass());
                     }
                 };
                 Iterator<Operation> filteredForumUpdateOperations =
@@ -1478,46 +1479,46 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        if (enabledLongReadOperationTypes.contains(LdbcQuery1.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery1.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation1Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery2.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery2.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation2Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery3.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery3.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation3Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery4.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery4.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation4Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery5.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery5.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation5Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery6.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery6.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation6Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery7.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery7.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation7Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery8.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery8.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation8Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery9.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery9.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation9Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery10.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery10.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation10Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery11.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery11.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation11Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery12.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery12.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation12Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery13.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery13.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation13Stream);
         }
-        if (enabledLongReadOperationTypes.contains(LdbcQuery14.class)) {
+        if (enabledComplexReadOpTypes.contains(LdbcQuery14.class)) {
             asynchronousNonDependencyStreamsList.add(readOperation14Stream);
         }
 
@@ -1544,7 +1545,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          * *******/
 
         ChildOperationGenerator shortReadsChildGenerator = null;
-        if (!enabledShortReadOperationTypes.isEmpty()) {
+        if (!enabledShortReadOpTypes.isEmpty()) {
             Map<Integer, Long> longReadInterleavesAsMilli = new HashMap<>();
             longReadInterleavesAsMilli.put(LdbcQuery1.TYPE, readOperation1InterleaveAsMilli);
             longReadInterleavesAsMilli.put(LdbcQuery2.TYPE, readOperation2InterleaveAsMilli);
@@ -1584,7 +1585,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     initialProbability,
                     shortReadDissipationFactor,
                     updateInterleaveAsMilli,
-                    enabledShortReadOperationTypes,
+                    enabledShortReadOpTypes,
                     compressionRatio,
                     personIdBuffer,
                     messageIdBuffer,
@@ -1615,62 +1616,43 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     }
 
     @Override
-    public LdbcSnbInteractiveDbValidationParametersFilter getDbValidationParametersFilter(int requiredValidationParameterCount) {
-        final Set<Class> multiResultOperations = Sets.newHashSet(
-                LdbcShortQuery2PersonPosts.class,
-                LdbcShortQuery3PersonFriends.class,
-                LdbcShortQuery7MessageReplies.class,
-                LdbcQuery1.class,
-                LdbcQuery2.class,
-//                LdbcQuery3.class,
-                LdbcQuery4.class,
-                LdbcQuery5.class,
-                LdbcQuery6.class,
-                LdbcQuery7.class,
-                LdbcQuery8.class,
-                LdbcQuery9.class,
-                LdbcQuery10.class,
-                LdbcQuery11.class,
-                LdbcQuery12.class,
-                LdbcQuery14.class
+    public InteractiveParamsFilter getValidationParamsFilter(int reqValidationParams) {
+
+        final Set<String> multiResOps = Sets.newHashSet(
+                LdbcShortQuery2PersonPosts.class.getName(),
+                LdbcShortQuery3PersonFriends.class.getName(),
+                LdbcShortQuery7MessageReplies.class.getName(),
+                LdbcQuery1.class.getName(),
+                LdbcQuery2.class.getName(),
+                LdbcQuery3.class.getName(),
+                LdbcQuery4.class.getName(),
+                LdbcQuery5.class.getName(),
+                LdbcQuery6.class.getName(),
+                LdbcQuery7.class.getName(),
+                LdbcQuery8.class.getName(),
+                LdbcQuery9.class.getName(),
+                LdbcQuery10.class.getName(),
+                LdbcQuery11.class.getName(),
+                LdbcQuery12.class.getName(),
+                LdbcQuery14.class.getName()
         );
 
-        int operationTypeCount = enabledLongReadOperationTypes.size() + enabledWriteOperationTypes.size();
-        long minimumResultCountPerOperationType = Math.max(
-                1,
-                Math.round(Math.floor(
-                        (double) requiredValidationParameterCount / (double) operationTypeCount))
-        );
-
-        long writeAddPersonOperationCount = (enabledWriteOperationTypes.contains(LdbcUpdate1AddPerson.class))
-                ? minimumResultCountPerOperationType
-                : 0;
-
-        final Map<Class, Long> remainingRequiredResultsPerUpdateType = new HashMap<>();
-        long resultCountsAssignedForUpdateTypesSoFar = 0;
-        for (Class updateOperationType : enabledWriteOperationTypes) {
-            if (updateOperationType.equals(LdbcUpdate1AddPerson.class)) {
-                continue;
-            }
-            remainingRequiredResultsPerUpdateType.put(updateOperationType, minimumResultCountPerOperationType);
-            resultCountsAssignedForUpdateTypesSoFar =
-                    resultCountsAssignedForUpdateTypesSoFar + minimumResultCountPerOperationType;
+        Set<Class> enabledOps = new HashSet<>();
+        enabledOps.addAll(enabledComplexReadOpTypes);
+        enabledOps.addAll(enabledWriteOpTypes);
+        enabledOps.addAll(enabledShortReadOpTypes);
+        final Map<String, Integer> reqResPerOp = new HashMap<>();
+        for (Class op : enabledOps) {
+            reqResPerOp.put(op.getName(), reqValidationParams);
         }
 
-        final Map<Class, Long> remainingRequiredResultsPerLongReadType = new HashMap<>();
-        long resultCountsAssignedForLongReadTypesSoFar = 0;
-        for (Class longReadOperationType : enabledLongReadOperationTypes) {
-            remainingRequiredResultsPerLongReadType.put(longReadOperationType, minimumResultCountPerOperationType);
-            resultCountsAssignedForLongReadTypesSoFar =
-                    resultCountsAssignedForLongReadTypesSoFar + minimumResultCountPerOperationType;
-        }
 
-        return new LdbcSnbInteractiveDbValidationParametersFilter(
-                multiResultOperations,
-                writeAddPersonOperationCount,
-                remainingRequiredResultsPerUpdateType,
-                remainingRequiredResultsPerLongReadType,
-                enabledShortReadOperationTypes
+        Set<String> enabledShortReadOps = enabledShortReadOpTypes.stream().map(Class::getName).collect(Collectors.toSet());
+
+        return new InteractiveParamsFilter(
+                multiResOps,
+                reqResPerOp,
+                enabledShortReadOps
         );
     }
 

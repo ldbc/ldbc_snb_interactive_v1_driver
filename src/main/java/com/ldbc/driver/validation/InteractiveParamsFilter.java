@@ -1,8 +1,6 @@
 package com.ldbc.driver.validation;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.validation.DbValidationParametersFilter;
-import com.ldbc.driver.validation.DbValidationParametersFilterResult;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 
 import java.util.ArrayList;
@@ -10,109 +8,56 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.ldbc.driver.validation.DbValidationParametersFilterAcceptanceType.*;
+import static com.ldbc.driver.validation.FilterAcceptanceType.*;
 
-public class LdbcSnbInteractiveDbValidationParametersFilter extends DbValidationParametersFilter {
-    private final Set<Class> multiResultOperations;
-    private final Map<Class, Long> remainingRequiredResultsPerWriteType;
-    private final Map<Class, Long> remainingRequiredResultsPerLongReadType;
-    private final Set<Class> enabledShortReadOperationTypes;
-    private long writeAddPersonOperationCount;
-    private int uncompletedShortReads;
+public class InteractiveParamsFilter implements ParamsFilter {
 
-    public LdbcSnbInteractiveDbValidationParametersFilter(Set<Class> multiResultOperations,
-                                                   long writeAddPersonOperationCount,
-                                                   Map<Class, Long> remainingRequiredResultsPerWriteType,
-                                                   Map<Class, Long> remainingRequiredResultsPerLongReadType,
-                                                   Set<Class> enabledShortReadOperationTypes) {
-        this.multiResultOperations = multiResultOperations;
-        this.writeAddPersonOperationCount = writeAddPersonOperationCount;
-        this.remainingRequiredResultsPerWriteType = remainingRequiredResultsPerWriteType;
-        this.remainingRequiredResultsPerLongReadType = remainingRequiredResultsPerLongReadType;
-        this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
-        this.uncompletedShortReads = 0;
+    private final Set<String> multiResOps;
+    private final Map<String, Integer> reqResPerOp;
+    private final Set<String> enabledShortReadOps;
+
+    public InteractiveParamsFilter(Set<String> multiResOps,
+                                   Map<String, Integer> reqResPerOp,
+                                   Set<String> enabledShortReadOps) {
+
+        this.multiResOps = multiResOps;
+        this.reqResPerOp = reqResPerOp;
+        this.enabledShortReadOps = enabledShortReadOps;
+
     }
 
     @Override
-    public boolean useOperation(Operation operation) {
-        Class operationType = operation.getClass();
-
-        if (enabledShortReadOperationTypes.contains(operationType)) {
-            return true;
-        } else if (operationType.equals(LdbcUpdate1AddPerson.class)) {
-            return writeAddPersonOperationCount > 0;
-        } else if (remainingRequiredResultsPerWriteType.containsKey(operationType)) {
-            return !haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType);
-        } else if (remainingRequiredResultsPerLongReadType.containsKey(operationType)) {
-            return remainingRequiredResultsPerLongReadType.get(operationType) > 0;
-        } else {
-            // disabled operation
-            return false;
-        }
+    public boolean useOp(Operation op) {
+        return reqResPerOp.containsKey(op.getClass().getName());
     }
 
     @Override
-    public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation operation,
-                                                                                 Object operationResult) {
-        Class operationType = operation.getClass();
-        List<Operation> injectedOperations = new ArrayList<>();
+    public FilterResult useOpAndRes(Operation op, Object opRes) {
 
-        // do not use empty results for validation
-        if (multiResultOperations.contains(operationType) && ((List) operationResult).isEmpty()) {
-            return new DbValidationParametersFilterResult(REJECT_AND_CONTINUE, injectedOperations);
-        }
+        String opType = op.getClass().getName(); // op type
+        // short read ops to inject
+        List<Operation> injectedOps = new ArrayList<>(generateOperationsToInject(op));
 
-        injectedOperations.addAll(generateOperationsToInject(operation));
-        uncompletedShortReads += injectedOperations.size();
-
-        if (operationType.equals(LdbcUpdate1AddPerson.class)) {
-            // writes do not return anything, but they should be executed and some default result needs to be stored in the validation parameters
-            writeAddPersonOperationCount--;
-        } else if (enabledShortReadOperationTypes.contains(operationType)) {
-            // keep track of how many injected operations have completed (only short reads are injected)
-            uncompletedShortReads--;
-        } else if (remainingRequiredResultsPerWriteType.containsKey(operationType)) {
-            // decrement count for write operation type
-            remainingRequiredResultsPerWriteType.put(operationType, Math.max(0, remainingRequiredResultsPerWriteType.get(operationType) - 1));
-        } else if (remainingRequiredResultsPerLongReadType.containsKey(operationType)) {
-            // decrement count for long read operation type
-            remainingRequiredResultsPerLongReadType.put(operationType, remainingRequiredResultsPerLongReadType.get(operationType) - 1);
+        // check is results from multi-result operations is empty
+        if ((multiResOps.contains(opType) && ((List) opRes).isEmpty()) ||
+                (reqResPerOp.get(opType) == 0 && !isGenerationComplete(reqResPerOp))) {
+            return new FilterResult(REJECT_AND_CONTINUE, injectedOps);
+        } else if (isGenerationComplete(reqResPerOp)) {
+            return new FilterResult(ACCEPT_AND_FINISH, injectedOps);
         } else {
-            throw new RuntimeException("Unexpected operation type: " + operationType.getSimpleName());
+            reqResPerOp.put(opType, reqResPerOp.get(opType) - 1);
+            return new FilterResult(ACCEPT_AND_CONTINUE, injectedOps);
         }
 
-        if (validationParameterGenerationFinished()) {
-            return new DbValidationParametersFilterResult(ACCEPT_AND_FINISH, injectedOperations);
-        } else {
-            return new DbValidationParametersFilterResult(ACCEPT_AND_CONTINUE, injectedOperations);
-        }
+
     }
 
-    private boolean validationParameterGenerationFinished() {
-        // check that all writes have completed
-        if (!haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType)) {
-            return false;
-        }
-        // check that all long reads have completed
-        if (!haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerLongReadType)) {
-            return false;
-        }
-        // check that all Add Person writes have completed
-        if (writeAddPersonOperationCount > 0) {
-            return false;
-        }
-        // check that all short reads have completed
-        if (uncompletedShortReads > 0) {
-            return false;
-        }
-        // we're done
-        return true;
-    }
+    private boolean isGenerationComplete(Map<String, Integer> reqResPerOpType) {
 
-    private boolean haveCompletedAllRequiredResultsPerOperationType(Map<Class, Long> requiredResultsPerOperationType) {
-        for (Long value : requiredResultsPerOperationType.values()) {
-            if (value > 0) return false;
+        for (Integer reqRes : reqResPerOpType.values()) {
+            if (reqRes > 0) return false;
         }
+
         return true;
     }
 
@@ -191,7 +136,7 @@ public class LdbcSnbInteractiveDbValidationParametersFilter extends DbValidation
     }
 
     private void injectShort1(List<Operation> operationsToInject, long personId) {
-        if (enabledShortReadOperationTypes.contains(LdbcShortQuery1PersonProfile.class)) {
+        if (enabledShortReadOps.contains(LdbcShortQuery1PersonProfile.class)) {
             operationsToInject.add(
                     new LdbcShortQuery1PersonProfile(personId)
             );
@@ -199,7 +144,7 @@ public class LdbcSnbInteractiveDbValidationParametersFilter extends DbValidation
     }
 
     private void injectShort2(List<Operation> operationsToInject, long personId) {
-        if (enabledShortReadOperationTypes.contains(LdbcShortQuery2PersonPosts.class)) {
+        if (enabledShortReadOps.contains(LdbcShortQuery2PersonPosts.class)) {
             operationsToInject.add(
                     new LdbcShortQuery2PersonPosts(personId, LdbcShortQuery2PersonPosts.DEFAULT_LIMIT)
             );
@@ -207,7 +152,7 @@ public class LdbcSnbInteractiveDbValidationParametersFilter extends DbValidation
     }
 
     private void injectShort3(List<Operation> operationsToInject, long personId) {
-        if (enabledShortReadOperationTypes.contains(LdbcShortQuery3PersonFriends.class)) {
+        if (enabledShortReadOps.contains(LdbcShortQuery3PersonFriends.class)) {
             operationsToInject.add(
                     new LdbcShortQuery3PersonFriends(personId)
             );
@@ -215,7 +160,7 @@ public class LdbcSnbInteractiveDbValidationParametersFilter extends DbValidation
     }
 
     private void injectShort4(List<Operation> operationsToInject, long messageId) {
-        if (enabledShortReadOperationTypes.contains(LdbcShortQuery4MessageContent.class)) {
+        if (enabledShortReadOps.contains(LdbcShortQuery4MessageContent.class)) {
             operationsToInject.add(
                     new LdbcShortQuery4MessageContent(messageId)
             );
@@ -223,7 +168,7 @@ public class LdbcSnbInteractiveDbValidationParametersFilter extends DbValidation
     }
 
     private void injectShort5(List<Operation> operationsToInject, long messageId) {
-        if (enabledShortReadOperationTypes.contains(LdbcShortQuery5MessageCreator.class)) {
+        if (enabledShortReadOps.contains(LdbcShortQuery5MessageCreator.class)) {
             operationsToInject.add(
                     new LdbcShortQuery5MessageCreator(messageId)
             );
@@ -231,7 +176,7 @@ public class LdbcSnbInteractiveDbValidationParametersFilter extends DbValidation
     }
 
     private void injectShort6(List<Operation> operationsToInject, long messageId) {
-        if (enabledShortReadOperationTypes.contains(LdbcShortQuery6MessageForum.class)) {
+        if (enabledShortReadOps.contains(LdbcShortQuery6MessageForum.class)) {
             operationsToInject.add(
                     new LdbcShortQuery6MessageForum(messageId)
             );
@@ -239,7 +184,7 @@ public class LdbcSnbInteractiveDbValidationParametersFilter extends DbValidation
     }
 
     private void injectShort7(List<Operation> operationsToInject, long messageId) {
-        if (enabledShortReadOperationTypes.contains(LdbcShortQuery7MessageReplies.class)) {
+        if (enabledShortReadOps.contains(LdbcShortQuery7MessageReplies.class)) {
             operationsToInject.add(
                     new LdbcShortQuery7MessageReplies(messageId)
             );

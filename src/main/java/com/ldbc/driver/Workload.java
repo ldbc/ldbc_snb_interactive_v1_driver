@@ -1,6 +1,6 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.validation.DbValidationParametersFilter;
+import com.ldbc.driver.validation.ParamsFilter;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.validation.ResultsLogValidationTolerances;
@@ -88,7 +88,7 @@ public abstract class Workload implements Closeable {
     protected abstract WorkloadStreams getStreams(GeneratorFactory generators, boolean hasDbConnected)
             throws WorkloadException;
 
-    public abstract DbValidationParametersFilter getDbValidationParametersFilter(int requiredValidationParameterCount);
+    public abstract ParamsFilter getValidationParamsFilter(int requiredValidationParameterCount);
 
     public long maxExpectedInterleaveAsMilli() {
         return DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI;
