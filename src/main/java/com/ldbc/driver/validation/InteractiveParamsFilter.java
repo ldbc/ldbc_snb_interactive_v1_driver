@@ -136,55 +136,43 @@ public class InteractiveParamsFilter implements ParamsFilter {
     }
 
     private void injectShort1(List<Operation> operationsToInject, long personId) {
-        if (enabledShortReadOps.contains(LdbcShortQuery1PersonProfile.class)) {
-            operationsToInject.add(
-                    new LdbcShortQuery1PersonProfile(personId)
-            );
+        if (enabledShortReadOps.contains(LdbcShortQuery1PersonProfile.class.getName())) {
+            operationsToInject.add(new LdbcShortQuery1PersonProfile(personId));
         }
     }
 
     private void injectShort2(List<Operation> operationsToInject, long personId) {
-        if (enabledShortReadOps.contains(LdbcShortQuery2PersonPosts.class)) {
-            operationsToInject.add(
-                    new LdbcShortQuery2PersonPosts(personId, LdbcShortQuery2PersonPosts.DEFAULT_LIMIT)
-            );
+        if (enabledShortReadOps.contains(LdbcShortQuery2PersonPosts.class.getName())) {
+            operationsToInject.add(new LdbcShortQuery2PersonPosts(personId, LdbcShortQuery2PersonPosts.DEFAULT_LIMIT));
         }
     }
 
     private void injectShort3(List<Operation> operationsToInject, long personId) {
-        if (enabledShortReadOps.contains(LdbcShortQuery3PersonFriends.class)) {
-            operationsToInject.add(
-                    new LdbcShortQuery3PersonFriends(personId)
-            );
+        if (enabledShortReadOps.contains(LdbcShortQuery3PersonFriends.class.getName())) {
+            operationsToInject.add(new LdbcShortQuery3PersonFriends(personId));
         }
     }
 
     private void injectShort4(List<Operation> operationsToInject, long messageId) {
-        if (enabledShortReadOps.contains(LdbcShortQuery4MessageContent.class)) {
-            operationsToInject.add(
-                    new LdbcShortQuery4MessageContent(messageId)
-            );
+        if (enabledShortReadOps.contains(LdbcShortQuery4MessageContent.class.getName())) {
+            operationsToInject.add(new LdbcShortQuery4MessageContent(messageId));
         }
     }
 
     private void injectShort5(List<Operation> operationsToInject, long messageId) {
-        if (enabledShortReadOps.contains(LdbcShortQuery5MessageCreator.class)) {
-            operationsToInject.add(
-                    new LdbcShortQuery5MessageCreator(messageId)
-            );
+        if (enabledShortReadOps.contains(LdbcShortQuery5MessageCreator.class.getName())) {
+            operationsToInject.add(new LdbcShortQuery5MessageCreator(messageId));
         }
     }
 
     private void injectShort6(List<Operation> operationsToInject, long messageId) {
-        if (enabledShortReadOps.contains(LdbcShortQuery6MessageForum.class)) {
-            operationsToInject.add(
-                    new LdbcShortQuery6MessageForum(messageId)
-            );
+        if (enabledShortReadOps.contains(LdbcShortQuery6MessageForum.class.getName())) {
+            operationsToInject.add(new LdbcShortQuery6MessageForum(messageId));
         }
     }
 
     private void injectShort7(List<Operation> operationsToInject, long messageId) {
-        if (enabledShortReadOps.contains(LdbcShortQuery7MessageReplies.class)) {
+        if (enabledShortReadOps.contains(LdbcShortQuery7MessageReplies.class.getName())) {
             operationsToInject.add(
                     new LdbcShortQuery7MessageReplies(messageId)
             );

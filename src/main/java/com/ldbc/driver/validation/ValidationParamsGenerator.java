@@ -86,7 +86,6 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
             Object result = resultReporter.result();
             FilterResult filterResult = paramsFilter.useOpAndRes(operation, result);
             injectedOperations.addAll(filterResult.injectedOperations());
-            System.out.println("Decision: " + filterResult.acceptance());
             switch (filterResult.acceptance()) {
                 case REJECT_AND_CONTINUE:
                     continue;
