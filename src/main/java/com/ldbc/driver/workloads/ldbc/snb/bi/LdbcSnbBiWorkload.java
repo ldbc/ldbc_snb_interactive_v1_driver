@@ -8,7 +8,7 @@ import com.ldbc.driver.SerializingMarshallingException;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.validation.LdbcSnbBiParamsFilter;
+import com.ldbc.driver.validation.BiParamsFilter;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -803,8 +803,8 @@ public class LdbcSnbBiWorkload extends Workload
     }
 
     @Override
-    public LdbcSnbBiParamsFilter getValidationParamsFilter(int requiredValidationParameterCount) {
-        return new LdbcSnbBiParamsFilter();
+    public BiParamsFilter getValidationParamsFilter(int requiredValidationParameterCount) {
+        return new BiParamsFilter(requiredValidationParameterCount);
 
     }
 

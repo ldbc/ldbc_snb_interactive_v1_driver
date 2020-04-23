@@ -16,8 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
-// TODO Validate Workload to work with short reads
-
 public class Client {
 
     public static void main(String[] args) {
