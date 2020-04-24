@@ -512,7 +512,7 @@ public abstract class WorkloadTest {
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
                     new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions(
                             validationParamsFile.getAbsolutePath(),
-                            500
+                            50
                     );
 
             configuration = configuration.applyArg(

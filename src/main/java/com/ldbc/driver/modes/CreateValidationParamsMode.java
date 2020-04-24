@@ -53,7 +53,7 @@ public class CreateValidationParamsMode extends DriverMode {
             throw new ClientException(format("Error loading Workload class: %s",
                     controlService.getConfiguration().getWorkloadClassName()), e);
         }
-        loggingService.info(format("Loaded Workload: %s", workload.getClass().getName()));
+        loggingService.info(format("Loaded Workload: %s", workload.getClass().getSimpleName()));
 
         try {
             database = ClassLoaderHelper.loadDb(controlService.getConfiguration().getDbClassName());
@@ -66,7 +66,7 @@ public class CreateValidationParamsMode extends DriverMode {
             throw new ClientException(
                     format("Error loading DB class: %s", controlService.getConfiguration().getDbClassName()), e);
         }
-        loggingService.info(format("Loaded DB: %s", database.getClass().getName()));
+        loggingService.info(format("Loaded DB: %s", database.getClass().getSimpleName()));
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(randomSeed));
         loggingService.info(
