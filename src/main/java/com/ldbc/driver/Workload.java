@@ -9,6 +9,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public abstract class Workload implements Closeable {
@@ -87,6 +88,8 @@ public abstract class Workload implements Closeable {
 
     protected abstract WorkloadStreams getStreams(GeneratorFactory generators, boolean hasDbConnected)
             throws WorkloadException;
+
+    public abstract Set<String> getEnabledOps();
 
     public abstract ParamsFilter getValidationParamsFilter(int requiredValidationParameterCount);
 

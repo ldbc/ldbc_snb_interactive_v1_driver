@@ -10,6 +10,7 @@ import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class DummyWorkload extends Workload
 {
@@ -35,6 +36,12 @@ public class DummyWorkload extends Workload
         this.maxExpectedInterleaveAsMilli = maxExpectedInterleaveAsMilli;
         this.workloadStreams = workloadStreams;
     }
+
+    @Override
+    public Set<String> getEnabledOps() {
+        return null;
+    }
+
 
     @Override
     public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()

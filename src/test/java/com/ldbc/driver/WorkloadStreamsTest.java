@@ -22,11 +22,7 @@ import com.ldbc.driver.workloads.dummy.TimedNamedOperation3Factory;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.anyOf;
@@ -905,6 +901,12 @@ public class WorkloadStreamsTest
         protected void onClose() throws IOException
         {
         }
+
+        @Override
+        public Set<String> getEnabledOps() {
+            return null;
+        }
+
 
         @Override
         protected WorkloadStreams getStreams( GeneratorFactory generators, boolean hasDbConnected )

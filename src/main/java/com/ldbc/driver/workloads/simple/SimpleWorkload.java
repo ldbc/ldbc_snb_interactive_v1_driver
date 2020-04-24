@@ -17,12 +17,7 @@ import com.ldbc.driver.util.Tuple2;
 import com.ldbc.driver.util.Tuple3;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -44,6 +39,11 @@ public class SimpleWorkload extends Workload {
     final double READ_MODIFY_WRITE_RATIO = 0.20;
 
     final long INITIAL_INSERT_COUNT = 10;
+
+    @Override
+    public Set<String> getEnabledOps() {
+        return null;
+    }
 
     @Override
     public Map<Integer, Class<? extends Operation>> operationTypeToClassMapping() {

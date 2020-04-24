@@ -104,17 +104,22 @@ public class CreateValidationParamsMode extends DriverMode {
         try (Workload w = workload; Db db = database) {
             File validationFileToGenerate =
                     new File(controlService.getConfiguration().getValidationParamsCreationOptions().getFilePath());
-            int validationSetSize = controlService
+            // TODO: rename to count per operation
+            int countPerOpType = controlService
                     .getConfiguration()
                     .getValidationParamsCreationOptions()
-                    .getValidationSetSize();
-            // TODO get from config parameter
+                    .getCountPerOpType();
+
+            // TODO: get number of enabled operation type from workload
+            int numEnabledOps = w.getEnabledOps().size();
+
+            // TODO: get from config parameter
             boolean performSerializationMarshallingChecks = true;
 
-            loggingService.info(
-                    format("Generating database validation file: %s", validationFileToGenerate.getAbsolutePath()));
+            loggingService.info(format("Generating database validation file: %s", validationFileToGenerate.getAbsolutePath()));
 
-            ParamsFilter paramsFilter = w.getValidationParamsFilter(validationSetSize);
+            ParamsFilter paramsFilter = w.getValidationParamsFilter(countPerOpType);
+
             ValidationParamsGenerator validationParamsGenerator = new ValidationParamsGenerator(
                     db,
                     paramsFilter,
@@ -139,7 +144,8 @@ public class CreateValidationParamsMode extends DriverMode {
                                 format(
                                         "%s / %s Validation Parameters Created\r",
                                         decimalFormat.format(rowsWrittenSoFar),
-                                        decimalFormat.format(validationSetSize)
+                                        // TODO: change to countPerOpType * number enabled operations
+                                        decimalFormat.format(countPerOpType * numEnabledOps)
                                 )
                         );
                     }

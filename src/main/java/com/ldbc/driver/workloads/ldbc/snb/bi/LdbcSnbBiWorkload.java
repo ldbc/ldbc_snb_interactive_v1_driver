@@ -1132,6 +1132,11 @@ public class LdbcSnbBiWorkload extends Workload
     }
 
     @Override
+    public Set<String> getEnabledOps() {
+        return null;
+    }
+
+    @Override
     public Operation marshalOperation( String serializedOperation ) throws SerializingMarshallingException
     {
         List<Object> operationAsList;

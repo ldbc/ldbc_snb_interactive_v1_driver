@@ -60,6 +60,6 @@ public interface DriverConfiguration
     {
         String getFilePath();
 
-        int getValidationSetSize();
+        int getCountPerOpType();
     }
 }

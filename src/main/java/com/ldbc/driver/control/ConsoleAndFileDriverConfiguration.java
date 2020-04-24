@@ -1530,7 +1530,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         }
 
         @Override
-        public int getValidationSetSize()
+        public int getCountPerOpType()
         {
             return validationSetSize;
         }

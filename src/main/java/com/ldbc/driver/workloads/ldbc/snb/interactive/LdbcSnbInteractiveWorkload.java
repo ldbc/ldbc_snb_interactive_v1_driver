@@ -1615,6 +1615,15 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         return ldbcSnbInteractiveWorkloadStreams;
     }
 
+    // TODO: add to workload class
+    public Set<String> getEnabledOps() {
+        Set<String> enabledOps = new HashSet<>();
+        enabledOps.addAll(enabledComplexReadOpTypes.stream().map(Class::getSimpleName).collect(Collectors.toSet()));
+        enabledOps.addAll(enabledShortReadOpTypes.stream().map(Class::getSimpleName).collect(Collectors.toSet()));
+        enabledOps.addAll(enabledWriteOpTypes.stream().map(Class::getSimpleName).collect(Collectors.toSet()));
+        return enabledOps;
+    }
+
     @Override
     public InteractiveParamsFilter getValidationParamsFilter(int reqValidationParams) {
 

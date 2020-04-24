@@ -10,7 +10,7 @@ import java.util.Set;
 
 import static com.ldbc.driver.validation.FilterAcceptanceType.*;
 
-public class InteractiveParamsFilter implements ParamsFilter {
+public final class InteractiveParamsFilter implements ParamsFilter {
 
     private final Set<String> multiResOps;
     private final Map<String, Integer> reqResPerOp;
