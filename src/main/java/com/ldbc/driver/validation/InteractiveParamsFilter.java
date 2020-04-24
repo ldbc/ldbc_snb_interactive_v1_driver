@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.ldbc.driver.validation.FilterAcceptanceType.*;
 
@@ -34,21 +35,30 @@ public final class InteractiveParamsFilter implements ParamsFilter {
     @Override
     public FilterResult useOpAndRes(Operation op, Object opRes) {
 
-        String opType = op.getClass().getName(); // op type
-        // short read ops to inject
-        List<Operation> injectedOps = new ArrayList<>(generateOperationsToInject(op));
+        String opType = op.getClass().getName();
+        List<Operation> shortReads = new ArrayList<>();
 
-        // check is results from multi-result operations is empty
-        if ((multiResOps.contains(opType) && ((List) opRes).isEmpty()) ||
+        FilterResult filterResult;
+
+        if (isGenerationComplete(reqResPerOp)){
+            filterResult = new FilterResult(REJECT_AND_FINISH, shortReads);
+        } else if ((multiResOps.contains(opType) && ((List) opRes).isEmpty()) ||
                 (reqResPerOp.get(opType) == 0 && !isGenerationComplete(reqResPerOp))) {
-            return new FilterResult(REJECT_AND_CONTINUE, injectedOps);
-        } else if (isGenerationComplete(reqResPerOp)) {
-            return new FilterResult(ACCEPT_AND_FINISH, injectedOps);
+            filterResult = new FilterResult(REJECT_AND_CONTINUE, shortReads);
         } else {
             reqResPerOp.put(opType, reqResPerOp.get(opType) - 1);
-            return new FilterResult(ACCEPT_AND_CONTINUE, injectedOps);
+            shortReads = getValidShortReads(op);
+            filterResult = new FilterResult(ACCEPT_AND_CONTINUE, shortReads);
         }
 
+        return filterResult;
+
+    }
+
+    private List<Operation> getValidShortReads(Operation op) {
+
+        List<Operation> proposedShortReads = new ArrayList<>(generateOperationsToInject(op));
+        return  proposedShortReads.stream().filter(e -> (reqResPerOp.get(e.getClass().getName()) > 0)).collect(Collectors.toList());
 
     }
 
