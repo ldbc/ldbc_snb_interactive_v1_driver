@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -64,7 +65,7 @@ public class LdbcSnbBiWorkload extends Workload {
 
     private double compressionRatio;
 
-    private Set<String> enabledOpTypes;
+    private Set<Class> enabledOpTypes;
 
     private static final int BUFFER_SIZE = 1 * 1024 * 1024;
     private static final char COLUMN_DELIMITER = '|';
@@ -197,7 +198,7 @@ public class LdbcSnbBiWorkload extends Workload {
         for (String operationEnableKey : LdbcSnbBiWorkloadConfiguration.OPERATION_ENABLE_KEYS) {
             String operationEnabledString = params.get(operationEnableKey).trim();
             boolean operationEnabled = Boolean.parseBoolean(operationEnabledString);
-            String operationClass = LdbcSnbBiWorkloadConfiguration.operationEnabledKeyToClass(operationEnableKey).getName();
+            Class operationClass = LdbcSnbBiWorkloadConfiguration.operationEnabledKeyToClass(operationEnableKey);
             if (operationEnabled) {
                 enabledOpTypes.add(operationClass);
             }
@@ -1055,7 +1056,7 @@ public class LdbcSnbBiWorkload extends Workload {
 
     @Override
     public Set<String> getEnabledOps() {
-        return enabledOpTypes;
+        return enabledOpTypes.stream().map(Class::getName).collect(Collectors.toSet());
     }
 
     @Override
