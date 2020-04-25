@@ -235,7 +235,8 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
     public final static String WRITE_OPERATION_6_ENABLE_KEY = asEnableKey(LdbcUpdate6AddPost.class);
     public final static String WRITE_OPERATION_7_ENABLE_KEY = asEnableKey(LdbcUpdate7AddComment.class);
     public final static String WRITE_OPERATION_8_ENABLE_KEY = asEnableKey(LdbcUpdate8AddFriendship.class);
-    public final static String DELETE_OPERATION_1_ENABLE_KEY = asEnableKey(LdbcDelete1RemovePerson.class);
+    //TODO: delete
+//    public final static String DELETE_OPERATION_1_ENABLE_KEY = asEnableKey(LdbcDelete1RemovePerson.class);
 
     public final static List<String> WRITE_OPERATION_ENABLE_KEYS = Lists.newArrayList(
             WRITE_OPERATION_1_ENABLE_KEY,
@@ -245,8 +246,9 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
             WRITE_OPERATION_5_ENABLE_KEY,
             WRITE_OPERATION_6_ENABLE_KEY,
             WRITE_OPERATION_7_ENABLE_KEY,
-            WRITE_OPERATION_8_ENABLE_KEY,
-            DELETE_OPERATION_1_ENABLE_KEY
+            WRITE_OPERATION_8_ENABLE_KEY
+            //TODO: delete
+//            DELETE_OPERATION_1_ENABLE_KEY
     );
 
 //    public final static List<String> DELETE_OPERATION_ENABLE_KEYS = Lists.newArrayList(
@@ -439,7 +441,8 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration {
         params.put(WRITE_OPERATION_6_ENABLE_KEY, "false");
         params.put(WRITE_OPERATION_7_ENABLE_KEY, "false");
         params.put(WRITE_OPERATION_8_ENABLE_KEY, "false");
-        params.put(DELETE_OPERATION_1_ENABLE_KEY, "false");
+        //TODO: delete
+//        params.put(DELETE_OPERATION_1_ENABLE_KEY, "false");
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 

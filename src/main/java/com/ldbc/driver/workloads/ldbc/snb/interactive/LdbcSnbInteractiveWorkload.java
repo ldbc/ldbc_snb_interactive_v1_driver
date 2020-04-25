@@ -654,8 +654,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 enabledWriteOpTypes.contains(LdbcUpdate5AddForumMembership.class) ||
                 enabledWriteOpTypes.contains(LdbcUpdate6AddPost.class) ||
                 enabledWriteOpTypes.contains(LdbcUpdate7AddComment.class) ||
-                enabledWriteOpTypes.contains(LdbcUpdate8AddFriendship.class) ||
-                enabledWriteOpTypes.contains(LdbcDelete1RemovePerson.class)
+                enabledWriteOpTypes.contains(LdbcUpdate8AddFriendship.class) //||
+//                enabledWriteOpTypes.contains(LdbcDelete1RemovePerson.class)
         ) {
             for (File forumUpdateOperationFile : forumUpdateOperationFiles) {
                 Iterator<Operation> forumUpdateOperationsParser;
@@ -711,8 +711,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                                 LdbcUpdate5AddForumMembership.class,
                                 LdbcUpdate6AddPost.class,
                                 LdbcUpdate7AddComment.class,
-                                LdbcUpdate8AddFriendship.class,
-                                LdbcDelete1RemovePerson.class
+                                LdbcUpdate8AddFriendship.class
+//                                LdbcDelete1RemovePerson.class
                         );
                 Set<Class<? extends Operation>> dependencyForumUpdateOperationTypes = Sets.newHashSet();
 
@@ -2518,12 +2518,12 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             return new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
         }
-
-        if (operationTypeName.equals(LdbcDelete1RemovePerson.class.getName())) {
-            long person1Id = ((Number) operationAsList.get(1)).longValue();
-
-            return new LdbcDelete1RemovePerson(person1Id);
-        }
+//
+//        if (operationTypeName.equals(LdbcDelete1RemovePerson.class.getName())) {
+//            long person1Id = ((Number) operationAsList.get(1)).longValue();
+//
+//            return new LdbcDelete1RemovePerson(person1Id);
+//        }
 
         throw new SerializingMarshallingException(
                 format(
