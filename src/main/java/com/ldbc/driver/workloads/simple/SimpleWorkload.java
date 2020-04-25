@@ -42,7 +42,8 @@ public class SimpleWorkload extends Workload {
 
     @Override
     public Set<String> getEnabledOps() {
-        return null;
+//        return new HashSet<>();
+    return null;
     }
 
     @Override

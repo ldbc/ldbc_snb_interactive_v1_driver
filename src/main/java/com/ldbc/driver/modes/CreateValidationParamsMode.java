@@ -111,7 +111,7 @@ public class CreateValidationParamsMode extends DriverMode {
                     .getCountPerOpType();
 
             // TODO: get number of enabled operation type from workload
-            int numEnabledOps = w.getEnabledOps().size();
+            int numEnabledOps = 0;//w.getEnabledOps().size();
 
             // TODO: get from config parameter
             boolean performSerializationMarshallingChecks = true;
