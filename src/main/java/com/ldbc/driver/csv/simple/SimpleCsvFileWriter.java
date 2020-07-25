@@ -40,6 +40,7 @@ public class SimpleCsvFileWriter implements Closeable
         }
         bufferedWriter.write( columns[columns.length - 1] );
         bufferedWriter.newLine();
+        bufferedWriter.flush();
     }
 
     @Override
