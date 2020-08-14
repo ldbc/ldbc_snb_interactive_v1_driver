@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/ldbc/ldbc_snb_driver.svg?branch=dev)](https://travis-ci.org/ldbc/ldbc_snb_driver)
 
+:scroll: If you wish to cite the LDBC SNB, please refer to the [documentation repository](https://github.com/ldbc/ldbc_snb_docs#how-to-cite-ldbc-benchmarks).
+
 This driver is being developed as part of the Linked Data Benchmark Council EU-funded research project and will be used to run the benchmark workloads developed and released by LDBC:
 
 * [LDBC Project Website](http://ldbcouncil.org/)
