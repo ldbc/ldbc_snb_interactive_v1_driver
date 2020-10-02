@@ -17,7 +17,6 @@ import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery22InternationalDialog
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery23HolidayDestinationsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopicResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery25WeightedPathsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTagsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3TagEvolutionResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery4PopularCountryTopicsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery5TopCountryPostersResult;
@@ -51,26 +50,6 @@ public class DummyLdbcSnbBiOperationResultSets
                 DummyLdbcSnbBiOperationResultInstances.read1Result(),
                 DummyLdbcSnbBiOperationResultInstances.read1Result(),
                 DummyLdbcSnbBiOperationResultInstances.read1Result()
-        );
-    }
-
-    public static List<LdbcSnbBiQuery2TopTagsResult> read2Results()
-    {
-        return Lists.newArrayList(
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result(),
-                DummyLdbcSnbBiOperationResultInstances.read2Result()
         );
     }
 

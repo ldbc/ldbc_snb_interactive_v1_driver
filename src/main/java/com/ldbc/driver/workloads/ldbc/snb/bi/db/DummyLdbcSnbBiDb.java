@@ -40,8 +40,6 @@ import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopic;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopicResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery25WeightedPaths;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery25WeightedPathsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTags;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTagsResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3TagEvolution;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3TagEvolutionResult;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery4PopularCountryTopics;
@@ -184,7 +182,6 @@ public class DummyLdbcSnbBiDb extends Db
 
         // Long Reads
         registerOperationHandler( LdbcSnbBiQuery1PostingSummary.class, LdbcQuery1Handler.class );
-        registerOperationHandler( LdbcSnbBiQuery2TopTags.class, LdbcQuery2Handler.class );
         registerOperationHandler( LdbcSnbBiQuery3TagEvolution.class, LdbcQuery3Handler.class );
         registerOperationHandler( LdbcSnbBiQuery4PopularCountryTopics.class, LdbcQuery4Handler.class );
         registerOperationHandler( LdbcSnbBiQuery5TopCountryPosters.class, LdbcQuery5Handler.class );
@@ -243,20 +240,6 @@ public class DummyLdbcSnbBiDb extends Db
         {
             sleep( sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_1_RESULTS, operation );
-        }
-    }
-
-    private static final List<LdbcSnbBiQuery2TopTagsResult> LDBC_QUERY_2_RESULTS = DummyLdbcSnbBiOperationResultSets
-            .read2Results();
-
-    public static class LdbcQuery2Handler implements OperationHandler<LdbcSnbBiQuery2TopTags,DummyDbConnectionState>
-    {
-        @Override
-        public void executeOperation( LdbcSnbBiQuery2TopTags operation, DummyDbConnectionState dbConnectionState,
-                ResultReporter resultReporter ) throws DbException
-        {
-            sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_2_RESULTS, operation );
         }
     }
 

@@ -75,62 +75,6 @@ public class BiOperationResultEqualityTest
     }
 
     @Test
-    public void ldbcQuery2ResultShouldDoEqualsCorrectly()
-    {
-        String countryName1 = "\u3055";
-        int messageMonth1 = 1;
-        String personGender1 = "personGender1";
-        int ageGroup1 = 2;
-        String tagName1 = "\u4e35";
-        int messageCount1 = 3;
-
-        String countryName2 = "\u16a0";
-        int messageMonth2 = 4;
-        String personGender2 = "personGender2";
-        int ageGroup2 = 5;
-        String tagName2 = "tag";
-        int messageCount2 = 6;
-
-        LdbcSnbBiQuery2TopTagsResult result1a = new LdbcSnbBiQuery2TopTagsResult(
-                countryName1,
-                messageMonth1,
-                personGender1,
-                ageGroup1,
-                tagName1,
-                messageCount1
-        );
-        LdbcSnbBiQuery2TopTagsResult result1b = new LdbcSnbBiQuery2TopTagsResult(
-                countryName1,
-                messageMonth1,
-                personGender1,
-                ageGroup1,
-                tagName1,
-                messageCount1
-        );
-        LdbcSnbBiQuery2TopTagsResult result2a = new LdbcSnbBiQuery2TopTagsResult(
-                countryName2,
-                messageMonth2,
-                personGender2,
-                ageGroup2,
-                tagName2,
-                messageCount2
-        );
-        LdbcSnbBiQuery2TopTagsResult result3a = new LdbcSnbBiQuery2TopTagsResult(
-                countryName2,
-                messageMonth2,
-                personGender2,
-                ageGroup2,
-                tagName2,
-                messageCount1
-        );
-
-        assertThat( result1a, equalTo( result1b ) );
-        assertThat( result1a, not( equalTo( result2a ) ) );
-        assertThat( result1a, not( equalTo( result3a ) ) );
-        assertThat( result2a, not( equalTo( result3a ) ) );
-    }
-
-    @Test
     public void ldbcQuery3ResultShouldDoEqualsCorrectly()
     {
         String tagName1 = "\u3055";

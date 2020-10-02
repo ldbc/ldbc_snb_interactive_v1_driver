@@ -30,55 +30,6 @@ public class BiOperationEqualityTest
     }
 
     @Test
-    public void ldbcQuery2ShouldDoEqualsCorrectly()
-    {
-        // Given
-        long startDate1 = 1;
-        long endDate1 = 1;
-        String country11 = "a";
-        String country21 = "b";
-        int limit1 = 1;
-
-        long startDate2 = 2;
-        long endDate2 = 2;
-        String country12 = "a";
-        String country22 = "c";
-        int limit2 = 2;
-
-        // When
-        LdbcSnbBiQuery2TopTags query1a = new LdbcSnbBiQuery2TopTags(
-                startDate1,
-                endDate1,
-                country11,
-                country21,
-                limit1 );
-        LdbcSnbBiQuery2TopTags query1b = new LdbcSnbBiQuery2TopTags(
-                startDate1,
-                endDate1,
-                country11,
-                country21,
-                limit1 );
-        LdbcSnbBiQuery2TopTags query2a = new LdbcSnbBiQuery2TopTags(
-                startDate2,
-                endDate2,
-                country12,
-                country22,
-                limit2 );
-        LdbcSnbBiQuery2TopTags query3a = new LdbcSnbBiQuery2TopTags(
-                startDate1,
-                endDate2,
-                country11,
-                country22,
-                limit2 );
-
-        // Then
-        assertThat( query1a, equalTo( query1b ) );
-        assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
-    }
-
-    @Test
     public void ldbcQuery3ShouldDoEqualsCorrectly()
     {
         // Given

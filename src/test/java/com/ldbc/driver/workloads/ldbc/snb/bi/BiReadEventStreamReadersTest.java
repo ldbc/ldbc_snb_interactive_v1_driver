@@ -55,53 +55,6 @@ public class BiReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery2Events() throws IOException, ParseException, WorkloadException
-    {
-        // Given
-        String data = BiReadEventStreamReadersTestData.QUERY_2_CSV_ROWS();
-        System.out.println( data + "\n" );
-        BiQuery2EventStreamReader reader = new BiQuery2EventStreamReader(
-                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
-                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
-                GENERATOR_FACTORY
-        );
-
-        // When
-
-        // Then
-        LdbcSnbBiQuery2TopTags operation;
-
-        operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.startDate(), is( 1441351591755l ) );
-        assertThat( operation.endDate(), is( 1441351591755l ) );
-        assertThat( operation.country1(), is( "countryA" ) );
-        assertThat( operation.country2(), is( "countryB" ) );
-        OperationTest.assertCorrectParameterMap(operation);
-
-        operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.startDate(), is( 1441351591755l ) );
-        assertThat( operation.endDate(), is( 1441351591755l ) );
-        assertThat( operation.country1(), is( "countryA" ) );
-        assertThat( operation.country2(), is( "countryC" ) );
-
-        operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.startDate(), is( 1441351591755l ) );
-        assertThat( operation.endDate(), is( 1441351591756l ) );
-        assertThat( operation.country1(), is( "countryB" ) );
-        assertThat( operation.country2(), is( "countryD" ) );
-
-        // loops back around to first
-
-        operation = (LdbcSnbBiQuery2TopTags) reader.next();
-        assertThat( operation.startDate(), is( 1441351591755l ) );
-        assertThat( operation.endDate(), is( 1441351591755l ) );
-        assertThat( operation.country1(), is( "countryA" ) );
-        assertThat( operation.country2(), is( "countryB" ) );
-
-        assertTrue( reader.hasNext() );
-    }
-
-    @Test
     public void shouldParseAllQuery3Events() throws IOException, ParseException, WorkloadException
     {
         // Given

@@ -18,7 +18,6 @@ import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery22InternationalDialog
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery23HolidayDestinations;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopic;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery25WeightedPaths;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTags;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3TagEvolution;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery4PopularCountryTopics;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery5TopCountryPosters;
@@ -37,11 +36,6 @@ public class DummyLdbcSnbBiOperationInstances
     public static LdbcSnbBiQuery1PostingSummary read1()
     {
         return new LdbcSnbBiQuery1PostingSummary( 1 );
-    }
-
-    public static LdbcSnbBiQuery2TopTags read2()
-    {
-        return new LdbcSnbBiQuery2TopTags( 1, 2, "A", "B", 10 );
     }
 
     public static LdbcSnbBiQuery3TagEvolution read3()
