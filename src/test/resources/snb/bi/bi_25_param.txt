@@ -1,2 +1,0 @@
-person1Id|person2Id|startDate|endDate
-1|2|1|2

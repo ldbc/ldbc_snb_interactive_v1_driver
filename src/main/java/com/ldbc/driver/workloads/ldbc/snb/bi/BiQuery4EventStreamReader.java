@@ -8,7 +8,6 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
-import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
@@ -27,10 +26,9 @@ public class BiQuery4EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery4PopularCountryTopics(
+        return new LdbcSnbBiQuery4TopCountryPosters(
                 (String) parameters[0],
-                (String) parameters[1],
-                (int) parameters[2]
+                (int) parameters[1]
         );
     }
 
@@ -44,17 +42,6 @@ public class BiQuery4EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String tagClass;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    tagClass = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    // if first column of next row contains nothing it means the file is finished
-                    return null;
-                }
-
                 String country;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
@@ -62,10 +49,14 @@ public class BiQuery4EventStreamReader extends BaseEventStreamReader
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country name" );
+                    // if first column of next row contains nothing it means the file is finished
+                    return null;
                 }
 
-                return new Object[]{tagClass, country, LdbcSnbBiQuery4PopularCountryTopics.DEFAULT_LIMIT};
+                return new Object[]{
+                        country,
+                        LdbcSnbBiQuery4TopCountryPosters.DEFAULT_LIMIT
+                };
             }
         };
     }
@@ -73,6 +64,6 @@ public class BiQuery4EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 1;
     }
 }

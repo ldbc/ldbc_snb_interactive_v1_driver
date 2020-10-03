@@ -55,6 +55,41 @@ public class BiReadEventStreamReadersTest
     }
 
     @Test
+    public void shouldParseAllQuery2Events() throws IOException, ParseException, WorkloadException
+    {
+        // Given
+        String data = BiReadEventStreamReadersTestData.QUERY_2_CSV_ROWS();
+        System.out.println( data + "\n" );
+        BiQuery2EventStreamReader reader = new BiQuery2EventStreamReader(
+                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
+                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
+                GENERATOR_FACTORY
+        );
+
+        // When
+
+        // Then
+        LdbcSnbBiQuery2TagEvolution operation;
+
+        operation = (LdbcSnbBiQuery2TagEvolution) reader.next();
+        assertThat( operation.year(), is( 1 ) );
+        assertThat( operation.month(), is( 2 ) );
+        OperationTest.assertCorrectParameterMap(operation);
+
+        operation = (LdbcSnbBiQuery2TagEvolution) reader.next();
+        assertThat( operation.year(), is( 3 ) );
+        assertThat( operation.month(), is( 4 ) );
+
+        // loops back around to first
+
+        operation = (LdbcSnbBiQuery2TagEvolution) reader.next();
+        assertThat( operation.year(), is( 1 ) );
+        assertThat( operation.month(), is( 2 ) );
+
+        assertTrue( reader.hasNext() );
+    }
+
+    @Test
     public void shouldParseAllQuery3Events() throws IOException, ParseException, WorkloadException
     {
         // Given
@@ -69,22 +104,30 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery3TagEvolution operation;
+        LdbcSnbBiQuery3PopularCountryTopics operation;
 
-        operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
-        assertThat( operation.year(), is( 1 ) );
-        assertThat( operation.month(), is( 2 ) );
+        operation = (LdbcSnbBiQuery3PopularCountryTopics) reader.next();
+        assertThat( operation.tagClass(), is( "Writer" ) );
+        assertThat( operation.country(), is( "Cameroon" ) );
         OperationTest.assertCorrectParameterMap(operation);
 
-        operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
-        assertThat( operation.year(), is( 3 ) );
-        assertThat( operation.month(), is( 4 ) );
+        operation = (LdbcSnbBiQuery3PopularCountryTopics) reader.next();
+        assertThat( operation.tagClass(), is( "Writer" ) );
+        assertThat( operation.country(), is( "Colombia" ) );
+
+        operation = (LdbcSnbBiQuery3PopularCountryTopics) reader.next();
+        assertThat( operation.tagClass(), is( "Writer" ) );
+        assertThat( operation.country(), is( "Niger" ) );
+
+        operation = (LdbcSnbBiQuery3PopularCountryTopics) reader.next();
+        assertThat( operation.tagClass(), is( "Writer" ) );
+        assertThat( operation.country(), is( "Sweden" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery3TagEvolution) reader.next();
-        assertThat( operation.year(), is( 1 ) );
-        assertThat( operation.month(), is( 2 ) );
+        operation = (LdbcSnbBiQuery3PopularCountryTopics) reader.next();
+        assertThat( operation.tagClass(), is( "Writer" ) );
+        assertThat( operation.country(), is( "Cameroon" ) );
 
         assertTrue( reader.hasNext() );
     }
@@ -104,30 +147,25 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery4PopularCountryTopics operation;
+        LdbcSnbBiQuery4TopCountryPosters operation;
 
-        operation = (LdbcSnbBiQuery4PopularCountryTopics) reader.next();
-        assertThat( operation.tagClass(), is( "Writer" ) );
-        assertThat( operation.country(), is( "Cameroon" ) );
+        operation = (LdbcSnbBiQuery4TopCountryPosters) reader.next();
+        assertThat( operation.country(), is( "Kenya" ) );
         OperationTest.assertCorrectParameterMap(operation);
 
-        operation = (LdbcSnbBiQuery4PopularCountryTopics) reader.next();
-        assertThat( operation.tagClass(), is( "Writer" ) );
-        assertThat( operation.country(), is( "Colombia" ) );
+        operation = (LdbcSnbBiQuery4TopCountryPosters) reader.next();
+        assertThat( operation.country(), is( "Peru" ) );
 
-        operation = (LdbcSnbBiQuery4PopularCountryTopics) reader.next();
-        assertThat( operation.tagClass(), is( "Writer" ) );
-        assertThat( operation.country(), is( "Niger" ) );
+        operation = (LdbcSnbBiQuery4TopCountryPosters) reader.next();
+        assertThat( operation.country(), is( "Tunisia" ) );
 
-        operation = (LdbcSnbBiQuery4PopularCountryTopics) reader.next();
-        assertThat( operation.tagClass(), is( "Writer" ) );
-        assertThat( operation.country(), is( "Sweden" ) );
+        operation = (LdbcSnbBiQuery4TopCountryPosters) reader.next();
+        assertThat( operation.country(), is( "Venezuela" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery4PopularCountryTopics) reader.next();
-        assertThat( operation.tagClass(), is( "Writer" ) );
-        assertThat( operation.country(), is( "Cameroon" ) );
+        operation = (LdbcSnbBiQuery4TopCountryPosters) reader.next();
+        assertThat( operation.country(), is( "Kenya" ) );
 
         assertTrue( reader.hasNext() );
     }
@@ -147,25 +185,25 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery5TopCountryPosters operation;
+        LdbcSnbBiQuery5ActivePosters operation;
 
-        operation = (LdbcSnbBiQuery5TopCountryPosters) reader.next();
-        assertThat( operation.country(), is( "Kenya" ) );
+        operation = (LdbcSnbBiQuery5ActivePosters) reader.next();
+        assertThat( operation.tag(), is( "Justin_Timberlake" ) );
         OperationTest.assertCorrectParameterMap(operation);
 
-        operation = (LdbcSnbBiQuery5TopCountryPosters) reader.next();
-        assertThat( operation.country(), is( "Peru" ) );
+        operation = (LdbcSnbBiQuery5ActivePosters) reader.next();
+        assertThat( operation.tag(), is( "Josip_Broz_Tito" ) );
 
-        operation = (LdbcSnbBiQuery5TopCountryPosters) reader.next();
-        assertThat( operation.country(), is( "Tunisia" ) );
+        operation = (LdbcSnbBiQuery5ActivePosters) reader.next();
+        assertThat( operation.tag(), is( "Barry_Manilow" ) );
 
-        operation = (LdbcSnbBiQuery5TopCountryPosters) reader.next();
-        assertThat( operation.country(), is( "Venezuela" ) );
+        operation = (LdbcSnbBiQuery5ActivePosters) reader.next();
+        assertThat( operation.tag(), is( "Charles_Darwin" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery5TopCountryPosters) reader.next();
-        assertThat( operation.country(), is( "Kenya" ) );
+        operation = (LdbcSnbBiQuery5ActivePosters) reader.next();
+        assertThat( operation.tag(), is( "Justin_Timberlake" ) );
 
         assertTrue( reader.hasNext() );
     }
@@ -185,25 +223,25 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery6ActivePosters operation;
+        LdbcSnbBiQuery6AuthoritativeUsers operation;
 
-        operation = (LdbcSnbBiQuery6ActivePosters) reader.next();
-        assertThat( operation.tag(), is( "Justin_Timberlake" ) );
+        operation = (LdbcSnbBiQuery6AuthoritativeUsers) reader.next();
+        assertThat( operation.tag(), is( "Franz_Schubert" ) );
         OperationTest.assertCorrectParameterMap(operation);
 
-        operation = (LdbcSnbBiQuery6ActivePosters) reader.next();
-        assertThat( operation.tag(), is( "Josip_Broz_Tito" ) );
+        operation = (LdbcSnbBiQuery6AuthoritativeUsers) reader.next();
+        assertThat( operation.tag(), is( "Bill_Clinton" ) );
 
-        operation = (LdbcSnbBiQuery6ActivePosters) reader.next();
-        assertThat( operation.tag(), is( "Barry_Manilow" ) );
+        operation = (LdbcSnbBiQuery6AuthoritativeUsers) reader.next();
+        assertThat( operation.tag(), is( "Dante_Alighieri" ) );
 
-        operation = (LdbcSnbBiQuery6ActivePosters) reader.next();
-        assertThat( operation.tag(), is( "Charles_Darwin" ) );
+        operation = (LdbcSnbBiQuery6AuthoritativeUsers) reader.next();
+        assertThat( operation.tag(), is( "Khalid_Sheikh_Mohammed" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery6ActivePosters) reader.next();
-        assertThat( operation.tag(), is( "Justin_Timberlake" ) );
+        operation = (LdbcSnbBiQuery6AuthoritativeUsers) reader.next();
+        assertThat( operation.tag(), is( "Franz_Schubert" ) );
 
         assertTrue( reader.hasNext() );
     }
@@ -223,25 +261,25 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery7AuthoritativeUsers operation;
+        LdbcSnbBiQuery7RelatedTopics operation;
 
-        operation = (LdbcSnbBiQuery7AuthoritativeUsers) reader.next();
-        assertThat( operation.tag(), is( "Franz_Schubert" ) );
+        operation = (LdbcSnbBiQuery7RelatedTopics) reader.next();
+        assertThat( operation.tag(), is( "Alanis_Morissette" ) );
         OperationTest.assertCorrectParameterMap(operation);
 
-        operation = (LdbcSnbBiQuery7AuthoritativeUsers) reader.next();
-        assertThat( operation.tag(), is( "Bill_Clinton" ) );
+        operation = (LdbcSnbBiQuery7RelatedTopics) reader.next();
+        assertThat( operation.tag(), is( "\u00c9amon_de_Valera" ) );
 
-        operation = (LdbcSnbBiQuery7AuthoritativeUsers) reader.next();
-        assertThat( operation.tag(), is( "Dante_Alighieri" ) );
+        operation = (LdbcSnbBiQuery7RelatedTopics) reader.next();
+        assertThat( operation.tag(), is( "Juhi_Chawla" ) );
 
-        operation = (LdbcSnbBiQuery7AuthoritativeUsers) reader.next();
-        assertThat( operation.tag(), is( "Khalid_Sheikh_Mohammed" ) );
+        operation = (LdbcSnbBiQuery7RelatedTopics) reader.next();
+        assertThat( operation.tag(), is( "Manuel_Noriega" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery7AuthoritativeUsers) reader.next();
-        assertThat( operation.tag(), is( "Franz_Schubert" ) );
+        operation = (LdbcSnbBiQuery7RelatedTopics) reader.next();
+        assertThat( operation.tag(), is( "Alanis_Morissette" ) );
 
         assertTrue( reader.hasNext() );
     }
@@ -261,25 +299,60 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery8RelatedTopics operation;
+        LdbcSnbBiQuery8TagPerson operation;
 
-        operation = (LdbcSnbBiQuery8RelatedTopics) reader.next();
-        assertThat( operation.tag(), is( "Alanis_Morissette" ) );
+        operation = (LdbcSnbBiQuery8TagPerson) reader.next();
+        assertThat( operation.tag(), is( "Franz_Schubert" ) );
         OperationTest.assertCorrectParameterMap(operation);
 
-        operation = (LdbcSnbBiQuery8RelatedTopics) reader.next();
-        assertThat( operation.tag(), is( "\u00c9amon_de_Valera" ) );
+        operation = (LdbcSnbBiQuery8TagPerson) reader.next();
+        assertThat( operation.tag(), is( "Bill_Clinton" ) );
 
-        operation = (LdbcSnbBiQuery8RelatedTopics) reader.next();
-        assertThat( operation.tag(), is( "Juhi_Chawla" ) );
+        operation = (LdbcSnbBiQuery8TagPerson) reader.next();
+        assertThat( operation.tag(), is( "Dante_Alighieri" ) );
 
-        operation = (LdbcSnbBiQuery8RelatedTopics) reader.next();
-        assertThat( operation.tag(), is( "Manuel_Noriega" ) );
+        operation = (LdbcSnbBiQuery8TagPerson) reader.next();
+        assertThat( operation.tag(), is( "Khalid_Sheikh_Mohammed" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery8RelatedTopics) reader.next();
-        assertThat( operation.tag(), is( "Alanis_Morissette" ) );
+        operation = (LdbcSnbBiQuery8TagPerson) reader.next();
+        assertThat( operation.tag(), is( "Franz_Schubert" ) );
+
+        assertTrue( reader.hasNext() );
+    }
+
+    @Test
+    public void shouldParseAllQuery9Events() throws IOException, ParseException, WorkloadException
+    {
+        // Given
+        String data = BiReadEventStreamReadersTestData.QUERY_9_CSV_ROWS();
+        System.out.println( data + "\n" );
+        BiQuery9EventStreamReader reader = new BiQuery9EventStreamReader(
+                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
+                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
+                GENERATOR_FACTORY
+        );
+
+        // When
+
+        // Then
+        LdbcSnbBiQuery9TopThreadInitiators operation;
+
+        operation = (LdbcSnbBiQuery9TopThreadInitiators) reader.next();
+        assertThat( operation.startDate(), is( 1441351591755l ) );
+        assertThat( operation.endDate(), is( 1441351591756l ) );
+        OperationTest.assertCorrectParameterMap(operation);
+
+        operation = (LdbcSnbBiQuery9TopThreadInitiators) reader.next();
+        assertThat( operation.startDate(), is( 1441351591756l ) );
+        assertThat( operation.endDate(), is( 1441351591757l ) );
+
+        // loops back around to first
+
+        operation = (LdbcSnbBiQuery9TopThreadInitiators) reader.next();
+        assertThat( operation.startDate(), is( 1441351591755l ) );
+        assertThat( operation.endDate(), is( 1441351591756l ) );
 
         assertTrue( reader.hasNext() );
     }
@@ -299,25 +372,148 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery10TagPerson operation;
+        LdbcSnbBiQuery10ExpertsInSocialCircle operation;
 
-        operation = (LdbcSnbBiQuery10TagPerson) reader.next();
-        assertThat( operation.tag(), is( "Franz_Schubert" ) );
+        operation = (LdbcSnbBiQuery10ExpertsInSocialCircle) reader.next();
+        assertThat( operation.personId(), is( 1l ) );
+        assertThat( operation.country(), is( "Cameroon" ) );
+        assertThat( operation.tagClass(), is( "Writer" ) );
         OperationTest.assertCorrectParameterMap(operation);
 
-        operation = (LdbcSnbBiQuery10TagPerson) reader.next();
-        assertThat( operation.tag(), is( "Bill_Clinton" ) );
+        operation = (LdbcSnbBiQuery10ExpertsInSocialCircle) reader.next();
+        assertThat( operation.personId(), is( 2l ) );
+        assertThat( operation.country(), is( "Colombia" ) );
+        assertThat( operation.tagClass(), is( "Writer" ) );
 
-        operation = (LdbcSnbBiQuery10TagPerson) reader.next();
-        assertThat( operation.tag(), is( "Dante_Alighieri" ) );
+        operation = (LdbcSnbBiQuery10ExpertsInSocialCircle) reader.next();
+        assertThat( operation.personId(), is( 3l ) );
+        assertThat( operation.country(), is( "Niger" ) );
+        assertThat( operation.tagClass(), is( "Writer" ) );
 
-        operation = (LdbcSnbBiQuery10TagPerson) reader.next();
-        assertThat( operation.tag(), is( "Khalid_Sheikh_Mohammed" ) );
+        operation = (LdbcSnbBiQuery10ExpertsInSocialCircle) reader.next();
+        assertThat( operation.personId(), is( 4l ) );
+        assertThat( operation.country(), is( "Sweden" ) );
+        assertThat( operation.tagClass(), is( "Writer" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery10TagPerson) reader.next();
-        assertThat( operation.tag(), is( "Franz_Schubert" ) );
+        operation = (LdbcSnbBiQuery10ExpertsInSocialCircle) reader.next();
+        assertThat( operation.personId(), is( 1l ) );
+        assertThat( operation.country(), is( "Cameroon" ) );
+        assertThat( operation.tagClass(), is( "Writer" ) );
+
+        assertTrue( reader.hasNext() );
+    }
+
+    @Test
+    public void shouldParseAllQuery11Events() throws IOException, ParseException, WorkloadException
+    {
+        // Given
+        String data = BiReadEventStreamReadersTestData.QUERY_11_CSV_ROWS();
+        System.out.println( data + "\n" );
+        BiQuery11EventStreamReader reader = new BiQuery11EventStreamReader(
+                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
+                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
+                GENERATOR_FACTORY
+        );
+
+        // When
+
+        // Then
+        LdbcSnbBiQuery11FriendshipTriangles operation;
+
+        operation = (LdbcSnbBiQuery11FriendshipTriangles) reader.next();
+        assertThat( operation.country(), is( "Kenya" ) );
+        OperationTest.assertCorrectParameterMap(operation);
+
+        operation = (LdbcSnbBiQuery11FriendshipTriangles) reader.next();
+        assertThat( operation.country(), is( "Peru" ) );
+
+        operation = (LdbcSnbBiQuery11FriendshipTriangles) reader.next();
+        assertThat( operation.country(), is( "Tunisia" ) );
+
+        operation = (LdbcSnbBiQuery11FriendshipTriangles) reader.next();
+        assertThat( operation.country(), is( "Venezuela" ) );
+
+        // loops back around to first
+
+        operation = (LdbcSnbBiQuery11FriendshipTriangles) reader.next();
+        assertThat( operation.country(), is( "Kenya" ) );
+
+        assertTrue( reader.hasNext() );
+    }
+
+    @Test
+    public void shouldParseAllQuery12Events() throws IOException, ParseException, WorkloadException
+    {
+        // Given
+        String data = BiReadEventStreamReadersTestData.QUERY_12_CSV_ROWS();
+        System.out.println( data + "\n" );
+        BiQuery12EventStreamReader reader = new BiQuery12EventStreamReader(
+                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
+                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
+                GENERATOR_FACTORY
+        );
+
+        // When
+
+        // Then
+        LdbcSnbBiQuery12PersonPostCounts operation;
+
+        operation = (LdbcSnbBiQuery12PersonPostCounts) reader.next();
+        assertThat( operation.date(), is( 1441351591755l ) );
+        OperationTest.assertCorrectParameterMap(operation);
+
+        operation = (LdbcSnbBiQuery12PersonPostCounts) reader.next();
+        assertThat( operation.date(), is( 1441351591756l ) );
+
+        // loops back around to first
+
+        operation = (LdbcSnbBiQuery12PersonPostCounts) reader.next();
+        assertThat( operation.date(), is( 1441351591755l ) );
+
+        assertTrue( reader.hasNext() );
+    }
+
+    @Test
+    public void shouldParseAllQuery13Events() throws IOException, ParseException, WorkloadException
+    {
+        // Given
+        String data = BiReadEventStreamReadersTestData.QUERY_13_CSV_ROWS();
+        System.out.println( data + "\n" );
+        BiQuery13EventStreamReader reader = new BiQuery13EventStreamReader(
+                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
+                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
+                GENERATOR_FACTORY
+        );
+
+        // When
+
+        // Then
+        LdbcSnbBiQuery13Zombies operation;
+
+        operation = (LdbcSnbBiQuery13Zombies) reader.next();
+        assertThat( operation.country(), is( "Kenya" ) );
+        assertThat( operation.endDate(), is( 1l ) );
+        OperationTest.assertCorrectParameterMap(operation);
+
+        operation = (LdbcSnbBiQuery13Zombies) reader.next();
+        assertThat( operation.country(), is( "Peru" ) );
+        assertThat( operation.endDate(), is( 2l ) );
+
+        operation = (LdbcSnbBiQuery13Zombies) reader.next();
+        assertThat( operation.country(), is( "Tunisia" ) );
+        assertThat( operation.endDate(), is( 3l ) );
+
+        operation = (LdbcSnbBiQuery13Zombies) reader.next();
+        assertThat( operation.country(), is( "Venezuela" ) );
+        assertThat( operation.endDate(), is( 4l ) );
+
+        // loops back around to first
+
+        operation = (LdbcSnbBiQuery13Zombies) reader.next();
+        assertThat( operation.country(), is( "Kenya" ) );
+        assertThat( operation.endDate(), is( 1l ) );
 
         assertTrue( reader.hasNext() );
     }
@@ -337,224 +533,28 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery14TopThreadInitiators operation;
+        LdbcSnbBiQuery14InternationalDialog operation;
 
-        operation = (LdbcSnbBiQuery14TopThreadInitiators) reader.next();
-        assertThat( operation.startDate(), is( 1441351591755l ) );
-        assertThat( operation.endDate(), is( 1441351591756l ) );
-        OperationTest.assertCorrectParameterMap(operation);
-
-        operation = (LdbcSnbBiQuery14TopThreadInitiators) reader.next();
-        assertThat( operation.startDate(), is( 1441351591756l ) );
-        assertThat( operation.endDate(), is( 1441351591757l ) );
-
-        // loops back around to first
-
-        operation = (LdbcSnbBiQuery14TopThreadInitiators) reader.next();
-        assertThat( operation.startDate(), is( 1441351591755l ) );
-        assertThat( operation.endDate(), is( 1441351591756l ) );
-
-        assertTrue( reader.hasNext() );
-    }
-
-    @Test
-    public void shouldParseAllQuery16Events() throws IOException, ParseException, WorkloadException
-    {
-        // Given
-        String data = BiReadEventStreamReadersTestData.QUERY_16_CSV_ROWS();
-        System.out.println( data + "\n" );
-        BiQuery16EventStreamReader reader = new BiQuery16EventStreamReader(
-                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
-                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
-                GENERATOR_FACTORY
-        );
-
-        // When
-
-        // Then
-        LdbcSnbBiQuery16ExpertsInSocialCircle operation;
-
-        operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
-        assertThat( operation.personId(), is( 1l ) );
-        assertThat( operation.country(), is( "Cameroon" ) );
-        assertThat( operation.tagClass(), is( "Writer" ) );
-        OperationTest.assertCorrectParameterMap(operation);
-
-        operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
-        assertThat( operation.personId(), is( 2l ) );
-        assertThat( operation.country(), is( "Colombia" ) );
-        assertThat( operation.tagClass(), is( "Writer" ) );
-
-        operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
-        assertThat( operation.personId(), is( 3l ) );
-        assertThat( operation.country(), is( "Niger" ) );
-        assertThat( operation.tagClass(), is( "Writer" ) );
-
-        operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
-        assertThat( operation.personId(), is( 4l ) );
-        assertThat( operation.country(), is( "Sweden" ) );
-        assertThat( operation.tagClass(), is( "Writer" ) );
-
-        // loops back around to first
-
-        operation = (LdbcSnbBiQuery16ExpertsInSocialCircle) reader.next();
-        assertThat( operation.personId(), is( 1l ) );
-        assertThat( operation.country(), is( "Cameroon" ) );
-        assertThat( operation.tagClass(), is( "Writer" ) );
-
-        assertTrue( reader.hasNext() );
-    }
-
-    @Test
-    public void shouldParseAllQuery17Events() throws IOException, ParseException, WorkloadException
-    {
-        // Given
-        String data = BiReadEventStreamReadersTestData.QUERY_17_CSV_ROWS();
-        System.out.println( data + "\n" );
-        BiQuery17EventStreamReader reader = new BiQuery17EventStreamReader(
-                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
-                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
-                GENERATOR_FACTORY
-        );
-
-        // When
-
-        // Then
-        LdbcSnbBiQuery17FriendshipTriangles operation;
-
-        operation = (LdbcSnbBiQuery17FriendshipTriangles) reader.next();
-        assertThat( operation.country(), is( "Kenya" ) );
-        OperationTest.assertCorrectParameterMap(operation);
-
-        operation = (LdbcSnbBiQuery17FriendshipTriangles) reader.next();
-        assertThat( operation.country(), is( "Peru" ) );
-
-        operation = (LdbcSnbBiQuery17FriendshipTriangles) reader.next();
-        assertThat( operation.country(), is( "Tunisia" ) );
-
-        operation = (LdbcSnbBiQuery17FriendshipTriangles) reader.next();
-        assertThat( operation.country(), is( "Venezuela" ) );
-
-        // loops back around to first
-
-        operation = (LdbcSnbBiQuery17FriendshipTriangles) reader.next();
-        assertThat( operation.country(), is( "Kenya" ) );
-
-        assertTrue( reader.hasNext() );
-    }
-
-    @Test
-    public void shouldParseAllQuery18Events() throws IOException, ParseException, WorkloadException
-    {
-        // Given
-        String data = BiReadEventStreamReadersTestData.QUERY_18_CSV_ROWS();
-        System.out.println( data + "\n" );
-        BiQuery18EventStreamReader reader = new BiQuery18EventStreamReader(
-                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
-                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
-                GENERATOR_FACTORY
-        );
-
-        // When
-
-        // Then
-        LdbcSnbBiQuery18PersonPostCounts operation;
-
-        operation = (LdbcSnbBiQuery18PersonPostCounts) reader.next();
-        assertThat( operation.date(), is( 1441351591755l ) );
-        OperationTest.assertCorrectParameterMap(operation);
-
-        operation = (LdbcSnbBiQuery18PersonPostCounts) reader.next();
-        assertThat( operation.date(), is( 1441351591756l ) );
-
-        // loops back around to first
-
-        operation = (LdbcSnbBiQuery18PersonPostCounts) reader.next();
-        assertThat( operation.date(), is( 1441351591755l ) );
-
-        assertTrue( reader.hasNext() );
-    }
-
-    @Test
-    public void shouldParseAllQuery21Events() throws IOException, ParseException, WorkloadException
-    {
-        // Given
-        String data = BiReadEventStreamReadersTestData.QUERY_21_CSV_ROWS();
-        System.out.println( data + "\n" );
-        BiQuery21EventStreamReader reader = new BiQuery21EventStreamReader(
-                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
-                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
-                GENERATOR_FACTORY
-        );
-
-        // When
-
-        // Then
-        LdbcSnbBiQuery21Zombies operation;
-
-        operation = (LdbcSnbBiQuery21Zombies) reader.next();
-        assertThat( operation.country(), is( "Kenya" ) );
-        assertThat( operation.endDate(), is( 1l ) );
-        OperationTest.assertCorrectParameterMap(operation);
-
-        operation = (LdbcSnbBiQuery21Zombies) reader.next();
-        assertThat( operation.country(), is( "Peru" ) );
-        assertThat( operation.endDate(), is( 2l ) );
-
-        operation = (LdbcSnbBiQuery21Zombies) reader.next();
-        assertThat( operation.country(), is( "Tunisia" ) );
-        assertThat( operation.endDate(), is( 3l ) );
-
-        operation = (LdbcSnbBiQuery21Zombies) reader.next();
-        assertThat( operation.country(), is( "Venezuela" ) );
-        assertThat( operation.endDate(), is( 4l ) );
-
-        // loops back around to first
-
-        operation = (LdbcSnbBiQuery21Zombies) reader.next();
-        assertThat( operation.country(), is( "Kenya" ) );
-        assertThat( operation.endDate(), is( 1l ) );
-
-        assertTrue( reader.hasNext() );
-    }
-
-    @Test
-    public void shouldParseAllQuery22Events() throws IOException, ParseException, WorkloadException
-    {
-        // Given
-        String data = BiReadEventStreamReadersTestData.QUERY_22_CSV_ROWS();
-        System.out.println( data + "\n" );
-        BiQuery22EventStreamReader reader = new BiQuery22EventStreamReader(
-                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
-                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
-                GENERATOR_FACTORY
-        );
-
-        // When
-
-        // Then
-        LdbcSnbBiQuery22InternationalDialog operation;
-
-        operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
+        operation = (LdbcSnbBiQuery14InternationalDialog) reader.next();
         assertThat( operation.country1(), is( "Germany" ) );
         assertThat( operation.country2(), is( "Pakistan" ) );
         OperationTest.assertCorrectParameterMap(operation);
 
-        operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
+        operation = (LdbcSnbBiQuery14InternationalDialog) reader.next();
         assertThat( operation.country1(), is( "Germany" ) );
         assertThat( operation.country2(), is( "Russia" ) );
 
-        operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
+        operation = (LdbcSnbBiQuery14InternationalDialog) reader.next();
         assertThat( operation.country1(), is( "Germany" ) );
         assertThat( operation.country2(), is( "Vietnam" ) );
 
-        operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
+        operation = (LdbcSnbBiQuery14InternationalDialog) reader.next();
         assertThat( operation.country1(), is( "Germany" ) );
         assertThat( operation.country2(), is( "Philippines" ) );
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery22InternationalDialog) reader.next();
+        operation = (LdbcSnbBiQuery14InternationalDialog) reader.next();
         assertThat( operation.country1(), is( "Germany" ) );
         assertThat( operation.country2(), is( "Pakistan" ) );
 
@@ -562,12 +562,12 @@ public class BiReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery25Events() throws IOException, ParseException, WorkloadException
+    public void shouldParseAllQuery15Events() throws IOException, ParseException, WorkloadException
     {
         // Given
-        String data = BiReadEventStreamReadersTestData.QUERY_25_CSV_ROWS();
+        String data = BiReadEventStreamReadersTestData.QUERY_15_CSV_ROWS();
         System.out.println( data + "\n" );
-        BiQuery25EventStreamReader reader = new BiQuery25EventStreamReader(
+        BiQuery15EventStreamReader reader = new BiQuery15EventStreamReader(
                 new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
                 LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
                 GENERATOR_FACTORY
@@ -576,16 +576,16 @@ public class BiReadEventStreamReadersTest
         // When
 
         // Then
-        LdbcSnbBiQuery25WeightedPaths operation;
+        LdbcSnbBiQuery15WeightedPaths operation;
 
-        operation = (LdbcSnbBiQuery25WeightedPaths) reader.next();
+        operation = (LdbcSnbBiQuery15WeightedPaths) reader.next();
         assertThat( operation.person1Id(), is( 1L ) );
         assertThat( operation.person2Id(), is( 2L ) );
         assertThat( operation.startDate(), is( 1L ) );
         assertThat( operation.endDate(), is( 2L ) );
         OperationTest.assertCorrectParameterMap(operation);
 
-        operation = (LdbcSnbBiQuery25WeightedPaths) reader.next();
+        operation = (LdbcSnbBiQuery15WeightedPaths) reader.next();
         assertThat( operation.person1Id(), is( 3L ) );
         assertThat( operation.person2Id(), is( 4L ) );
         assertThat( operation.startDate(), is( 3L ) );
@@ -593,7 +593,7 @@ public class BiReadEventStreamReadersTest
 
         // loops back around to first
 
-        operation = (LdbcSnbBiQuery25WeightedPaths) reader.next();
+        operation = (LdbcSnbBiQuery15WeightedPaths) reader.next();
         assertThat( operation.person1Id(), is( 1L ) );
         assertThat( operation.person2Id(), is( 2L ) );
         assertThat( operation.startDate(), is( 1L ) );

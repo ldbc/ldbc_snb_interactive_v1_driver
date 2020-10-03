@@ -8,6 +8,7 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
@@ -26,9 +27,10 @@ public class BiQuery8EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery8RelatedTopics(
+        return new LdbcSnbBiQuery8TagPerson(
                 (String) parameters[0],
-                (int) parameters[1]
+                (long) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -53,7 +55,16 @@ public class BiQuery8EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{tag, LdbcSnbBiQuery8RelatedTopics.DEFAULT_LIMIT};
+                long date;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving date" );
+                }
+                return new Object[]{tag, date, LdbcSnbBiQuery8TagPerson.DEFAULT_LIMIT};
             }
         };
     }
@@ -61,6 +72,6 @@ public class BiQuery8EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 2;
     }
 }
