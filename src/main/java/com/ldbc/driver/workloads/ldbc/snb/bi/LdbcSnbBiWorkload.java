@@ -35,29 +35,19 @@ public class LdbcSnbBiWorkload extends Workload
     // TODO alternatively they could be CloseableStream (or similar) where files and everything are in 1 class
     private List<Closeable> readOperationFileReaders = new ArrayList<>();
     private FileInputStream readOperation1FileInputStream;
-    private FileInputStream readOperation2FileInputStream;
     private FileInputStream readOperation3FileInputStream;
     private FileInputStream readOperation4FileInputStream;
     private FileInputStream readOperation5FileInputStream;
     private FileInputStream readOperation6FileInputStream;
     private FileInputStream readOperation7FileInputStream;
     private FileInputStream readOperation8FileInputStream;
-    private FileInputStream readOperation9FileInputStream;
     private FileInputStream readOperation10FileInputStream;
-    private FileInputStream readOperation11FileInputStream;
-    private FileInputStream readOperation12FileInputStream;
-    private FileInputStream readOperation13FileInputStream;
     private FileInputStream readOperation14FileInputStream;
-    private FileInputStream readOperation15FileInputStream;
     private FileInputStream readOperation16FileInputStream;
     private FileInputStream readOperation17FileInputStream;
     private FileInputStream readOperation18FileInputStream;
-    private FileInputStream readOperation19FileInputStream;
-    private FileInputStream readOperation20FileInputStream;
     private FileInputStream readOperation21FileInputStream;
     private FileInputStream readOperation22FileInputStream;
-    private FileInputStream readOperation23FileInputStream;
-    private FileInputStream readOperation24FileInputStream;
     private FileInputStream readOperation25FileInputStream;
 
     // TODO these things should really all be in an instance of LdbcSnbBiWorkloadConfiguration or ...State
