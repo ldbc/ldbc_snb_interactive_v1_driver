@@ -251,7 +251,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 3
+        // Query 2
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery2TagEvolution.class ) )
         {
             BiQuery2EventStreamReader operation2StreamWithoutTimes = new BiQuery2EventStreamReader(
@@ -271,7 +271,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 4
+        // Query 3
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery3PopularCountryTopics.class ) )
         {
             BiQuery3EventStreamReader operation3StreamWithoutTimes = null;
@@ -292,7 +292,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 5
+        // Query 4
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery4TopCountryPosters.class ) )
         {
             BiQuery4EventStreamReader operation4StreamWithoutTimes = new BiQuery4EventStreamReader(
@@ -312,7 +312,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 6
+        // Query 5
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery5ActivePosters.class ) )
         {
             BiQuery5EventStreamReader operation5StreamWithoutTimes = new BiQuery5EventStreamReader(
@@ -332,7 +332,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 7
+        // Query 6
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery6AuthoritativeUsers.class ) )
         {
             BiQuery6EventStreamReader operation6StreamWithoutTimes = new BiQuery6EventStreamReader(
@@ -352,7 +352,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 8
+        // Query 7
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery7RelatedTopics.class ) )
         {
             BiQuery7EventStreamReader operation7StreamWithoutTimes = new BiQuery7EventStreamReader(
@@ -372,7 +372,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 10
+        // Query 8
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery8TagPerson.class ) )
         {
             BiQuery8EventStreamReader operation8StreamWithoutTimes = new BiQuery8EventStreamReader(
@@ -392,7 +392,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 14
+        // Query 9
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery9TopThreadInitiators.class ) )
         {
             BiQuery9EventStreamReader operation9StreamWithoutTimes = new BiQuery9EventStreamReader(
@@ -412,7 +412,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 16
+        // Query 10
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery10ExpertsInSocialCircle.class ) )
         {
             BiQuery10EventStreamReader operation10StreamWithoutTimes = new BiQuery10EventStreamReader(
@@ -432,7 +432,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 17
+        // Query 11
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery11FriendshipTriangles.class ) )
         {
             BiQuery11EventStreamReader operation11StreamWithoutTimes = new BiQuery11EventStreamReader(
@@ -452,7 +452,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 18
+        // Query 12
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery12PersonPostCounts.class ) )
         {
             BiQuery12EventStreamReader operation12StreamWithoutTimes = new BiQuery12EventStreamReader(
@@ -472,7 +472,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 21
+        // Query 13
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery13Zombies.class ) )
         {
             BiQuery13EventStreamReader operation13StreamWithoutTimes = new BiQuery13EventStreamReader(
@@ -492,7 +492,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 22
+        // Query 14
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery14InternationalDialog.class ) )
         {
             BiQuery14EventStreamReader operation14StreamWithoutTimes = new BiQuery14EventStreamReader(
@@ -512,7 +512,7 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
-        // Query 25
+        // Query 15
         if ( enabledOperationTypes.contains( LdbcSnbBiQuery15WeightedPaths.class ) )
         {
             BiQuery15EventStreamReader operation15StreamWithoutTimes = new BiQuery15EventStreamReader(
