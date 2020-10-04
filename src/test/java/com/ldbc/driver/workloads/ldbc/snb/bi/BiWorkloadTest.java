@@ -460,46 +460,46 @@ public class BiWorkloadTest extends WorkloadTest
                     equalTo( "10" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_2_INTERLEAVE_KEY ),
-                    equalTo( "30" ) );
+                    equalTo( "20" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_3_INTERLEAVE_KEY ),
-                    equalTo( "40" ) );
+                    equalTo( "30" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_4_INTERLEAVE_KEY ),
-                    equalTo( "50" ) );
+                    equalTo( "40" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_5_INTERLEAVE_KEY ),
-                    equalTo( "60" ) );
+                    equalTo( "50" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_6_INTERLEAVE_KEY ),
-                    equalTo( "70" ) );
+                    equalTo( "60" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_7_INTERLEAVE_KEY ),
-                    equalTo( "80" ) );
+                    equalTo( "70" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_8_INTERLEAVE_KEY ),
-                    equalTo( "100" ) );
+                    equalTo( "80" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_9_INTERLEAVE_KEY ),
-                    equalTo( "140" ) );
+                    equalTo( "90" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_10_INTERLEAVE_KEY ),
-                    equalTo( "160" ) );
+                    equalTo( "100" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_11_INTERLEAVE_KEY ),
-                    equalTo( "170" ) );
+                    equalTo( "110" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_12_INTERLEAVE_KEY ),
-                    equalTo( "180" ) );
+                    equalTo( "120" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_13_INTERLEAVE_KEY ),
-                    equalTo( "210" ) );
+                    equalTo( "130" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_14_INTERLEAVE_KEY ),
-                    equalTo( "220" ) );
+                    equalTo( "140" ) );
             assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_15_INTERLEAVE_KEY ),
-                    equalTo( "250" ) );
+                    equalTo( "150" ) );
         }
     }
 }
