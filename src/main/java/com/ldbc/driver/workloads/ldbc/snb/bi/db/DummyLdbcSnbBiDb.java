@@ -183,7 +183,7 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
-    private static final List<LdbcSnbBiQuery2TagEvolutionResult> LDBC_QUERY_3_RESULTS =
+    private static final List<LdbcSnbBiQuery2TagEvolutionResult> LDBC_QUERY_2_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read2Results();
 
@@ -195,11 +195,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_3_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_2_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery3PopularCountryTopicsResult> LDBC_QUERY_4_RESULTS =
+    private static final List<LdbcSnbBiQuery3PopularCountryTopicsResult> LDBC_QUERY_3_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read3Results();
 
@@ -212,11 +212,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_4_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_3_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery4TopCountryPostersResult> LDBC_QUERY_5_RESULTS =
+    private static final List<LdbcSnbBiQuery4TopCountryPostersResult> LDBC_QUERY_4_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read4Results();
 
@@ -229,11 +229,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_5_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_4_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery5ActivePostersResult> LDBC_QUERY_6_RESULTS =
+    private static final List<LdbcSnbBiQuery5ActivePostersResult> LDBC_QUERY_5_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read5Results();
 
@@ -246,11 +246,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_6_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_5_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery6AuthoritativeUsersResult> LDBC_QUERY_7_RESULTS =
+    private static final List<LdbcSnbBiQuery6AuthoritativeUsersResult> LDBC_QUERY_6_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read6Results();
 
@@ -263,11 +263,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_7_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_6_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery7RelatedTopicsResult> LDBC_QUERY_8_RESULTS =
+    private static final List<LdbcSnbBiQuery7RelatedTopicsResult> LDBC_QUERY_7_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read7Results();
 
@@ -279,11 +279,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_8_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_7_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery8TagPersonResult> LDBC_QUERY_10_RESULTS = DummyLdbcSnbBiOperationResultSets
+    private static final List<LdbcSnbBiQuery8TagPersonResult> LDBC_QUERY_8_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read8Results();
 
     public static class LdbcQuery8Handler implements OperationHandler<LdbcSnbBiQuery8TagPerson,DummyDbConnectionState>
@@ -293,11 +293,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_10_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_8_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery9TopThreadInitiatorsResult> LDBC_QUERY_14_RESULTS =
+    private static final List<LdbcSnbBiQuery9TopThreadInitiatorsResult> LDBC_QUERY_9_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read9Results();
 
@@ -310,11 +310,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_14_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_9_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery10ExpertsInSocialCircleResult> LDBC_QUERY_16_RESULTS =
+    private static final List<LdbcSnbBiQuery10ExpertsInSocialCircleResult> LDBC_QUERY_10_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read10Results();
 
@@ -327,11 +327,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_16_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_10_RESULTS, operation );
         }
     }
 
-    private static final LdbcSnbBiQuery11FriendshipTrianglesResult LDBC_QUERY_17_RESULTS =
+    private static final LdbcSnbBiQuery11FriendshipTrianglesResult LDBC_QUERY_11_RESULTS =
             DummyLdbcSnbBiOperationResultInstances.read11Result();
 
     public static class LdbcQuery11Handler
@@ -343,11 +343,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_17_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_11_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery12PersonPostCountsResult> LDBC_QUERY_18_RESULTS =
+    private static final List<LdbcSnbBiQuery12PersonPostCountsResult> LDBC_QUERY_12_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read12Results();
 
@@ -360,11 +360,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_18_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_12_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery13ZombiesResult> LDBC_QUERY_21_RESULTS = DummyLdbcSnbBiOperationResultSets
+    private static final List<LdbcSnbBiQuery13ZombiesResult> LDBC_QUERY_13_RESULTS = DummyLdbcSnbBiOperationResultSets
             .read13Results();
 
     public static class LdbcQuery13Handler implements OperationHandler<LdbcSnbBiQuery13Zombies,DummyDbConnectionState>
@@ -374,11 +374,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_21_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_13_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery14InternationalDialogResult> LDBC_QUERY_22_RESULTS =
+    private static final List<LdbcSnbBiQuery14InternationalDialogResult> LDBC_QUERY_14_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read14Results();
 
@@ -391,11 +391,11 @@ public class DummyLdbcSnbBiDb extends Db
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_22_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_14_RESULTS, operation );
         }
     }
 
-    private static final List<LdbcSnbBiQuery15WeightedPathsResult> LDBC_QUERY_25_RESULTS =
+    private static final List<LdbcSnbBiQuery15WeightedPathsResult> LDBC_QUERY_15_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read15Results();
 
@@ -408,7 +408,7 @@ public class DummyLdbcSnbBiDb extends Db
                                       ResultReporter resultReporter ) throws DbException
         {
             sleep( sleepDurationAsNano );
-            resultReporter.report( 0, LDBC_QUERY_25_RESULTS, operation );
+            resultReporter.report( 0, LDBC_QUERY_15_RESULTS, operation );
         }
     }
 }
