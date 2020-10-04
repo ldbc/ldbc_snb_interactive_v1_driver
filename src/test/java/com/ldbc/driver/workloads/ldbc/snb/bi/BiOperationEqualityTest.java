@@ -436,4 +436,35 @@ public class BiOperationEqualityTest
 
         assertThat( query2a, not( equalTo( query3a ) ) );
     }
+
+    @Test
+    public void ldbcQuery18ShouldDoEqualsCorrectly()
+    {
+        // Given
+        long person1Id1 = 1;
+        String tag1 = "My_Tag1";
+        int limit = 20;
+
+        long person1Id2 = 2;
+        String tag2 = "My_Tag2";
+
+        // When
+        LdbcSnbBiQuery18FriendRecommendation query1a =
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id1, tag1, limit );
+        LdbcSnbBiQuery18FriendRecommendation query1b =
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id1, tag1, limit );
+        LdbcSnbBiQuery18FriendRecommendation query2a =
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id2, tag2, limit );
+        LdbcSnbBiQuery18FriendRecommendation query3a =
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id2, tag1, limit );
+
+        // Then
+        assertThat( query1a, equalTo( query1b ) );
+
+        assertThat( query1a, not( equalTo( query2a ) ) );
+
+        assertThat( query1a, not( equalTo( query3a ) ) );
+
+        assertThat( query2a, not( equalTo( query3a ) ) );
+    }
 }

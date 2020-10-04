@@ -145,6 +145,7 @@ public class DummyLdbcSnbBiDb extends Db
         registerOperationHandler( LdbcSnbBiQuery13Zombies.class, LdbcQuery13Handler.class );
         registerOperationHandler( LdbcSnbBiQuery14InternationalDialog.class, LdbcQuery14Handler.class );
         registerOperationHandler( LdbcSnbBiQuery15WeightedPaths.class, LdbcQuery15Handler.class );
+        registerOperationHandler( LdbcSnbBiQuery18FriendRecommendation.class, LdbcQuery18Handler.class );
     }
 
     @Override
@@ -409,6 +410,23 @@ public class DummyLdbcSnbBiDb extends Db
         {
             sleep( sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_15_RESULTS, operation );
+        }
+    }
+
+    private static final List<LdbcSnbBiQuery18FriendRecommendationResult> LDBC_QUERY_18_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read18Results();
+
+    public static class LdbcQuery18Handler
+            implements OperationHandler<LdbcSnbBiQuery18FriendRecommendation,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcSnbBiQuery18FriendRecommendation operation,
+                                      DummyDbConnectionState dbConnectionState,
+                                      ResultReporter resultReporter ) throws DbException
+        {
+            sleep( sleepDurationAsNano );
+            resultReporter.report( 0, LDBC_QUERY_18_RESULTS, operation );
         }
     }
 }

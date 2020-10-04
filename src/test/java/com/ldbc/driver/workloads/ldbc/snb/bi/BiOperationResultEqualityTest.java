@@ -615,4 +615,36 @@ public class BiOperationResultEqualityTest
         assertThat( result1a, not( equalTo( result3a ) ) );
         assertThat( result2a, not( equalTo( result3a ) ) );
     }
+
+    @Test
+    public void ldbcQuery18ResultShouldDoEqualsCorrectly()
+    {
+        long person2Id1 = 1;
+        int mutualFriendCount1 = 10;
+
+        long person2Id2 = 2;
+        int mutualFriendCount2 = 20;
+
+        LdbcSnbBiQuery18FriendRecommendationResult result1a = new LdbcSnbBiQuery18FriendRecommendationResult(
+                person2Id1,
+                mutualFriendCount1
+        );
+        LdbcSnbBiQuery18FriendRecommendationResult result1b = new LdbcSnbBiQuery18FriendRecommendationResult(
+                person2Id1,
+                mutualFriendCount1
+        );
+        LdbcSnbBiQuery18FriendRecommendationResult result2a = new LdbcSnbBiQuery18FriendRecommendationResult(
+                person2Id2,
+                mutualFriendCount2
+        );
+        LdbcSnbBiQuery18FriendRecommendationResult result3a = new LdbcSnbBiQuery18FriendRecommendationResult(
+                person2Id2,
+                mutualFriendCount1
+        );
+
+        assertThat( result1a, equalTo( result1b ) );
+        assertThat( result1a, not( equalTo( result2a ) ) );
+        assertThat( result1a, not( equalTo( result3a ) ) );
+        assertThat( result2a, not( equalTo( result3a ) ) );
+    }
 }

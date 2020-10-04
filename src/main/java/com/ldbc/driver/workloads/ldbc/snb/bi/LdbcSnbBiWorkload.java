@@ -49,6 +49,7 @@ public class LdbcSnbBiWorkload extends Workload
     private FileInputStream readOperation13FileInputStream;
     private FileInputStream readOperation14FileInputStream;
     private FileInputStream readOperation15FileInputStream;
+    private FileInputStream readOperation18FileInputStream;
 
     // TODO these things should really all be in an instance of LdbcSnbBiWorkloadConfiguration or ...State
     private LdbcSnbBiWorkloadConfiguration.LdbcSnbBiInterleaves interleaves = null;
@@ -156,6 +157,9 @@ public class LdbcSnbBiWorkload extends Workload
             );
             readOperation15FileInputStream = new FileInputStream(
                     new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_15_PARAMS_FILENAME )
+            );
+            readOperation18FileInputStream = new FileInputStream(
+                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_18_PARAMS_FILENAME )
             );
         }
         catch ( FileNotFoundException e )
@@ -532,6 +536,26 @@ public class LdbcSnbBiWorkload extends Workload
             );
         }
 
+        // Query 18
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery18FriendRecommendation.class ) )
+        {
+            BiQuery18EventStreamReader operation18StreamWithoutTimes = new BiQuery18EventStreamReader(
+                    readOperation18FileInputStream,
+                    CHAR_SEEKER_PARAMS,
+                    gf
+            );
+            readOperationFileReaders.add( operation18StreamWithoutTimes );
+            asynchronousNonDependencyStreamsList.add(
+                    gf.assignStartTimes(
+                            gf.incrementing(
+                                    workloadStartTimeAsMilli + interleaves.operation18Interleave,
+                                    interleaves.operation18Interleave
+                            ),
+                            operation18StreamWithoutTimes
+                    )
+            );
+        }
+
         /* **************
          * **************
          * **************
@@ -774,6 +798,16 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.endDate() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
+            case LdbcSnbBiQuery18FriendRecommendation.TYPE:
+            {
+                LdbcSnbBiQuery18FriendRecommendation ldbcQuery = (LdbcSnbBiQuery18FriendRecommendation) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.person1Id() );
+                operationAsList.add( ldbcQuery.tag() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
             default:
             {
                 throw new SerializingMarshallingException(
@@ -909,6 +943,13 @@ public class LdbcSnbBiWorkload extends Workload
             long startDate = ((Number) operationAsList.get( 3 )).longValue();
             long endDate = ((Number) operationAsList.get( 4 )).longValue();
             return new LdbcSnbBiQuery15WeightedPaths( person1Id, person2Id, startDate, endDate );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery18FriendRecommendation.class.getName() ) )
+        {
+            long person1Id = ((Number) operationAsList.get( 1 )).longValue();
+            String tag = ((String) operationAsList.get( 2 ));
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery18FriendRecommendation( person1Id, tag, limit );
         }
         throw new SerializingMarshallingException(
                 format(

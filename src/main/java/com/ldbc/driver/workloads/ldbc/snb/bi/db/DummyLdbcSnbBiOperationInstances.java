@@ -85,4 +85,9 @@ public class DummyLdbcSnbBiOperationInstances
         return new LdbcSnbBiQuery15WeightedPaths( 1, 2, 1, 2 );
     }
 
+    public static LdbcSnbBiQuery18FriendRecommendation read18()
+    {
+        return new LdbcSnbBiQuery18FriendRecommendation( 1L, "My_Tag", 20 );
+    }
+
 }

@@ -255,4 +255,12 @@ public class DummyLdbcSnbBiOperationResultSets
                 DummyLdbcSnbBiOperationResultInstances.read15Result()
         );
     }
+
+    public static List<LdbcSnbBiQuery18FriendRecommendationResult> read18Results()
+    {
+        return Lists.newArrayList(
+                DummyLdbcSnbBiOperationResultInstances.read18Result(),
+                DummyLdbcSnbBiOperationResultInstances.read18Result()
+        );
+    }
 }

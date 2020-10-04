@@ -135,7 +135,14 @@ public class BiReadEventStreamReadersTestData
     public static final String QUERY_15_CSV_ROWS()
     {
         return "person1Id|person2Id|startDate|endDate\n"
-               + "1|2|1|2\n"
-               + "3|4|3|4\n";
+                + "1|2|1|2\n"
+                + "3|4|3|4\n";
+    }
+
+    public static final String QUERY_18_CSV_ROWS()
+    {
+        return "person1Id|tag|limit\n"
+                + "1|Dante_Alighieri|30\n"
+                + "2|Franz_Schubert|40\n";
     }
 }

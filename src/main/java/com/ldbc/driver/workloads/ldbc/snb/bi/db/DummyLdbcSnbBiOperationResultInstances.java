@@ -84,4 +84,9 @@ public class DummyLdbcSnbBiOperationResultInstances
     {
         return new LdbcSnbBiQuery15WeightedPathsResult( Lists.newArrayList(1L, 2L), 0.5);
     }
+
+    public static LdbcSnbBiQuery18FriendRecommendationResult read18Result()
+    {
+        return new LdbcSnbBiQuery18FriendRecommendationResult( 1L, 2 );
+    }
 }

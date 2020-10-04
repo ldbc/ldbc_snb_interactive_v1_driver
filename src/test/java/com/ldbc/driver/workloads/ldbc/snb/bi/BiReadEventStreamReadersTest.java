@@ -1,18 +1,15 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.OperationTest;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -602,4 +599,41 @@ public class BiReadEventStreamReadersTest
         assertTrue( reader.hasNext() );
     }
 
+    @Test
+    public void shouldParseAllQuery18Events() throws IOException, ParseException, WorkloadException
+    {
+        // Given
+        String data = BiReadEventStreamReadersTestData.QUERY_18_CSV_ROWS();
+        System.out.println( data + "\n" );
+        BiQuery18EventStreamReader reader = new BiQuery18EventStreamReader(
+                new ByteArrayInputStream( data.getBytes( Charsets.UTF_8 ) ),
+                LdbcSnbBiWorkload.CHAR_SEEKER_PARAMS,
+                GENERATOR_FACTORY
+        );
+
+        // When
+
+        // Then
+        LdbcSnbBiQuery18FriendRecommendation operation;
+
+        operation = (LdbcSnbBiQuery18FriendRecommendation) reader.next();
+        assertThat( operation.person1Id(), is( 1L ) );
+        assertThat( operation.tag(), is( "Dante_Alighieri" ) );
+        assertThat( operation.limit(), is( 30 ) );
+        OperationTest.assertCorrectParameterMap(operation);
+
+        operation = (LdbcSnbBiQuery18FriendRecommendation) reader.next();
+        assertThat( operation.person1Id(), is( 2L ) );
+        assertThat( operation.tag(), is( "Franz_Schubert" ) );
+        assertThat( operation.limit(), is( 40 ) );
+
+        // loops back around to first
+
+        operation = (LdbcSnbBiQuery18FriendRecommendation) reader.next();
+        assertThat( operation.person1Id(), is( 1L ) );
+        assertThat( operation.tag(), is( "Dante_Alighieri" ) );
+        assertThat( operation.limit(), is( 30 ) );
+
+        assertTrue( reader.hasNext() );
+    }
 }
