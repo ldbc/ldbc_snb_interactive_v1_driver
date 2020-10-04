@@ -85,8 +85,28 @@ public class DummyLdbcSnbBiOperationResultInstances
         return new LdbcSnbBiQuery15WeightedPathsResult( Lists.newArrayList(1L, 2L), 0.5);
     }
 
+    public static LdbcSnbBiQuery16FakeNewsDetectionResult read16Result()
+    {
+        return new LdbcSnbBiQuery16FakeNewsDetectionResult( 1L, 2, 3 );
+    }
+
+    public static LdbcSnbBiQuery17InformationPropagationAnalysisResult read17Result()
+    {
+        return new LdbcSnbBiQuery17InformationPropagationAnalysisResult( 1L, 2 );
+    }
+
     public static LdbcSnbBiQuery18FriendRecommendationResult read18Result()
     {
-        return new LdbcSnbBiQuery18FriendRecommendationResult( 1L, 2 );
+        return new LdbcSnbBiQuery18FriendRecommendationResult( 1L, 3 );
+    }
+
+    public static LdbcSnbBiQuery19InteractionPathBetweenCitiesResult read19Result()
+    {
+        return new LdbcSnbBiQuery19InteractionPathBetweenCitiesResult( 1L, 2L, 0.5f );
+    }
+
+    public static LdbcSnbBiQuery20RecruitmentResult read20Result()
+    {
+        return new LdbcSnbBiQuery20RecruitmentResult( 1L, 10);
     }
 }

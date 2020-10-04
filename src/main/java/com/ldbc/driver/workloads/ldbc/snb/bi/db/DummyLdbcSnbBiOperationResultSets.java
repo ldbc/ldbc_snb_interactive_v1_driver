@@ -256,11 +256,44 @@ public class DummyLdbcSnbBiOperationResultSets
         );
     }
 
+    public static List<LdbcSnbBiQuery16FakeNewsDetectionResult> read16Results()
+    {
+        return Lists.newArrayList(
+                DummyLdbcSnbBiOperationResultInstances.read16Result(),
+                DummyLdbcSnbBiOperationResultInstances.read16Result()
+        );
+    }
+
+    public static List<LdbcSnbBiQuery17InformationPropagationAnalysisResult> read17Results()
+    {
+        return Lists.newArrayList(
+                DummyLdbcSnbBiOperationResultInstances.read17Result(),
+                DummyLdbcSnbBiOperationResultInstances.read17Result()
+        );
+    }
+
     public static List<LdbcSnbBiQuery18FriendRecommendationResult> read18Results()
     {
         return Lists.newArrayList(
                 DummyLdbcSnbBiOperationResultInstances.read18Result(),
                 DummyLdbcSnbBiOperationResultInstances.read18Result()
+        );
+    }
+
+    public static List<LdbcSnbBiQuery19InteractionPathBetweenCitiesResult> read19Results()
+    {
+        return Lists.newArrayList(
+                DummyLdbcSnbBiOperationResultInstances.read19Result(),
+                DummyLdbcSnbBiOperationResultInstances.read19Result()
+        );
+    }
+
+
+    public static List<LdbcSnbBiQuery20RecruitmentResult> read20Results()
+    {
+        return Lists.newArrayList(
+                DummyLdbcSnbBiOperationResultInstances.read20Result(),
+                DummyLdbcSnbBiOperationResultInstances.read20Result()
         );
     }
 }

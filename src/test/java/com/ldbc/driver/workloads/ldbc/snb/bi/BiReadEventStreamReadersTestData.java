@@ -139,10 +139,38 @@ public class BiReadEventStreamReadersTestData
                 + "3|4|3|4\n";
     }
 
+    public static final String QUERY_16_CSV_ROWS()
+    {
+        return "tagA|dateA|tagB|dateB|maxKnowsLimit|limit\n"
+                + "Franz_Liszt|2|Fernando_González|3|4|20\n"
+                + "Dante_Alighieri|3|Franz_Schubert|9|4|10\n";
+    }
+
+    public static final String QUERY_17_CSV_ROWS()
+    {
+        return "tag|delta|limit\n"
+                + "Dante_Alighieri|3|10\n"
+                + "Franz_Liszt|5|20\n";
+    }
+
     public static final String QUERY_18_CSV_ROWS()
     {
         return "person1Id|tag|limit\n"
                 + "1|Dante_Alighieri|30\n"
                 + "2|Franz_Schubert|40\n";
+    }
+
+    public static final String QUERY_19_CSV_ROWS()
+    {
+        return "city1Id|city2Id\n"
+                + "1|2\n"
+                + "2|3\n";
+    }
+
+    public static final String QUERY_20_CSV_ROWS()
+    {
+        return "company|person2Id\n"
+                + "BigCorp|1\n"
+                + "LargeComp|3\n";
     }
 }

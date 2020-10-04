@@ -1,0 +1,2 @@
+tagA|dateA|tagB|dateB|maxKnowsLimit|limit
+Franz_Liszt|2|Fernando_González|3|4|20

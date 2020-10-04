@@ -117,8 +117,24 @@ public class BiWorkloadTest extends WorkloadTest
                         DummyLdbcSnbBiOperationResultSets.read15Results()
                 ),
                 Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read16(),
+                        DummyLdbcSnbBiOperationResultSets.read16Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read17(),
+                        DummyLdbcSnbBiOperationResultSets.read17Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
                         DummyLdbcSnbBiOperationInstances.read18(),
                         DummyLdbcSnbBiOperationResultSets.read18Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read19(),
+                        DummyLdbcSnbBiOperationResultSets.read19Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbBiOperationInstances.read20(),
+                        DummyLdbcSnbBiOperationResultSets.read20Results()
                 )
         );
     }
@@ -199,7 +215,15 @@ public class BiWorkloadTest extends WorkloadTest
         expectedQueryMixHistogram
                 .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery15WeightedPaths.class ), 1d );
         expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery16FakeNewsDetection.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery17InformationPropagationAnalysis.class ), 1d );
+        expectedQueryMixHistogram
                 .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery18FriendRecommendation.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery19InteractionPathBetweenCities.class ), 1d );
+        expectedQueryMixHistogram
+                .addBucket( Bucket.DiscreteBucket.<Class>create( LdbcSnbBiQuery20Recruitment.class ), 1d );
 
         return Lists.newArrayList(
                 Tuple.tuple2(
@@ -242,7 +266,11 @@ public class BiWorkloadTest extends WorkloadTest
                 .addOperationFrequency( LdbcSnbBiQuery13Zombies.TYPE, 20 )
                 .addOperationFrequency( LdbcSnbBiQuery14InternationalDialog.TYPE, 30 )
                 .addOperationFrequency( LdbcSnbBiQuery15WeightedPaths.TYPE, 60 )
+                .addOperationFrequency( LdbcSnbBiQuery16FakeNewsDetection.TYPE, 110 )
+                .addOperationFrequency( LdbcSnbBiQuery17InformationPropagationAnalysis.TYPE, 90 )
                 .addOperationFrequency( LdbcSnbBiQuery18FriendRecommendation.TYPE, 100 )
+                .addOperationFrequency( LdbcSnbBiQuery19InteractionPathBetweenCities.TYPE, 120 )
+                .addOperationFrequency( LdbcSnbBiQuery20Recruitment.TYPE, 80 )
                 .build();
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(
                 DummyLdbcSnbBiDb.class.getName(),
@@ -316,8 +344,20 @@ public class BiWorkloadTest extends WorkloadTest
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_15_INTERLEAVE_KEY ),
                     equalTo( "600" ) );
             assertThat(
+                    configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_16_INTERLEAVE_KEY ),
+                    equalTo( "1100" ) );
+            assertThat(
+                    configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_17_INTERLEAVE_KEY ),
+                    equalTo( "900" ) );
+            assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_18_INTERLEAVE_KEY ),
                     equalTo( "1000" ) );
+            assertThat(
+                    configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_19_INTERLEAVE_KEY ),
+                    equalTo( "1200" ) );
+            assertThat(
+                    configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_20_INTERLEAVE_KEY ),
+                    equalTo( "800" ) );
         }
     }
 
@@ -343,7 +383,11 @@ public class BiWorkloadTest extends WorkloadTest
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_13_INTERLEAVE_KEY, 13l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_14_INTERLEAVE_KEY, 14l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_15_INTERLEAVE_KEY, 15l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_16_INTERLEAVE_KEY, 16l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_17_INTERLEAVE_KEY, 17l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_18_INTERLEAVE_KEY, 18l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_19_INTERLEAVE_KEY, 19l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_20_INTERLEAVE_KEY, 20l );
         // omit a frequency key on purpose
         // operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_1_FREQUENCY_KEY ,1l);
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_2_FREQUENCY_KEY, 2l );
@@ -360,7 +404,11 @@ public class BiWorkloadTest extends WorkloadTest
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_13_FREQUENCY_KEY, 13l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_14_FREQUENCY_KEY, 14l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_15_FREQUENCY_KEY, 15l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_16_FREQUENCY_KEY, 16l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_17_FREQUENCY_KEY, 17l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_18_FREQUENCY_KEY, 18l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_19_FREQUENCY_KEY, 19l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_20_FREQUENCY_KEY, 20l );
 
         Map<String,String> defaultSnbBiParams = LdbcSnbBiWorkloadConfiguration.defaultConfigSF1();
         defaultSnbBiParams.remove( LdbcSnbBiWorkloadConfiguration.OPERATION_1_INTERLEAVE_KEY );
@@ -421,7 +469,11 @@ public class BiWorkloadTest extends WorkloadTest
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_13_INTERLEAVE_KEY, 130l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_14_INTERLEAVE_KEY, 140l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_15_INTERLEAVE_KEY, 150l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_16_INTERLEAVE_KEY, 160l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_17_INTERLEAVE_KEY, 170l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_18_INTERLEAVE_KEY, 180l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_19_INTERLEAVE_KEY, 190l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_20_INTERLEAVE_KEY, 200l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_1_FREQUENCY_KEY, 1l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_2_FREQUENCY_KEY, 2l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_3_FREQUENCY_KEY, 3l );
@@ -437,7 +489,11 @@ public class BiWorkloadTest extends WorkloadTest
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_13_FREQUENCY_KEY, 13l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_14_FREQUENCY_KEY, 14l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_15_FREQUENCY_KEY, 15l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_16_FREQUENCY_KEY, 16l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_17_FREQUENCY_KEY, 17l );
         operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_18_FREQUENCY_KEY, 18l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_19_FREQUENCY_KEY, 19l );
+        operationMixMap.put( LdbcSnbBiWorkloadConfiguration.OPERATION_20_FREQUENCY_KEY, 20l );
 
         Map<String,String> defaultSnbBiParams = LdbcSnbBiWorkloadConfiguration.defaultConfigSF1();
         defaultSnbBiParams.remove( LdbcSnbBiWorkloadConfiguration.OPERATION_1_FREQUENCY_KEY );
@@ -515,8 +571,20 @@ public class BiWorkloadTest extends WorkloadTest
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_15_INTERLEAVE_KEY ),
                     equalTo( "150" ) );
             assertThat(
+                    configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_16_INTERLEAVE_KEY ),
+                    equalTo( "160" ) );
+            assertThat(
+                    configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_17_INTERLEAVE_KEY ),
+                    equalTo( "170" ) );
+            assertThat(
                     configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_18_INTERLEAVE_KEY ),
                     equalTo( "180" ) );
+            assertThat(
+                    configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_19_INTERLEAVE_KEY ),
+                    equalTo( "190" ) );
+            assertThat(
+                    configurationAsMap.get( LdbcSnbBiWorkloadConfiguration.OPERATION_20_INTERLEAVE_KEY ),
+                    equalTo( "200" ) );
         }
     }
 }

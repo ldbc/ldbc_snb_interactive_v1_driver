@@ -617,6 +617,64 @@ public class BiOperationResultEqualityTest
     }
 
     @Test
+    public void ldbcQuery16ResultShouldDoEqualsCorrectly()
+    {
+        long personId1 = 1;
+        int messageCountA1 = 10;
+        int messageCountB1 = 20;
+
+        long personId2 = 2;
+        int messageCountA2 = 15;
+        int messageCountB2 = 25;
+
+        LdbcSnbBiQuery16FakeNewsDetectionResult result1a = new LdbcSnbBiQuery16FakeNewsDetectionResult(
+                personId1, messageCountA1, messageCountB1
+        );
+        LdbcSnbBiQuery16FakeNewsDetectionResult result1b = new LdbcSnbBiQuery16FakeNewsDetectionResult(
+                personId1, messageCountA1, messageCountB1
+        );
+        LdbcSnbBiQuery16FakeNewsDetectionResult result2a = new LdbcSnbBiQuery16FakeNewsDetectionResult(
+                personId2, messageCountA1, messageCountB2
+        );
+        LdbcSnbBiQuery16FakeNewsDetectionResult result3a = new LdbcSnbBiQuery16FakeNewsDetectionResult(
+                personId2, messageCountA2, messageCountB1
+        );
+
+        assertThat( result1a, equalTo( result1b ) );
+        assertThat( result1a, not( equalTo( result2a ) ) );
+        assertThat( result1a, not( equalTo( result3a ) ) );
+        assertThat( result2a, not( equalTo( result3a ) ) );
+    }
+
+    @Test
+    public void ldbcQuery17ResultShouldDoEqualsCorrectly()
+    {
+        long person1Id1 = 1;
+        int messageCount1 = 10;
+
+        long person1Id2 = 2;
+        int messageCount2 = 20;
+
+        LdbcSnbBiQuery17InformationPropagationAnalysisResult result1a = new LdbcSnbBiQuery17InformationPropagationAnalysisResult(
+                person1Id1, messageCount1
+        );
+        LdbcSnbBiQuery17InformationPropagationAnalysisResult result1b = new LdbcSnbBiQuery17InformationPropagationAnalysisResult(
+                person1Id1, messageCount1
+        );
+        LdbcSnbBiQuery17InformationPropagationAnalysisResult result2a = new LdbcSnbBiQuery17InformationPropagationAnalysisResult(
+                person1Id1, messageCount2
+        );
+        LdbcSnbBiQuery17InformationPropagationAnalysisResult result3a = new LdbcSnbBiQuery17InformationPropagationAnalysisResult(
+                person1Id2, messageCount2
+        );
+
+        assertThat( result1a, equalTo( result1b ) );
+        assertThat( result1a, not( equalTo( result2a ) ) );
+        assertThat( result1a, not( equalTo( result3a ) ) );
+        assertThat( result2a, not( equalTo( result3a ) ) );
+    }
+
+    @Test
     public void ldbcQuery18ResultShouldDoEqualsCorrectly()
     {
         long person2Id1 = 1;
@@ -640,6 +698,64 @@ public class BiOperationResultEqualityTest
         LdbcSnbBiQuery18FriendRecommendationResult result3a = new LdbcSnbBiQuery18FriendRecommendationResult(
                 person2Id2,
                 mutualFriendCount1
+        );
+
+        assertThat( result1a, equalTo( result1b ) );
+        assertThat( result1a, not( equalTo( result2a ) ) );
+        assertThat( result1a, not( equalTo( result3a ) ) );
+        assertThat( result2a, not( equalTo( result3a ) ) );
+    }
+
+    @Test
+    public void ldbcQuery19ResultShouldDoEqualsCorrectly()
+    {
+        long person1Id1 = 1;
+        long person2Id1 = 2;
+        float totalWeight1 = 0.75f;
+
+        long person1Id2 = 3;
+        long person2Id2 = 4;
+        float totalWeight2 = 1.2f;
+
+        LdbcSnbBiQuery19InteractionPathBetweenCitiesResult result1a = new LdbcSnbBiQuery19InteractionPathBetweenCitiesResult(
+                person1Id1, person2Id1, totalWeight1
+        );
+        LdbcSnbBiQuery19InteractionPathBetweenCitiesResult result1b = new LdbcSnbBiQuery19InteractionPathBetweenCitiesResult(
+                person1Id1, person2Id1, totalWeight1
+        );
+        LdbcSnbBiQuery19InteractionPathBetweenCitiesResult result2a = new LdbcSnbBiQuery19InteractionPathBetweenCitiesResult(
+                person1Id2, person2Id1, totalWeight2
+        );
+        LdbcSnbBiQuery19InteractionPathBetweenCitiesResult result3a = new LdbcSnbBiQuery19InteractionPathBetweenCitiesResult(
+                person1Id1, person2Id2, totalWeight1
+        );
+
+        assertThat( result1a, equalTo( result1b ) );
+        assertThat( result1a, not( equalTo( result2a ) ) );
+        assertThat( result1a, not( equalTo( result3a ) ) );
+        assertThat( result2a, not( equalTo( result3a ) ) );
+    }
+
+    @Test
+    public void ldbcQuery208ResultShouldDoEqualsCorrectly()
+    {
+        long person2Id1 = 1;
+        int totalWeight1 = 5;
+
+        long person2Id2 = 2;
+        int totalWeight2 = 8;
+
+        LdbcSnbBiQuery20RecruitmentResult result1a = new LdbcSnbBiQuery20RecruitmentResult(
+                person2Id1, totalWeight1
+        );
+        LdbcSnbBiQuery20RecruitmentResult result1b = new LdbcSnbBiQuery20RecruitmentResult(
+                person2Id1, totalWeight1
+        );
+        LdbcSnbBiQuery20RecruitmentResult result2a = new LdbcSnbBiQuery20RecruitmentResult(
+                person2Id2, totalWeight1
+        );
+        LdbcSnbBiQuery20RecruitmentResult result3a = new LdbcSnbBiQuery20RecruitmentResult(
+                person2Id2, totalWeight2
         );
 
         assertThat( result1a, equalTo( result1b ) );

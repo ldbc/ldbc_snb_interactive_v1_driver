@@ -145,7 +145,11 @@ public class DummyLdbcSnbBiDb extends Db
         registerOperationHandler( LdbcSnbBiQuery13Zombies.class, LdbcQuery13Handler.class );
         registerOperationHandler( LdbcSnbBiQuery14InternationalDialog.class, LdbcQuery14Handler.class );
         registerOperationHandler( LdbcSnbBiQuery15WeightedPaths.class, LdbcQuery15Handler.class );
+        registerOperationHandler( LdbcSnbBiQuery16FakeNewsDetection.class, LdbcQuery16Handler.class );
+        registerOperationHandler( LdbcSnbBiQuery17InformationPropagationAnalysis.class, LdbcQuery17Handler.class );
         registerOperationHandler( LdbcSnbBiQuery18FriendRecommendation.class, LdbcQuery18Handler.class );
+        registerOperationHandler( LdbcSnbBiQuery19InteractionPathBetweenCities.class, LdbcQuery19Handler.class );
+        registerOperationHandler( LdbcSnbBiQuery20Recruitment.class, LdbcQuery20Handler.class );
     }
 
     @Override
@@ -413,6 +417,40 @@ public class DummyLdbcSnbBiDb extends Db
         }
     }
 
+    private static final List<LdbcSnbBiQuery16FakeNewsDetectionResult> LDBC_QUERY_16_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read16Results();
+
+    public static class LdbcQuery16Handler
+            implements OperationHandler<LdbcSnbBiQuery16FakeNewsDetection,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcSnbBiQuery16FakeNewsDetection operation,
+                                      DummyDbConnectionState dbConnectionState,
+                                      ResultReporter resultReporter ) throws DbException
+        {
+            sleep( sleepDurationAsNano );
+            resultReporter.report( 0, LDBC_QUERY_16_RESULTS, operation );
+        }
+    }
+
+    private static final List<LdbcSnbBiQuery17InformationPropagationAnalysisResult> LDBC_QUERY_17_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read17Results();
+
+    public static class LdbcQuery17Handler
+            implements OperationHandler<LdbcSnbBiQuery17InformationPropagationAnalysis,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcSnbBiQuery17InformationPropagationAnalysis operation,
+                                      DummyDbConnectionState dbConnectionState,
+                                      ResultReporter resultReporter ) throws DbException
+        {
+            sleep( sleepDurationAsNano );
+            resultReporter.report( 0, LDBC_QUERY_17_RESULTS, operation );
+        }
+    }
+
     private static final List<LdbcSnbBiQuery18FriendRecommendationResult> LDBC_QUERY_18_RESULTS =
             DummyLdbcSnbBiOperationResultSets
                     .read18Results();
@@ -427,6 +465,40 @@ public class DummyLdbcSnbBiDb extends Db
         {
             sleep( sleepDurationAsNano );
             resultReporter.report( 0, LDBC_QUERY_18_RESULTS, operation );
+        }
+    }
+
+    private static final List<LdbcSnbBiQuery19InteractionPathBetweenCitiesResult> LDBC_QUERY_19_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read19Results();
+
+    public static class LdbcQuery19Handler
+            implements OperationHandler<LdbcSnbBiQuery19InteractionPathBetweenCities,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcSnbBiQuery19InteractionPathBetweenCities operation,
+                                      DummyDbConnectionState dbConnectionState,
+                                      ResultReporter resultReporter ) throws DbException
+        {
+            sleep( sleepDurationAsNano );
+            resultReporter.report( 0, LDBC_QUERY_19_RESULTS, operation );
+        }
+    }
+
+    private static final List<LdbcSnbBiQuery20RecruitmentResult> LDBC_QUERY_20_RESULTS =
+            DummyLdbcSnbBiOperationResultSets
+                    .read20Results();
+
+    public static class LdbcQuery20Handler
+            implements OperationHandler<LdbcSnbBiQuery20Recruitment,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcSnbBiQuery20Recruitment operation,
+                                      DummyDbConnectionState dbConnectionState,
+                                      ResultReporter resultReporter ) throws DbException
+        {
+            sleep( sleepDurationAsNano );
+            resultReporter.report( 0, LDBC_QUERY_20_RESULTS, operation );
         }
     }
 }

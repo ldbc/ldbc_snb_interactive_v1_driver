@@ -438,25 +438,156 @@ public class BiOperationEqualityTest
     }
 
     @Test
+    public void ldbcQuery16ShouldDoEqualsCorrectly()
+    {
+        // Given
+        String tagA1 = "My_TagA1";
+        long dateA1 = 1;
+        String tagB1 = "My_TagA2";
+        long dateB1 = 2;
+        int maxKnowsLimit1 = 1;
+        int limit1 = 20;
+
+        String tagA2 = "My_TagB1";
+        long dateA2 = 3;
+        String tagB2 = "My_TagB2";
+        long dateB2 = 4;
+        int maxKnowsLimit2 = 2;
+        int limit2 = 30;
+
+        // When
+        LdbcSnbBiQuery16FakeNewsDetection query1a =
+                new LdbcSnbBiQuery16FakeNewsDetection( tagA1, dateA1, tagB1, dateB1, maxKnowsLimit1, limit1 );
+        LdbcSnbBiQuery16FakeNewsDetection query1b =
+                new LdbcSnbBiQuery16FakeNewsDetection( tagA1, dateA1, tagB1, dateB1, maxKnowsLimit1, limit1 );
+        LdbcSnbBiQuery16FakeNewsDetection query2a =
+                new LdbcSnbBiQuery16FakeNewsDetection( tagA1, dateA2, tagB1, dateB2, maxKnowsLimit1, limit2 );
+        LdbcSnbBiQuery16FakeNewsDetection query3a =
+                new LdbcSnbBiQuery16FakeNewsDetection( tagA1, dateA2, tagB2, dateB1, maxKnowsLimit2, limit1 );
+
+        // Then
+        assertThat( query1a, equalTo( query1b ) );
+
+        assertThat( query1a, not( equalTo( query2a ) ) );
+
+        assertThat( query1a, not( equalTo( query3a ) ) );
+
+        assertThat( query2a, not( equalTo( query3a ) ) );
+    }
+
+    @Test
+    public void ldbcQuery17ShouldDoEqualsCorrectly()
+    {
+        // Given
+        String tag1 = "My_Tag1";
+        int delta1 = 1;
+        int limit1 = 20;
+
+        String tag2 = "My_Tag2";
+        int delta2 = 2;
+        int limit2 = 10;
+
+        // When
+        LdbcSnbBiQuery17InformationPropagationAnalysis query1a =
+                new LdbcSnbBiQuery17InformationPropagationAnalysis( tag1, delta1, limit1 );
+        LdbcSnbBiQuery17InformationPropagationAnalysis query1b =
+                new LdbcSnbBiQuery17InformationPropagationAnalysis( tag1, delta1, limit1 );
+        LdbcSnbBiQuery17InformationPropagationAnalysis query2a =
+                new LdbcSnbBiQuery17InformationPropagationAnalysis( tag1, delta2, limit1 );
+        LdbcSnbBiQuery17InformationPropagationAnalysis query3a =
+                new LdbcSnbBiQuery17InformationPropagationAnalysis( tag2, delta1, limit2 );
+
+        // Then
+        assertThat( query1a, equalTo( query1b ) );
+
+        assertThat( query1a, not( equalTo( query2a ) ) );
+
+        assertThat( query1a, not( equalTo( query3a ) ) );
+
+        assertThat( query2a, not( equalTo( query3a ) ) );
+    }
+
+    @Test
     public void ldbcQuery18ShouldDoEqualsCorrectly()
     {
         // Given
         long person1Id1 = 1;
         String tag1 = "My_Tag1";
-        int limit = 20;
+        int limit1 = 20;
 
         long person1Id2 = 2;
         String tag2 = "My_Tag2";
+        int limit2 = 30;
 
         // When
         LdbcSnbBiQuery18FriendRecommendation query1a =
-                new LdbcSnbBiQuery18FriendRecommendation( person1Id1, tag1, limit );
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id1, tag1, limit1 );
         LdbcSnbBiQuery18FriendRecommendation query1b =
-                new LdbcSnbBiQuery18FriendRecommendation( person1Id1, tag1, limit );
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id1, tag1, limit1 );
         LdbcSnbBiQuery18FriendRecommendation query2a =
-                new LdbcSnbBiQuery18FriendRecommendation( person1Id2, tag2, limit );
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id2, tag2, limit2 );
         LdbcSnbBiQuery18FriendRecommendation query3a =
-                new LdbcSnbBiQuery18FriendRecommendation( person1Id2, tag1, limit );
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id2, tag1, limit2 );
+
+        // Then
+        assertThat( query1a, equalTo( query1b ) );
+
+        assertThat( query1a, not( equalTo( query2a ) ) );
+
+        assertThat( query1a, not( equalTo( query3a ) ) );
+
+        assertThat( query2a, not( equalTo( query3a ) ) );
+    }
+
+    @Test
+    public void ldbcQuery19ShouldDoEqualsCorrectly()
+    {
+        // Given
+        long city1Id1 = 1;
+        long city2Id1 = 2;
+
+        long city1Id2 = 3;
+        long city2Id2 = 4;
+
+        // When
+        LdbcSnbBiQuery19InteractionPathBetweenCities query1a =
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id1 );
+        LdbcSnbBiQuery19InteractionPathBetweenCities query1b =
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id1 );
+        LdbcSnbBiQuery19InteractionPathBetweenCities query2a =
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id2 );
+        LdbcSnbBiQuery19InteractionPathBetweenCities query3a =
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id2, city2Id2 );
+
+        // Then
+        assertThat( query1a, equalTo( query1b ) );
+
+        assertThat( query1a, not( equalTo( query2a ) ) );
+
+        assertThat( query1a, not( equalTo( query3a ) ) );
+
+        assertThat( query2a, not( equalTo( query3a ) ) );
+    }
+
+    @Test
+    public void ldbcQuery20ShouldDoEqualsCorrectly()
+    {
+        // Given
+        String company1 = "BigCorp";
+        long person2Id1 = 1L;
+
+        String company2 = "LargeComp";
+        long person2Id2 = 2L;
+
+        // When
+        LdbcSnbBiQuery20Recruitment query1a =
+                new LdbcSnbBiQuery20Recruitment( company1, person2Id1 );
+        LdbcSnbBiQuery20Recruitment query1b =
+                new LdbcSnbBiQuery20Recruitment( company1, person2Id1 );
+        LdbcSnbBiQuery20Recruitment query2a =
+                new LdbcSnbBiQuery20Recruitment( company2, person2Id1 );
+        LdbcSnbBiQuery20Recruitment query3a =
+                new LdbcSnbBiQuery20Recruitment( company2, person2Id2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

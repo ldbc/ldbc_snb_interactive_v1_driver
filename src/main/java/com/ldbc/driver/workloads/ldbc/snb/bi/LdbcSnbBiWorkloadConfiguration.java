@@ -71,8 +71,16 @@ public class LdbcSnbBiWorkloadConfiguration
             FREQUENCY_SUFFIX;
     public final static String OPERATION_15_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery15WeightedPaths.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String OPERATION_16_FREQUENCY_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery16FakeNewsDetection.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String OPERATION_17_FREQUENCY_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery17InformationPropagationAnalysis.class.getSimpleName() + FREQUENCY_SUFFIX;
     public final static String OPERATION_18_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery18FriendRecommendation.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String OPERATION_19_FREQUENCY_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery19InteractionPathBetweenCities.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String OPERATION_20_FREQUENCY_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery20Recruitment.class.getSimpleName() + FREQUENCY_SUFFIX;
     public final static List<String> OPERATION_FREQUENCY_KEYS = Lists.newArrayList(
             OPERATION_1_FREQUENCY_KEY,
             OPERATION_2_FREQUENCY_KEY,
@@ -89,7 +97,11 @@ public class LdbcSnbBiWorkloadConfiguration
             OPERATION_13_FREQUENCY_KEY,
             OPERATION_14_FREQUENCY_KEY,
             OPERATION_15_FREQUENCY_KEY,
-            OPERATION_18_FREQUENCY_KEY
+            OPERATION_16_FREQUENCY_KEY,
+            OPERATION_17_FREQUENCY_KEY,
+            OPERATION_18_FREQUENCY_KEY,
+            OPERATION_19_FREQUENCY_KEY,
+            OPERATION_20_FREQUENCY_KEY
     );
 
     private static Map<Integer,String> typeToFrequencyKeyMapping()
@@ -110,7 +122,11 @@ public class LdbcSnbBiWorkloadConfiguration
         mapping.put( LdbcSnbBiQuery13Zombies.TYPE, OPERATION_13_FREQUENCY_KEY );
         mapping.put( LdbcSnbBiQuery14InternationalDialog.TYPE, OPERATION_14_FREQUENCY_KEY );
         mapping.put( LdbcSnbBiQuery15WeightedPaths.TYPE, OPERATION_15_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery16FakeNewsDetection.TYPE, OPERATION_16_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery17InformationPropagationAnalysis.TYPE, OPERATION_17_FREQUENCY_KEY );
         mapping.put( LdbcSnbBiQuery18FriendRecommendation.TYPE, OPERATION_18_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery19InteractionPathBetweenCities.TYPE, OPERATION_19_FREQUENCY_KEY );
+        mapping.put( LdbcSnbBiQuery20Recruitment.TYPE, OPERATION_20_FREQUENCY_KEY );
         return mapping;
     }
 
@@ -155,8 +171,16 @@ public class LdbcSnbBiWorkloadConfiguration
             INTERLEAVE_SUFFIX;
     public final static String OPERATION_15_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery15WeightedPaths.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String OPERATION_16_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery16FakeNewsDetection.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String OPERATION_17_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery17InformationPropagationAnalysis.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public final static String OPERATION_18_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery18FriendRecommendation.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String OPERATION_19_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery19InteractionPathBetweenCities.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String OPERATION_20_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery20Recruitment.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public final static List<String> OPERATION_INTERLEAVE_KEYS = Lists.newArrayList(
             OPERATION_1_INTERLEAVE_KEY,
             OPERATION_2_INTERLEAVE_KEY,
@@ -173,7 +197,11 @@ public class LdbcSnbBiWorkloadConfiguration
             OPERATION_13_INTERLEAVE_KEY,
             OPERATION_14_INTERLEAVE_KEY,
             OPERATION_15_INTERLEAVE_KEY,
-            OPERATION_18_INTERLEAVE_KEY
+            OPERATION_16_INTERLEAVE_KEY,
+            OPERATION_17_INTERLEAVE_KEY,
+            OPERATION_18_INTERLEAVE_KEY,
+            OPERATION_19_INTERLEAVE_KEY,
+            OPERATION_20_INTERLEAVE_KEY
     );
 
     private static Map<Integer,String> typeToInterleaveKeyMapping()
@@ -194,7 +222,11 @@ public class LdbcSnbBiWorkloadConfiguration
         mapping.put( LdbcSnbBiQuery13Zombies.TYPE, OPERATION_13_INTERLEAVE_KEY );
         mapping.put( LdbcSnbBiQuery14InternationalDialog.TYPE, OPERATION_14_INTERLEAVE_KEY );
         mapping.put( LdbcSnbBiQuery15WeightedPaths.TYPE, OPERATION_15_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery16FakeNewsDetection.TYPE, OPERATION_16_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery17InformationPropagationAnalysis.TYPE, OPERATION_17_INTERLEAVE_KEY );
         mapping.put( LdbcSnbBiQuery18FriendRecommendation.TYPE, OPERATION_18_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery19InteractionPathBetweenCities.TYPE, OPERATION_19_INTERLEAVE_KEY );
+        mapping.put( LdbcSnbBiQuery20Recruitment.TYPE, OPERATION_20_INTERLEAVE_KEY );
         return mapping;
     }
 
@@ -234,8 +266,16 @@ public class LdbcSnbBiWorkloadConfiguration
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery14InternationalDialog.class.getSimpleName() + ENABLE_SUFFIX;
     public final static String OPERATION_15_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery15WeightedPaths.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String OPERATION_16_ENABLE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery16FakeNewsDetection.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String OPERATION_17_ENABLE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery17InformationPropagationAnalysis.class.getSimpleName() + ENABLE_SUFFIX;
     public final static String OPERATION_18_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery18FriendRecommendation.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String OPERATION_19_ENABLE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery19InteractionPathBetweenCities.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String OPERATION_20_ENABLE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery20Recruitment.class.getSimpleName() + ENABLE_SUFFIX;
     public final static List<String> OPERATION_ENABLE_KEYS = Lists.newArrayList(
             OPERATION_1_ENABLE_KEY,
             OPERATION_2_ENABLE_KEY,
@@ -252,7 +292,11 @@ public class LdbcSnbBiWorkloadConfiguration
             OPERATION_13_ENABLE_KEY,
             OPERATION_14_ENABLE_KEY,
             OPERATION_15_ENABLE_KEY,
-            OPERATION_18_ENABLE_KEY
+            OPERATION_16_ENABLE_KEY,
+            OPERATION_17_ENABLE_KEY,
+            OPERATION_18_ENABLE_KEY,
+            OPERATION_19_ENABLE_KEY,
+            OPERATION_20_ENABLE_KEY
     );
 
     /*
@@ -273,7 +317,11 @@ public class LdbcSnbBiWorkloadConfiguration
     public final static String OPERATION_13_PARAMS_FILENAME = "bi_13_param.txt";
     public final static String OPERATION_14_PARAMS_FILENAME = "bi_14_param.txt";
     public final static String OPERATION_15_PARAMS_FILENAME = "bi_15_param.txt";
+    public final static String OPERATION_16_PARAMS_FILENAME = "bi_16_param.txt";
+    public final static String OPERATION_17_PARAMS_FILENAME = "bi_17_param.txt";
     public final static String OPERATION_18_PARAMS_FILENAME = "bi_18_param.txt";
+    public final static String OPERATION_19_PARAMS_FILENAME = "bi_19_param.txt";
+    public final static String OPERATION_20_PARAMS_FILENAME = "bi_20_param.txt";
     public final static List<String> OPERATION_PARAMS_FILENAMES = Lists.newArrayList(
             OPERATION_1_PARAMS_FILENAME,
             OPERATION_2_PARAMS_FILENAME,
@@ -290,7 +338,11 @@ public class LdbcSnbBiWorkloadConfiguration
             OPERATION_13_PARAMS_FILENAME,
             OPERATION_14_PARAMS_FILENAME,
             OPERATION_15_PARAMS_FILENAME,
-            OPERATION_18_PARAMS_FILENAME
+            OPERATION_16_PARAMS_FILENAME,
+            OPERATION_17_PARAMS_FILENAME,
+            OPERATION_18_PARAMS_FILENAME,
+            OPERATION_19_PARAMS_FILENAME,
+            OPERATION_20_PARAMS_FILENAME
     );
 
     public static Map<String,String> applyInterleaves( Map<String,String> params, LdbcSnbBiInterleaves interleaves )
@@ -315,7 +367,11 @@ public class LdbcSnbBiWorkloadConfiguration
         newParams.put( OPERATION_13_INTERLEAVE_KEY, Long.toString( interleaves.operation13Interleave ) );
         newParams.put( OPERATION_14_INTERLEAVE_KEY, Long.toString( interleaves.operation14Interleave ) );
         newParams.put( OPERATION_15_INTERLEAVE_KEY, Long.toString( interleaves.operation15Interleave ) );
+        newParams.put( OPERATION_16_INTERLEAVE_KEY, Long.toString( interleaves.operation16Interleave ) );
+        newParams.put( OPERATION_17_INTERLEAVE_KEY, Long.toString( interleaves.operation17Interleave ) );
         newParams.put( OPERATION_18_INTERLEAVE_KEY, Long.toString( interleaves.operation18Interleave ) );
+        newParams.put( OPERATION_19_INTERLEAVE_KEY, Long.toString( interleaves.operation19Interleave ) );
+        newParams.put( OPERATION_20_INTERLEAVE_KEY, Long.toString( interleaves.operation20Interleave ) );
         return newParams;
     }
 
@@ -340,7 +396,11 @@ public class LdbcSnbBiWorkloadConfiguration
                 Long.parseLong( params.get( OPERATION_13_FREQUENCY_KEY ) ),
                 Long.parseLong( params.get( OPERATION_14_FREQUENCY_KEY ) ),
                 Long.parseLong( params.get( OPERATION_15_FREQUENCY_KEY ) ),
-                Long.parseLong( params.get( OPERATION_18_FREQUENCY_KEY ) )
+                Long.parseLong( params.get( OPERATION_16_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_17_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_18_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_19_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_20_FREQUENCY_KEY ) )
         );
     }
 
@@ -363,7 +423,11 @@ public class LdbcSnbBiWorkloadConfiguration
                 Long.parseLong( params.get( OPERATION_13_INTERLEAVE_KEY ) ),
                 Long.parseLong( params.get( OPERATION_14_INTERLEAVE_KEY ) ),
                 Long.parseLong( params.get( OPERATION_15_INTERLEAVE_KEY ) ),
-                Long.parseLong( params.get( OPERATION_18_INTERLEAVE_KEY ) )
+                Long.parseLong( params.get( OPERATION_16_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_17_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_18_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_19_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_20_INTERLEAVE_KEY ) )
         );
     }
 
@@ -384,7 +448,11 @@ public class LdbcSnbBiWorkloadConfiguration
         final long operation13Interleave;
         final long operation14Interleave;
         final long operation15Interleave;
+        final long operation16Interleave;
+        final long operation17Interleave;
         final long operation18Interleave;
+        final long operation19Interleave;
+        final long operation20Interleave;
 
         static LdbcSnbBiInterleaves fromFrequencies(
                 long minimumDistanceAsMilli,
@@ -403,7 +471,11 @@ public class LdbcSnbBiWorkloadConfiguration
                 long operation13Frequency,
                 long operation14Frequency,
                 long operation15Frequency,
-                long operation18Frequency )
+                long operation16Frequency,
+                long operation17Frequency,
+                long operation18Frequency,
+                long operation19Frequency,
+                long operation20Frequency )
         {
             return new LdbcSnbBiInterleaves(
                     operation1Frequency * minimumDistanceAsMilli,
@@ -421,7 +493,11 @@ public class LdbcSnbBiWorkloadConfiguration
                     operation13Frequency * minimumDistanceAsMilli,
                     operation14Frequency * minimumDistanceAsMilli,
                     operation15Frequency * minimumDistanceAsMilli,
-                    operation18Frequency * minimumDistanceAsMilli
+                    operation16Frequency * minimumDistanceAsMilli,
+                    operation17Frequency * minimumDistanceAsMilli,
+                    operation18Frequency * minimumDistanceAsMilli,
+                    operation19Frequency * minimumDistanceAsMilli,
+                    operation20Frequency * minimumDistanceAsMilli
             );
         }
 
@@ -441,7 +517,11 @@ public class LdbcSnbBiWorkloadConfiguration
                 long operation13Interleave,
                 long operation14Interleave,
                 long operation15Interleave,
-                long operation18Interleave )
+                long operation16Interleave,
+                long operation17Interleave,
+                long operation18Interleave,
+                long operation19Interleave,
+                long operation20Interleave )
         {
             this.operation1Interleave = operation1Interleave;
             this.operation2Interleave = operation2Interleave;
@@ -458,7 +538,11 @@ public class LdbcSnbBiWorkloadConfiguration
             this.operation13Interleave = operation13Interleave;
             this.operation14Interleave = operation14Interleave;
             this.operation15Interleave = operation15Interleave;
+            this.operation16Interleave = operation16Interleave;
+            this.operation17Interleave = operation17Interleave;
             this.operation18Interleave = operation18Interleave;
+            this.operation19Interleave = operation19Interleave;
+            this.operation20Interleave = operation20Interleave;
         }
     }
 
@@ -498,7 +582,11 @@ public class LdbcSnbBiWorkloadConfiguration
         mapping.put( LdbcSnbBiQuery13Zombies.TYPE, LdbcSnbBiQuery13Zombies.class );
         mapping.put( LdbcSnbBiQuery14InternationalDialog.TYPE, LdbcSnbBiQuery14InternationalDialog.class );
         mapping.put( LdbcSnbBiQuery15WeightedPaths.TYPE, LdbcSnbBiQuery15WeightedPaths.class );
+        mapping.put( LdbcSnbBiQuery16FakeNewsDetection.TYPE, LdbcSnbBiQuery16FakeNewsDetection.class );
+        mapping.put( LdbcSnbBiQuery17InformationPropagationAnalysis.TYPE, LdbcSnbBiQuery17InformationPropagationAnalysis.class );
         mapping.put( LdbcSnbBiQuery18FriendRecommendation.TYPE, LdbcSnbBiQuery18FriendRecommendation.class );
+        mapping.put( LdbcSnbBiQuery19InteractionPathBetweenCities.TYPE, LdbcSnbBiQuery19InteractionPathBetweenCities.class );
+        mapping.put( LdbcSnbBiQuery20Recruitment.TYPE, LdbcSnbBiQuery20Recruitment.class );
         return mapping;
     }
 

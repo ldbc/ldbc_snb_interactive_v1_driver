@@ -85,9 +85,29 @@ public class DummyLdbcSnbBiOperationInstances
         return new LdbcSnbBiQuery15WeightedPaths( 1, 2, 1, 2 );
     }
 
+    public static LdbcSnbBiQuery16FakeNewsDetection read16()
+    {
+        return new LdbcSnbBiQuery16FakeNewsDetection( "My_Tag1", 2L, "My_Tag2", 3L, 5, 20 );
+    }
+
+    public static LdbcSnbBiQuery17InformationPropagationAnalysis read17()
+    {
+        return new LdbcSnbBiQuery17InformationPropagationAnalysis( "My_Tag", 5, 20 );
+    }
+
     public static LdbcSnbBiQuery18FriendRecommendation read18()
     {
         return new LdbcSnbBiQuery18FriendRecommendation( 1L, "My_Tag", 20 );
+    }
+
+    public static LdbcSnbBiQuery19InteractionPathBetweenCities read19()
+    {
+        return new LdbcSnbBiQuery19InteractionPathBetweenCities( 1L, 2L );
+    }
+
+    public static LdbcSnbBiQuery20Recruitment read20()
+    {
+        return new LdbcSnbBiQuery20Recruitment( "My_Company", 2 );
     }
 
 }
