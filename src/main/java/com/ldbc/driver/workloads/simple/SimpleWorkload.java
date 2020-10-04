@@ -297,7 +297,7 @@ public class SimpleWorkload extends Workload {
     public Operation marshalOperation(String serializedOperation) throws SerializingMarshallingException {
         List<Object> operationAsList;
         try {
-            operationAsList = OBJECT_MAPPER.readValue(serializedOperation, TYPE_REFERENCE);
+            operationAsList = (List<Object>) OBJECT_MAPPER.readValue(serializedOperation, TYPE_REFERENCE);
         } catch (IOException e) {
             throw new SerializingMarshallingException(
                     format("Error while parsing serialized results\n%s", serializedOperation), e);
