@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery4TopCountryPosters extends Operation<List<LdbcSnbBiQuery4TopCountryPostersResult>>
 {
-    public static final int TYPE = 5;
+    public static final int TYPE = 4;
     public static final int DEFAULT_LIMIT = 100;
     public static final String COUNTRY = "country";
     public static final String LIMIT = "limit";

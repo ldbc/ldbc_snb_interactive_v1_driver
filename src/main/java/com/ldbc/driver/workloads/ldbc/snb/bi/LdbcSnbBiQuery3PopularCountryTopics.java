@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery3PopularCountryTopics extends Operation<List<LdbcSnbBiQuery3PopularCountryTopicsResult>>
 {
-    public static final int TYPE = 4;
+    public static final int TYPE = 3;
     public static final int DEFAULT_LIMIT = 20;
     public static final String TAG_CLASS = "tagClass";
     public static final String COUNTRY = "country";

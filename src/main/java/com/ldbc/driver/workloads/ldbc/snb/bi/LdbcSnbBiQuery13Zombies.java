@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery13Zombies extends Operation<List<LdbcSnbBiQuery13ZombiesResult>>
 {
-    public static final int TYPE = 21;
+    public static final int TYPE = 13;
     public static final int DEFAULT_LIMIT = 100;
     public static final int DEFAULT_DAYS = 30;
     public static final String COUNTRY = "country";

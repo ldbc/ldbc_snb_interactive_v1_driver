@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery9TopThreadInitiators extends Operation<List<LdbcSnbBiQuery9TopThreadInitiatorsResult>>
 {
-    public static final int TYPE = 14;
+    public static final int TYPE = 9;
     public static final int DEFAULT_LIMIT = 100;
     public static final String START_DATE = "startDate";
     public static final String END_DATE = "endDate";

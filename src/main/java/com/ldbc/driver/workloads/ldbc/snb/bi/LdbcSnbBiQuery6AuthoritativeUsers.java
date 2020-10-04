@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery6AuthoritativeUsers extends Operation<List<LdbcSnbBiQuery6AuthoritativeUsersResult>>
 {
-    public static final int TYPE = 7;
+    public static final int TYPE = 6;
     public static final int DEFAULT_LIMIT = 100;
     public static final String TAG = "tag";
     public static final String LIMIT = "limit";

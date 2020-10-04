@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery12PersonPostCounts extends Operation<List<LdbcSnbBiQuery12PersonPostCountsResult>>
 {
-    public static final int TYPE = 18;
+    public static final int TYPE = 12;
     public static final int DEFAULT_LIMIT = 100;
     public static final String DATE = "date";
     public static final String LENGTH_THRESHOLD = "lengthThreshold";

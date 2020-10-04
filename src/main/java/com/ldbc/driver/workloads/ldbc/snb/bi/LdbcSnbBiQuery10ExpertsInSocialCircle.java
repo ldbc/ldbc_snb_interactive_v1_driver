@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery10ExpertsInSocialCircle extends Operation<List<LdbcSnbBiQuery10ExpertsInSocialCircleResult>>
 {
-    public static final int TYPE = 16;
+    public static final int TYPE = 10;
     public static final int DEFAULT_LIMIT = 100;
     public static final String PERSON_ID = "personId";
     public static final String COUNTRY = "country";

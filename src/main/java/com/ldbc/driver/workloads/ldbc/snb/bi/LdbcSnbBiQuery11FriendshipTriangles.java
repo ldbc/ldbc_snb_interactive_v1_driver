@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery11FriendshipTriangles extends Operation<LdbcSnbBiQuery11FriendshipTrianglesResult>
 {
-    public static final int TYPE = 17;
+    public static final int TYPE = 11;
     public static final String COUNTRY = "country";
 
     private final String country;

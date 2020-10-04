@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery2TagEvolution extends Operation<List<LdbcSnbBiQuery2TagEvolutionResult>>
 {
-    public static final int TYPE = 3;
+    public static final int TYPE = 2;
     public static final int DEFAULT_LIMIT = 100;
     public static final String YEAR = "year";
     public static final String MONTH = "month";

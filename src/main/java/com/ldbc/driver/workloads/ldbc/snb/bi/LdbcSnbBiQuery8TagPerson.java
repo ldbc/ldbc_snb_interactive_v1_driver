@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery8TagPerson extends Operation<List<LdbcSnbBiQuery8TagPersonResult>>
 {
-    public static final int TYPE = 10;
+    public static final int TYPE = 8;
     public static final int DEFAULT_LIMIT = 100;
     public static final String TAG = "tag";
     public static final String DATE = "date";

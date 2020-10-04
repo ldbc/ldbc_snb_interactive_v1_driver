@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery5ActivePosters extends Operation<List<LdbcSnbBiQuery5ActivePostersResult>>
 {
-    public static final int TYPE = 6;
+    public static final int TYPE = 5;
     public static final int DEFAULT_LIMIT = 100;
     public static final String TAG = "tag";
     public static final String LIMIT = "limit";

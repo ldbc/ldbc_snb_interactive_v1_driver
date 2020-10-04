@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery14InternationalDialog extends Operation<List<LdbcSnbBiQuery14InternationalDialogResult>>
 {
-    public static final int TYPE = 22;
+    public static final int TYPE = 14;
     public static final int DEFAULT_LIMIT = 100;
     public static final String COUNTRY1 = "country1";
     public static final String COUNTRY2 = "country2";

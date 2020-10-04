@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LdbcSnbBiQuery7RelatedTopics extends Operation<List<LdbcSnbBiQuery7RelatedTopicsResult>>
 {
-    public static final int TYPE = 8;
+    public static final int TYPE = 7;
     public static final int DEFAULT_LIMIT = 100;
     public static final String TAG = "tag";
     public static final String LIMIT = "limit";

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class LdbcSnbBiQuery15WeightedPaths extends Operation<List<LdbcSnbBiQuery15WeightedPathsResult>>
 {
-    public static final int TYPE = 25;
+    public static final int TYPE = 15;
     public static final String PERSON1_ID = "person1Id";
     public static final String PERSON2_ID = "person2Id";
     public static final String START_DATE = "startDate";
