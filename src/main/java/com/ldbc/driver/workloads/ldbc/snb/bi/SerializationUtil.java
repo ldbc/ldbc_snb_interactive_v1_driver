@@ -29,7 +29,7 @@ public class SerializationUtil
     {
         try
         {
-            return OBJECT_MAPPER.readValue( serializedJson, typeReference );
+            return (List<List<Object>>) OBJECT_MAPPER.readValue( serializedJson, typeReference );
         }
         catch ( IOException e )
         {

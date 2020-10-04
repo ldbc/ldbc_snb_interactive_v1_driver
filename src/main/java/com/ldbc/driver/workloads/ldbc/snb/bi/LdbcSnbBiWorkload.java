@@ -969,7 +969,7 @@ public class LdbcSnbBiWorkload extends Workload
         List<Object> operationAsList;
         try
         {
-            operationAsList = OBJECT_MAPPER.readValue( serializedOperation, TYPE_REFERENCE );
+            operationAsList = (List<Object>) OBJECT_MAPPER.readValue( serializedOperation, TYPE_REFERENCE );
         }
         catch ( IOException e )
         {
