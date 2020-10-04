@@ -22,7 +22,7 @@
         <commons.io.version>2.4</commons.io.version>
         <common.math.version>3.2</common.math.version>
         <commmons.cli.version>1.2</commmons.cli.version>
-        <commmons.collections.version>4.0</commmons.collections.version>
+        <commmons.collections.version>4.1</commmons.collections.version>
         <log4j.version>1.2.17</log4j.version>
         <hdrhistogram.version>1.2.1</hdrhistogram.version>
         <guava.version>18.0</guava.version>
