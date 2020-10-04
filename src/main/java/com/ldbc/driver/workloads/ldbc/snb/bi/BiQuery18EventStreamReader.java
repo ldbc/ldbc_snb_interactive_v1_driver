@@ -1,7 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
-import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -14,7 +13,6 @@ import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 public class BiQuery18EventStreamReader extends BaseEventStreamReader
 {
@@ -29,11 +27,10 @@ public class BiQuery18EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery18PersonPostCounts(
+        return new LdbcSnbBiQuery18FriendRecommendation(
                 (long) parameters[0],
-                (int) parameters[1],
-                (List<String>) parameters[2],
-                (int) parameters[3]
+                (String) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -47,10 +44,10 @@ public class BiQuery18EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long date;
+                long person1Id;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    person1Id = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -58,27 +55,27 @@ public class BiQuery18EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                int lengthThreshold;
+                String tag;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    lengthThreshold = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    tag = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving lengthThreshold" );
+                    throw new GeneratorException( "Error retrieving tag" );
                 }
 
-                List<String> languages;
+                int limit;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    languages = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
+                    limit = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving languages" );
+                    throw new GeneratorException( "Error retrieving limit" );
                 }
 
-                return new Object[]{date, lengthThreshold, languages, LdbcSnbBiQuery18PersonPostCounts.DEFAULT_LIMIT};
+                return new Object[]{person1Id, tag, limit};
             }
         };
     }

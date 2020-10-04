@@ -1,31 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi.db;
 
 import com.google.common.collect.Lists;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery10TagPersonResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery11UnrelatedRepliesResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery12TrendingPostsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery13PopularMonthlyTagsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery14TopThreadInitiatorsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery15SocialNormalsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery16ExpertsInSocialCircleResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery17FriendshipTrianglesResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery18PersonPostCountsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery19StrangerInteractionResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery1PostingSummaryResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery20HighLevelTopicsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery21ZombiesResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery22InternationalDialogResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery23HolidayDestinationsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery24MessagesByTopicResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery25WeightedPathsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery2TopTagsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery3TagEvolutionResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery4PopularCountryTopicsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery5TopCountryPostersResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery6ActivePostersResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery7AuthoritativeUsersResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery8RelatedTopicsResult;
-import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery9RelatedForumsResult;
+import com.ldbc.driver.workloads.ldbc.snb.bi.*;
 
 public class DummyLdbcSnbBiOperationResultInstances
 {
@@ -39,131 +15,98 @@ public class DummyLdbcSnbBiOperationResultInstances
         return new LdbcSnbBiQuery1PostingSummaryResult( 1, false, 2, 3, 4, 5, 6.0f );
     }
 
-    public static LdbcSnbBiQuery2TopTagsResult read2Result()
+    public static LdbcSnbBiQuery2TagEvolutionResult read2Result()
     {
-        return new LdbcSnbBiQuery2TopTagsResult( "\u16a0", 1, "\u3055", 2, "\u4e35", 3 );
+        return new LdbcSnbBiQuery2TagEvolutionResult( "1", 2, 3, 4 );
     }
 
-    public static LdbcSnbBiQuery3TagEvolutionResult read3Result()
+    public static LdbcSnbBiQuery3PopularCountryTopicsResult read3Result()
     {
-        return new LdbcSnbBiQuery3TagEvolutionResult( "1", 2, 3, 4 );
+        return new LdbcSnbBiQuery3PopularCountryTopicsResult( 1, "\u16a0", Long.MAX_VALUE, Long.MIN_VALUE, 2 );
     }
 
-    public static LdbcSnbBiQuery4PopularCountryTopicsResult read4Result()
+    public static LdbcSnbBiQuery4TopCountryPostersResult read4Result()
     {
-        return new LdbcSnbBiQuery4PopularCountryTopicsResult( 1, "\u16a0", Long.MAX_VALUE, Long.MIN_VALUE, 2 );
+        return new LdbcSnbBiQuery4TopCountryPostersResult( 1, "\u0634", "\u16a0", 2, 3 );
     }
 
-    public static LdbcSnbBiQuery5TopCountryPostersResult read5Result()
+    public static LdbcSnbBiQuery5ActivePostersResult read5Result()
     {
-        return new LdbcSnbBiQuery5TopCountryPostersResult( 1, "\u0634", "\u16a0", 2, 3 );
+        return new LdbcSnbBiQuery5ActivePostersResult( 1, 2, 3, 4, 5 );
     }
 
-    public static LdbcSnbBiQuery6ActivePostersResult read6Result()
+    public static LdbcSnbBiQuery6AuthoritativeUsersResult read6Result()
     {
-        return new LdbcSnbBiQuery6ActivePostersResult( 1, 2, 3, 4, 5 );
+        return new LdbcSnbBiQuery6AuthoritativeUsersResult( 1, 2 );
     }
 
-    public static LdbcSnbBiQuery7AuthoritativeUsersResult read7Result()
+    public static LdbcSnbBiQuery7RelatedTopicsResult read7Result()
     {
-        return new LdbcSnbBiQuery7AuthoritativeUsersResult( 1, 2 );
+        return new LdbcSnbBiQuery7RelatedTopicsResult( "\u4e35", 2 );
     }
 
-    public static LdbcSnbBiQuery8RelatedTopicsResult read8Result()
+    public static LdbcSnbBiQuery8TagPersonResult read8Result()
     {
-        return new LdbcSnbBiQuery8RelatedTopicsResult( "\u4e35", 2 );
+        return new LdbcSnbBiQuery8TagPersonResult( 1, 2, 3 );
     }
 
-    public static LdbcSnbBiQuery9RelatedForumsResult read9Result()
+    public static LdbcSnbBiQuery9TopThreadInitiatorsResult read9Result()
     {
-        return new LdbcSnbBiQuery9RelatedForumsResult( Long.MAX_VALUE, 1, 2 );
+        return new LdbcSnbBiQuery9TopThreadInitiatorsResult( 1, "2", "3", 4, 5 );
     }
 
-    public static LdbcSnbBiQuery10TagPersonResult read10Result()
+    public static LdbcSnbBiQuery10ExpertsInSocialCircleResult read10Result()
     {
-        return new LdbcSnbBiQuery10TagPersonResult( 1, 2, 3 );
+        return new LdbcSnbBiQuery10ExpertsInSocialCircleResult( 1, "2", 3 );
     }
 
-    public static LdbcSnbBiQuery11UnrelatedRepliesResult read11Result()
+    public static LdbcSnbBiQuery11FriendshipTrianglesResult read11Result()
     {
-        return new LdbcSnbBiQuery11UnrelatedRepliesResult( 1, "\u16a0", 2, 3 );
+        return new LdbcSnbBiQuery11FriendshipTrianglesResult( 1 );
     }
 
-    public static LdbcSnbBiQuery12TrendingPostsResult read12Result()
+    public static LdbcSnbBiQuery12PersonPostCountsResult read12Result()
     {
-        return new LdbcSnbBiQuery12TrendingPostsResult( 1, 2L, "\u16a0", "\u3055", 3 );
+        return new LdbcSnbBiQuery12PersonPostCountsResult( 1, 2 );
     }
 
-    public static LdbcSnbBiQuery13PopularMonthlyTagsResult read13Result()
+    public static LdbcSnbBiQuery13ZombiesResult read13Result()
     {
-        return new LdbcSnbBiQuery13PopularMonthlyTagsResult(
-                1,
-                2,
-                Lists.newArrayList(
-                        new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity( "tag1", 1 ),
-                        new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity( "tag2", 2 ),
-                        new LdbcSnbBiQuery13PopularMonthlyTagsResult.TagPopularity( "tag3", 3 )
-                )
-        );
+        return new LdbcSnbBiQuery13ZombiesResult( 1, 2, 3, 4.5 );
     }
 
-    public static LdbcSnbBiQuery14TopThreadInitiatorsResult read14Result()
+    public static LdbcSnbBiQuery14InternationalDialogResult read14Result()
     {
-        return new LdbcSnbBiQuery14TopThreadInitiatorsResult( 1, "2", "3", 4, 5 );
+        return new LdbcSnbBiQuery14InternationalDialogResult( 1, 2,  "Paris", 3 );
     }
 
-    public static LdbcSnbBiQuery15SocialNormalsResult read15Result()
+    public static LdbcSnbBiQuery15WeightedPathsResult read15Result()
     {
-        return new LdbcSnbBiQuery15SocialNormalsResult( 1, 2 );
+        return new LdbcSnbBiQuery15WeightedPathsResult( Lists.newArrayList(1L, 2L), 0.5);
     }
 
-    public static LdbcSnbBiQuery16ExpertsInSocialCircleResult read16Result()
+    public static LdbcSnbBiQuery16FakeNewsDetectionResult read16Result()
     {
-        return new LdbcSnbBiQuery16ExpertsInSocialCircleResult( 1, "2", 3 );
+        return new LdbcSnbBiQuery16FakeNewsDetectionResult( 1L, 2, 3 );
     }
 
-    public static LdbcSnbBiQuery17FriendshipTrianglesResult read17Result()
+    public static LdbcSnbBiQuery17InformationPropagationAnalysisResult read17Result()
     {
-        return new LdbcSnbBiQuery17FriendshipTrianglesResult( 1 );
+        return new LdbcSnbBiQuery17InformationPropagationAnalysisResult( 1L, 2 );
     }
 
-    public static LdbcSnbBiQuery18PersonPostCountsResult read18Result()
+    public static LdbcSnbBiQuery18FriendRecommendationResult read18Result()
     {
-        return new LdbcSnbBiQuery18PersonPostCountsResult( 1, 2 );
+        return new LdbcSnbBiQuery18FriendRecommendationResult( 1L, 3 );
     }
 
-    public static LdbcSnbBiQuery19StrangerInteractionResult read19Result()
+    public static LdbcSnbBiQuery19InteractionPathBetweenCitiesResult read19Result()
     {
-        return new LdbcSnbBiQuery19StrangerInteractionResult( 1, 2, 3 );
+        return new LdbcSnbBiQuery19InteractionPathBetweenCitiesResult( 1L, 2L, 0.5f );
     }
 
-    public static LdbcSnbBiQuery20HighLevelTopicsResult read20Result()
+    public static LdbcSnbBiQuery20RecruitmentResult read20Result()
     {
-        return new LdbcSnbBiQuery20HighLevelTopicsResult( "\u16a0", 1 );
-    }
-
-    public static LdbcSnbBiQuery21ZombiesResult read21Result()
-    {
-        return new LdbcSnbBiQuery21ZombiesResult( 1, 2, 3, 4.5 );
-    }
-
-    public static LdbcSnbBiQuery22InternationalDialogResult read22Result()
-    {
-        return new LdbcSnbBiQuery22InternationalDialogResult( 1, 2,  "Paris", 3 );
-    }
-
-    public static LdbcSnbBiQuery23HolidayDestinationsResult read23Result()
-    {
-        return new LdbcSnbBiQuery23HolidayDestinationsResult( 1, "Germany", 2 );
-    }
-
-    public static LdbcSnbBiQuery24MessagesByTopicResult read24Result()
-    {
-        return new LdbcSnbBiQuery24MessagesByTopicResult( 1, 2, 3, 4, "5" );
-    }
-
-    public static LdbcSnbBiQuery25WeightedPathsResult read25Result()
-    {
-        return new LdbcSnbBiQuery25WeightedPathsResult( Lists.newArrayList(1L, 2L), 0.5);
+        return new LdbcSnbBiQuery20RecruitmentResult( 1L, 10);
     }
 }

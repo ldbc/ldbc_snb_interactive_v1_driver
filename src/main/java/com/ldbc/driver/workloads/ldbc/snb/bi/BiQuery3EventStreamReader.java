@@ -27,9 +27,9 @@ public class BiQuery3EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery3TagEvolution(
-                (int) parameters[0],
-                (int) parameters[1],
+        return new LdbcSnbBiQuery3PopularCountryTopics(
+                (String) parameters[0],
+                (String) parameters[1],
                 (int) parameters[2]
         );
     }
@@ -44,10 +44,10 @@ public class BiQuery3EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                int year;
+                String tagClass;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    year = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    tagClass = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -55,21 +55,17 @@ public class BiQuery3EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                int month;
+                String country;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    month = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    country = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving month" );
+                    throw new GeneratorException( "Error retrieving country name" );
                 }
 
-                return new Object[]{
-                        year,
-                        month,
-                        LdbcSnbBiQuery3TagEvolution.DEFAULT_LIMIT
-                };
+                return new Object[]{tagClass, country, LdbcSnbBiQuery3PopularCountryTopics.DEFAULT_LIMIT};
             }
         };
     }

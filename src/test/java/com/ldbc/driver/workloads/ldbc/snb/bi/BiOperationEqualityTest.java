@@ -33,43 +33,31 @@ public class BiOperationEqualityTest
     public void ldbcQuery2ShouldDoEqualsCorrectly()
     {
         // Given
-        long startDate1 = 1;
-        long endDate1 = 1;
-        String country11 = "a";
-        String country21 = "b";
+        int year1 = 1;
+        int month1 = 1;
         int limit1 = 1;
 
-        long startDate2 = 2;
-        long endDate2 = 2;
-        String country12 = "a";
-        String country22 = "c";
+        int year2 = 2;
+        int month2 = 2;
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery2TopTags query1a = new LdbcSnbBiQuery2TopTags(
-                startDate1,
-                endDate1,
-                country11,
-                country21,
+        LdbcSnbBiQuery2TagEvolution query1a = new LdbcSnbBiQuery2TagEvolution(
+                year1,
+                month1,
                 limit1 );
-        LdbcSnbBiQuery2TopTags query1b = new LdbcSnbBiQuery2TopTags(
-                startDate1,
-                endDate1,
-                country11,
-                country21,
+        LdbcSnbBiQuery2TagEvolution query1b = new LdbcSnbBiQuery2TagEvolution(
+                year1,
+                month1,
                 limit1 );
-        LdbcSnbBiQuery2TopTags query2a = new LdbcSnbBiQuery2TopTags(
-                startDate2,
-                endDate2,
-                country12,
-                country22,
+        LdbcSnbBiQuery2TagEvolution query2a = new LdbcSnbBiQuery2TagEvolution(
+                year2,
+                month2,
                 limit2 );
-        LdbcSnbBiQuery2TopTags query3a = new LdbcSnbBiQuery2TopTags(
-                startDate1,
-                endDate2,
-                country11,
-                country22,
-                limit2 );
+        LdbcSnbBiQuery2TagEvolution query3a = new LdbcSnbBiQuery2TagEvolution(
+                year1,
+                month2,
+                limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -82,31 +70,23 @@ public class BiOperationEqualityTest
     public void ldbcQuery3ShouldDoEqualsCorrectly()
     {
         // Given
-        int year1 = 1;
-        int month1 = 1;
+        String tagClass1 = "1";
+        String country1 = "\u3055";
         int limit1 = 1;
 
-        int year2 = 2;
-        int month2 = 2;
+        String tagClass2 = "2";
+        String country2 = "\u4e35";
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery3TagEvolution query1a = new LdbcSnbBiQuery3TagEvolution(
-                year1,
-                month1,
-                limit1 );
-        LdbcSnbBiQuery3TagEvolution query1b = new LdbcSnbBiQuery3TagEvolution(
-                year1,
-                month1,
-                limit1 );
-        LdbcSnbBiQuery3TagEvolution query2a = new LdbcSnbBiQuery3TagEvolution(
-                year2,
-                month2,
-                limit2 );
-        LdbcSnbBiQuery3TagEvolution query3a = new LdbcSnbBiQuery3TagEvolution(
-                year1,
-                month2,
-                limit1 );
+        LdbcSnbBiQuery3PopularCountryTopics
+                query1a = new LdbcSnbBiQuery3PopularCountryTopics( tagClass1, country1, limit1 );
+        LdbcSnbBiQuery3PopularCountryTopics
+                query1b = new LdbcSnbBiQuery3PopularCountryTopics( tagClass1, country1, limit1 );
+        LdbcSnbBiQuery3PopularCountryTopics
+                query2a = new LdbcSnbBiQuery3PopularCountryTopics( tagClass2, country2, limit2 );
+        LdbcSnbBiQuery3PopularCountryTopics
+                query3a = new LdbcSnbBiQuery3PopularCountryTopics( tagClass2, country2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -119,23 +99,29 @@ public class BiOperationEqualityTest
     public void ldbcQuery4ShouldDoEqualsCorrectly()
     {
         // Given
-        String tagClass1 = "1";
         String country1 = "\u3055";
         int limit1 = 1;
 
-        String tagClass2 = "2";
         String country2 = "\u4e35";
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery4PopularCountryTopics
-                query1a = new LdbcSnbBiQuery4PopularCountryTopics( tagClass1, country1, limit1 );
-        LdbcSnbBiQuery4PopularCountryTopics
-                query1b = new LdbcSnbBiQuery4PopularCountryTopics( tagClass1, country1, limit1 );
-        LdbcSnbBiQuery4PopularCountryTopics
-                query2a = new LdbcSnbBiQuery4PopularCountryTopics( tagClass2, country2, limit2 );
-        LdbcSnbBiQuery4PopularCountryTopics
-                query3a = new LdbcSnbBiQuery4PopularCountryTopics( tagClass2, country2, limit1 );
+        LdbcSnbBiQuery4TopCountryPosters query1a = new LdbcSnbBiQuery4TopCountryPosters(
+                country1,
+                limit1
+        );
+        LdbcSnbBiQuery4TopCountryPosters query1b = new LdbcSnbBiQuery4TopCountryPosters(
+                country1,
+                limit1
+        );
+        LdbcSnbBiQuery4TopCountryPosters query2a = new LdbcSnbBiQuery4TopCountryPosters(
+                country2,
+                limit2
+        );
+        LdbcSnbBiQuery4TopCountryPosters query3a = new LdbcSnbBiQuery4TopCountryPosters(
+                country2,
+                limit1
+        );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -148,29 +134,17 @@ public class BiOperationEqualityTest
     public void ldbcQuery5ShouldDoEqualsCorrectly()
     {
         // Given
-        String country1 = "\u3055";
+        String tag1 = "\u3055";
         int limit1 = 1;
 
-        String country2 = "\u4e35";
+        String tag2 = "\u4e35";
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery5TopCountryPosters query1a = new LdbcSnbBiQuery5TopCountryPosters(
-                country1,
-                limit1
-        );
-        LdbcSnbBiQuery5TopCountryPosters query1b = new LdbcSnbBiQuery5TopCountryPosters(
-                country1,
-                limit1
-        );
-        LdbcSnbBiQuery5TopCountryPosters query2a = new LdbcSnbBiQuery5TopCountryPosters(
-                country2,
-                limit2
-        );
-        LdbcSnbBiQuery5TopCountryPosters query3a = new LdbcSnbBiQuery5TopCountryPosters(
-                country2,
-                limit1
-        );
+        LdbcSnbBiQuery5ActivePosters query1a = new LdbcSnbBiQuery5ActivePosters( tag1, limit1 );
+        LdbcSnbBiQuery5ActivePosters query1b = new LdbcSnbBiQuery5ActivePosters( tag1, limit1 );
+        LdbcSnbBiQuery5ActivePosters query2a = new LdbcSnbBiQuery5ActivePosters( tag2, limit2 );
+        LdbcSnbBiQuery5ActivePosters query3a = new LdbcSnbBiQuery5ActivePosters( tag2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -190,10 +164,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery6ActivePosters query1a = new LdbcSnbBiQuery6ActivePosters( tag1, limit1 );
-        LdbcSnbBiQuery6ActivePosters query1b = new LdbcSnbBiQuery6ActivePosters( tag1, limit1 );
-        LdbcSnbBiQuery6ActivePosters query2a = new LdbcSnbBiQuery6ActivePosters( tag2, limit2 );
-        LdbcSnbBiQuery6ActivePosters query3a = new LdbcSnbBiQuery6ActivePosters( tag2, limit1 );
+        LdbcSnbBiQuery6AuthoritativeUsers query1a = new LdbcSnbBiQuery6AuthoritativeUsers( tag1, limit1 );
+        LdbcSnbBiQuery6AuthoritativeUsers query1b = new LdbcSnbBiQuery6AuthoritativeUsers( tag1, limit1 );
+        LdbcSnbBiQuery6AuthoritativeUsers query2a = new LdbcSnbBiQuery6AuthoritativeUsers( tag2, limit2 );
+        LdbcSnbBiQuery6AuthoritativeUsers query3a = new LdbcSnbBiQuery6AuthoritativeUsers( tag2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -213,10 +187,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery7AuthoritativeUsers query1a = new LdbcSnbBiQuery7AuthoritativeUsers( tag1, limit1 );
-        LdbcSnbBiQuery7AuthoritativeUsers query1b = new LdbcSnbBiQuery7AuthoritativeUsers( tag1, limit1 );
-        LdbcSnbBiQuery7AuthoritativeUsers query2a = new LdbcSnbBiQuery7AuthoritativeUsers( tag2, limit2 );
-        LdbcSnbBiQuery7AuthoritativeUsers query3a = new LdbcSnbBiQuery7AuthoritativeUsers( tag2, limit1 );
+        LdbcSnbBiQuery7RelatedTopics query1a = new LdbcSnbBiQuery7RelatedTopics( tag1, limit1 );
+        LdbcSnbBiQuery7RelatedTopics query1b = new LdbcSnbBiQuery7RelatedTopics( tag1, limit1 );
+        LdbcSnbBiQuery7RelatedTopics query2a = new LdbcSnbBiQuery7RelatedTopics( tag2, limit2 );
+        LdbcSnbBiQuery7RelatedTopics query3a = new LdbcSnbBiQuery7RelatedTopics( tag2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -230,16 +204,18 @@ public class BiOperationEqualityTest
     {
         // Given
         String tag1 = "\u3055";
+        long date1 = 1;
         int limit1 = 1;
 
         String tag2 = "\u4e35";
+        long date2 = 2;
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery8RelatedTopics query1a = new LdbcSnbBiQuery8RelatedTopics( tag1, limit1 );
-        LdbcSnbBiQuery8RelatedTopics query1b = new LdbcSnbBiQuery8RelatedTopics( tag1, limit1 );
-        LdbcSnbBiQuery8RelatedTopics query2a = new LdbcSnbBiQuery8RelatedTopics( tag2, limit2 );
-        LdbcSnbBiQuery8RelatedTopics query3a = new LdbcSnbBiQuery8RelatedTopics( tag2, limit1 );
+        LdbcSnbBiQuery8TagPerson query1a = new LdbcSnbBiQuery8TagPerson( tag1, date1, limit1 );
+        LdbcSnbBiQuery8TagPerson query1b = new LdbcSnbBiQuery8TagPerson( tag1, date1, limit1 );
+        LdbcSnbBiQuery8TagPerson query2a = new LdbcSnbBiQuery8TagPerson( tag2, date2, limit2 );
+        LdbcSnbBiQuery8TagPerson query3a = new LdbcSnbBiQuery8TagPerson( tag2, date1, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -252,37 +228,31 @@ public class BiOperationEqualityTest
     public void ldbcQuery9ShouldDoEqualsCorrectly()
     {
         // Given
-        String tagClass11 = "\u3055";
-        String tagClass21 = "1";
-        int threshold1 = 1;
+        long startDate1 = 1;
+        long endDate1 = 1;
         int limit1 = 1;
 
-        String tagClass12 = "\u4e35";
-        String tagClass22 = "2";
-        int threshold2 = 2;
+        long startDate2 = 2;
+        long endDate2 = 2;
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery9RelatedForums query1a = new LdbcSnbBiQuery9RelatedForums(
-                tagClass11,
-                tagClass21,
-                threshold1,
+        LdbcSnbBiQuery9TopThreadInitiators query1a = new LdbcSnbBiQuery9TopThreadInitiators(
+                startDate1,
+                endDate1,
                 limit1 );
-        LdbcSnbBiQuery9RelatedForums query1b = new LdbcSnbBiQuery9RelatedForums(
-                tagClass11,
-                tagClass21,
-                threshold1,
+        LdbcSnbBiQuery9TopThreadInitiators query1b = new LdbcSnbBiQuery9TopThreadInitiators(
+                startDate1,
+                endDate1,
                 limit1 );
-        LdbcSnbBiQuery9RelatedForums query2a = new LdbcSnbBiQuery9RelatedForums(
-                tagClass12,
-                tagClass22,
-                threshold2,
+        LdbcSnbBiQuery9TopThreadInitiators query2a = new LdbcSnbBiQuery9TopThreadInitiators(
+                startDate2,
+                endDate2,
                 limit2 );
-        LdbcSnbBiQuery9RelatedForums query3a = new LdbcSnbBiQuery9RelatedForums(
-                tagClass12,
-                tagClass22,
-                threshold2,
-                limit1 );
+        LdbcSnbBiQuery9TopThreadInitiators query3a = new LdbcSnbBiQuery9TopThreadInitiators(
+                startDate1,
+                endDate2,
+                limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -293,164 +263,6 @@ public class BiOperationEqualityTest
 
     @Test
     public void ldbcQuery10ShouldDoEqualsCorrectly()
-    {
-        // Given
-        String tag1 = "\u3055";
-        long date1 = 1;
-        int limit1 = 1;
-
-        String tag2 = "\u4e35";
-        long date2 = 2;
-        int limit2 = 2;
-
-        // When
-        LdbcSnbBiQuery10TagPerson query1a = new LdbcSnbBiQuery10TagPerson( tag1, date1, limit1 );
-        LdbcSnbBiQuery10TagPerson query1b = new LdbcSnbBiQuery10TagPerson( tag1, date1, limit1 );
-        LdbcSnbBiQuery10TagPerson query2a = new LdbcSnbBiQuery10TagPerson( tag2, date2, limit2 );
-        LdbcSnbBiQuery10TagPerson query3a = new LdbcSnbBiQuery10TagPerson( tag2, date1, limit1 );
-
-        // Then
-        assertThat( query1a, equalTo( query1b ) );
-        assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
-    }
-
-    @Test
-    public void ldbcQuery11ShouldDoEqualsCorrectly()
-    {
-        // Given
-        String country1 = "\u16a0";
-        List<String> blacklist1 = Lists.newArrayList( "\u3055" );
-        int limit1 = 1;
-
-        String country2 = "tag";
-        List<String> blacklist2 = Lists.newArrayList( "\u4e35" );
-        int limit2 = 2;
-
-        // When
-        LdbcSnbBiQuery11UnrelatedReplies query1a = new LdbcSnbBiQuery11UnrelatedReplies( country1, blacklist1, limit1 );
-        LdbcSnbBiQuery11UnrelatedReplies query1b = new LdbcSnbBiQuery11UnrelatedReplies( country1, blacklist1, limit1 );
-        LdbcSnbBiQuery11UnrelatedReplies query2a = new LdbcSnbBiQuery11UnrelatedReplies( country2, blacklist2, limit2 );
-        LdbcSnbBiQuery11UnrelatedReplies query3a = new LdbcSnbBiQuery11UnrelatedReplies( country1, blacklist2, limit1 );
-
-        // Then
-        assertThat( query1a, equalTo( query1b ) );
-        assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
-    }
-
-    @Test
-    public void ldbcQuery12ShouldDoEqualsCorrectly()
-    {
-        // Given
-        long date1 = 1;
-        int likeThreshold1 = 1;
-        int limit1 = 1;
-
-        long date2 = 2;
-        int likeThreshold2 = 2;
-        int limit2 = 2;
-
-        // When
-        LdbcSnbBiQuery12TrendingPosts query1a = new LdbcSnbBiQuery12TrendingPosts( date1, likeThreshold1, limit1 );
-        LdbcSnbBiQuery12TrendingPosts query1b = new LdbcSnbBiQuery12TrendingPosts( date1, likeThreshold1, limit1 );
-        LdbcSnbBiQuery12TrendingPosts query2a = new LdbcSnbBiQuery12TrendingPosts( date2, likeThreshold2, limit2 );
-        LdbcSnbBiQuery12TrendingPosts query3a = new LdbcSnbBiQuery12TrendingPosts( date1, likeThreshold2, limit2 );
-
-        // Then
-        assertThat( query1a, equalTo( query1b ) );
-        assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
-    }
-
-    @Test
-    public void ldbcQuery13ShouldDoEqualsCorrectly()
-    {
-        // Given
-        String country1 = "\u3055";
-        int limit1 = 1;
-
-        String country2 = "\u4e35";
-        int limit2 = 2;
-
-        // When
-        LdbcSnbBiQuery13PopularMonthlyTags query1a = new LdbcSnbBiQuery13PopularMonthlyTags( country1, limit1 );
-        LdbcSnbBiQuery13PopularMonthlyTags query1b = new LdbcSnbBiQuery13PopularMonthlyTags( country1, limit1 );
-        LdbcSnbBiQuery13PopularMonthlyTags query2a = new LdbcSnbBiQuery13PopularMonthlyTags( country2, limit2 );
-        LdbcSnbBiQuery13PopularMonthlyTags query3a = new LdbcSnbBiQuery13PopularMonthlyTags( country2, limit1 );
-
-        // Then
-        assertThat( query1a, equalTo( query1b ) );
-        assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
-    }
-
-    @Test
-    public void ldbcQuery14ShouldDoEqualsCorrectly()
-    {
-        // Given
-        long startDate1 = 1;
-        long endDate1 = 1;
-        int limit1 = 1;
-
-        long startDate2 = 2;
-        long endDate2 = 2;
-        int limit2 = 2;
-
-        // When
-        LdbcSnbBiQuery14TopThreadInitiators query1a = new LdbcSnbBiQuery14TopThreadInitiators(
-                startDate1,
-                endDate1,
-                limit1 );
-        LdbcSnbBiQuery14TopThreadInitiators query1b = new LdbcSnbBiQuery14TopThreadInitiators(
-                startDate1,
-                endDate1,
-                limit1 );
-        LdbcSnbBiQuery14TopThreadInitiators query2a = new LdbcSnbBiQuery14TopThreadInitiators(
-                startDate2,
-                endDate2,
-                limit2 );
-        LdbcSnbBiQuery14TopThreadInitiators query3a = new LdbcSnbBiQuery14TopThreadInitiators(
-                startDate1,
-                endDate2,
-                limit2 );
-
-        // Then
-        assertThat( query1a, equalTo( query1b ) );
-        assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
-    }
-
-    @Test
-    public void ldbcQuery15ShouldDoEqualsCorrectly()
-    {
-        // Given
-        String country1 = "\u3055";
-        int limit1 = 1;
-
-        String country2 = "\u4e35";
-        int limit2 = 2;
-
-        // When
-        LdbcSnbBiQuery15SocialNormals query1a = new LdbcSnbBiQuery15SocialNormals( country1, limit1 );
-        LdbcSnbBiQuery15SocialNormals query1b = new LdbcSnbBiQuery15SocialNormals( country1, limit1 );
-        LdbcSnbBiQuery15SocialNormals query2a = new LdbcSnbBiQuery15SocialNormals( country2, limit2 );
-        LdbcSnbBiQuery15SocialNormals query3a = new LdbcSnbBiQuery15SocialNormals( country2, limit1 );
-
-        // Then
-        assertThat( query1a, equalTo( query1b ) );
-        assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
-    }
-
-    @Test
-    public void ldbcQuery16ShouldDoEqualsCorrectly()
     {
         // Given
         long personId1 = 1;
@@ -468,17 +280,17 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery16ExpertsInSocialCircle
-                query1a = new LdbcSnbBiQuery16ExpertsInSocialCircle( personId1, country1, tagClass1, minPathDistance1,
+        LdbcSnbBiQuery10ExpertsInSocialCircle
+                query1a = new LdbcSnbBiQuery10ExpertsInSocialCircle( personId1, country1, tagClass1, minPathDistance1,
                 maxPathDistance1, limit1 );
-        LdbcSnbBiQuery16ExpertsInSocialCircle
-                query1b = new LdbcSnbBiQuery16ExpertsInSocialCircle( personId1, country1, tagClass1, minPathDistance1,
+        LdbcSnbBiQuery10ExpertsInSocialCircle
+                query1b = new LdbcSnbBiQuery10ExpertsInSocialCircle( personId1, country1, tagClass1, minPathDistance1,
                 maxPathDistance1, limit1 );
-        LdbcSnbBiQuery16ExpertsInSocialCircle
-                query2a = new LdbcSnbBiQuery16ExpertsInSocialCircle( personId2, country2, tagClass2, minPathDistance2,
+        LdbcSnbBiQuery10ExpertsInSocialCircle
+                query2a = new LdbcSnbBiQuery10ExpertsInSocialCircle( personId2, country2, tagClass2, minPathDistance2,
                 maxPathDistance2, limit2 );
-        LdbcSnbBiQuery16ExpertsInSocialCircle
-                query3a = new LdbcSnbBiQuery16ExpertsInSocialCircle( personId1, country1, tagClass2, minPathDistance1,
+        LdbcSnbBiQuery10ExpertsInSocialCircle
+                query3a = new LdbcSnbBiQuery10ExpertsInSocialCircle( personId1, country1, tagClass2, minPathDistance1,
                 maxPathDistance2, limit1 );
 
         // Then
@@ -489,7 +301,7 @@ public class BiOperationEqualityTest
     }
 
     @Test
-    public void ldbcQuery17ShouldDoEqualsCorrectly()
+    public void ldbcQuery11ShouldDoEqualsCorrectly()
     {
         // Given
         String country1 = "\u3055";
@@ -497,9 +309,9 @@ public class BiOperationEqualityTest
         String country2 = "\u4e35";
 
         // When
-        LdbcSnbBiQuery17FriendshipTriangles query1a = new LdbcSnbBiQuery17FriendshipTriangles( country1 );
-        LdbcSnbBiQuery17FriendshipTriangles query1b = new LdbcSnbBiQuery17FriendshipTriangles( country1 );
-        LdbcSnbBiQuery17FriendshipTriangles query2a = new LdbcSnbBiQuery17FriendshipTriangles( country2 );
+        LdbcSnbBiQuery11FriendshipTriangles query1a = new LdbcSnbBiQuery11FriendshipTriangles( country1 );
+        LdbcSnbBiQuery11FriendshipTriangles query1b = new LdbcSnbBiQuery11FriendshipTriangles( country1 );
+        LdbcSnbBiQuery11FriendshipTriangles query2a = new LdbcSnbBiQuery11FriendshipTriangles( country2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -507,7 +319,7 @@ public class BiOperationEqualityTest
     }
 
     @Test
-    public void ldbcQuery18ShouldDoEqualsCorrectly()
+    public void ldbcQuery12ShouldDoEqualsCorrectly()
     {
         // Given
         long date1 = 1;
@@ -521,13 +333,13 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery18PersonPostCounts query1a = new LdbcSnbBiQuery18PersonPostCounts( date1, lengthThreshold1,
+        LdbcSnbBiQuery12PersonPostCounts query1a = new LdbcSnbBiQuery12PersonPostCounts( date1, lengthThreshold1,
                 languages1, limit1 );
-        LdbcSnbBiQuery18PersonPostCounts query1b = new LdbcSnbBiQuery18PersonPostCounts( date1, lengthThreshold1,
+        LdbcSnbBiQuery12PersonPostCounts query1b = new LdbcSnbBiQuery12PersonPostCounts( date1, lengthThreshold1,
                 languages1, limit1 );
-        LdbcSnbBiQuery18PersonPostCounts query2a = new LdbcSnbBiQuery18PersonPostCounts( date2, lengthThreshold2,
+        LdbcSnbBiQuery12PersonPostCounts query2a = new LdbcSnbBiQuery12PersonPostCounts( date2, lengthThreshold2,
                 languages2, limit2 );
-        LdbcSnbBiQuery18PersonPostCounts query3a = new LdbcSnbBiQuery18PersonPostCounts( date1, lengthThreshold1,
+        LdbcSnbBiQuery12PersonPostCounts query3a = new LdbcSnbBiQuery12PersonPostCounts( date1, lengthThreshold1,
                 languages2, limit2 );
 
         // Then
@@ -538,58 +350,7 @@ public class BiOperationEqualityTest
     }
 
     @Test
-    public void ldbcQuery19ShouldDoEqualsCorrectly()
-    {
-        // Given
-        long date1 = 1;
-        String tagClass11 = "\u3055";
-        String tagClass21 = "\u16a0";
-        int limit1 = 1;
-
-        long date2 = 2;
-        String tagClass12 = "\u4e35";
-        String tagClass22 = "tag";
-        int limit2 = 2;
-
-        // When
-        LdbcSnbBiQuery19StrangerInteraction
-                query1a = new LdbcSnbBiQuery19StrangerInteraction( date1, tagClass11, tagClass21, limit1 );
-        LdbcSnbBiQuery19StrangerInteraction
-                query1b = new LdbcSnbBiQuery19StrangerInteraction( date1, tagClass11, tagClass21, limit1 );
-        LdbcSnbBiQuery19StrangerInteraction
-                query2a = new LdbcSnbBiQuery19StrangerInteraction( date2, tagClass12, tagClass22, limit2 );
-        LdbcSnbBiQuery19StrangerInteraction
-                query3a = new LdbcSnbBiQuery19StrangerInteraction( date1, tagClass12, tagClass21, limit1 );
-
-        // Then
-        assertThat( query1a, equalTo( query1b ) );
-        assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
-    }
-
-    @Test
-    public void ldbcQuery20ShouldDoEqualsCorrectly()
-    {
-        // Given
-        List<String> tagClasses1 = Lists.newArrayList( "1", "2" );
-        int limit1 = 1;
-
-        List<String> tagClasses2 = Lists.newArrayList( "1" );
-        int limit2 = 1;
-
-        // When
-        LdbcSnbBiQuery20HighLevelTopics query1a = new LdbcSnbBiQuery20HighLevelTopics( tagClasses1, limit1 );
-        LdbcSnbBiQuery20HighLevelTopics query1b = new LdbcSnbBiQuery20HighLevelTopics( tagClasses1, limit1 );
-        LdbcSnbBiQuery20HighLevelTopics query2a = new LdbcSnbBiQuery20HighLevelTopics( tagClasses2, limit2 );
-
-        // Then
-        assertThat( query1a, equalTo( query1b ) );
-        assertThat( query1a, not( equalTo( query2a ) ) );
-    }
-
-    @Test
-    public void ldbcQuery21ShouldDoEqualsCorrectly()
+    public void ldbcQuery13ShouldDoEqualsCorrectly()
     {
         // Given
         String country1 = "\u3055";
@@ -601,10 +362,10 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery21Zombies query1a = new LdbcSnbBiQuery21Zombies( country1, endDate1, limit1 );
-        LdbcSnbBiQuery21Zombies query1b = new LdbcSnbBiQuery21Zombies( country1, endDate1, limit1 );
-        LdbcSnbBiQuery21Zombies query2a = new LdbcSnbBiQuery21Zombies( country2, endDate2, limit2 );
-        LdbcSnbBiQuery21Zombies query3a = new LdbcSnbBiQuery21Zombies( country2, endDate2, limit1 );
+        LdbcSnbBiQuery13Zombies query1a = new LdbcSnbBiQuery13Zombies( country1, endDate1, limit1 );
+        LdbcSnbBiQuery13Zombies query1b = new LdbcSnbBiQuery13Zombies( country1, endDate1, limit1 );
+        LdbcSnbBiQuery13Zombies query2a = new LdbcSnbBiQuery13Zombies( country2, endDate2, limit2 );
+        LdbcSnbBiQuery13Zombies query3a = new LdbcSnbBiQuery13Zombies( country2, endDate2, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -614,7 +375,7 @@ public class BiOperationEqualityTest
     }
 
     @Test
-    public void ldbcQuery22ShouldDoEqualsCorrectly()
+    public void ldbcQuery14ShouldDoEqualsCorrectly()
     {
         // Given
         String country11 = "\u3055";
@@ -626,14 +387,14 @@ public class BiOperationEqualityTest
         int limit2 = 2;
 
         // When
-        LdbcSnbBiQuery22InternationalDialog
-                query1a = new LdbcSnbBiQuery22InternationalDialog( country11, country21, limit1 );
-        LdbcSnbBiQuery22InternationalDialog
-                query1b = new LdbcSnbBiQuery22InternationalDialog( country11, country21, limit1 );
-        LdbcSnbBiQuery22InternationalDialog
-                query2a = new LdbcSnbBiQuery22InternationalDialog( country12, country22, limit2 );
-        LdbcSnbBiQuery22InternationalDialog
-                query3a = new LdbcSnbBiQuery22InternationalDialog( country12, country21, limit1 );
+        LdbcSnbBiQuery14InternationalDialog
+                query1a = new LdbcSnbBiQuery14InternationalDialog( country11, country21, limit1 );
+        LdbcSnbBiQuery14InternationalDialog
+                query1b = new LdbcSnbBiQuery14InternationalDialog( country11, country21, limit1 );
+        LdbcSnbBiQuery14InternationalDialog
+                query2a = new LdbcSnbBiQuery14InternationalDialog( country12, country22, limit2 );
+        LdbcSnbBiQuery14InternationalDialog
+                query3a = new LdbcSnbBiQuery14InternationalDialog( country12, country21, limit1 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -643,53 +404,7 @@ public class BiOperationEqualityTest
     }
 
     @Test
-    public void ldbcQuery23ShouldDoEqualsCorrectly()
-    {
-        // Given
-        String country1 = "\u3055";
-        int limit1 = 1;
-
-        String country2 = "\u4e35";
-        int limit2 = 2;
-
-        // When
-        LdbcSnbBiQuery23HolidayDestinations query1a = new LdbcSnbBiQuery23HolidayDestinations( country1, limit1 );
-        LdbcSnbBiQuery23HolidayDestinations query1b = new LdbcSnbBiQuery23HolidayDestinations( country1, limit1 );
-        LdbcSnbBiQuery23HolidayDestinations query2a = new LdbcSnbBiQuery23HolidayDestinations( country2, limit2 );
-        LdbcSnbBiQuery23HolidayDestinations query3a = new LdbcSnbBiQuery23HolidayDestinations( country2, limit1 );
-
-        // Then
-        assertThat( query1a, equalTo( query1b ) );
-        assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
-    }
-
-    @Test
-    public void ldbcQuery24ShouldDoEqualsCorrectly()
-    {
-        // Given
-        String tagClass1 = "\u3055";
-        int limit1 = 1;
-
-        String tagClass2 = "\u4e35";
-        int limit2 = 2;
-
-        // When
-        LdbcSnbBiQuery24MessagesByTopic query1a = new LdbcSnbBiQuery24MessagesByTopic( tagClass1, limit1 );
-        LdbcSnbBiQuery24MessagesByTopic query1b = new LdbcSnbBiQuery24MessagesByTopic( tagClass1, limit1 );
-        LdbcSnbBiQuery24MessagesByTopic query2a = new LdbcSnbBiQuery24MessagesByTopic( tagClass2, limit2 );
-        LdbcSnbBiQuery24MessagesByTopic query3a = new LdbcSnbBiQuery24MessagesByTopic( tagClass2, limit1 );
-
-        // Then
-        assertThat( query1a, equalTo( query1b ) );
-        assertThat( query1a, not( equalTo( query2a ) ) );
-        assertThat( query1a, not( equalTo( query3a ) ) );
-        assertThat( query2a, not( equalTo( query3a ) ) );
-    }
-
-    @Test
-    public void ldbcQuery25ShouldDoEqualsCorrectly()
+    public void ldbcQuery15ShouldDoEqualsCorrectly()
     {
         // Given
         long person1Id1 = 1;
@@ -703,14 +418,176 @@ public class BiOperationEqualityTest
         long endDate2 = 4;
 
         // When
-        LdbcSnbBiQuery25WeightedPaths query1a =
-                new LdbcSnbBiQuery25WeightedPaths( person1Id1, person2Id1, startDate1, endDate1 );
-        LdbcSnbBiQuery25WeightedPaths query1b =
-                new LdbcSnbBiQuery25WeightedPaths( person1Id1, person2Id1, startDate1, endDate1 );
-        LdbcSnbBiQuery25WeightedPaths query2a =
-                new LdbcSnbBiQuery25WeightedPaths( person1Id1, person2Id2, startDate1, endDate2 );
-        LdbcSnbBiQuery25WeightedPaths query3a =
-                new LdbcSnbBiQuery25WeightedPaths( person1Id2, person2Id1, startDate2, endDate1 );
+        LdbcSnbBiQuery15WeightedPaths query1a =
+                new LdbcSnbBiQuery15WeightedPaths( person1Id1, person2Id1, startDate1, endDate1 );
+        LdbcSnbBiQuery15WeightedPaths query1b =
+                new LdbcSnbBiQuery15WeightedPaths( person1Id1, person2Id1, startDate1, endDate1 );
+        LdbcSnbBiQuery15WeightedPaths query2a =
+                new LdbcSnbBiQuery15WeightedPaths( person1Id1, person2Id2, startDate1, endDate2 );
+        LdbcSnbBiQuery15WeightedPaths query3a =
+                new LdbcSnbBiQuery15WeightedPaths( person1Id2, person2Id1, startDate2, endDate1 );
+
+        // Then
+        assertThat( query1a, equalTo( query1b ) );
+
+        assertThat( query1a, not( equalTo( query2a ) ) );
+
+        assertThat( query1a, not( equalTo( query3a ) ) );
+
+        assertThat( query2a, not( equalTo( query3a ) ) );
+    }
+
+    @Test
+    public void ldbcQuery16ShouldDoEqualsCorrectly()
+    {
+        // Given
+        String tagA1 = "My_TagA1";
+        long dateA1 = 1;
+        String tagB1 = "My_TagA2";
+        long dateB1 = 2;
+        int maxKnowsLimit1 = 1;
+        int limit1 = 20;
+
+        String tagA2 = "My_TagB1";
+        long dateA2 = 3;
+        String tagB2 = "My_TagB2";
+        long dateB2 = 4;
+        int maxKnowsLimit2 = 2;
+        int limit2 = 30;
+
+        // When
+        LdbcSnbBiQuery16FakeNewsDetection query1a =
+                new LdbcSnbBiQuery16FakeNewsDetection( tagA1, dateA1, tagB1, dateB1, maxKnowsLimit1, limit1 );
+        LdbcSnbBiQuery16FakeNewsDetection query1b =
+                new LdbcSnbBiQuery16FakeNewsDetection( tagA1, dateA1, tagB1, dateB1, maxKnowsLimit1, limit1 );
+        LdbcSnbBiQuery16FakeNewsDetection query2a =
+                new LdbcSnbBiQuery16FakeNewsDetection( tagA1, dateA2, tagB1, dateB2, maxKnowsLimit1, limit2 );
+        LdbcSnbBiQuery16FakeNewsDetection query3a =
+                new LdbcSnbBiQuery16FakeNewsDetection( tagA1, dateA2, tagB2, dateB1, maxKnowsLimit2, limit1 );
+
+        // Then
+        assertThat( query1a, equalTo( query1b ) );
+
+        assertThat( query1a, not( equalTo( query2a ) ) );
+
+        assertThat( query1a, not( equalTo( query3a ) ) );
+
+        assertThat( query2a, not( equalTo( query3a ) ) );
+    }
+
+    @Test
+    public void ldbcQuery17ShouldDoEqualsCorrectly()
+    {
+        // Given
+        String tag1 = "My_Tag1";
+        int delta1 = 1;
+        int limit1 = 20;
+
+        String tag2 = "My_Tag2";
+        int delta2 = 2;
+        int limit2 = 10;
+
+        // When
+        LdbcSnbBiQuery17InformationPropagationAnalysis query1a =
+                new LdbcSnbBiQuery17InformationPropagationAnalysis( tag1, delta1, limit1 );
+        LdbcSnbBiQuery17InformationPropagationAnalysis query1b =
+                new LdbcSnbBiQuery17InformationPropagationAnalysis( tag1, delta1, limit1 );
+        LdbcSnbBiQuery17InformationPropagationAnalysis query2a =
+                new LdbcSnbBiQuery17InformationPropagationAnalysis( tag1, delta2, limit1 );
+        LdbcSnbBiQuery17InformationPropagationAnalysis query3a =
+                new LdbcSnbBiQuery17InformationPropagationAnalysis( tag2, delta1, limit2 );
+
+        // Then
+        assertThat( query1a, equalTo( query1b ) );
+
+        assertThat( query1a, not( equalTo( query2a ) ) );
+
+        assertThat( query1a, not( equalTo( query3a ) ) );
+
+        assertThat( query2a, not( equalTo( query3a ) ) );
+    }
+
+    @Test
+    public void ldbcQuery18ShouldDoEqualsCorrectly()
+    {
+        // Given
+        long person1Id1 = 1;
+        String tag1 = "My_Tag1";
+        int limit1 = 20;
+
+        long person1Id2 = 2;
+        String tag2 = "My_Tag2";
+        int limit2 = 30;
+
+        // When
+        LdbcSnbBiQuery18FriendRecommendation query1a =
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id1, tag1, limit1 );
+        LdbcSnbBiQuery18FriendRecommendation query1b =
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id1, tag1, limit1 );
+        LdbcSnbBiQuery18FriendRecommendation query2a =
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id2, tag2, limit2 );
+        LdbcSnbBiQuery18FriendRecommendation query3a =
+                new LdbcSnbBiQuery18FriendRecommendation( person1Id2, tag1, limit2 );
+
+        // Then
+        assertThat( query1a, equalTo( query1b ) );
+
+        assertThat( query1a, not( equalTo( query2a ) ) );
+
+        assertThat( query1a, not( equalTo( query3a ) ) );
+
+        assertThat( query2a, not( equalTo( query3a ) ) );
+    }
+
+    @Test
+    public void ldbcQuery19ShouldDoEqualsCorrectly()
+    {
+        // Given
+        long city1Id1 = 1;
+        long city2Id1 = 2;
+
+        long city1Id2 = 3;
+        long city2Id2 = 4;
+
+        // When
+        LdbcSnbBiQuery19InteractionPathBetweenCities query1a =
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id1 );
+        LdbcSnbBiQuery19InteractionPathBetweenCities query1b =
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id1 );
+        LdbcSnbBiQuery19InteractionPathBetweenCities query2a =
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id2 );
+        LdbcSnbBiQuery19InteractionPathBetweenCities query3a =
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id2, city2Id2 );
+
+        // Then
+        assertThat( query1a, equalTo( query1b ) );
+
+        assertThat( query1a, not( equalTo( query2a ) ) );
+
+        assertThat( query1a, not( equalTo( query3a ) ) );
+
+        assertThat( query2a, not( equalTo( query3a ) ) );
+    }
+
+    @Test
+    public void ldbcQuery20ShouldDoEqualsCorrectly()
+    {
+        // Given
+        String company1 = "BigCorp";
+        long person2Id1 = 1L;
+
+        String company2 = "LargeComp";
+        long person2Id2 = 2L;
+
+        // When
+        LdbcSnbBiQuery20Recruitment query1a =
+                new LdbcSnbBiQuery20Recruitment( company1, person2Id1 );
+        LdbcSnbBiQuery20Recruitment query1b =
+                new LdbcSnbBiQuery20Recruitment( company1, person2Id1 );
+        LdbcSnbBiQuery20Recruitment query2a =
+                new LdbcSnbBiQuery20Recruitment( company2, person2Id1 );
+        LdbcSnbBiQuery20Recruitment query3a =
+                new LdbcSnbBiQuery20Recruitment( company2, person2Id2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

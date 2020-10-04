@@ -1,9 +1,2 @@
-creationDate|lengthThreshold|languages
-1287698400000|1|en;fr
-1288566000000|1|en;fr
-1289170800000|1|en;fr
-1289775600000|1|en;fr
-1290380400000|1|en;fr
-1291158000000|1|en;fr
-1291762800000|1|en;fr
-1292367600000|1|en;fr
+person1Id|tag|limit
+1|My_Tag|20

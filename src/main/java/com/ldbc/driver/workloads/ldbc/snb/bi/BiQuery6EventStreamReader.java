@@ -26,7 +26,7 @@ public class BiQuery6EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery6ActivePosters(
+        return new LdbcSnbBiQuery6AuthoritativeUsers(
                 (String) parameters[0],
                 (int) parameters[1]
         );
@@ -53,7 +53,7 @@ public class BiQuery6EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{tag, LdbcSnbBiQuery6ActivePosters.DEFAULT_LIMIT};
+                return new Object[]{tag, LdbcSnbBiQuery6AuthoritativeUsers.DEFAULT_LIMIT};
             }
         };
     }

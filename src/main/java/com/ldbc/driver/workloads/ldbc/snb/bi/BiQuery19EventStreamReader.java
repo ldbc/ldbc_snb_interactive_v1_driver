@@ -27,11 +27,9 @@ public class BiQuery19EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery19StrangerInteraction(
+        return new LdbcSnbBiQuery19InteractionPathBetweenCities(
                 (long) parameters[0],
-                (String) parameters[1],
-                (String) parameters[2],
-                (int) parameters[3]
+                (long) parameters[1]
         );
     }
 
@@ -45,10 +43,10 @@ public class BiQuery19EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long date;
+                long city1Id;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    city1Id = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -56,27 +54,17 @@ public class BiQuery19EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                String tagClass1;
+                long city2Id;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tagClass1 = charSeeker.extract( mark, extractors.string() ).value();
+                    city2Id = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving tag class 0" );
+                    throw new GeneratorException( "Error retrieving city2Id" );
                 }
 
-                String tagClass2;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    tagClass2 = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving tag class 1" );
-                }
-
-                return new Object[]{date, tagClass1, tagClass2, LdbcSnbBiQuery19StrangerInteraction.DEFAULT_LIMIT};
+                return new Object[]{city1Id, city2Id};
             }
         };
     }
@@ -84,6 +72,6 @@ public class BiQuery19EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 3;
+        return 2;
     }
 }

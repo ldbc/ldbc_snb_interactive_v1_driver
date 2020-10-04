@@ -8,6 +8,7 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
@@ -26,8 +27,10 @@ public class BiQuery17EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery17FriendshipTriangles(
-                (String) parameters[0]
+        return new LdbcSnbBiQuery17InformationPropagationAnalysis(
+                (String) parameters[0],
+                (int) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -41,10 +44,10 @@ public class BiQuery17EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String country;
+                String tag;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    country = charSeeker.extract( mark, extractors.string() ).value();
+                    tag = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -52,7 +55,27 @@ public class BiQuery17EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{country};
+                int delta;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    delta = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving delta" );
+                }
+
+                int limit;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    limit = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving limit" );
+                }
+
+                return new Object[]{tag, delta, limit};
             }
         };
     }
@@ -60,6 +83,6 @@ public class BiQuery17EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 3;
     }
 }

@@ -26,7 +26,7 @@ public class BiQuery5EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery5TopCountryPosters(
+        return new LdbcSnbBiQuery5ActivePosters(
                 (String) parameters[0],
                 (int) parameters[1]
         );
@@ -42,10 +42,10 @@ public class BiQuery5EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String country;
+                String tag;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    country = charSeeker.extract( mark, extractors.string() ).value();
+                    tag = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -53,10 +53,7 @@ public class BiQuery5EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{
-                        country,
-                        LdbcSnbBiQuery5TopCountryPosters.DEFAULT_LIMIT
-                };
+                return new Object[]{tag, LdbcSnbBiQuery5ActivePosters.DEFAULT_LIMIT};
             }
         };
     }

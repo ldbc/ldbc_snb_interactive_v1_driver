@@ -1,6 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -13,6 +14,7 @@ import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class BiQuery12EventStreamReader extends BaseEventStreamReader
 {
@@ -27,10 +29,11 @@ public class BiQuery12EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery12TrendingPosts(
+        return new LdbcSnbBiQuery12PersonPostCounts(
                 (long) parameters[0],
                 (int) parameters[1],
-                (int) parameters[2]
+                (List<String>) parameters[2],
+                (int) parameters[3]
         );
     }
 
@@ -55,17 +58,27 @@ public class BiQuery12EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                int likeThreshold;
+                int lengthThreshold;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    likeThreshold = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    lengthThreshold = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving like threshold" );
+                    throw new GeneratorException( "Error retrieving lengthThreshold" );
                 }
 
-                return new Object[]{date, likeThreshold, LdbcSnbBiQuery12TrendingPosts.DEFAULT_LIMIT};
+                List<String> languages;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    languages = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving languages" );
+                }
+
+                return new Object[]{date, lengthThreshold, languages, LdbcSnbBiQuery12PersonPostCounts.DEFAULT_LIMIT};
             }
         };
     }
@@ -73,6 +86,6 @@ public class BiQuery12EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 3;
     }
 }

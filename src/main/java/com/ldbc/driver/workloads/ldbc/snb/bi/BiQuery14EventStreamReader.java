@@ -27,9 +27,9 @@ public class BiQuery14EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery14TopThreadInitiators(
-                (long) parameters[0],
-                (long) parameters[1],
+        return new LdbcSnbBiQuery14InternationalDialog(
+                (String) parameters[0],
+                (String) parameters[1],
                 (int) parameters[2]
         );
     }
@@ -44,10 +44,10 @@ public class BiQuery14EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long startDate;
+                String country1;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    startDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    country1 = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -55,17 +55,17 @@ public class BiQuery14EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                long endDate;
+                String country2;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    endDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    country2 = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving end date" );
+                    throw new GeneratorException( "Error retrieving country2 name" );
                 }
 
-                return new Object[]{startDate, endDate, LdbcSnbBiQuery14TopThreadInitiators.DEFAULT_LIMIT};
+                return new Object[]{country1, country2, LdbcSnbBiQuery14InternationalDialog.DEFAULT_LIMIT};
             }
         };
     }

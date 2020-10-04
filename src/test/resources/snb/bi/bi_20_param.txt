@@ -1,2 +1,2 @@
-tagClasses
-a;b;c;d
+company|person2Id
+MyCorp|2

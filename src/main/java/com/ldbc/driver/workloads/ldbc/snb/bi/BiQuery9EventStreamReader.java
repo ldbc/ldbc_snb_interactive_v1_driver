@@ -27,11 +27,10 @@ public class BiQuery9EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery9RelatedForums(
-                (String) parameters[0],
-                (String) parameters[1],
-                (int) parameters[2],
-                (int) parameters[3]
+        return new LdbcSnbBiQuery9TopThreadInitiators(
+                (long) parameters[0],
+                (long) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -45,10 +44,10 @@ public class BiQuery9EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String tagClass1;
+                long startDate;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tagClass1 = charSeeker.extract( mark, extractors.string() ).value();
+                    startDate = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -56,27 +55,17 @@ public class BiQuery9EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                String tagClass2;
+                long endDate;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tagClass2 = charSeeker.extract( mark, extractors.string() ).value();
+                    endDate = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country name" );
+                    throw new GeneratorException( "Error retrieving end date" );
                 }
 
-                int threshold;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    threshold = charSeeker.extract( mark, extractors.int_() ).intValue();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving threshold" );
-                }
-
-                return new Object[]{tagClass1, tagClass2, threshold, LdbcSnbBiQuery9RelatedForums.DEFAULT_LIMIT};
+                return new Object[]{startDate, endDate, LdbcSnbBiQuery9TopThreadInitiators.DEFAULT_LIMIT};
             }
         };
     }
@@ -84,6 +73,6 @@ public class BiQuery9EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 3;
+        return 2;
     }
 }

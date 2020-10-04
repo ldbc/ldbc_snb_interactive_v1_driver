@@ -54,11 +54,6 @@ public class LdbcSnbBiWorkload extends Workload
     private FileInputStream readOperation18FileInputStream;
     private FileInputStream readOperation19FileInputStream;
     private FileInputStream readOperation20FileInputStream;
-    private FileInputStream readOperation21FileInputStream;
-    private FileInputStream readOperation22FileInputStream;
-    private FileInputStream readOperation23FileInputStream;
-    private FileInputStream readOperation24FileInputStream;
-    private FileInputStream readOperation25FileInputStream;
 
     // TODO these things should really all be in an instance of LdbcSnbBiWorkloadConfiguration or ...State
     private LdbcSnbBiWorkloadConfiguration.LdbcSnbBiInterleaves interleaves = null;
@@ -182,21 +177,6 @@ public class LdbcSnbBiWorkload extends Workload
             readOperation20FileInputStream = new FileInputStream(
                     new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_20_PARAMS_FILENAME )
             );
-            readOperation21FileInputStream = new FileInputStream(
-                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_21_PARAMS_FILENAME )
-            );
-            readOperation22FileInputStream = new FileInputStream(
-                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_22_PARAMS_FILENAME )
-            );
-            readOperation23FileInputStream = new FileInputStream(
-                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_23_PARAMS_FILENAME )
-            );
-            readOperation24FileInputStream = new FileInputStream(
-                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_24_PARAMS_FILENAME )
-            );
-            readOperation25FileInputStream = new FileInputStream(
-                    new File( parametersDir, LdbcSnbBiWorkloadConfiguration.OPERATION_25_PARAMS_FILENAME )
-            );
         }
         catch ( FileNotFoundException e )
         {
@@ -292,7 +272,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 2
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery2TopTags.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery2TagEvolution.class ) )
         {
             BiQuery2EventStreamReader operation2StreamWithoutTimes = new BiQuery2EventStreamReader(
                     readOperation2FileInputStream,
@@ -312,9 +292,10 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 3
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery3TagEvolution.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery3PopularCountryTopics.class ) )
         {
-            BiQuery3EventStreamReader operation3StreamWithoutTimes = new BiQuery3EventStreamReader(
+            BiQuery3EventStreamReader operation3StreamWithoutTimes = null;
+            operation3StreamWithoutTimes = new BiQuery3EventStreamReader(
                     readOperation3FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -332,10 +313,9 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 4
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery4PopularCountryTopics.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery4TopCountryPosters.class ) )
         {
-            BiQuery4EventStreamReader operation4StreamWithoutTimes = null;
-            operation4StreamWithoutTimes = new BiQuery4EventStreamReader(
+            BiQuery4EventStreamReader operation4StreamWithoutTimes = new BiQuery4EventStreamReader(
                     readOperation4FileInputStream,
                     CHAR_SEEKER_PARAMS,
                     gf
@@ -353,7 +333,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 5
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery5TopCountryPosters.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery5ActivePosters.class ) )
         {
             BiQuery5EventStreamReader operation5StreamWithoutTimes = new BiQuery5EventStreamReader(
                     readOperation5FileInputStream,
@@ -373,7 +353,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 6
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery6ActivePosters.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery6AuthoritativeUsers.class ) )
         {
             BiQuery6EventStreamReader operation6StreamWithoutTimes = new BiQuery6EventStreamReader(
                     readOperation6FileInputStream,
@@ -393,7 +373,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 7
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery7AuthoritativeUsers.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery7RelatedTopics.class ) )
         {
             BiQuery7EventStreamReader operation7StreamWithoutTimes = new BiQuery7EventStreamReader(
                     readOperation7FileInputStream,
@@ -413,7 +393,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 8
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery8RelatedTopics.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery8TagPerson.class ) )
         {
             BiQuery8EventStreamReader operation8StreamWithoutTimes = new BiQuery8EventStreamReader(
                     readOperation8FileInputStream,
@@ -433,7 +413,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 9
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery9RelatedForums.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery9TopThreadInitiators.class ) )
         {
             BiQuery9EventStreamReader operation9StreamWithoutTimes = new BiQuery9EventStreamReader(
                     readOperation9FileInputStream,
@@ -453,7 +433,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 10
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery10TagPerson.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery10ExpertsInSocialCircle.class ) )
         {
             BiQuery10EventStreamReader operation10StreamWithoutTimes = new BiQuery10EventStreamReader(
                     readOperation10FileInputStream,
@@ -473,7 +453,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 11
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery11UnrelatedReplies.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery11FriendshipTriangles.class ) )
         {
             BiQuery11EventStreamReader operation11StreamWithoutTimes = new BiQuery11EventStreamReader(
                     readOperation11FileInputStream,
@@ -493,7 +473,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 12
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery12TrendingPosts.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery12PersonPostCounts.class ) )
         {
             BiQuery12EventStreamReader operation12StreamWithoutTimes = new BiQuery12EventStreamReader(
                     readOperation12FileInputStream,
@@ -513,7 +493,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 13
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery13PopularMonthlyTags.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery13Zombies.class ) )
         {
             BiQuery13EventStreamReader operation13StreamWithoutTimes = new BiQuery13EventStreamReader(
                     readOperation13FileInputStream,
@@ -533,7 +513,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 14
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery14TopThreadInitiators.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery14InternationalDialog.class ) )
         {
             BiQuery14EventStreamReader operation14StreamWithoutTimes = new BiQuery14EventStreamReader(
                     readOperation14FileInputStream,
@@ -553,7 +533,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 15
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery15SocialNormals.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery15WeightedPaths.class ) )
         {
             BiQuery15EventStreamReader operation15StreamWithoutTimes = new BiQuery15EventStreamReader(
                     readOperation15FileInputStream,
@@ -573,7 +553,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 16
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery16ExpertsInSocialCircle.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery16FakeNewsDetection.class ) )
         {
             BiQuery16EventStreamReader operation16StreamWithoutTimes = new BiQuery16EventStreamReader(
                     readOperation16FileInputStream,
@@ -584,8 +564,8 @@ public class LdbcSnbBiWorkload extends Workload
             asynchronousNonDependencyStreamsList.add(
                     gf.assignStartTimes(
                             gf.incrementing(
-                                    workloadStartTimeAsMilli + interleaves.operation16Interleave,
-                                    interleaves.operation16Interleave
+                                    workloadStartTimeAsMilli + interleaves.operation18Interleave,
+                                    interleaves.operation18Interleave
                             ),
                             operation16StreamWithoutTimes
                     )
@@ -593,7 +573,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 17
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery17FriendshipTriangles.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery17InformationPropagationAnalysis.class ) )
         {
             BiQuery17EventStreamReader operation17StreamWithoutTimes = new BiQuery17EventStreamReader(
                     readOperation17FileInputStream,
@@ -613,7 +593,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 18
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery18PersonPostCounts.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery18FriendRecommendation.class ) )
         {
             BiQuery18EventStreamReader operation18StreamWithoutTimes = new BiQuery18EventStreamReader(
                     readOperation18FileInputStream,
@@ -633,7 +613,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 19
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery19StrangerInteraction.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery19InteractionPathBetweenCities.class ) )
         {
             BiQuery19EventStreamReader operation19StreamWithoutTimes = new BiQuery19EventStreamReader(
                     readOperation19FileInputStream,
@@ -653,7 +633,7 @@ public class LdbcSnbBiWorkload extends Workload
         }
 
         // Query 20
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery20HighLevelTopics.class ) )
+        if ( enabledOperationTypes.contains( LdbcSnbBiQuery20Recruitment.class ) )
         {
             BiQuery20EventStreamReader operation20StreamWithoutTimes = new BiQuery20EventStreamReader(
                     readOperation20FileInputStream,
@@ -668,106 +648,6 @@ public class LdbcSnbBiWorkload extends Workload
                                     interleaves.operation20Interleave
                             ),
                             operation20StreamWithoutTimes
-                    )
-            );
-        }
-
-        // Query 21
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery21Zombies.class ) )
-        {
-            BiQuery21EventStreamReader operation21StreamWithoutTimes = new BiQuery21EventStreamReader(
-                    readOperation21FileInputStream,
-                    CHAR_SEEKER_PARAMS,
-                    gf
-            );
-            readOperationFileReaders.add( operation21StreamWithoutTimes );
-            asynchronousNonDependencyStreamsList.add(
-                    gf.assignStartTimes(
-                            gf.incrementing(
-                                    workloadStartTimeAsMilli + interleaves.operation21Interleave,
-                                    interleaves.operation21Interleave
-                            ),
-                            operation21StreamWithoutTimes
-                    )
-            );
-        }
-
-        // Query 22
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery22InternationalDialog.class ) )
-        {
-            BiQuery22EventStreamReader operation22StreamWithoutTimes = new BiQuery22EventStreamReader(
-                    readOperation22FileInputStream,
-                    CHAR_SEEKER_PARAMS,
-                    gf
-            );
-            readOperationFileReaders.add( operation22StreamWithoutTimes );
-            asynchronousNonDependencyStreamsList.add(
-                    gf.assignStartTimes(
-                            gf.incrementing(
-                                    workloadStartTimeAsMilli + interleaves.operation22Interleave,
-                                    interleaves.operation22Interleave
-                            ),
-                            operation22StreamWithoutTimes
-                    )
-            );
-        }
-
-        // Query 23
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery23HolidayDestinations.class ) )
-        {
-            BiQuery23EventStreamReader operation23StreamWithoutTimes = new BiQuery23EventStreamReader(
-                    readOperation23FileInputStream,
-                    CHAR_SEEKER_PARAMS,
-                    gf
-            );
-            readOperationFileReaders.add( operation23StreamWithoutTimes );
-            asynchronousNonDependencyStreamsList.add(
-                    gf.assignStartTimes(
-                            gf.incrementing(
-                                    workloadStartTimeAsMilli + interleaves.operation23Interleave,
-                                    interleaves.operation23Interleave
-                            ),
-                            operation23StreamWithoutTimes
-                    )
-            );
-        }
-
-        // Query 24
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery24MessagesByTopic.class ) )
-        {
-            BiQuery24EventStreamReader operation24StreamWithoutTimes = new BiQuery24EventStreamReader(
-                    readOperation24FileInputStream,
-                    CHAR_SEEKER_PARAMS,
-                    gf
-            );
-            readOperationFileReaders.add( operation24StreamWithoutTimes );
-            asynchronousNonDependencyStreamsList.add(
-                    gf.assignStartTimes(
-                            gf.incrementing(
-                                    workloadStartTimeAsMilli + interleaves.operation24Interleave,
-                                    interleaves.operation24Interleave
-                            ),
-                            operation24StreamWithoutTimes
-                    )
-            );
-        }
-
-        // Query 25
-        if ( enabledOperationTypes.contains( LdbcSnbBiQuery25WeightedPaths.class ) )
-        {
-            BiQuery25EventStreamReader operation25StreamWithoutTimes = new BiQuery25EventStreamReader(
-                    readOperation25FileInputStream,
-                    CHAR_SEEKER_PARAMS,
-                    gf
-            );
-            readOperationFileReaders.add( operation25StreamWithoutTimes );
-            asynchronousNonDependencyStreamsList.add(
-                    gf.assignStartTimes(
-                            gf.incrementing(
-                                    workloadStartTimeAsMilli + interleaves.operation25Interleave,
-                                    interleaves.operation25Interleave
-                            ),
-                            operation25StreamWithoutTimes
                     )
             );
         }
@@ -875,21 +755,9 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.date() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery2TopTags.TYPE:
+            case LdbcSnbBiQuery2TagEvolution.TYPE:
             {
-                LdbcSnbBiQuery2TopTags ldbcQuery = (LdbcSnbBiQuery2TopTags) operation;
-                List<Object> operationAsList = new ArrayList<>();
-                operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.startDate() );
-                operationAsList.add( ldbcQuery.endDate() );
-                operationAsList.add( ldbcQuery.country1() );
-                operationAsList.add( ldbcQuery.country2() );
-                operationAsList.add( ldbcQuery.limit() );
-                return OBJECT_MAPPER.writeValueAsString( operationAsList );
-            }
-            case LdbcSnbBiQuery3TagEvolution.TYPE:
-            {
-                LdbcSnbBiQuery3TagEvolution ldbcQuery = (LdbcSnbBiQuery3TagEvolution) operation;
+                LdbcSnbBiQuery2TagEvolution ldbcQuery = (LdbcSnbBiQuery2TagEvolution) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.year() );
@@ -897,9 +765,9 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery4PopularCountryTopics.TYPE:
+            case LdbcSnbBiQuery3PopularCountryTopics.TYPE:
             {
-                LdbcSnbBiQuery4PopularCountryTopics ldbcQuery = (LdbcSnbBiQuery4PopularCountryTopics) operation;
+                LdbcSnbBiQuery3PopularCountryTopics ldbcQuery = (LdbcSnbBiQuery3PopularCountryTopics) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.tagClass() );
@@ -907,56 +775,45 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery5TopCountryPosters.TYPE:
+            case LdbcSnbBiQuery4TopCountryPosters.TYPE:
             {
-                LdbcSnbBiQuery5TopCountryPosters ldbcQuery = (LdbcSnbBiQuery5TopCountryPosters) operation;
+                LdbcSnbBiQuery4TopCountryPosters ldbcQuery = (LdbcSnbBiQuery4TopCountryPosters) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.country() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery6ActivePosters.TYPE:
+            case LdbcSnbBiQuery5ActivePosters.TYPE:
             {
-                LdbcSnbBiQuery6ActivePosters ldbcQuery = (LdbcSnbBiQuery6ActivePosters) operation;
+                LdbcSnbBiQuery5ActivePosters ldbcQuery = (LdbcSnbBiQuery5ActivePosters) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.tag() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery7AuthoritativeUsers.TYPE:
+            case LdbcSnbBiQuery6AuthoritativeUsers.TYPE:
             {
-                LdbcSnbBiQuery7AuthoritativeUsers ldbcQuery = (LdbcSnbBiQuery7AuthoritativeUsers) operation;
+                LdbcSnbBiQuery6AuthoritativeUsers ldbcQuery = (LdbcSnbBiQuery6AuthoritativeUsers) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.tag() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery8RelatedTopics.TYPE:
+            case LdbcSnbBiQuery7RelatedTopics.TYPE:
             {
-                LdbcSnbBiQuery8RelatedTopics ldbcQuery = (LdbcSnbBiQuery8RelatedTopics) operation;
+                LdbcSnbBiQuery7RelatedTopics ldbcQuery = (LdbcSnbBiQuery7RelatedTopics) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.tag() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery9RelatedForums.TYPE:
+            case LdbcSnbBiQuery8TagPerson.TYPE:
             {
-                LdbcSnbBiQuery9RelatedForums ldbcQuery = (LdbcSnbBiQuery9RelatedForums) operation;
-                List<Object> operationAsList = new ArrayList<>();
-                operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.tagClass1() );
-                operationAsList.add( ldbcQuery.tagClass2() );
-                operationAsList.add( ldbcQuery.threshold() );
-                operationAsList.add( ldbcQuery.limit() );
-                return OBJECT_MAPPER.writeValueAsString( operationAsList );
-            }
-            case LdbcSnbBiQuery10TagPerson.TYPE:
-            {
-                LdbcSnbBiQuery10TagPerson ldbcQuery = (LdbcSnbBiQuery10TagPerson) operation;
+                LdbcSnbBiQuery8TagPerson ldbcQuery = (LdbcSnbBiQuery8TagPerson) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.tag() );
@@ -964,38 +821,9 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery11UnrelatedReplies.TYPE:
+            case LdbcSnbBiQuery9TopThreadInitiators.TYPE:
             {
-                LdbcSnbBiQuery11UnrelatedReplies ldbcQuery = (LdbcSnbBiQuery11UnrelatedReplies) operation;
-                List<Object> operationAsList = new ArrayList<>();
-                operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.country() );
-                operationAsList.add( ldbcQuery.blacklist() );
-                operationAsList.add( ldbcQuery.limit() );
-                return OBJECT_MAPPER.writeValueAsString( operationAsList );
-            }
-            case LdbcSnbBiQuery12TrendingPosts.TYPE:
-            {
-                LdbcSnbBiQuery12TrendingPosts ldbcQuery = (LdbcSnbBiQuery12TrendingPosts) operation;
-                List<Object> operationAsList = new ArrayList<>();
-                operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.date() );
-                operationAsList.add( ldbcQuery.likeThreshold() );
-                operationAsList.add( ldbcQuery.limit() );
-                return OBJECT_MAPPER.writeValueAsString( operationAsList );
-            }
-            case LdbcSnbBiQuery13PopularMonthlyTags.TYPE:
-            {
-                LdbcSnbBiQuery13PopularMonthlyTags ldbcQuery = (LdbcSnbBiQuery13PopularMonthlyTags) operation;
-                List<Object> operationAsList = new ArrayList<>();
-                operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.country() );
-                operationAsList.add( ldbcQuery.limit() );
-                return OBJECT_MAPPER.writeValueAsString( operationAsList );
-            }
-            case LdbcSnbBiQuery14TopThreadInitiators.TYPE:
-            {
-                LdbcSnbBiQuery14TopThreadInitiators ldbcQuery = (LdbcSnbBiQuery14TopThreadInitiators) operation;
+                LdbcSnbBiQuery9TopThreadInitiators ldbcQuery = (LdbcSnbBiQuery9TopThreadInitiators) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.startDate() );
@@ -1003,18 +831,9 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery15SocialNormals.TYPE:
+            case LdbcSnbBiQuery10ExpertsInSocialCircle.TYPE:
             {
-                LdbcSnbBiQuery15SocialNormals ldbcQuery = (LdbcSnbBiQuery15SocialNormals) operation;
-                List<Object> operationAsList = new ArrayList<>();
-                operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.country() );
-                operationAsList.add( ldbcQuery.limit() );
-                return OBJECT_MAPPER.writeValueAsString( operationAsList );
-            }
-            case LdbcSnbBiQuery16ExpertsInSocialCircle.TYPE:
-            {
-                LdbcSnbBiQuery16ExpertsInSocialCircle ldbcQuery = (LdbcSnbBiQuery16ExpertsInSocialCircle) operation;
+                LdbcSnbBiQuery10ExpertsInSocialCircle ldbcQuery = (LdbcSnbBiQuery10ExpertsInSocialCircle) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.personId() );
@@ -1025,17 +844,17 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery17FriendshipTriangles.TYPE:
+            case LdbcSnbBiQuery11FriendshipTriangles.TYPE:
             {
-                LdbcSnbBiQuery17FriendshipTriangles ldbcQuery = (LdbcSnbBiQuery17FriendshipTriangles) operation;
+                LdbcSnbBiQuery11FriendshipTriangles ldbcQuery = (LdbcSnbBiQuery11FriendshipTriangles) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.country() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery18PersonPostCounts.TYPE:
+            case LdbcSnbBiQuery12PersonPostCounts.TYPE:
             {
-                LdbcSnbBiQuery18PersonPostCounts ldbcQuery = (LdbcSnbBiQuery18PersonPostCounts) operation;
+                LdbcSnbBiQuery12PersonPostCounts ldbcQuery = (LdbcSnbBiQuery12PersonPostCounts) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.date() );
@@ -1044,29 +863,9 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery19StrangerInteraction.TYPE:
+            case LdbcSnbBiQuery13Zombies.TYPE:
             {
-                LdbcSnbBiQuery19StrangerInteraction ldbcQuery = (LdbcSnbBiQuery19StrangerInteraction) operation;
-                List<Object> operationAsList = new ArrayList<>();
-                operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.date() );
-                operationAsList.add( ldbcQuery.tagClass1() );
-                operationAsList.add( ldbcQuery.tagClass2() );
-                operationAsList.add( ldbcQuery.limit() );
-                return OBJECT_MAPPER.writeValueAsString( operationAsList );
-            }
-            case LdbcSnbBiQuery20HighLevelTopics.TYPE:
-            {
-                LdbcSnbBiQuery20HighLevelTopics ldbcQuery = (LdbcSnbBiQuery20HighLevelTopics) operation;
-                List<Object> operationAsList = new ArrayList<>();
-                operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.tagClasses() );
-                operationAsList.add( ldbcQuery.limit() );
-                return OBJECT_MAPPER.writeValueAsString( operationAsList );
-            }
-            case LdbcSnbBiQuery21Zombies.TYPE:
-            {
-                LdbcSnbBiQuery21Zombies ldbcQuery = (LdbcSnbBiQuery21Zombies) operation;
+                LdbcSnbBiQuery13Zombies ldbcQuery = (LdbcSnbBiQuery13Zombies) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.country() );
@@ -1074,9 +873,9 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery22InternationalDialog.TYPE:
+            case LdbcSnbBiQuery14InternationalDialog.TYPE:
             {
-                LdbcSnbBiQuery22InternationalDialog ldbcQuery = (LdbcSnbBiQuery22InternationalDialog) operation;
+                LdbcSnbBiQuery14InternationalDialog ldbcQuery = (LdbcSnbBiQuery14InternationalDialog) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.country1() );
@@ -1084,33 +883,66 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
-            case LdbcSnbBiQuery23HolidayDestinations.TYPE:
+            case LdbcSnbBiQuery15WeightedPaths.TYPE:
             {
-                LdbcSnbBiQuery23HolidayDestinations ldbcQuery = (LdbcSnbBiQuery23HolidayDestinations) operation;
-                List<Object> operationAsList = new ArrayList<>();
-                operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.country() );
-                operationAsList.add( ldbcQuery.limit() );
-                return OBJECT_MAPPER.writeValueAsString( operationAsList );
-            }
-            case LdbcSnbBiQuery24MessagesByTopic.TYPE:
-            {
-                LdbcSnbBiQuery24MessagesByTopic ldbcQuery = (LdbcSnbBiQuery24MessagesByTopic) operation;
-                List<Object> operationAsList = new ArrayList<>();
-                operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.tagClass() );
-                operationAsList.add( ldbcQuery.limit() );
-                return OBJECT_MAPPER.writeValueAsString( operationAsList );
-            }
-            case LdbcSnbBiQuery25WeightedPaths.TYPE:
-            {
-                LdbcSnbBiQuery25WeightedPaths ldbcQuery = (LdbcSnbBiQuery25WeightedPaths) operation;
+                LdbcSnbBiQuery15WeightedPaths ldbcQuery = (LdbcSnbBiQuery15WeightedPaths) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.person1Id() );
                 operationAsList.add( ldbcQuery.person2Id() );
                 operationAsList.add( ldbcQuery.startDate() );
                 operationAsList.add( ldbcQuery.endDate() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery16FakeNewsDetection.TYPE:
+            {
+                LdbcSnbBiQuery16FakeNewsDetection ldbcQuery = (LdbcSnbBiQuery16FakeNewsDetection) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tagA() );
+                operationAsList.add( ldbcQuery.dateA() );
+                operationAsList.add( ldbcQuery.tagB() );
+                operationAsList.add( ldbcQuery.dateB() );
+                operationAsList.add( ldbcQuery.maxKnowsLimit() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery17InformationPropagationAnalysis.TYPE:
+            {
+                LdbcSnbBiQuery17InformationPropagationAnalysis ldbcQuery = (LdbcSnbBiQuery17InformationPropagationAnalysis) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.tag() );
+                operationAsList.add( ldbcQuery.delta() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery18FriendRecommendation.TYPE:
+            {
+                LdbcSnbBiQuery18FriendRecommendation ldbcQuery = (LdbcSnbBiQuery18FriendRecommendation) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.person1Id() );
+                operationAsList.add( ldbcQuery.tag() );
+                operationAsList.add( ldbcQuery.limit() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery19InteractionPathBetweenCities.TYPE:
+            {
+                LdbcSnbBiQuery19InteractionPathBetweenCities ldbcQuery = (LdbcSnbBiQuery19InteractionPathBetweenCities) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.city1Id() );
+                operationAsList.add( ldbcQuery.city2Id() );
+                return OBJECT_MAPPER.writeValueAsString( operationAsList );
+            }
+            case LdbcSnbBiQuery20Recruitment.TYPE:
+            {
+                LdbcSnbBiQuery20Recruitment ldbcQuery = (LdbcSnbBiQuery20Recruitment) operation;
+                List<Object> operationAsList = new ArrayList<>();
+                operationAsList.add( ldbcQuery.getClass().getName() );
+                operationAsList.add( ldbcQuery.company() );
+                operationAsList.add( ldbcQuery.person2Id() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
             default:
@@ -1151,108 +983,59 @@ public class LdbcSnbBiWorkload extends Workload
             long date = ((Number) operationAsList.get( 1 )).longValue();
             return new LdbcSnbBiQuery1PostingSummary( date );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery2TopTags.class.getName() ) )
-        {
-            long startDate = ((Number) operationAsList.get( 1 )).longValue();
-            long endDate = ((Number) operationAsList.get( 2 )).longValue();
-            String country1 = (String) operationAsList.get( 3 );
-            String country2 = (String) operationAsList.get( 4 );
-            int limit = ((Number) operationAsList.get( 5 )).intValue();
-            return new LdbcSnbBiQuery2TopTags(
-                    startDate,
-                    endDate,
-                    country1,
-                    country2,
-                    limit
-            );
-        }
-        else if ( operationClassName.equals( LdbcSnbBiQuery3TagEvolution.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery2TagEvolution.class.getName() ) )
         {
             int year = ((Number) operationAsList.get( 1 )).intValue();
             int month = ((Number) operationAsList.get( 2 )).intValue();
             int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery3TagEvolution( year, month, limit );
+            return new LdbcSnbBiQuery2TagEvolution( year, month, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery4PopularCountryTopics.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery3PopularCountryTopics.class.getName() ) )
         {
             String tagClass = (String) operationAsList.get( 1 );
             String country = (String) operationAsList.get( 2 );
             int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery4PopularCountryTopics( tagClass, country, limit );
+            return new LdbcSnbBiQuery3PopularCountryTopics( tagClass, country, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery5TopCountryPosters.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery4TopCountryPosters.class.getName() ) )
         {
             String country = (String) operationAsList.get( 1 );
             int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery5TopCountryPosters( country, limit );
+            return new LdbcSnbBiQuery4TopCountryPosters( country, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery6ActivePosters.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery5ActivePosters.class.getName() ) )
         {
             String tag = (String) operationAsList.get( 1 );
             int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery6ActivePosters( tag, limit );
+            return new LdbcSnbBiQuery5ActivePosters( tag, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery7AuthoritativeUsers.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery6AuthoritativeUsers.class.getName() ) )
         {
             String tag = (String) operationAsList.get( 1 );
             int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery7AuthoritativeUsers( tag, limit );
+            return new LdbcSnbBiQuery6AuthoritativeUsers( tag, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery8RelatedTopics.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery7RelatedTopics.class.getName() ) )
         {
             String tag = (String) operationAsList.get( 1 );
             int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery8RelatedTopics( tag, limit );
+            return new LdbcSnbBiQuery7RelatedTopics( tag, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery9RelatedForums.class.getName() ) )
-        {
-            String tagClass1 = (String) operationAsList.get( 1 );
-            String tagClass2 = (String) operationAsList.get( 2 );
-            int threshold = ((Number) operationAsList.get( 3 )).intValue();
-            int limit = ((Number) operationAsList.get( 4 )).intValue();
-            return new LdbcSnbBiQuery9RelatedForums( tagClass1, tagClass2, threshold, limit );
-        }
-        else if ( operationClassName.equals( LdbcSnbBiQuery10TagPerson.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery8TagPerson.class.getName() ) )
         {
             String tag = (String) operationAsList.get( 1 );
             long date = ((Number) operationAsList.get( 2 )).longValue();
             int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery10TagPerson( tag, date, limit );
+            return new LdbcSnbBiQuery8TagPerson( tag, date, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery11UnrelatedReplies.class.getName() ) )
-        {
-            String country = (String) operationAsList.get( 1 );
-            List<String> blacklist = (List<String>) operationAsList.get( 2 );
-            int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery11UnrelatedReplies( country, blacklist, limit );
-        }
-        else if ( operationClassName.equals( LdbcSnbBiQuery12TrendingPosts.class.getName() ) )
-        {
-            long date = ((Number) operationAsList.get( 1 )).longValue();
-            int likeThreshold = ((Number) operationAsList.get( 2 )).intValue();
-            int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery12TrendingPosts( date, likeThreshold, limit );
-        }
-        else if ( operationClassName.equals( LdbcSnbBiQuery13PopularMonthlyTags.class.getName() ) )
-        {
-            String country = (String) operationAsList.get( 1 );
-            int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery13PopularMonthlyTags( country, limit );
-        }
-        else if ( operationClassName.equals( LdbcSnbBiQuery14TopThreadInitiators.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery9TopThreadInitiators.class.getName() ) )
         {
             long startDate = ((Number) operationAsList.get( 1 )).longValue();
             long endDate = ((Number) operationAsList.get( 2 )).longValue();
             int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery14TopThreadInitiators( startDate, endDate, limit );
+            return new LdbcSnbBiQuery9TopThreadInitiators( startDate, endDate, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery15SocialNormals.class.getName() ) )
-        {
-            String country = (String) operationAsList.get( 1 );
-            int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery15SocialNormals( country, limit );
-        }
-        else if ( operationClassName.equals( LdbcSnbBiQuery16ExpertsInSocialCircle.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery10ExpertsInSocialCircle.class.getName() ) )
         {
             long personId = ((Number) operationAsList.get( 1 )).longValue();
             String country = (String) operationAsList.get( 2 );
@@ -1260,69 +1043,79 @@ public class LdbcSnbBiWorkload extends Workload
             int minPathDistance = (int) operationAsList.get( 4 );
             int maxPathDistance = (int) operationAsList.get( 5 );
             int limit = ((Number) operationAsList.get( 6 )).intValue();
-            return new LdbcSnbBiQuery16ExpertsInSocialCircle( personId, country, tagClass, minPathDistance,
+            return new LdbcSnbBiQuery10ExpertsInSocialCircle( personId, country, tagClass, minPathDistance,
                     maxPathDistance, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery17FriendshipTriangles.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery11FriendshipTriangles.class.getName() ) )
         {
             String country = (String) operationAsList.get( 1 );
-            return new LdbcSnbBiQuery17FriendshipTriangles( country );
+            return new LdbcSnbBiQuery11FriendshipTriangles( country );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery18PersonPostCounts.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery12PersonPostCounts.class.getName() ) )
         {
             long date = ((Number) operationAsList.get( 1 )).longValue();
             int lengthThreshold = ((Number) operationAsList.get( 2 )).intValue();
             List<String> languages = (List<String>) operationAsList.get( 3 );
             int limit = ((Number) operationAsList.get( 4 )).intValue();
-            return new LdbcSnbBiQuery18PersonPostCounts( date, lengthThreshold, languages, limit );
+            return new LdbcSnbBiQuery12PersonPostCounts( date, lengthThreshold, languages, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery19StrangerInteraction.class.getName() ) )
-        {
-            long date = ((Number) operationAsList.get( 1 )).longValue();
-            String tagClass1 = (String) operationAsList.get( 2 );
-            String tagClass2 = (String) operationAsList.get( 3 );
-            int limit = ((Number) operationAsList.get( 4 )).intValue();
-            return new LdbcSnbBiQuery19StrangerInteraction( date, tagClass1, tagClass2, limit );
-        }
-        else if ( operationClassName.equals( LdbcSnbBiQuery20HighLevelTopics.class.getName() ) )
-        {
-            List<String> tagClasses = (List<String>) operationAsList.get( 1 );
-            int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery20HighLevelTopics( tagClasses, limit );
-        }
-        else if ( operationClassName.equals( LdbcSnbBiQuery21Zombies.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery13Zombies.class.getName() ) )
         {
             String country = (String) operationAsList.get( 1 );
             long endDate = ((Number) operationAsList.get( 2 )).longValue();
             int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery21Zombies( country, endDate, limit );
+            return new LdbcSnbBiQuery13Zombies( country, endDate, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery22InternationalDialog.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery14InternationalDialog.class.getName() ) )
         {
             String country1 = (String) operationAsList.get( 1 );
             String country2 = (String) operationAsList.get( 2 );
             int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery22InternationalDialog( country1, country2, limit );
+            return new LdbcSnbBiQuery14InternationalDialog( country1, country2, limit );
         }
-        else if ( operationClassName.equals( LdbcSnbBiQuery23HolidayDestinations.class.getName() ) )
-        {
-            String country = (String) operationAsList.get( 1 );
-            int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery23HolidayDestinations( country, limit );
-        }
-        else if ( operationClassName.equals( LdbcSnbBiQuery24MessagesByTopic.class.getName() ) )
-        {
-            String tagClass = (String) operationAsList.get( 1 );
-            int limit = ((Number) operationAsList.get( 2 )).intValue();
-            return new LdbcSnbBiQuery24MessagesByTopic( tagClass, limit );
-        }
-        else if ( operationClassName.equals( LdbcSnbBiQuery25WeightedPaths.class.getName() ) )
+        else if ( operationClassName.equals( LdbcSnbBiQuery15WeightedPaths.class.getName() ) )
         {
             long person1Id = ((Number) operationAsList.get( 1 )).longValue();
             long person2Id = ((Number) operationAsList.get( 2 )).longValue();
             long startDate = ((Number) operationAsList.get( 3 )).longValue();
             long endDate = ((Number) operationAsList.get( 4 )).longValue();
-            return new LdbcSnbBiQuery25WeightedPaths( person1Id, person2Id, startDate, endDate );
+            return new LdbcSnbBiQuery15WeightedPaths( person1Id, person2Id, startDate, endDate );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery16FakeNewsDetection.class.getName() ) )
+        {
+            String tagA = ((String) operationAsList.get( 1 ));
+            long dateA = ((Number) operationAsList.get( 2 )).longValue();
+            String tagB = ((String) operationAsList.get( 3 ));
+            long dateB = ((Number) operationAsList.get( 4 )).longValue();
+            int maxKnowsLimit = ((Number) operationAsList.get( 5 )).intValue();
+            int limit = ((Number) operationAsList.get( 6 )).intValue();
+            return new LdbcSnbBiQuery16FakeNewsDetection( tagA, dateA, tagB, dateB, maxKnowsLimit, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery17InformationPropagationAnalysis.class.getName() ) )
+        {
+            String tag = ((String) operationAsList.get( 1 ));
+            int delta = ((Number) operationAsList.get( 2 )).intValue();
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery17InformationPropagationAnalysis( tag, delta, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery18FriendRecommendation.class.getName() ) )
+        {
+            long person1Id = ((Number) operationAsList.get( 1 )).longValue();
+            String tag = ((String) operationAsList.get( 2 ));
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery18FriendRecommendation( person1Id, tag, limit );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery19InteractionPathBetweenCities.class.getName() ) )
+        {
+            long city1Id = ((Number) operationAsList.get( 1 )).longValue();
+            long city2Id = ((Number) operationAsList.get( 2 )).longValue();
+            return new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id, city2Id );
+        }
+        else if ( operationClassName.equals( LdbcSnbBiQuery20Recruitment.class.getName() ) )
+        {
+            String company = ((String) operationAsList.get( 1 ));
+            long person2Id = ((Number) operationAsList.get( 2 )).longValue();
+            return new LdbcSnbBiQuery20Recruitment( company, person2Id );
         }
         throw new SerializingMarshallingException(
                 format(

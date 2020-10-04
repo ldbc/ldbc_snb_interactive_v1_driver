@@ -27,11 +27,11 @@ public class BiQuery16EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery16ExpertsInSocialCircle(
-                (long) parameters[0],
-                (String) parameters[1],
+        return new LdbcSnbBiQuery16FakeNewsDetection(
+                (String) parameters[0],
+                (long) parameters[1],
                 (String) parameters[2],
-                (int) parameters[3],
+                (long) parameters[3],
                 (int) parameters[4],
                 (int) parameters[5]
         );
@@ -47,10 +47,10 @@ public class BiQuery16EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long personId;
+                String tagA;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    personId = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    tagA = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -58,48 +58,57 @@ public class BiQuery16EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                String country;
+                long dateA;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    country = charSeeker.extract( mark, extractors.string() ).value();
+                    dateA = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving country name" );
+                    throw new GeneratorException( "Error retrieving dateA" );
                 }
 
-                String tagClass;
+                String tagB;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tagClass = charSeeker.extract( mark, extractors.string() ).value();
+                    tagB = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving tag class" );
+                    throw new GeneratorException( "Error retrieving tagB" );
                 }
 
-                int minPathDistance;
+                long dateB;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    minPathDistance = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    dateB = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving min path distance" );
+                    throw new GeneratorException( "Error retrieving dateB" );
                 }
 
-                int maxPathDistance;
+                int maxKnowsLimit;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    maxPathDistance = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    maxKnowsLimit = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving max path distance" );
+                    throw new GeneratorException( "Error retrieving limit" );
                 }
 
-                return new Object[]{personId, country, tagClass, minPathDistance, maxPathDistance,
-                        LdbcSnbBiQuery16ExpertsInSocialCircle.DEFAULT_LIMIT};
+                int limit;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    limit = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving limit" );
+                }
+
+                return new Object[]{tagA, dateA, tagB, dateB, maxKnowsLimit, limit};
             }
         };
     }
@@ -107,6 +116,6 @@ public class BiQuery16EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 5;
+        return 6;
     }
 }

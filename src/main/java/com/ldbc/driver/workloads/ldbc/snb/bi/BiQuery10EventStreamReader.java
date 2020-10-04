@@ -27,10 +27,13 @@ public class BiQuery10EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery10TagPerson(
-                (String) parameters[0],
-                (long) parameters[1],
-                (int) parameters[2]
+        return new LdbcSnbBiQuery10ExpertsInSocialCircle(
+                (long) parameters[0],
+                (String) parameters[1],
+                (String) parameters[2],
+                (int) parameters[3],
+                (int) parameters[4],
+                (int) parameters[5]
         );
     }
 
@@ -44,10 +47,10 @@ public class BiQuery10EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String tag;
+                long personId;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tag = charSeeker.extract( mark, extractors.string() ).value();
+                    personId = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -55,16 +58,48 @@ public class BiQuery10EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                long date;
+                String country;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    country = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving date" );
+                    throw new GeneratorException( "Error retrieving country name" );
                 }
-                return new Object[]{tag, date, LdbcSnbBiQuery10TagPerson.DEFAULT_LIMIT};
+
+                String tagClass;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    tagClass = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving tag class" );
+                }
+
+                int minPathDistance;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    minPathDistance = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving min path distance" );
+                }
+
+                int maxPathDistance;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    maxPathDistance = charSeeker.extract( mark, extractors.int_() ).intValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving max path distance" );
+                }
+
+                return new Object[]{personId, country, tagClass, minPathDistance, maxPathDistance,
+                        LdbcSnbBiQuery10ExpertsInSocialCircle.DEFAULT_LIMIT};
             }
         };
     }
@@ -72,6 +107,6 @@ public class BiQuery10EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 5;
     }
 }

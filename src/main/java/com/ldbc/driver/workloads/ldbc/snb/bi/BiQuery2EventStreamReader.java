@@ -27,12 +27,10 @@ public class BiQuery2EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery2TopTags(
-                (long) parameters[0],
-                (long) parameters[1],
-                (String) parameters[2],
-                (String) parameters[3],
-                (int) parameters[4]
+        return new LdbcSnbBiQuery2TagEvolution(
+                (int) parameters[0],
+                (int) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -46,10 +44,10 @@ public class BiQuery2EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long startDate;
+                int year;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    startDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    year = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
@@ -57,42 +55,20 @@ public class BiQuery2EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                long endDate;
+                int month;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    endDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    month = charSeeker.extract( mark, extractors.int_() ).intValue();
                 }
                 else
                 {
-                    throw new GeneratorException( "Error retrieving endDate" );
-                }
-
-                String country1;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    country1 = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving country1" );
-                }
-
-                String country2;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    country2 = charSeeker.extract( mark, extractors.string() ).value();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving country2" );
+                    throw new GeneratorException( "Error retrieving month" );
                 }
 
                 return new Object[]{
-                        startDate,
-                        endDate,
-                        country1,
-                        country2,
-                        LdbcSnbBiQuery2TopTags.DEFAULT_LIMIT,
+                        year,
+                        month,
+                        LdbcSnbBiQuery2TagEvolution.DEFAULT_LIMIT
                 };
             }
         };
@@ -101,6 +77,6 @@ public class BiQuery2EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 4;
+        return 2;
     }
 }

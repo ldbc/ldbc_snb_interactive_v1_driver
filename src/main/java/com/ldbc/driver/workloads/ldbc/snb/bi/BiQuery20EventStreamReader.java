@@ -1,7 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
-import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
@@ -9,11 +8,11 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 public class BiQuery20EventStreamReader extends BaseEventStreamReader
 {
@@ -28,9 +27,9 @@ public class BiQuery20EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery20HighLevelTopics(
-                (List<String>) parameters[0],
-                (int) parameters[1]
+        return new LdbcSnbBiQuery20Recruitment(
+                (String) parameters[0],
+                (long) parameters[1]
         );
     }
 
@@ -44,10 +43,10 @@ public class BiQuery20EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                List<String> tagClasses;
+                String company;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    tagClasses = Lists.newArrayList( charSeeker.extract( mark, extractors.stringArray() ).value() );
+                    company = charSeeker.extract( mark, extractors.string() ).value();
                 }
                 else
                 {
@@ -55,7 +54,17 @@ public class BiQuery20EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{tagClasses, LdbcSnbBiQuery10TagPerson.DEFAULT_LIMIT};
+                long person2Id;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    person2Id = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving person2Id" );
+                }
+
+                return new Object[]{company, person2Id};
             }
         };
     }
@@ -63,6 +72,6 @@ public class BiQuery20EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 2;
     }
 }

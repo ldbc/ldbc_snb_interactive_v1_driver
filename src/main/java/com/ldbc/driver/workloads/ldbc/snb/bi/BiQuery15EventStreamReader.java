@@ -8,6 +8,7 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
@@ -26,9 +27,11 @@ public class BiQuery15EventStreamReader extends BaseEventStreamReader
     @Override
     Operation operationFromParameters( Object[] parameters )
     {
-        return new LdbcSnbBiQuery15SocialNormals(
-                (String) parameters[0],
-                (int) parameters[1]
+        return new LdbcSnbBiQuery15WeightedPaths(
+                (long) parameters[0],
+                (long) parameters[1],
+                (long) parameters[2],
+                (long) parameters[3]
         );
     }
 
@@ -42,10 +45,10 @@ public class BiQuery15EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                String country;
+                long person1Id;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    country = charSeeker.extract( mark, extractors.string() ).value();
+                    person1Id = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -53,7 +56,37 @@ public class BiQuery15EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{country, LdbcSnbBiQuery15SocialNormals.DEFAULT_LIMIT};
+                long person2Id;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    person2Id = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving person 2" );
+                }
+
+                long startDate;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    startDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving start date" );
+                }
+
+                long endDate;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    endDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving end date" );
+                }
+
+                return new Object[]{person1Id, person2Id, startDate, endDate};
             }
         };
     }
@@ -61,6 +94,6 @@ public class BiQuery15EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 4;
     }
 }
