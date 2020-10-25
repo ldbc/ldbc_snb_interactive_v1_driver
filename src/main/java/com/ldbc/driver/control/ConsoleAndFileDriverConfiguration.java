@@ -46,13 +46,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     // --- REQUIRED ---
 
     public static final String DRIVER_MODE_ARG = "dm";
-    public static final DriverModeType DRIVER_MODE_DEFAULT = DriverModeType.PRINT_HELP;
+    public static final DriverModeType DRIVER_MODE_DEFAULT = DriverModeType.MISSING;
     public static final String DRIVER_MODE_DEFAULT_STRING = DRIVER_MODE_DEFAULT.toString();
     private static final String DRIVER_MODE_ARG_LONG = "driver_mode";
     private static final String DRIVER_MODE_DESCRIPTION =
-            "driver execution mode. default:" +
-                    "PRINT_HELP, valid:[CREATE_VALIDATION_PARAMS, VALIDATE_DATABASE, " +
-                    "CALCULATE_WORKLOAD_STATS, EXECUTE_WORKLOAD]";
+            "driver execution mode. (default: MISSING, values: PRINT_HELP, CREATE_VALIDATION_PARAMS, VALIDATE_DATABASE, " +
+                    "CALCULATE_WORKLOAD_STATS, EXECUTE_WORKLOAD)";
 
     public static final String OPERATION_COUNT_ARG = "oc";
     public static final long OPERATION_COUNT_DEFAULT = 0;

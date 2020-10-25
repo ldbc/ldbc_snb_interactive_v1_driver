@@ -44,6 +44,7 @@ public class Client {
         } catch (DriverConfigurationException e) {
             String errMsg = format("Error parsing parameters: %s", e.getMessage());
             loggingService.info(errMsg);
+            e.printStackTrace();
             System.exit(1);
         } catch (Exception e) {
             loggingService.info("Client terminated unexpectedly\n" + ConcurrentErrorReporter.stackTraceToString(e));
