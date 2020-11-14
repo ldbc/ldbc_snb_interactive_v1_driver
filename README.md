@@ -1,6 +1,5 @@
 ![LDBC Logo](ldbc-logo.png)
 
-[![Build Status](https://travis-ci.org/ldbc/ldbc_snb_driver.svg?branch=dev)](https://travis-ci.org/ldbc/ldbc_snb_driver)
 [![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_driver.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_driver)
 
 :scroll: If you wish to cite the LDBC SNB, please refer to the [documentation repository](https://github.com/ldbc/ldbc_snb_docs#how-to-cite-ldbc-benchmarks).
