@@ -12,32 +12,24 @@ public class LdbcSnbBiQuery2TagEvolution extends Operation<List<LdbcSnbBiQuery2T
 {
     public static final int TYPE = 2;
     public static final int DEFAULT_LIMIT = 100;
-    public static final String YEAR = "year";
+    public static final String DATE = "date";
     public static final String TAG_CLASS = "tagClass";
-    public static final String MONTH = "month";
     public static final String LIMIT = "limit";
 
-    private final int year;
-    private final int month;
+    private final long date;
     private final String tagClass;
     private final int limit;
 
-    public LdbcSnbBiQuery2TagEvolution( int year, int month, String tagClass, int limit )
+    public LdbcSnbBiQuery2TagEvolution(long date, String tagClass, int limit )
     {
-        this.year = year;
-        this.month = month;
+        this.date = date;
         this.tagClass = tagClass;
         this.limit = limit;
     }
 
-    public int year()
+    public long date()
     {
-        return year;
-    }
-
-    public int month()
-    {
-        return month;
+        return date;
     }
 
     public String tagClass() {
@@ -52,21 +44,19 @@ public class LdbcSnbBiQuery2TagEvolution extends Operation<List<LdbcSnbBiQuery2T
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(YEAR, year)
-                .put(MONTH, month)
+                .put(DATE, date)
                 .put(TAG_CLASS, tagClass)
                 .put(LIMIT, limit)
                 .build();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "LdbcSnbBiQuery2TagEvolution{" +
-               "year=" + year +
-                ", month=" + month +
-                ", tagClass=" + tagClass +
-               '}';
+                "date=" + date +
+                ", tagClass='" + tagClass + '\'' +
+                ", limit=" + limit +
+                '}';
     }
 
     @Override
@@ -76,16 +66,14 @@ public class LdbcSnbBiQuery2TagEvolution extends Operation<List<LdbcSnbBiQuery2T
 
         LdbcSnbBiQuery2TagEvolution that = (LdbcSnbBiQuery2TagEvolution) o;
 
-        if (year != that.year) return false;
-        if (month != that.month) return false;
+        if (date != that.date) return false;
         if (limit != that.limit) return false;
         return tagClass != null ? tagClass.equals(that.tagClass) : that.tagClass == null;
     }
 
     @Override
     public int hashCode() {
-        int result = year;
-        result = 31 * result + month;
+        int result = (int) (date ^ (date >>> 32));
         result = 31 * result + (tagClass != null ? tagClass.hashCode() : 0);
         result = 31 * result + limit;
         return result;

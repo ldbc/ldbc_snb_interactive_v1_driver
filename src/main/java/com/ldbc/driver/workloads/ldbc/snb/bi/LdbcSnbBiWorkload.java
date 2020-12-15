@@ -760,8 +760,7 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery2TagEvolution ldbcQuery = (LdbcSnbBiQuery2TagEvolution) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.year() );
-                operationAsList.add( ldbcQuery.month() );
+                operationAsList.add( ldbcQuery.date() );
                 operationAsList.add( ldbcQuery.tagClass() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -989,11 +988,10 @@ public class LdbcSnbBiWorkload extends Workload
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery2TagEvolution.class.getName() ) )
         {
-            int year = ((Number) operationAsList.get( 1 )).intValue();
-            int month = ((Number) operationAsList.get( 2 )).intValue();
-            String tagClass = (String) operationAsList.get( 3 );
-            int limit = ((Number) operationAsList.get( 4 )).intValue();
-            return new LdbcSnbBiQuery2TagEvolution( year, month, tagClass, limit );
+            long date = ((Number) operationAsList.get( 1 )).longValue();
+            String tagClass = (String) operationAsList.get( 2 );
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery2TagEvolution( date, tagClass, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery3PopularCountryTopics.class.getName() ) )
         {

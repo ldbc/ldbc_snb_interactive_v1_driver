@@ -17,7 +17,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery2TagEvolution read2()
     {
-        return new LdbcSnbBiQuery2TagEvolution( 1, 2, "tagClass", 3 );
+        return new LdbcSnbBiQuery2TagEvolution( 123, "tagClass", 3 );
     }
 
     public static LdbcSnbBiQuery3PopularCountryTopics read3()

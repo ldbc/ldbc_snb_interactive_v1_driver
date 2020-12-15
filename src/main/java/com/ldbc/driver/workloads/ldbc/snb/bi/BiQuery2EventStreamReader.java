@@ -28,10 +28,9 @@ public class BiQuery2EventStreamReader extends BaseEventStreamReader
     Operation operationFromParameters( Object[] parameters )
     {
         return new LdbcSnbBiQuery2TagEvolution(
-                (int) parameters[0],
-                (int) parameters[1],
-                (String) parameters[2],
-                (int) parameters[3]
+                (long) parameters[0],
+                (String) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -45,25 +44,15 @@ public class BiQuery2EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                int year;
+                long date;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    year = charSeeker.extract( mark, extractors.int_() ).intValue();
+                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
                     // if first column of next row contains nothing it means the file is finished
                     return null;
-                }
-
-                int month;
-                if ( charSeeker.seek( mark, columnDelimiters ) )
-                {
-                    month = charSeeker.extract( mark, extractors.int_() ).intValue();
-                }
-                else
-                {
-                    throw new GeneratorException( "Error retrieving month" );
                 }
 
                 String tagClass;
@@ -77,8 +66,7 @@ public class BiQuery2EventStreamReader extends BaseEventStreamReader
                 }
 
                 return new Object[]{
-                        year,
-                        month,
+                        date,
                         tagClass,
                         LdbcSnbBiQuery2TagEvolution.DEFAULT_LIMIT
                 };
@@ -89,6 +77,6 @@ public class BiQuery2EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 3;
+        return 2;
     }
 }

@@ -33,35 +33,29 @@ public class BiOperationEqualityTest
     public void ldbcQuery2ShouldDoEqualsCorrectly()
     {
         // Given
-        int year1 = 1;
-        int month1 = 1;
+        long date1 = 1;
         String tagClass1 = "tagClass1";
         int limit1 = 1;
 
-        int year2 = 2;
-        int month2 = 2;
+        long date2 = 2;
         String tagClass2 = "tagClass2";
         int limit2 = 2;
 
         // When
         LdbcSnbBiQuery2TagEvolution query1a = new LdbcSnbBiQuery2TagEvolution(
-                year1,
-                month1,
+                date1,
                 tagClass1,
                 limit1 );
         LdbcSnbBiQuery2TagEvolution query1b = new LdbcSnbBiQuery2TagEvolution(
-                year1,
-                month1,
+                date1,
                 tagClass1,
                 limit1 );
         LdbcSnbBiQuery2TagEvolution query2a = new LdbcSnbBiQuery2TagEvolution(
-                year2,
-                month2,
+                date2,
                 tagClass2,
                 limit2 );
         LdbcSnbBiQuery2TagEvolution query3a = new LdbcSnbBiQuery2TagEvolution(
-                year1,
-                month2,
+                date2,
                 tagClass2,
                 limit1 );
 
