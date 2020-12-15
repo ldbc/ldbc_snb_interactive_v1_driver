@@ -752,7 +752,7 @@ public class LdbcSnbBiWorkload extends Workload
                 LdbcSnbBiQuery1PostingSummary ldbcQuery = (LdbcSnbBiQuery1PostingSummary) operation;
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
-                operationAsList.add( ldbcQuery.date() );
+                operationAsList.add( ldbcQuery.datetime() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
             case LdbcSnbBiQuery2TagEvolution.TYPE:
@@ -762,6 +762,7 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.year() );
                 operationAsList.add( ldbcQuery.month() );
+                operationAsList.add( ldbcQuery.tagClass() );
                 operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
@@ -934,6 +935,7 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.city1Id() );
                 operationAsList.add( ldbcQuery.city2Id() );
+                operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
             case LdbcSnbBiQuery20Recruitment.TYPE:
@@ -943,6 +945,7 @@ public class LdbcSnbBiWorkload extends Workload
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.company() );
                 operationAsList.add( ldbcQuery.person2Id() );
+                operationAsList.add( ldbcQuery.limit() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
             default:
@@ -987,8 +990,9 @@ public class LdbcSnbBiWorkload extends Workload
         {
             int year = ((Number) operationAsList.get( 1 )).intValue();
             int month = ((Number) operationAsList.get( 2 )).intValue();
-            int limit = ((Number) operationAsList.get( 3 )).intValue();
-            return new LdbcSnbBiQuery2TagEvolution( year, month, limit );
+            String tagClass = (String) operationAsList.get( 3 );
+            int limit = ((Number) operationAsList.get( 4 )).intValue();
+            return new LdbcSnbBiQuery2TagEvolution( year, month, tagClass, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery3PopularCountryTopics.class.getName() ) )
         {
@@ -1109,13 +1113,15 @@ public class LdbcSnbBiWorkload extends Workload
         {
             long city1Id = ((Number) operationAsList.get( 1 )).longValue();
             long city2Id = ((Number) operationAsList.get( 2 )).longValue();
-            return new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id, city2Id );
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id, city2Id, limit );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery20Recruitment.class.getName() ) )
         {
             String company = ((String) operationAsList.get( 1 ));
             long person2Id = ((Number) operationAsList.get( 2 )).longValue();
-            return new LdbcSnbBiQuery20Recruitment( company, person2Id );
+            int limit = ((Number) operationAsList.get( 3 )).intValue();
+            return new LdbcSnbBiQuery20Recruitment( company, person2Id, limit );
         }
         throw new SerializingMarshallingException(
                 format(

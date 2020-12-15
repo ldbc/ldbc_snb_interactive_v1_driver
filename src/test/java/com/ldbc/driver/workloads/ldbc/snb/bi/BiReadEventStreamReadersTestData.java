@@ -23,9 +23,9 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_2_CSV_ROWS() throws ParseException
     {
-        return "year|month\n"
-               + "1|2\n"
-               + "3|4\n";
+        return "year|month|tagClass\n"
+               + "1|2|tc1\n"
+               + "3|4|tc2\n";
     }
 
     public static final String QUERY_3_CSV_ROWS() throws ParseException

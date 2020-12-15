@@ -37,16 +37,16 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery1PostingSummary operation;
 
         operation = (LdbcSnbBiQuery1PostingSummary) reader.next();
-        assertThat( operation.date(), is( 1441351591755l ) );
+        assertThat( operation.datetime(), is( 1441351591755l ) );
         OperationTest.assertCorrectParameterMap(operation);
 
         operation = (LdbcSnbBiQuery1PostingSummary) reader.next();
-        assertThat( operation.date(), is( 1441351591756l ) );
+        assertThat( operation.datetime(), is( 1441351591756l ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery1PostingSummary) reader.next();
-        assertThat( operation.date(), is( 1441351591755l ) );
+        assertThat( operation.datetime(), is( 1441351591755l ) );
 
         assertTrue( reader.hasNext() );
     }

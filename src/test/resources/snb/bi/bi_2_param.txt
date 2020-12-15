@@ -1,3 +1,3 @@
-year|month
-2015|5
-2017|10
+year|month|tagClass
+2015|5|Music
+2017|10|Education

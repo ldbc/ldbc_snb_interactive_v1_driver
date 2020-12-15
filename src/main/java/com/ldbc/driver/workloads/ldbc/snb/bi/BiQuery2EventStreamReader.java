@@ -30,7 +30,8 @@ public class BiQuery2EventStreamReader extends BaseEventStreamReader
         return new LdbcSnbBiQuery2TagEvolution(
                 (int) parameters[0],
                 (int) parameters[1],
-                (int) parameters[2]
+                (String) parameters[2],
+                (int) parameters[3]
         );
     }
 
@@ -65,9 +66,20 @@ public class BiQuery2EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving month" );
                 }
 
+                String tagClass;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    tagClass = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving tagClass name" );
+                }
+
                 return new Object[]{
                         year,
                         month,
+                        tagClass,
                         LdbcSnbBiQuery2TagEvolution.DEFAULT_LIMIT
                 };
             }
@@ -77,6 +89,6 @@ public class BiQuery2EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 2;
+        return 3;
     }
 }

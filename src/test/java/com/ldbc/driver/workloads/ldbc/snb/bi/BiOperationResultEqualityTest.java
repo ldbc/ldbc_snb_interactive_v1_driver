@@ -78,37 +78,37 @@ public class BiOperationResultEqualityTest
     public void ldbcQuery2ResultShouldDoEqualsCorrectly()
     {
         String tagName1 = "\u3055";
-        int countMonth11 = 1;
-        int countMonth21 = 2;
+        int countWindow11 = 1;
+        int countWindow21 = 2;
         int diff1 = 3;
 
         String tagName2 = "\u4e35";
-        int countMonth12 = 4;
-        int countMonth22 = 5;
+        int countWindow12 = 4;
+        int countWindow22 = 5;
         int diff2 = 6;
 
         LdbcSnbBiQuery2TagEvolutionResult result1a = new LdbcSnbBiQuery2TagEvolutionResult(
                 tagName1,
-                countMonth11,
-                countMonth21,
+                countWindow11,
+                countWindow21,
                 diff1
         );
         LdbcSnbBiQuery2TagEvolutionResult result1b = new LdbcSnbBiQuery2TagEvolutionResult(
                 tagName1,
-                countMonth11,
-                countMonth21,
+                countWindow11,
+                countWindow21,
                 diff1
         );
         LdbcSnbBiQuery2TagEvolutionResult result2a = new LdbcSnbBiQuery2TagEvolutionResult(
                 tagName2,
-                countMonth12,
-                countMonth22,
+                countWindow12,
+                countWindow22,
                 diff2
         );
         LdbcSnbBiQuery2TagEvolutionResult result3a = new LdbcSnbBiQuery2TagEvolutionResult(
                 tagName2,
-                countMonth12,
-                countMonth22,
+                countWindow12,
+                countWindow22,
                 diff1
         );
 

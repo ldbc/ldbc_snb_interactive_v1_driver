@@ -24,12 +24,12 @@ public class LdbcSnbBiQuery2TagEvolutionResult
         return tagName;
     }
 
-    public int countMonth1()
+    public int countWindow1()
     {
         return countMonth1;
     }
 
-    public int countMonth2()
+    public int countWindow2()
     {
         return countMonth2;
     }

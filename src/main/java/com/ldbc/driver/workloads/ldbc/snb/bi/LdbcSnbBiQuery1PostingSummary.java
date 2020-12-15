@@ -11,24 +11,24 @@ import java.util.Map;
 public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery1PostingSummaryResult>>
 {
     public static final int TYPE = 1;
-    public static final String DATE = "date";
+    public static final String DATETIME = "datetime";
 
-    private final long date;
+    private final long datetime;
 
-    public LdbcSnbBiQuery1PostingSummary( long date )
+    public LdbcSnbBiQuery1PostingSummary( long datetime )
     {
-        this.date = date;
+        this.datetime = datetime;
     }
 
-    public long date()
+    public long datetime()
     {
-        return date;
+        return datetime;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(DATE, date)
+                .put(DATETIME, datetime)
                 .build();
     }
 
@@ -36,7 +36,7 @@ public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery
     public String toString()
     {
         return "LdbcSnbBiQuery1PostingSummary{" +
-               "date=" + date +
+               "datetime=" + datetime +
                '}';
     }
 
@@ -50,14 +50,14 @@ public class LdbcSnbBiQuery1PostingSummary extends Operation<List<LdbcSnbBiQuery
 
         LdbcSnbBiQuery1PostingSummary that = (LdbcSnbBiQuery1PostingSummary) o;
 
-        return date == that.date;
+        return datetime == that.datetime;
 
     }
 
     @Override
     public int hashCode()
     {
-        return (int) (date ^ (date >>> 32));
+        return (int) (datetime ^ (datetime >>> 32));
     }
 
     @Override
