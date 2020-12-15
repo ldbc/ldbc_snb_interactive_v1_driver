@@ -69,16 +69,19 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery2TagEvolution operation;
 
         operation = (LdbcSnbBiQuery2TagEvolution) reader.next();
-        assertThat( operation.date(), is( 1 ) );
+        assertThat( operation.date(), is( 1441351591755l ) );
+        assertThat( operation.tagClass(), is( "tc1" ) );
         OperationTest.assertCorrectParameterMap(operation);
 
         operation = (LdbcSnbBiQuery2TagEvolution) reader.next();
-        assertThat( operation.date(), is( 3 ) );
+        assertThat( operation.date(), is( 1441351591756l ) );
+        assertThat( operation.tagClass(), is( "tc2" ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery2TagEvolution) reader.next();
-        assertThat( operation.date(), is( 1 ) );
+        assertThat( operation.date(), is( 1441351591755l ) );
+        assertThat( operation.tagClass(), is( "tc1" ) );
 
         assertTrue( reader.hasNext() );
     }
