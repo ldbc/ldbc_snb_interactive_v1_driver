@@ -6,20 +6,20 @@ public class LdbcSnbBiQuery3PopularCountryTopicsResult
     private final String forumTitle;
     private final long forumCreationDate;
     private final long personId;
-    private final int postCount;
+    private final int messageCount;
 
     public LdbcSnbBiQuery3PopularCountryTopicsResult(
             long forumId,
             String forumTitle,
             long forumCreationDate,
             long personId,
-            int postCount)
+            int messageCount)
     {
         this.forumId = forumId;
         this.forumTitle = forumTitle;
         this.forumCreationDate = forumCreationDate;
         this.personId = personId;
-        this.postCount = postCount;
+        this.messageCount = messageCount;
     }
 
     public long forumId()
@@ -42,9 +42,9 @@ public class LdbcSnbBiQuery3PopularCountryTopicsResult
         return personId;
     }
 
-    public int postCount()
+    public int messageCount()
     {
-        return postCount;
+        return messageCount;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class LdbcSnbBiQuery3PopularCountryTopicsResult
                ", forumTitle='" + forumTitle + '\'' +
                ", forumCreationDate=" + forumCreationDate +
                ", personId=" + personId +
-               ", postCount=" + postCount +
+               ", messageCount=" + messageCount +
                '}';
     }
 
@@ -75,7 +75,7 @@ public class LdbcSnbBiQuery3PopularCountryTopicsResult
         { return false; }
         if ( personId != that.personId)
         { return false; }
-        if ( postCount != that.postCount)
+        if ( messageCount != that.messageCount)
         { return false; }
         return !(forumTitle != null ? !forumTitle.equals( that.forumTitle ) : that.forumTitle != null);
 
@@ -88,7 +88,7 @@ public class LdbcSnbBiQuery3PopularCountryTopicsResult
         result = 31 * result + (forumTitle != null ? forumTitle.hashCode() : 0);
         result = 31 * result + (int) (forumCreationDate ^ (forumCreationDate >>> 32));
         result = 31 * result + (int) (personId ^ (personId >>> 32));
-        result = 31 * result + postCount;
+        result = 31 * result + messageCount;
         return result;
     }
 }

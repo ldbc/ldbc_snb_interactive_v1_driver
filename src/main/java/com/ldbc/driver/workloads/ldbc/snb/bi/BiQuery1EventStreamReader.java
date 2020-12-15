@@ -41,10 +41,10 @@ public class BiQuery1EventStreamReader extends BaseEventStreamReader
                     Mark mark )
                     throws IOException
             {
-                long date;
+                long datetime;
                 if ( charSeeker.seek( mark, columnDelimiters ) )
                 {
-                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                    datetime = charSeeker.extract( mark, extractors.long_() ).longValue();
                 }
                 else
                 {
@@ -52,7 +52,7 @@ public class BiQuery1EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{date};
+                return new Object[]{datetime};
             }
         };
     }

@@ -29,7 +29,8 @@ public class BiQuery20EventStreamReader extends BaseEventStreamReader
     {
         return new LdbcSnbBiQuery20Recruitment(
                 (String) parameters[0],
-                (long) parameters[1]
+                (long) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -64,7 +65,7 @@ public class BiQuery20EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving person2Id" );
                 }
 
-                return new Object[]{company, person2Id};
+                return new Object[]{company, person2Id, LdbcSnbBiQuery20Recruitment.DEFAULT_LIMIT};
             }
         };
     }

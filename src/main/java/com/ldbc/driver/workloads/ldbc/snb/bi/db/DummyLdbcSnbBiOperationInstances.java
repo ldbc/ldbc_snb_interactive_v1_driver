@@ -17,7 +17,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery2TagEvolution read2()
     {
-        return new LdbcSnbBiQuery2TagEvolution( 1, 2, 3 );
+        return new LdbcSnbBiQuery2TagEvolution( 123, "tagClass", 3 );
     }
 
     public static LdbcSnbBiQuery3PopularCountryTopics read3()
@@ -62,7 +62,7 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery11FriendshipTriangles read11()
     {
-        return new LdbcSnbBiQuery11FriendshipTriangles( "1" );
+        return new LdbcSnbBiQuery11FriendshipTriangles( "c", 1);
     }
 
     public static LdbcSnbBiQuery12PersonPostCounts read12()
@@ -102,12 +102,12 @@ public class DummyLdbcSnbBiOperationInstances
 
     public static LdbcSnbBiQuery19InteractionPathBetweenCities read19()
     {
-        return new LdbcSnbBiQuery19InteractionPathBetweenCities( 1L, 2L );
+        return new LdbcSnbBiQuery19InteractionPathBetweenCities( 1L, 2L, 20 );
     }
 
     public static LdbcSnbBiQuery20Recruitment read20()
     {
-        return new LdbcSnbBiQuery20Recruitment( "My_Company", 2 );
+        return new LdbcSnbBiQuery20Recruitment( "My_Company", 2 , 20 );
     }
 
 }

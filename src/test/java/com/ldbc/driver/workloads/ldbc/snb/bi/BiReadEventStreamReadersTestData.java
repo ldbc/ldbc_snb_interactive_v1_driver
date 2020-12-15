@@ -23,9 +23,9 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_2_CSV_ROWS() throws ParseException
     {
-        return "year|month\n"
-               + "1|2\n"
-               + "3|4\n";
+        return "date|tagClass\n"
+               + "1441351591755|tc1\n"
+               + "1441351591756|tc2\n";
     }
 
     public static final String QUERY_3_CSV_ROWS() throws ParseException
@@ -100,11 +100,11 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_11_CSV_ROWS()
     {
-        return "country\n"
-               + "Kenya\n"
-               + "Peru\n"
-               + "Tunisia\n"
-               + "Venezuela";
+        return "country|startDate\n"
+               + "Kenya|123\n"
+               + "Peru|456\n"
+               + "Tunisia|789\n"
+               + "Venezuela|1000";
     }
 
     public static final String QUERY_12_CSV_ROWS()

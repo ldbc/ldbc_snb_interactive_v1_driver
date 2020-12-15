@@ -1,0 +1,24 @@
+version: 2.1
+orbs:
+  slack: circleci/slack@3.4.2
+workflows:
+  version: 2
+  build:
+    jobs:
+      - compile_driver:
+          filters:
+            branches:
+              ignore:
+                - stable
+
+jobs:
+  compile_driver:
+    docker:
+      - image: cimg/openjdk:8.0.272
+    steps:
+      - checkout
+      - run: |
+          mvn test | grep '^\[\|^ExecuteWorkloadMode' | tee mvn.log
+          grep 'BUILD SUCCESS' mvn.log
+      - slack/status:
+          only_for_branches: dev

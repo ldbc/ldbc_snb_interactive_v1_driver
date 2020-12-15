@@ -11,16 +11,20 @@ import java.util.Map;
 public class LdbcSnbBiQuery20Recruitment extends Operation<List<LdbcSnbBiQuery20RecruitmentResult>>
 {
     public static final int TYPE = 20;
+    public static final int DEFAULT_LIMIT = 20;
     public static final String COMPANY = "company";
     public static final String PERSON2_ID = "person2Id";
+    public static final String LIMIT = "limit";
 
     private final String company;
     private final long person2Id;
+    private final int limit;
 
-    public LdbcSnbBiQuery20Recruitment( String company, long person2Id )
+    public LdbcSnbBiQuery20Recruitment( String company, long person2Id, int limit )
     {
         this.company = company;
         this.person2Id = person2Id;
+        this.limit = limit;
     }
 
     public String company() {
@@ -32,11 +36,17 @@ public class LdbcSnbBiQuery20Recruitment extends Operation<List<LdbcSnbBiQuery20
         return person2Id;
     }
 
+    public int limit()
+    {
+        return limit;
+    }
+
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
                 .put(COMPANY, company)
                 .put(PERSON2_ID, person2Id)
+                .put(LIMIT, limit)
                 .build();
     }
 
@@ -56,6 +66,7 @@ public class LdbcSnbBiQuery20Recruitment extends Operation<List<LdbcSnbBiQuery20
         LdbcSnbBiQuery20Recruitment that = (LdbcSnbBiQuery20Recruitment) o;
 
         if (person2Id != that.person2Id) return false;
+        if (limit != that.limit) return false;
         return company != null ? company.equals(that.company) : that.company == null;
     }
 
@@ -63,6 +74,7 @@ public class LdbcSnbBiQuery20Recruitment extends Operation<List<LdbcSnbBiQuery20
     public int hashCode() {
         int result = company != null ? company.hashCode() : 0;
         result = 31 * result + (int) (person2Id ^ (person2Id >>> 32));
+        result = 31 * result + limit;
         return result;
     }
 

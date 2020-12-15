@@ -37,16 +37,16 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery1PostingSummary operation;
 
         operation = (LdbcSnbBiQuery1PostingSummary) reader.next();
-        assertThat( operation.date(), is( 1441351591755l ) );
+        assertThat( operation.datetime(), is( 1441351591755l ) );
         OperationTest.assertCorrectParameterMap(operation);
 
         operation = (LdbcSnbBiQuery1PostingSummary) reader.next();
-        assertThat( operation.date(), is( 1441351591756l ) );
+        assertThat( operation.datetime(), is( 1441351591756l ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery1PostingSummary) reader.next();
-        assertThat( operation.date(), is( 1441351591755l ) );
+        assertThat( operation.datetime(), is( 1441351591755l ) );
 
         assertTrue( reader.hasNext() );
     }
@@ -69,19 +69,19 @@ public class BiReadEventStreamReadersTest
         LdbcSnbBiQuery2TagEvolution operation;
 
         operation = (LdbcSnbBiQuery2TagEvolution) reader.next();
-        assertThat( operation.year(), is( 1 ) );
-        assertThat( operation.month(), is( 2 ) );
+        assertThat( operation.date(), is( 1441351591755l ) );
+        assertThat( operation.tagClass(), is( "tc1" ) );
         OperationTest.assertCorrectParameterMap(operation);
 
         operation = (LdbcSnbBiQuery2TagEvolution) reader.next();
-        assertThat( operation.year(), is( 3 ) );
-        assertThat( operation.month(), is( 4 ) );
+        assertThat( operation.date(), is( 1441351591756l ) );
+        assertThat( operation.tagClass(), is( "tc2" ) );
 
         // loops back around to first
 
         operation = (LdbcSnbBiQuery2TagEvolution) reader.next();
-        assertThat( operation.year(), is( 1 ) );
-        assertThat( operation.month(), is( 2 ) );
+        assertThat( operation.date(), is( 1441351591755l ) );
+        assertThat( operation.tagClass(), is( "tc1" ) );
 
         assertTrue( reader.hasNext() );
     }

@@ -8,6 +8,7 @@ import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
@@ -27,7 +28,8 @@ public class BiQuery11EventStreamReader extends BaseEventStreamReader
     Operation operationFromParameters( Object[] parameters )
     {
         return new LdbcSnbBiQuery11FriendshipTriangles(
-                (String) parameters[0]
+                (String) parameters[0],
+                (long) parameters[1]
         );
     }
 
@@ -52,7 +54,17 @@ public class BiQuery11EventStreamReader extends BaseEventStreamReader
                     return null;
                 }
 
-                return new Object[]{country};
+                long startDate;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    startDate = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving start date" );
+                }
+
+                return new Object[]{country, startDate};
             }
         };
     }
@@ -60,6 +72,6 @@ public class BiQuery11EventStreamReader extends BaseEventStreamReader
     @Override
     int columnCount()
     {
-        return 1;
+        return 2;
     }
 }

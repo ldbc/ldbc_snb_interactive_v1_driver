@@ -33,30 +33,30 @@ public class BiOperationEqualityTest
     public void ldbcQuery2ShouldDoEqualsCorrectly()
     {
         // Given
-        int year1 = 1;
-        int month1 = 1;
+        long date1 = 1;
+        String tagClass1 = "tagClass1";
         int limit1 = 1;
 
-        int year2 = 2;
-        int month2 = 2;
+        long date2 = 2;
+        String tagClass2 = "tagClass2";
         int limit2 = 2;
 
         // When
         LdbcSnbBiQuery2TagEvolution query1a = new LdbcSnbBiQuery2TagEvolution(
-                year1,
-                month1,
+                date1,
+                tagClass1,
                 limit1 );
         LdbcSnbBiQuery2TagEvolution query1b = new LdbcSnbBiQuery2TagEvolution(
-                year1,
-                month1,
+                date1,
+                tagClass1,
                 limit1 );
         LdbcSnbBiQuery2TagEvolution query2a = new LdbcSnbBiQuery2TagEvolution(
-                year2,
-                month2,
+                date2,
+                tagClass2,
                 limit2 );
         LdbcSnbBiQuery2TagEvolution query3a = new LdbcSnbBiQuery2TagEvolution(
-                year1,
-                month2,
+                date2,
+                tagClass2,
                 limit1 );
 
         // Then
@@ -305,13 +305,15 @@ public class BiOperationEqualityTest
     {
         // Given
         String country1 = "\u3055";
+        long startDate1 = 123;
 
         String country2 = "\u4e35";
+        long startDate2 = 456;
 
         // When
-        LdbcSnbBiQuery11FriendshipTriangles query1a = new LdbcSnbBiQuery11FriendshipTriangles( country1 );
-        LdbcSnbBiQuery11FriendshipTriangles query1b = new LdbcSnbBiQuery11FriendshipTriangles( country1 );
-        LdbcSnbBiQuery11FriendshipTriangles query2a = new LdbcSnbBiQuery11FriendshipTriangles( country2 );
+        LdbcSnbBiQuery11FriendshipTriangles query1a = new LdbcSnbBiQuery11FriendshipTriangles( country1, startDate1 );
+        LdbcSnbBiQuery11FriendshipTriangles query1b = new LdbcSnbBiQuery11FriendshipTriangles( country1, startDate1 );
+        LdbcSnbBiQuery11FriendshipTriangles query2a = new LdbcSnbBiQuery11FriendshipTriangles( country2, startDate2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -545,19 +547,21 @@ public class BiOperationEqualityTest
         // Given
         long city1Id1 = 1;
         long city2Id1 = 2;
+        int limit1 = 20;
 
         long city1Id2 = 3;
         long city2Id2 = 4;
+        int limit2 = 40;
 
         // When
         LdbcSnbBiQuery19InteractionPathBetweenCities query1a =
-                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id1 );
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id1, limit1 );
         LdbcSnbBiQuery19InteractionPathBetweenCities query1b =
-                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id1 );
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id1, limit1 );
         LdbcSnbBiQuery19InteractionPathBetweenCities query2a =
-                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id2 );
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id1, city2Id2, limit2 );
         LdbcSnbBiQuery19InteractionPathBetweenCities query3a =
-                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id2, city2Id2 );
+                new LdbcSnbBiQuery19InteractionPathBetweenCities( city1Id2, city2Id2, limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );
@@ -575,19 +579,21 @@ public class BiOperationEqualityTest
         // Given
         String company1 = "BigCorp";
         long person2Id1 = 1L;
+        int limit1 = 20;
 
         String company2 = "LargeComp";
         long person2Id2 = 2L;
+        int limit2 = 40;
 
         // When
         LdbcSnbBiQuery20Recruitment query1a =
-                new LdbcSnbBiQuery20Recruitment( company1, person2Id1 );
+                new LdbcSnbBiQuery20Recruitment( company1, person2Id1, limit1 );
         LdbcSnbBiQuery20Recruitment query1b =
-                new LdbcSnbBiQuery20Recruitment( company1, person2Id1 );
+                new LdbcSnbBiQuery20Recruitment( company1, person2Id1, limit1 );
         LdbcSnbBiQuery20Recruitment query2a =
-                new LdbcSnbBiQuery20Recruitment( company2, person2Id1 );
+                new LdbcSnbBiQuery20Recruitment( company2, person2Id1, limit2 );
         LdbcSnbBiQuery20Recruitment query3a =
-                new LdbcSnbBiQuery20Recruitment( company2, person2Id2 );
+                new LdbcSnbBiQuery20Recruitment( company2, person2Id2, limit2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

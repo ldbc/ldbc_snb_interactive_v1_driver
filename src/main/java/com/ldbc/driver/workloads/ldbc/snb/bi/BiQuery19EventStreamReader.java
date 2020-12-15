@@ -29,7 +29,8 @@ public class BiQuery19EventStreamReader extends BaseEventStreamReader
     {
         return new LdbcSnbBiQuery19InteractionPathBetweenCities(
                 (long) parameters[0],
-                (long) parameters[1]
+                (long) parameters[1],
+                (int) parameters[2]
         );
     }
 
@@ -64,7 +65,7 @@ public class BiQuery19EventStreamReader extends BaseEventStreamReader
                     throw new GeneratorException( "Error retrieving city2Id" );
                 }
 
-                return new Object[]{city1Id, city2Id};
+                return new Object[]{city1Id, city2Id, LdbcSnbBiQuery19InteractionPathBetweenCities.DEFAULT_LIMIT};
             }
         };
     }

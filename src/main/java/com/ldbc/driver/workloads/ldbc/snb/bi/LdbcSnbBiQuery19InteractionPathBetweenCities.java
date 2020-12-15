@@ -11,16 +11,20 @@ import java.util.Map;
 public class LdbcSnbBiQuery19InteractionPathBetweenCities extends Operation<List<LdbcSnbBiQuery19InteractionPathBetweenCitiesResult>>
 {
     public static final int TYPE = 19;
+    public static final int DEFAULT_LIMIT = 20;
     public static final String CITY1_ID = "city1Id";
     public static final String CITY2_ID = "city2Id";
+    public static final String LIMIT = "limit";
 
     private final long city1Id;
     private final long city2Id;
+    private final int limit;
 
-    public LdbcSnbBiQuery19InteractionPathBetweenCities( long city1Id, long city2Id )
+    public LdbcSnbBiQuery19InteractionPathBetweenCities( long city1Id, long city2Id, int limit )
     {
         this.city1Id = city1Id;
         this.city2Id = city2Id;
+        this.limit = limit;
     }
 
     public long city1Id() {
@@ -31,11 +35,17 @@ public class LdbcSnbBiQuery19InteractionPathBetweenCities extends Operation<List
         return city2Id;
     }
 
+    public int limit()
+    {
+        return limit;
+    }
+
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
                 .put(CITY1_ID, city1Id)
                 .put(CITY2_ID, city2Id)
+                .put(LIMIT, limit)
                 .build();
     }
 
@@ -55,13 +65,15 @@ public class LdbcSnbBiQuery19InteractionPathBetweenCities extends Operation<List
         LdbcSnbBiQuery19InteractionPathBetweenCities that = (LdbcSnbBiQuery19InteractionPathBetweenCities) o;
 
         if (city1Id != that.city1Id) return false;
-        return city2Id == that.city2Id;
+        if (city2Id != that.city2Id) return false;
+        return limit == that.limit;
     }
 
     @Override
     public int hashCode() {
         int result = (int) (city1Id ^ (city1Id >>> 32));
         result = 31 * result + (int) (city2Id ^ (city2Id >>> 32));
+        result = 31 * result + limit;
         return result;
     }
 
