@@ -87,14 +87,14 @@ public class LdbcSnbBiQuery4TopCountryPosters extends Operation<List<LdbcSnbBiQu
             String personFirstName = (String) row.get( 1 );
             String personLastName = (String) row.get( 2 );
             long personCreationDate = ((Number) row.get( 3 )).longValue();
-            int postCount = ((Number) row.get( 4 )).intValue();
+            int messageCount = ((Number) row.get( 4 )).intValue();
             result.add(
                     new LdbcSnbBiQuery4TopCountryPostersResult(
                             personId,
                             personFirstName,
                             personLastName,
                             personCreationDate,
-                            postCount
+                            messageCount
                     )
             );
         }
@@ -115,7 +115,7 @@ public class LdbcSnbBiQuery4TopCountryPosters extends Operation<List<LdbcSnbBiQu
             resultFields.add( row.personFirstName() );
             resultFields.add( row.personLastName() );
             resultFields.add( row.personCreationDate() );
-            resultFields.add( row.postCount() );
+            resultFields.add( row.messageCount() );
             resultsFields.add( resultFields );
         }
         return SerializationUtil.toJson( resultsFields );

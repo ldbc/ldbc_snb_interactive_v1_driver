@@ -125,41 +125,41 @@ public class BiOperationResultEqualityTest
         String forumTitle1 = "\u3055";
         long forumCreationDate1 = Long.MIN_VALUE;
         long personId1 = 1;
-        int postCount1 = 2;
+        int messageCount1 = 2;
 
         long forumId2 = 3;
         String forumTitle2 = "\u4e35";
         long forumCreationDate2 = 4;
         long personId2 = 5;
-        int postCount2 = 6;
+        int messageCount2 = 6;
 
         LdbcSnbBiQuery3PopularCountryTopicsResult result1a = new LdbcSnbBiQuery3PopularCountryTopicsResult(
                 forumId1,
                 forumTitle1,
                 forumCreationDate1,
                 personId1,
-                postCount1
+                messageCount1
         );
         LdbcSnbBiQuery3PopularCountryTopicsResult result1b = new LdbcSnbBiQuery3PopularCountryTopicsResult(
                 forumId1,
                 forumTitle1,
                 forumCreationDate1,
                 personId1,
-                postCount1
+                messageCount1
         );
         LdbcSnbBiQuery3PopularCountryTopicsResult result2a = new LdbcSnbBiQuery3PopularCountryTopicsResult(
                 forumId2,
                 forumTitle2,
                 forumCreationDate2,
                 personId2,
-                postCount2
+                messageCount2
         );
         LdbcSnbBiQuery3PopularCountryTopicsResult result3a = new LdbcSnbBiQuery3PopularCountryTopicsResult(
                 forumId2,
                 forumTitle2,
                 forumCreationDate2,
                 personId2,
-                postCount1
+                messageCount1
         );
 
         assertThat( result1a, equalTo( result1b ) );
@@ -175,41 +175,41 @@ public class BiOperationResultEqualityTest
         String personFirstName1 = "\u3055";
         String personLastName1 = "\u4e35";
         long personCreationDate1 = 2;
-        int postCount1 = Integer.MAX_VALUE;
+        int messageCount1 = Integer.MAX_VALUE;
 
         long personId2 = 3;
         String personFirstName2 = "4";
         String personLastName2 = "5";
         long personCreationDate2 = 6;
-        int count2 = Integer.MIN_VALUE;
+        int messageCount2 = Integer.MIN_VALUE;
 
         LdbcSnbBiQuery4TopCountryPostersResult result1a = new LdbcSnbBiQuery4TopCountryPostersResult(
                 personId1,
                 personFirstName1,
                 personLastName1,
                 personCreationDate1,
-                postCount1
+                messageCount1
         );
         LdbcSnbBiQuery4TopCountryPostersResult result1b = new LdbcSnbBiQuery4TopCountryPostersResult(
                 personId1,
                 personFirstName1,
                 personLastName1,
                 personCreationDate1,
-                postCount1
+                messageCount1
         );
         LdbcSnbBiQuery4TopCountryPostersResult result2a = new LdbcSnbBiQuery4TopCountryPostersResult(
                 personId2,
                 personFirstName2,
                 personLastName2,
                 personCreationDate2,
-                count2
+                messageCount2
         );
         LdbcSnbBiQuery4TopCountryPostersResult result3a = new LdbcSnbBiQuery4TopCountryPostersResult(
                 personId2,
                 personFirstName2,
                 personLastName2,
                 personCreationDate2,
-                postCount1
+                messageCount1
         );
 
         assertThat( result1a, equalTo( result1b ) );

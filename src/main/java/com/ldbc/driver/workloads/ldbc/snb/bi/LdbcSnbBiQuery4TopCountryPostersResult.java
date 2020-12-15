@@ -6,20 +6,20 @@ public class LdbcSnbBiQuery4TopCountryPostersResult
     private final String personFirstName;
     private final String personLastName;
     private final long personCreationDate;
-    private final int postCount;
+    private final int messageCount;
 
     public LdbcSnbBiQuery4TopCountryPostersResult(
             long personId,
             String personFirstName,
             String personLastName,
             long personCreationDate,
-            int postCount)
+            int messageCount)
     {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
         this.personCreationDate = personCreationDate;
-        this.postCount = postCount;
+        this.messageCount = messageCount;
     }
 
     public long personId()
@@ -42,9 +42,9 @@ public class LdbcSnbBiQuery4TopCountryPostersResult
         return personCreationDate;
     }
 
-    public int postCount()
+    public int messageCount()
     {
-        return postCount;
+        return messageCount;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class LdbcSnbBiQuery4TopCountryPostersResult
                ", personFirstName='" + personFirstName + '\'' +
                ", personLastName='" + personLastName + '\'' +
                ", personCreationDate=" + personCreationDate +
-               ", postCount=" + postCount +
+               ", messageCount=" + messageCount +
                '}';
     }
 
@@ -73,7 +73,7 @@ public class LdbcSnbBiQuery4TopCountryPostersResult
         { return false; }
         if ( personCreationDate != that.personCreationDate)
         { return false; }
-        if ( postCount != that.postCount)
+        if ( messageCount != that.messageCount)
         { return false; }
         if ( personFirstName != null ? !personFirstName.equals( that.personFirstName) : that.personFirstName != null )
         { return false; }
@@ -88,7 +88,7 @@ public class LdbcSnbBiQuery4TopCountryPostersResult
         result = 31 * result + (personFirstName != null ? personFirstName.hashCode() : 0);
         result = 31 * result + (personLastName != null ? personLastName.hashCode() : 0);
         result = 31 * result + (int) (personCreationDate ^ (personCreationDate >>> 32));
-        result = 31 * result + postCount;
+        result = 31 * result + messageCount;
         return result;
     }
 }
