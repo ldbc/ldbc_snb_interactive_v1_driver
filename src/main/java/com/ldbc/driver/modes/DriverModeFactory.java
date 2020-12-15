@@ -15,6 +15,8 @@ public class DriverModeFactory {
         DriverMode driverMode;
         missingParameters(controlService.getConfiguration(), driverModeType);
         switch (driverModeType) {
+            case MISSING:
+                throw new IllegalStateException("Driver mode missing");
             case CREATE_VALIDATION_PARAMS:
                 driverMode = new CreateValidationParamsMode(controlService, RANDOM_SEED);
                 break;

@@ -352,7 +352,8 @@ public abstract class WorkloadTest {
             assertTrue(configurationFile.exists());
 
             configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
-                    "-P", configurationFile.getAbsolutePath()
+                    "-P", configurationFile.getAbsolutePath(),
+                    "-dm", "EXECUTE_WORKLOAD"
             });
 
             ResultsDirectory resultsDirectory = new ResultsDirectory(configuration);
