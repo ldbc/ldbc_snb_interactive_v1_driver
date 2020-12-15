@@ -311,13 +311,15 @@ public class BiOperationEqualityTest
     {
         // Given
         String country1 = "\u3055";
+        long startDate1 = 123;
 
         String country2 = "\u4e35";
+        long startDate2 = 456;
 
         // When
-        LdbcSnbBiQuery11FriendshipTriangles query1a = new LdbcSnbBiQuery11FriendshipTriangles( country1 );
-        LdbcSnbBiQuery11FriendshipTriangles query1b = new LdbcSnbBiQuery11FriendshipTriangles( country1 );
-        LdbcSnbBiQuery11FriendshipTriangles query2a = new LdbcSnbBiQuery11FriendshipTriangles( country2 );
+        LdbcSnbBiQuery11FriendshipTriangles query1a = new LdbcSnbBiQuery11FriendshipTriangles( country1, startDate1 );
+        LdbcSnbBiQuery11FriendshipTriangles query1b = new LdbcSnbBiQuery11FriendshipTriangles( country1, startDate1 );
+        LdbcSnbBiQuery11FriendshipTriangles query2a = new LdbcSnbBiQuery11FriendshipTriangles( country2, startDate2 );
 
         // Then
         assertThat( query1a, equalTo( query1b ) );

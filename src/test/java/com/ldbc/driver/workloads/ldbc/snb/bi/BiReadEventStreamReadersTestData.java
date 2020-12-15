@@ -100,11 +100,11 @@ public class BiReadEventStreamReadersTestData
 
     public static final String QUERY_11_CSV_ROWS()
     {
-        return "country\n"
-               + "Kenya\n"
-               + "Peru\n"
-               + "Tunisia\n"
-               + "Venezuela";
+        return "country|startDate\n"
+               + "Kenya|123\n"
+               + "Peru|456\n"
+               + "Tunisia|789\n"
+               + "Venezuela|1000";
     }
 
     public static final String QUERY_12_CSV_ROWS()

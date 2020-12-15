@@ -851,6 +851,7 @@ public class LdbcSnbBiWorkload extends Workload
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add( ldbcQuery.getClass().getName() );
                 operationAsList.add( ldbcQuery.country() );
+                operationAsList.add( ldbcQuery.startDate() );
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
             }
             case LdbcSnbBiQuery12PersonPostCounts.TYPE:
@@ -1053,7 +1054,8 @@ public class LdbcSnbBiWorkload extends Workload
         else if ( operationClassName.equals( LdbcSnbBiQuery11FriendshipTriangles.class.getName() ) )
         {
             String country = (String) operationAsList.get( 1 );
-            return new LdbcSnbBiQuery11FriendshipTriangles( country );
+            long startDate = ((Number) operationAsList.get( 2 )).longValue();
+            return new LdbcSnbBiQuery11FriendshipTriangles( country, startDate );
         }
         else if ( operationClassName.equals( LdbcSnbBiQuery12PersonPostCounts.class.getName() ) )
         {

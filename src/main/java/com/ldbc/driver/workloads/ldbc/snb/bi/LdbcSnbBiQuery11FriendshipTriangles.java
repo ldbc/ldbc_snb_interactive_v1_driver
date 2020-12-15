@@ -12,12 +12,15 @@ public class LdbcSnbBiQuery11FriendshipTriangles extends Operation<LdbcSnbBiQuer
 {
     public static final int TYPE = 11;
     public static final String COUNTRY = "country";
+    public static final String START_DATE = "startDate";
 
     private final String country;
+    private final long startDate;
 
-    public LdbcSnbBiQuery11FriendshipTriangles( String country )
+    public LdbcSnbBiQuery11FriendshipTriangles( String country, long startDate )
     {
         this.country = country;
+        this.startDate = startDate;
     }
 
     public String country()
@@ -25,39 +28,42 @@ public class LdbcSnbBiQuery11FriendshipTriangles extends Operation<LdbcSnbBiQuer
         return country;
     }
 
+    public long startDate() {
+        return startDate;
+    }
+
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
                 .put(COUNTRY, country)
+                .put(START_DATE, startDate)
                 .build();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "LdbcSnbBiQuery11FriendshipTriangles{" +
-               "country='" + country + '\'' +
-               '}';
+                "country='" + country + '\'' +
+                ", startDate=" + startDate +
+                '}';
     }
 
     @Override
-    public boolean equals( Object o )
-    {
-        if ( this == o )
-        { return true; }
-        if ( o == null || getClass() != o.getClass() )
-        { return false; }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         LdbcSnbBiQuery11FriendshipTriangles that = (LdbcSnbBiQuery11FriendshipTriangles) o;
 
-        return !(country != null ? !country.equals( that.country ) : that.country != null);
-
+        if (startDate != that.startDate) return false;
+        return country != null ? country.equals(that.country) : that.country == null;
     }
 
     @Override
-    public int hashCode()
-    {
-        return country != null ? country.hashCode() : 0;
+    public int hashCode() {
+        int result = country != null ? country.hashCode() : 0;
+        result = 31 * result + (int) (startDate ^ (startDate >>> 32));
+        return result;
     }
 
     @Override
