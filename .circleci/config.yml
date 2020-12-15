@@ -5,14 +5,14 @@ workflows:
   version: 2
   build:
     jobs:
-      - compile_docs:
+      - compile_driver:
           filters:
             branches:
               ignore:
                 - stable
 
 jobs:
-  compile_docs:
+  compile_driver:
     docker:
       - image: cimg/openjdk:8.0.272
     steps:
