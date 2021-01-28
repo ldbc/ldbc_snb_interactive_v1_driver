@@ -8,9 +8,19 @@ This driver is being developed as part of the Linked Data Benchmark Council EU-f
 * [LDBC Twitter Account](https://twitter.com/LDBCouncil)
 * [LDBC Facebook Page](https://www.facebook.com/ldbcouncil/)
 
-### Branches
+## Compatibility
 
-:warning: The development of this repository happens on the [`dev` branch](https://github.com/ldbc/ldbc_snb_driver/tree/dev) which contains the current `SNAPSHOT` version. The work-in-progress LDBC implementations typically depend on this version.
+The LDBC Social Network Benchmark suite is continuously maintained with improvements in the specification, the data generator, the driver, and the reference implementation.
+To ensure that you are using compatible LDBC repositories, use the following table:
+
+| project | v0.3.x | v0.4.x |
+| ------- | ------ | ------ |
+| [Documentation](https://github.com/ldbc/ldbc_snb_docs) | [`v0.3.3`](https://github.com/ldbc/ldbc_snb_docs/releases/tag/v0.3.3) | [`dev`](https://github.com/ldbc/ldbc_snb_docs/tree/dev) |
+| [Datagen](https://github.com/ldbc/ldbc_snb_datagen) | [`v0.3.3`](https://github.com/ldbc/ldbc_snb_datagen/releases/tag/v0.3.3) | [`dev`](https://github.com/ldbc/ldbc_snb_datagen/tree/dev) |
+| [Driver](https://github.com/ldbc/ldbc_snb_driver) | [`v0.3.3`](https://github.com/ldbc/ldbc_snb_driver/releases/tag/0.3.3) | [`dev`](https://github.com/ldbc/ldbc_snb_driver/tree/dev) |
+| [Implementations](https://github.com/ldbc/ldbc_snb_implementations) | [`stable`](https://github.com/ldbc/ldbc_snb_implementations/tree/stable) | [`dev`](https://github.com/ldbc/ldbc_snb_implementations/tree/dev) |
+
+The `stable` branches of the repositories correspond to the `v0.3.x`, and the `dev` branches correspond to the `v0.4.x` releases.
 
 ### User Guide
 
