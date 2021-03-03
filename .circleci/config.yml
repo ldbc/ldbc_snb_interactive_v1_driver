@@ -5,11 +5,7 @@ workflows:
   version: 2
   build:
     jobs:
-      - compile_driver:
-          filters:
-            branches:
-              ignore:
-                - stable
+      - compile_driver
 
 jobs:
   compile_driver:
@@ -20,5 +16,3 @@ jobs:
       - run: |
           mvn test | grep '^\[\|^ExecuteWorkloadMode' | tee mvn.log
           grep 'BUILD SUCCESS' mvn.log
-      - slack/status:
-          only_for_branches: dev
