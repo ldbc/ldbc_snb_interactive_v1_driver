@@ -16,13 +16,15 @@ public class SimpleCsvFileWriter implements Closeable
 
     private final BufferedWriter bufferedWriter;
     private final String columnSeparator;
+    private final boolean flushLog;
 
-    public SimpleCsvFileWriter( File file, String columnSeparator ) throws IOException
+    public SimpleCsvFileWriter( File file, String columnSeparator, boolean flushLog ) throws IOException
     {
         this.bufferedWriter =
                 new BufferedWriter( new OutputStreamWriter( new FileOutputStream( file ), Charsets.UTF_8 ) );
 
         this.columnSeparator = columnSeparator;
+        this.flushLog = flushLog;
     }
 
     public void writeRows( Iterator<String[]> csvRows ) throws IOException
@@ -40,7 +42,9 @@ public class SimpleCsvFileWriter implements Closeable
         }
         bufferedWriter.write( columns[columns.length - 1] );
         bufferedWriter.newLine();
-        bufferedWriter.flush();
+        if (flushLog) {
+            bufferedWriter.flush();
+        }
     }
 
     @Override

@@ -11,9 +11,9 @@ public class SimpleResultsLogWriter implements ResultsLogWriter
     private final SimpleCsvFileWriter writer;
     private final TimeUnit unit;
 
-    public SimpleResultsLogWriter( File resultsLog, TimeUnit unit ) throws IOException
+    public SimpleResultsLogWriter( File resultsLog, TimeUnit unit, boolean flushLog ) throws IOException
     {
-        this.writer = new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR );
+        this.writer = new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, flushLog );
         this.unit = unit;
         resultsLog.createNewFile();
         writer.writeRow(
