@@ -220,7 +220,7 @@ public class ResultsLogValidationTest
         long excessiveDelayThreshold = 5;
         File file = temporaryFolder.newFile();
         try ( SimpleCsvFileWriter writer =
-                      new SimpleCsvFileWriter( file, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR ) )
+                      new SimpleCsvFileWriter( file, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, false ) )
         {
             writer.writeRow(
                     "operation_type",

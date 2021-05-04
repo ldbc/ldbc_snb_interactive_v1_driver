@@ -107,6 +107,7 @@ public class ConsoleAndFileDriverConfigurationTest
         long warmupCount = 5;
         long skipCount = 6;
         Map<String,String> paramsMap = new HashMap<>();
+        boolean flushLog = false;
 
         ConsoleAndFileDriverConfiguration configurationBefore = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -126,7 +127,8 @@ public class ConsoleAndFileDriverConfigurationTest
                 printHelp,
                 ignoreScheduledStartTimes,
                 warmupCount,
-                skipCount
+                skipCount,
+                flushLog
         );
 
         DriverConfiguration configurationAfter =
@@ -565,6 +567,7 @@ public class ConsoleAndFileDriverConfigurationTest
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 10;
         long skipCount = 100;
+        boolean flushLog = false;
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -584,7 +587,8 @@ public class ConsoleAndFileDriverConfigurationTest
                 printHelp,
                 ignoreScheduledStartTimes,
                 warmupCount,
-                skipCount
+                skipCount,
+                flushLog
         );
 
         assertThat( params.asMap(), equalTo( paramsMap ) );

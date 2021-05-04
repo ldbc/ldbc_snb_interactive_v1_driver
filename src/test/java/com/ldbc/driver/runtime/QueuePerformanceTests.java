@@ -86,6 +86,7 @@ public class QueuePerformanceTests
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 0;
         long skipCount = 0;
+        boolean flushLog = false;
 
         DriverConfiguration config = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -105,7 +106,8 @@ public class QueuePerformanceTests
                 printHelp,
                 ignoreScheduledStartTimes,
                 warmupCount,
-                skipCount
+                skipCount,
+                flushLog
         );
 
         GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );

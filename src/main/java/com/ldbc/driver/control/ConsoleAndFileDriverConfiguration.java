@@ -77,6 +77,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     public static final String HELP_DEFAULT_STRING = Boolean.toString( HELP_DEFAULT );
     private static final String HELP_DESCRIPTION = "print usage instruction";
 
+    public static final String FLUSH_LOG_ARG = "flush_log";
+    public static final boolean FLUSH_LOG_DEFAULT = false;
+    public static final String FLUSH_LOG_DEFAULT_STRING = Boolean.toString(FLUSH_LOG_DEFAULT);
+    private static final String FLUSH_LOG_DESCRIPTION = "flush log to disk after each operation";
+
     public static final String NAME_ARG = "nm";
     private static final String NAME_ARG_LONG = "name";
     public static final String NAME_DEFAULT = "LDBC";
@@ -185,6 +190,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         Map<String,String> defaultParamsMap = new HashMap<>();
         defaultParamsMap.put( IGNORE_SCHEDULED_START_TIMES_ARG, IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING );
         defaultParamsMap.put( HELP_ARG, HELP_DEFAULT_STRING );
+        defaultParamsMap.put( FLUSH_LOG_ARG, FLUSH_LOG_DEFAULT_STRING );
         defaultParamsMap.put( OPERATION_COUNT_ARG, OPERATION_COUNT_DEFAULT_STRING );
         defaultParamsMap.put( WORKLOAD_ARG, WORKLOAD_DEFAULT_STRING );
         defaultParamsMap.put( NAME_ARG, NAME_DEFAULT_STRING );
@@ -280,6 +286,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             boolean printHelp = Boolean.parseBoolean( paramsMap.get( HELP_ARG ) );
             boolean ignoreScheduledStartTimes =
                     Boolean.parseBoolean( paramsMap.get( IGNORE_SCHEDULED_START_TIMES_ARG ) );
+            boolean flushLog = Boolean.parseBoolean( paramsMap.get( FLUSH_LOG_ARG ) );
             return new ConsoleAndFileDriverConfiguration(
                     paramsMap,
                     name,
@@ -298,7 +305,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     printHelp,
                     ignoreScheduledStartTimes,
                     warmupCount,
-                    skipCount
+                    skipCount,
+                    flushLog
             );
         }
         catch ( DriverConfigurationException e )
@@ -605,6 +613,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         Option printHelpOption = OptionBuilder.withDescription( HELP_DESCRIPTION ).create( HELP_ARG );
         options.addOption( printHelpOption );
 
+
+        Option flushOption = OptionBuilder.withDescription(FLUSH_LOG_DESCRIPTION).create(FLUSH_LOG_ARG);
+        options.addOption( flushOption );
+
         Option ignoreScheduledStartTimesOption =
                 OptionBuilder.withDescription( IGNORE_SCHEDULED_START_TIMES_DESCRIPTION )
                         .create( IGNORE_SCHEDULED_START_TIMES_ARG );
@@ -684,6 +696,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private final boolean ignoreScheduledStartTimes;
     private final long warmupCount;
     private final long skipCount;
+    private final boolean flushLog;
 
     public ConsoleAndFileDriverConfiguration( Map<String,String> paramsMap,
             String name,
@@ -702,7 +715,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             boolean printHelp,
             boolean ignoreScheduledStartTimes,
             long warmupCount,
-            long skipCount )
+            long skipCount,
+            boolean flushLog )
     {
         if ( null == paramsMap )
         {
@@ -726,6 +740,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         this.ignoreScheduledStartTimes = ignoreScheduledStartTimes;
         this.warmupCount = warmupCount;
         this.skipCount = skipCount;
+        this.flushLog = flushLog;
 
         if ( null != name )
         {
@@ -762,6 +777,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         paramsMap.put( IGNORE_SCHEDULED_START_TIMES_ARG, Boolean.toString( ignoreScheduledStartTimes ) );
         paramsMap.put( WARMUP_COUNT_ARG, Long.toString( warmupCount ) );
         paramsMap.put( SKIP_COUNT_ARG, Long.toString( skipCount ) );
+        paramsMap.put( FLUSH_LOG_ARG, Boolean.toString( flushLog ) );
     }
 
     @Override
@@ -880,6 +896,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     }
 
     @Override
+    public boolean flushLog() { return flushLog; }
+
+    @Override
     public Map<String,String> asMap()
     {
         return paramsMap;
@@ -995,6 +1014,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         long newSkipCount = (newParamsMapWithShortKeys.containsKey( SKIP_COUNT_ARG )) ?
                             Long.parseLong( newParamsMapWithShortKeys.get( SKIP_COUNT_ARG ) ) :
                             skipCount;
+        boolean newFlushLog = (newParamsMapWithShortKeys.containsKey( FLUSH_LOG_ARG )) ?
+                        Boolean.parseBoolean( newParamsMapWithShortKeys.get( FLUSH_LOG_ARG ) ) :
+                        flushLog;
 
         return new ConsoleAndFileDriverConfiguration(
                 newOtherParams,
@@ -1014,7 +1036,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 newPrintHelp,
                 newIgnoreScheduledStartTimes,
                 newWarmupCount,
-                newSkipCount
+                newSkipCount,
+                newFlushLog
         );
     }
 

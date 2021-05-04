@@ -117,7 +117,7 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
         // (3) csv_rows->csv_file
         File csvFile1 = temporaryFolder.newFile();
         SimpleCsvFileWriter simpleCsvFileWriter1 =
-                new SimpleCsvFileWriter( csvFile1, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR );
+                new SimpleCsvFileWriter( csvFile1, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, configuration.flushLog() );
         simpleCsvFileWriter1.writeRows( serializedValidationParamsAsCsvRows.iterator() );
         simpleCsvFileWriter1.close();
 
@@ -140,7 +140,7 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
         // (7) csv_rows->csv_file
         File csvFile2 = temporaryFolder.newFile();
         SimpleCsvFileWriter simpleCsvFileWriter2 =
-                new SimpleCsvFileWriter( csvFile2, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR );
+                new SimpleCsvFileWriter( csvFile2, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, configuration.flushLog() );
         simpleCsvFileWriter2.writeRows( serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling.iterator() );
         simpleCsvFileWriter2.close();
 

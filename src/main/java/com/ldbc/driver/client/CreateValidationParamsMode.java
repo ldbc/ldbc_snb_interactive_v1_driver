@@ -133,7 +133,8 @@ public class CreateValidationParamsMode implements ClientMode<Object>
             int rowsWrittenSoFar = 0;
             try ( SimpleCsvFileWriter simpleCsvFileWriter = new SimpleCsvFileWriter(
                     validationFileToGenerate,
-                    SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR ) )
+                    SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR,
+                    controlService.configuration().flushLog() ) )
             {
                 DecimalFormat decimalFormat = new DecimalFormat( "###,###,##0" );
                 while ( csvRows.hasNext() )

@@ -362,6 +362,7 @@ public class TimeMappingOperationGeneratorTest
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 0;
         long skipCount = 0;
+        boolean flushLog = false;
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -381,7 +382,8 @@ public class TimeMappingOperationGeneratorTest
                 printHelp,
                 ignoreScheduledStartTimes,
                 warmupCount,
-                skipCount
+                skipCount,
+                flushLog
         );
 
         Map<String,String> updateStreamParams = MapUtils.loadPropertiesToMap(

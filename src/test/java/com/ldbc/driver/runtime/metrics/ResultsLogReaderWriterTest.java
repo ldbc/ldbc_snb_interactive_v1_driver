@@ -24,8 +24,9 @@ public class ResultsLogReaderWriterTest
     {
         File resultsLog = temporaryFolder.newFile();
         TimeUnit unit = NANOSECONDS;
+        boolean flushLog = false;
 
-        try ( ResultsLogWriter writer = new SimpleResultsLogWriter( resultsLog, unit ) )
+        try ( ResultsLogWriter writer = new SimpleResultsLogWriter( resultsLog, unit, flushLog ) )
         {
             writer.write(
                     "a",
@@ -70,8 +71,9 @@ public class ResultsLogReaderWriterTest
     {
         File resultsLog = temporaryFolder.newFile();
         TimeUnit unit = MILLISECONDS;
+        boolean flushLog = false;
 
-        try ( ResultsLogWriter writer = new SimpleResultsLogWriter( resultsLog, unit ) )
+        try ( ResultsLogWriter writer = new SimpleResultsLogWriter( resultsLog, unit, flushLog ) )
         {
             writer.write(
                     "a",

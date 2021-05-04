@@ -160,7 +160,10 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         {
             resultsLogWriter = (null == resultsLog)
                                ? new NullResultsLogWriter()
-                               : new SimpleResultsLogWriter( resultsLog, controlService.configuration().timeUnit() );
+                               : new SimpleResultsLogWriter(
+                                    resultsLog,
+                                    controlService.configuration().timeUnit(),
+                                    controlService.configuration().flushLog() );
         }
         catch ( IOException e )
         {

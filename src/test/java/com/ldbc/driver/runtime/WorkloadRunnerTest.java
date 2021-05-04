@@ -114,6 +114,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
+            boolean flushLog = false;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -133,7 +134,8 @@ public class WorkloadRunnerTest
                     printHelp,
                     ignoreScheduledStartTimes,
                     warmupCount,
-                    skipCount
+                    skipCount,
+                    flushLog
             );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
@@ -171,7 +173,7 @@ public class WorkloadRunnerTest
 
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter =
-                    new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR );
+                    new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, flushLog );
             metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                     timeSource,
                     errorReporter,
@@ -315,6 +317,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
+            boolean flushLog = false;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -334,7 +337,8 @@ public class WorkloadRunnerTest
                     printHelp,
                     ignoreScheduledStartTimes,
                     warmupCount,
-                    skipCount
+                    skipCount,
+                    flushLog
             );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
@@ -372,7 +376,7 @@ public class WorkloadRunnerTest
 
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter =
-                    new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR );
+                    new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, flushLog );
             metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                     timeSource,
                     errorReporter,
@@ -534,6 +538,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = false;
             long warmupCount = 100;
             long skipCount = 10;
+            boolean flushLog = false;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -553,7 +558,8 @@ public class WorkloadRunnerTest
                     printHelp,
                     ignoreScheduledStartTimes,
                     warmupCount,
-                    skipCount
+                    skipCount,
+                    flushLog
             );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
@@ -591,7 +597,7 @@ public class WorkloadRunnerTest
 
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter =
-                    new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR );
+                    new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, flushLog );
             metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                     timeSource,
                     errorReporter,
@@ -799,6 +805,7 @@ public class WorkloadRunnerTest
             boolean ignoreScheduledStartTimes = true;
             long warmupCount = 100;
             long skipCount = 10;
+            boolean flushLog = false;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -818,7 +825,8 @@ public class WorkloadRunnerTest
                     printHelp,
                     ignoreScheduledStartTimes,
                     warmupCount,
-                    skipCount
+                    skipCount,
+                    flushLog
             );
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration
@@ -859,7 +867,7 @@ public class WorkloadRunnerTest
 
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter =
-                    new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR );
+                    new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, flushLog );
             metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                     timeSource,
                     errorReporter,
