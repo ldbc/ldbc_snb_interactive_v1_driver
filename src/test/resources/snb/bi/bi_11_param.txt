@@ -1,2 +1,0 @@
-country|blacklist
-temp|temp1;temp2;temp3
