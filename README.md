@@ -1,6 +1,9 @@
 ![LDBC Logo](ldbc-logo.png)
 
-[![Build Status](https://travis-ci.org/ldbc/ldbc_snb_driver.svg?branch=master)](https://travis-ci.org/ldbc/ldbc_snb_driver)
+| branch    | build status |
+| --------- | ------------ |
+| `dev`     | [![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_driver.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_driver) |
+| `stable`  | [![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_driver/tree/stable.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_driver?branch=stable) |
 
 This driver was developed as part of the Linked Data Benchmark Council EU-funded research project and is be used to run the Social Network Benchmark's Interactive workload.
 
