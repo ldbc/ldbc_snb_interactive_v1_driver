@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ldbc/ldbc_snb_driver.svg?branch=master)](https://travis-ci.org/ldbc/ldbc_snb_driver)
 
-This driver is being developed as part of the Linked Data Benchmark Council EU-funded research project and will be used to run the benchmark workloads developed and released by LDBC:
+This driver was developed as part of the Linked Data Benchmark Council EU-funded research project and is be used to run the Social Network Benchmark's Interactive workload.
 
 * [LDBC Project Website](http://ldbcouncil.org/)
 * [LDBC Twitter Account](https://twitter.com/LDBCouncil)
