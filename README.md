@@ -1,31 +1,20 @@
 ![LDBC Logo](ldbc-logo.png)
+# LDBC SNB Interactive driver
 
-| branch    | build status |
-| --------- | ------------ |
-| `dev`     | [![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_driver.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_driver) |
-| `stable`  | [![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_driver/tree/stable.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_driver?branch=stable) |
+[![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_driver.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_driver)
 
 This driver was developed as part of the Linked Data Benchmark Council EU-funded research project and is be used to run the Social Network Benchmark's Interactive workload.
 
-* [LDBC Project Website](http://ldbcouncil.org/)
-* [LDBC Twitter Account](https://twitter.com/LDBCouncil)
-* [LDBC Facebook Page](https://www.facebook.com/ldbcouncil/)
+Related repositories:
 
-## Compatibility
+* Data generator: https://github.com/ldbc/ldbc_snb_datagen_hadoop
+* Implementations: https://github.com/ldbc/ldbc_snb_interactive
 
-The LDBC Social Network Benchmark suite is continuously maintained with improvements in the specification, the data generator, the driver, and the reference implementation.
-To ensure that you are using compatible LDBC repositories, use the following table:
-
-| project | v0.3.x | v0.4.x |
-| ------- | ------ | ------ |
-| [Documentation](https://github.com/ldbc/ldbc_snb_docs) | [`v0.3.3`](https://github.com/ldbc/ldbc_snb_docs/releases/tag/v0.3.3) | [`dev`](https://github.com/ldbc/ldbc_snb_docs/tree/dev) |
-| [Datagen](https://github.com/ldbc/ldbc_snb_datagen) | [`v0.3.3`](https://github.com/ldbc/ldbc_snb_datagen/releases/tag/v0.3.3) | [`dev`](https://github.com/ldbc/ldbc_snb_datagen/tree/dev) |
-| [Driver](https://github.com/ldbc/ldbc_snb_driver) | [`v0.3.3`](https://github.com/ldbc/ldbc_snb_driver/releases/tag/0.3.3) | [`dev`](https://github.com/ldbc/ldbc_snb_driver/tree/dev) |
-| [Implementations](https://github.com/ldbc/ldbc_snb_implementations) | [`stable`](https://github.com/ldbc/ldbc_snb_implementations/tree/stable) | [`dev`](https://github.com/ldbc/ldbc_snb_implementations/tree/dev) |
-
-The `stable` branches of the repositories correspond to the `v0.3.x`, and the `dev` branches correspond to the `v0.4.x` releases.
+Note that the SNB's Business Intelligence (BI) workload uses a different (Python-based) driver: https://github.com/ldbc/ldbc_snb_bi
 
 ### User Guide
+
+Clone and build with Maven:
 
 ```bash
 git clone https://github.com/ldbc/ldbc_snb_driver.git
