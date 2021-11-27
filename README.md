@@ -33,3 +33,21 @@ java \
 ```
 
 For more information, please refer to the [Documentation](https://github.com/ldbc/ldbc_driver/wiki).
+
+### Deploying Maven Artifacts
+
+We use a manual process for deploying Maven artifacts.
+
+1. Clone the [`snb-mvn` repository](https://github.com/ldbc/snb-mvn) next to the driver repository's directory.
+
+2. In the driver repository, run:
+
+    ```bash
+    git clean -xdf .
+    mvn clean deploy
+    cp -r target/snb-mvn/* ../snb-mvn/
+    ```
+
+3. Go to the `snb-mvn` directory, check whether the JAR files are correct.
+
+4. Commit and push.
