@@ -521,7 +521,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                     System.out.println(
                             format( ""
                                     + "***********************************************\n"
-                                    + "  !! WARMING !!\n"
+                                    + "  !! WARNING !!\n"
                                     + "  Update stream is empty: %s\n"
                                     + "  Check that data generation process completed successfully\n"
                                     + "***********************************************",
@@ -609,7 +609,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                     System.out.println(
                             format( ""
                                     + "***********************************************\n"
-                                    + "  !! WARMING !!\n"
+                                    + "  !! WARNING !!\n"
                                     + "  Update stream is empty: %s\n"
                                     + "  Check that data generation process completed successfully\n"
                                     + "***********************************************",
