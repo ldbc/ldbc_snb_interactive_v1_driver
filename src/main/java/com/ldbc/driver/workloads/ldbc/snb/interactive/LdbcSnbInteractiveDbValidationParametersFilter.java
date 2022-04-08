@@ -11,19 +11,16 @@ import java.util.Map;
 import java.util.Set;
 
 class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationParametersFilter {
-    private final Set<Class> multiResultOperations;
     private final Map<Class, Long> remainingRequiredResultsPerWriteType;
     private final Map<Class, Long> remainingRequiredResultsPerLongReadType;
     private final Set<Class> enabledShortReadOperationTypes;
     private long writeAddPersonOperationCount;
     private int uncompletedShortReads;
 
-    LdbcSnbInteractiveDbValidationParametersFilter(Set<Class> multiResultOperations,
-                                                   long writeAddPersonOperationCount,
+    LdbcSnbInteractiveDbValidationParametersFilter(long writeAddPersonOperationCount,
                                                    Map<Class, Long> remainingRequiredResultsPerWriteType,
                                                    Map<Class, Long> remainingRequiredResultsPerLongReadType,
                                                    Set<Class> enabledShortReadOperationTypes) {
-        this.multiResultOperations = multiResultOperations;
         this.writeAddPersonOperationCount = writeAddPersonOperationCount;
         this.remainingRequiredResultsPerWriteType = remainingRequiredResultsPerWriteType;
         this.remainingRequiredResultsPerLongReadType = remainingRequiredResultsPerLongReadType;
@@ -54,11 +51,6 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
                                                                                  Object operationResult) {
         Class operationType = operation.getClass();
         List<Operation> injectedOperations = new ArrayList<>();
-
-        // do not use empty results for validation
-        if (multiResultOperations.contains(operationType) && ((List) operationResult).isEmpty()) {
-            return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.REJECT_AND_CONTINUE, injectedOperations);
-        }
 
         injectedOperations.addAll(generateOperationsToInject(operation));
         uncompletedShortReads += injectedOperations.size();
