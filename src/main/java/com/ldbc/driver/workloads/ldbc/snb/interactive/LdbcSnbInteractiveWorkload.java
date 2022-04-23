@@ -1629,25 +1629,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
     @Override
     public DbValidationParametersFilter dbValidationParametersFilter( Integer requiredValidationParameterCount )
     {
-        final Set<Class> multiResultOperations = Sets.<Class>newHashSet(
-                LdbcShortQuery2PersonPosts.class,
-                LdbcShortQuery3PersonFriends.class,
-                LdbcShortQuery7MessageReplies.class,
-                LdbcQuery1.class,
-                LdbcQuery2.class,
-//                LdbcQuery3.class,
-                LdbcQuery4.class,
-                LdbcQuery5.class,
-                LdbcQuery6.class,
-                LdbcQuery7.class,
-                LdbcQuery8.class,
-                LdbcQuery9.class,
-                LdbcQuery10.class,
-                LdbcQuery11.class,
-                LdbcQuery12.class,
-                LdbcQuery14.class
-        );
-
         Integer operationTypeCount = enabledLongReadOperationTypes.size() + enabledWriteOperationTypes.size();
         long minimumResultCountPerOperationType = Math.max(
                 1,
@@ -1680,7 +1661,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
 
         return new LdbcSnbInteractiveDbValidationParametersFilter(
-                multiResultOperations,
                 writeAddPersonOperationCount,
                 remainingRequiredResultsPerUpdateType,
                 remainingRequiredResultsPerLongReadType,
