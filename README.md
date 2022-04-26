@@ -26,8 +26,8 @@ To quickly test the driver try the "simpleworkload" that is shipped with it by d
 
 ```bash
 java \
-  -cp target/jeeves-standalone.jar com.ldbc.driver.Client \
-  -db com.ldbc.driver.workloads.simple.db.SimpleDb \
+  -cp target/jeeves-standalone.jar org.ldbcouncil.driver.Client \
+  -db org.ldbcouncil.driver.workloads.simple.db.SimpleDb \
   -P target/classes/configuration/simple/simpleworkload.properties \
   -P target/classes/configuration/ldbc_driver_default.properties
 ```
