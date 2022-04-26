@@ -1,16 +1,16 @@
 ![LDBC Logo](ldbc-logo.png)
 # LDBC SNB Interactive driver
 
-[![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_driver.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_driver)
+[![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_interactive_driver.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_interactive_driver)
 
 This driver was developed as part of the Linked Data Benchmark Council EU-funded research project and is be used to run the Social Network Benchmark's Interactive workload.
 
 Related repositories:
 
 * Data generator: https://github.com/ldbc/ldbc_snb_datagen_hadoop
-* Implementations: https://github.com/ldbc/ldbc_snb_interactive
+* Implementations: https://github.com/ldbc/ldbc_snb_interactive_impls
 
-Note that the SNB's Business Intelligence (BI) workload uses a different (Python-based) driver: https://github.com/ldbc/ldbc_snb_bi
+Note that the SNB's Business Intelligence (BI) workload uses a different [data generator](https://github.com/ldbc/ldbc_snb_datagen_spark) and [driver](https://github.com/ldbc/ldbc_snb_bi)
 
 ### User Guide
 
