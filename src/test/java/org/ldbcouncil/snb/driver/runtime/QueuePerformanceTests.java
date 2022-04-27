@@ -1,6 +1,5 @@
 package org.ldbcouncil.snb.driver.runtime;
 
-import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.*;
 import org.ldbcouncil.snb.driver.control.*;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
@@ -9,9 +8,9 @@ import org.ldbcouncil.snb.driver.temporal.SystemTimeSource;
 import org.ldbcouncil.snb.driver.temporal.TimeSource;
 import org.ldbcouncil.snb.driver.testutils.TestUtils;
 import org.ldbcouncil.snb.driver.util.Tuple3;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkload;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloadConfiguration;
+import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Ignore;
 import org.junit.Test;
 

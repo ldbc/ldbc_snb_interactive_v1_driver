@@ -2,8 +2,8 @@ package org.ldbcouncil.snb.driver.control;
 
 import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.util.MapUtils;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkload;
+import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

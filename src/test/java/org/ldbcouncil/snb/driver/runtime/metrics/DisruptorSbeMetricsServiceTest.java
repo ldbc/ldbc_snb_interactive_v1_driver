@@ -7,9 +7,9 @@ import org.ldbcouncil.snb.driver.control.LoggingServiceFactory;
 import org.ldbcouncil.snb.driver.runtime.ConcurrentErrorReporter;
 import org.ldbcouncil.snb.driver.temporal.SystemTimeSource;
 import org.ldbcouncil.snb.driver.temporal.TimeSource;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.LdbcQuery1;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.LdbcQuery2;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery1;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery2;
+import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.junit.Test;
 
 import java.util.HashMap;

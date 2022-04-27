@@ -1,8 +1,8 @@
 package org.ldbcouncil.snb.driver.control;
 
 import org.ldbcouncil.snb.driver.util.MapUtils;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkload;
+import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

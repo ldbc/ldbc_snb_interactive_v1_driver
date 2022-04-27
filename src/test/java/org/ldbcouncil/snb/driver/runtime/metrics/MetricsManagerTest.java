@@ -6,8 +6,8 @@ import org.ldbcouncil.snb.driver.control.Log4jLoggingServiceFactory;
 import org.ldbcouncil.snb.driver.control.LoggingServiceFactory;
 import org.ldbcouncil.snb.driver.temporal.SystemTimeSource;
 import org.ldbcouncil.snb.driver.temporal.TimeSource;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
-import org.ldbcouncil.snb.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloadConfiguration;
+import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
