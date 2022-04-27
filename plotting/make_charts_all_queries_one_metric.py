@@ -14,8 +14,8 @@ filename = sys.argv[1]
 metric_to_plot = sys.argv[2]
 legend_location = sys.argv[3]
 
-# MAVEN_OPTS="-server -XX:+UseConcMarkSweepGC -Xmx512m" mvn exec:java -Dexec.mainClass=org.ldbcouncil.driver.Client -Dexec.arguments="-db,org.ldbcouncil.socialnet.workload.neo4j.Neo4jDb,-w,org.ldbcouncil.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload,-oc,10,-rc,-1,-tc,1,-s,-tu,MILLISECONDS,-p,neo4j.path=db/,-p,neo4j.dbtype=embedded-api-steps,-p,parameters=ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json"
-# MAVEN_OPTS="-server -XX:+UseConcMarkSweepGC -Xmx512m" mvn exec:java -Dexec.mainClass=org.ldbcouncil.driver.Client -Dexec.arguments="-P,ldbc_socnet_interactive.properties"
+# MAVEN_OPTS="-server -XX:+UseConcMarkSweepGC -Xmx512m" mvn exec:java -Dexec.mainClass=org.ldbcouncil.snb.driver.Client -Dexec.arguments="-db,org.ldbcouncil.snb.socialnet.workload.neo4j.Neo4jDb,-w,org.ldbcouncil.snb.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload,-oc,10,-rc,-1,-tc,1,-s,-tu,MILLISECONDS,-p,neo4j.path=db/,-p,neo4j.dbtype=embedded-api-steps,-p,parameters=ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json"
+# MAVEN_OPTS="-server -XX:+UseConcMarkSweepGC -Xmx512m" mvn exec:java -Dexec.mainClass=org.ldbcouncil.snb.driver.Client -Dexec.arguments="-P,ldbc_socnet_interactive.properties"
 
 json_data=open(filename).read()
 all_results = json.loads(json_data)
