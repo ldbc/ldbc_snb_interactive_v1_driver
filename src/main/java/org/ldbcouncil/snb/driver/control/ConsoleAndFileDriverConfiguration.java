@@ -667,7 +667,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         int spacesBeforeOption = 3;
         int spacesBeforeOptionDescription = 5;
         boolean displayUsage = true;
-        String commandLineSyntax = "java -cp jeeves-VERSION.jar " + Client.class.getName();
+        String commandLineSyntax = "java -cp driver-VERSION.jar " + Client.class.getName();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter( os );
         HelpFormatter helpFormatter = new HelpFormatter();
