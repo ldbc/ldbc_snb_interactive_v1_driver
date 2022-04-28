@@ -39,6 +39,8 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     // Average distance between updates in simulation time
     public final static String UPDATE_INTERLEAVE = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_interleave";
 
+    public final static String SCALE_FACTOR = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "scale_factor";
+
     // The parser implementation to use when reading update events
     public enum UpdateStreamParser
     {

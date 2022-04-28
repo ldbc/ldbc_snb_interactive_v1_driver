@@ -29,6 +29,7 @@ import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
 import org.ldbcouncil.snb.driver.util.ClassLoaderHelper;
 import org.ldbcouncil.snb.driver.util.ClassLoadingException;
+import org.ldbcouncil.snb.driver.util.MapUtils;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -39,6 +40,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -313,10 +316,40 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
         }
 
-        List<String> frequencyKeys =
-                Lists.newArrayList( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_FREQUENCY_KEYS );
-        Set<String> missingFrequencyKeys = LdbcSnbInteractiveWorkloadConfiguration
-                .missingParameters( params, frequencyKeys );
+        // First load the scale factor from the provided properties file, then load the frequency keys from resources
+        if (!params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR))
+        {
+            // if SCALE_FACTOR is missing but writes are enabled it is an error
+            throw new WorkloadException(
+                format( "Workload could not initialize. Missing parameter: %s",
+                LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR ) );
+        }
+
+        String scaleFactor = params.get( LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR ).trim();
+        // Load the frequencyKeys for the appropiate scale factor if that scale factor is supported
+        
+        String scaleFactorPropertiesPath = "configuration/ldbc/snb/interactive/sf" + scaleFactor  + ".properties"; 
+        // Load the properties file, throw error if file is not present (and thus not supported)
+        final Properties scaleFactorProperties = new Properties();
+        System.err.println(scaleFactorPropertiesPath);
+
+        try (final InputStream stream =
+        this.getClass().getClassLoader().getResourceAsStream(scaleFactorPropertiesPath)) {
+            scaleFactorProperties.load(stream);
+        }
+        catch (IOException e){
+            throw new WorkloadException(
+                        format( "Workload could not initialize. Scale factor %s not supported. %s",
+                        scaleFactor, e));
+        }
+
+        Map<String,String> tempFileParams = MapUtils.propertiesToMap( scaleFactorProperties );
+        boolean overwrite = true;
+        params = MapUtils.mergeMaps(
+            tempFileParams,
+                params,
+                overwrite );
+
         if ( enabledWriteOperationTypes.isEmpty() &&
              false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
         {
@@ -335,26 +368,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
         updateInterleaveAsMilli =
                 Integer.parseInt( params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ).trim() );
-        if ( missingFrequencyKeys.isEmpty() )
-        {
-            // all frequency arguments were given, compute interleave based on frequencies
-            params = LdbcSnbInteractiveWorkloadConfiguration.convertFrequenciesToInterleaves( params );
-        }
-        else
-        {
-            // if any frequencies are not set, there should be specified interleave times for read queries
-            Set<String> missingInterleaveKeys = LdbcSnbInteractiveWorkloadConfiguration.missingParameters(
-                    params,
-                    LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_INTERLEAVE_KEYS
-            );
-            if ( false == missingInterleaveKeys.isEmpty() )
-            {
-                throw new WorkloadException( format(
-                        "Workload could not initialize. One of the following groups of parameters should be set: %s " +
-                        "or %s",
-                        missingFrequencyKeys.toString(), missingInterleaveKeys.toString() ) );
-            }
-        }
+
+        params = LdbcSnbInteractiveWorkloadConfiguration.convertFrequenciesToInterleaves( params );
 
         try
         {
