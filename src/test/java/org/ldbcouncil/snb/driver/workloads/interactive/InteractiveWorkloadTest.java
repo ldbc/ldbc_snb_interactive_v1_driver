@@ -202,6 +202,8 @@ public class InteractiveWorkloadTest extends WorkloadTest
                                 )
                         )
                 ).applyArg(
+                    LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR, Long.toString(1)
+                ).applyArg(
                         ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
                         "false"
                 ).applyArg(
@@ -667,6 +669,8 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                 )
         ).applyArg(
+                LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR, Long.toString( 1 )
+        ).applyArg(
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY,
                 "10"
         ).applyArg(
@@ -772,85 +776,5 @@ public class InteractiveWorkloadTest extends WorkloadTest
                     configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ),
                     equalTo( "5000" ) );
         }
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenSomeFrequenciesNotProvidedAndSomeInterleavesNoProvided() throws Exception
-    {
-        // Given
-        Map<String,Long> operationMixMap = new HashMap<>();
-//        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY, 1l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY, 2l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY, 3l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY, 4l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY, 5l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY, 6l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY, 7l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY, 8l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY, 9l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY, 10l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY, 11l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY, 12l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY, 13l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY, 14l );
-//        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY, 1l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY, 2l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY, 3l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY, 4l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_FREQUENCY_KEY, 5l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_FREQUENCY_KEY, 6l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_FREQUENCY_KEY, 7l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_FREQUENCY_KEY, 8l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_FREQUENCY_KEY, 9l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_FREQUENCY_KEY, 10l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_FREQUENCY_KEY, 11l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY, 12l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY, 13l );
-        operationMixMap.put( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY, 14l );
-
-        Map<String,String> defaultSnbInteractiveParams = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY );
-
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(
-                DummyLdbcSnbInteractiveDb.class.getName(),
-                LdbcSnbInteractiveWorkload.class.getName(),
-                1
-        ).applyArg(
-                ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG, "true"
-        ).applyArgs(
-                defaultSnbInteractiveParams
-        ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE,
-                "10"
-        ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-        ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-        ).applyArgs(
-                MapUtils.UNSAFE_changeTypes(
-                        operationMixMap,
-                        TypeChangeFun.IDENTITY,
-                        TypeChangeFun.TO_STRING
-                )
-        );
-
-        // When
-        boolean exceptionThrown = false;
-        try ( Workload workload = new LdbcSnbInteractiveWorkload() )
-        {
-            workload.init( configuration );
-        }
-        catch ( WorkloadException e )
-        {
-            System.out.println( e.getMessage() );
-            exceptionThrown = true;
-        }
-
-        // Then
-        // either interleaves or frequencies need to be provided
-        assertTrue( exceptionThrown );
     }
 }
