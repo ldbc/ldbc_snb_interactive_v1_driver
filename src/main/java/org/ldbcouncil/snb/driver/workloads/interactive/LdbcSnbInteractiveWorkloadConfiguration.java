@@ -340,7 +340,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
 
     public static Map<String,String> defaultConfigSF1() throws IOException
     {
-        String filename = "/configuration/ldbc/snb/interactive/ldbc_snb_interactive_SF-0001.properties";
+        String filename = "/configuration/ldbc/snb/interactive/sf_internal_test.properties";
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( resourceToMap( filename ) );
     }
 

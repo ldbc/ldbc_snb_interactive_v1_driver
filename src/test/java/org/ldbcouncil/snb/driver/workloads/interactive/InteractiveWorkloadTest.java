@@ -669,8 +669,6 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                 )
         ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR, Long.toString( 1 )
-        ).applyArg(
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY,
                 "10"
         ).applyArg(
