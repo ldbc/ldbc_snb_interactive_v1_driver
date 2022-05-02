@@ -14,5 +14,5 @@ jobs:
     steps:
       - checkout
       - run: |
-          mvn test | grep '^\[\|^ExecuteWorkloadMode' | tee mvn.log
+          mvn test | tee mvn.log
           grep 'BUILD SUCCESS' mvn.log
