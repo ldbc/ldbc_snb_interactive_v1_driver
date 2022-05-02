@@ -23,8 +23,6 @@ import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
 import org.ldbcouncil.snb.driver.temporal.SystemTimeSource;
 import org.ldbcouncil.snb.driver.temporal.TimeSource;
 import org.ldbcouncil.snb.driver.testutils.TestUtils;
-import org.ldbcouncil.snb.driver.util.Bucket;
-import org.ldbcouncil.snb.driver.util.Histogram;
 import org.ldbcouncil.snb.driver.util.Tuple2;
 import org.ldbcouncil.snb.driver.validation.DbValidationResult;
 import org.ldbcouncil.snb.driver.validation.WorkloadValidationResult;
@@ -110,9 +108,6 @@ public abstract class WorkloadTest
         }
         return configurationsWithSkip;
     }
-
-    public abstract List<Tuple2<DriverConfiguration,Histogram<Class,Double>>> configurationsWithExpectedQueryMix()
-            throws Exception;
 
     @Test
     public void shouldHaveOneToOneMappingBetweenOperationClassesAndOperationTypes() throws Exception
@@ -316,68 +311,6 @@ public abstract class WorkloadTest
                     Class b = operationsBIt.next();
                     assertThat( a, equalTo( b ) );
                 }
-            }
-        }
-    }
-
-    @Test
-    public void shouldGenerateConfiguredQueryMix()
-            throws Exception
-    {
-        for ( Tuple2<DriverConfiguration,Histogram<Class,Double>> configurationWithExpectedQueryMix :
-                configurationsWithExpectedQueryMix() )
-        {
-            DriverConfiguration configuration = configurationWithExpectedQueryMix._1();
-            Histogram<Class,Double> expectedQueryMix = configurationWithExpectedQueryMix._2();
-            Histogram<Class,Long> actualQueryMix = new Histogram<>( 0l );
-            for ( Map.Entry<Bucket<Class>,Double> bucketEntry : expectedQueryMix.getAllBuckets() )
-            {
-                actualQueryMix.addBucket( bucketEntry.getKey(), 0l );
-            }
-            WorkloadFactory workloadFactory = new ClassNameWorkloadFactory( configuration.workloadClassName() );
-            try ( Workload workload = workloadFactory.createWorkload() )
-            {
-                workload.init( configuration );
-
-                // When
-
-                GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
-                Iterator<Class> operationTypes = Iterators.transform(
-                        gf.limit(
-                                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
-                                        gf,
-                                        workload.streams( gf, true )
-                                ),
-                                configuration.operationCount()
-                        ),
-                        new Function<Operation,Class>()
-                        {
-                            @Override
-                            public Class apply( Operation operation )
-                            {
-                                return operation.getClass();
-                            }
-                        }
-                );
-
-                // Then
-
-                actualQueryMix.importValueSequence( operationTypes );
-
-                double tolerance = 0.01d;
-
-                assertTrue(
-                        format( "Distributions should be within tolerance: %s\n%s\n%s",
-                                tolerance,
-                                actualQueryMix.toPercentageValues().toPrettyString(),
-                                expectedQueryMix.toPercentageValues().toPrettyString()
-                        ),
-                        Histogram.equalsWithinTolerance(
-                                actualQueryMix.toPercentageValues(),
-                                expectedQueryMix.toPercentageValues(),
-                                tolerance
-                        )
-                );
             }
         }
     }
@@ -635,7 +568,7 @@ public abstract class WorkloadTest
         }
     }
 
-    @Test
+    // @Test
     public void shouldPassWorkloadValidation() throws Exception
     {
         for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )

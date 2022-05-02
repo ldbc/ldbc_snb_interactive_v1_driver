@@ -331,11 +331,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
         String scaleFactorPropertiesPath = "configuration/ldbc/snb/interactive/sf" + scaleFactor  + ".properties"; 
         // Load the properties file, throw error if file is not present (and thus not supported)
         final Properties scaleFactorProperties = new Properties();
-        System.err.println(scaleFactorPropertiesPath);
 
         try (final InputStream stream =
-        this.getClass().getClassLoader().getResourceAsStream(scaleFactorPropertiesPath)) {
-            scaleFactorProperties.load(stream);
+            this.getClass().getClassLoader().getResourceAsStream(scaleFactorPropertiesPath)) {
+                scaleFactorProperties.load(stream);
         }
         catch (IOException e){
             throw new WorkloadException(
@@ -344,11 +343,14 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
 
         Map<String,String> tempFileParams = MapUtils.propertiesToMap( scaleFactorProperties );
-        boolean overwrite = true;
-        params = MapUtils.mergeMaps(
-            tempFileParams,
-                params,
-                overwrite );
+        Map<String,String> tmp = new HashMap<String,String>(tempFileParams);
+        tmp.keySet().removeAll(params.keySet());
+        params.putAll(tmp);
+
+        List<String> frequencyKeys =
+                Lists.newArrayList( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_FREQUENCY_KEYS );
+        Set<String> missingFrequencyKeys = LdbcSnbInteractiveWorkloadConfiguration
+                .missingParameters( params, frequencyKeys );
 
         if ( enabledWriteOperationTypes.isEmpty() &&
              false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
@@ -369,8 +371,26 @@ public class LdbcSnbInteractiveWorkload extends Workload
         updateInterleaveAsMilli =
                 Integer.parseInt( params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ).trim() );
 
-        params = LdbcSnbInteractiveWorkloadConfiguration.convertFrequenciesToInterleaves( params );
-
+        if ( missingFrequencyKeys.isEmpty() )
+        {
+            // all frequency arguments were given, compute interleave based on frequencies
+            params = LdbcSnbInteractiveWorkloadConfiguration.convertFrequenciesToInterleaves( params );
+        }
+        else
+        {
+            // if any frequencies are not set, there should be specified interleave times for read queries
+            Set<String> missingInterleaveKeys = LdbcSnbInteractiveWorkloadConfiguration.missingParameters(
+                    params,
+                    LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_INTERLEAVE_KEYS
+            );
+            if ( false == missingInterleaveKeys.isEmpty() )
+            {
+                throw new WorkloadException( format(
+                        "Workload could not initialize. One of the following groups of parameters should be set: %s " +
+                        "or %s",
+                        missingFrequencyKeys.toString(), missingInterleaveKeys.toString() ) );
+            }
+        }
         try
         {
             readOperation1InterleaveAsMilli = Long.parseLong(
