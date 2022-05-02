@@ -323,96 +323,96 @@ public class InteractiveWorkloadTest extends WorkloadTest
         );
     }
 
-    @Override
-    public List<Tuple2<DriverConfiguration,Histogram<Class,Double>>> configurationsWithExpectedQueryMix()
-            throws Exception
-    {
-        Histogram<Class,Double> expectedQueryMixHistogram = new Histogram<>( 0d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery1.class ), 1d / 100 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery2.class ), 1d / 200 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery3.class ), 1d / 400 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery4.class ), 1d / 800 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery5.class ), 1d / 1600 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery6.class ), 1d / 1600 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery7.class ), 1d / 800 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery8.class ), 1d / 800 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery9.class ), 1d / 400 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery10.class ), 1d / 200 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery11.class ), 1d / 200 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery12.class ), 1d / 200 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery13.class ), 1d / 100 );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery14.class ), 1d / 100 );
+    // @Override
+    // public List<Tuple2<DriverConfiguration,Histogram<Class,Double>>> configurationsWithExpectedQueryMix()
+    //         throws Exception
+    // {
+    //     Histogram<Class,Double> expectedQueryMixHistogram = new Histogram<>( 0d );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery1.class ), 1d / 100 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery2.class ), 1d / 200 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery3.class ), 1d / 400 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery4.class ), 1d / 800 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery5.class ), 1d / 1600 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery6.class ), 1d / 1600 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery7.class ), 1d / 800 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery8.class ), 1d / 800 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery9.class ), 1d / 400 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery10.class ), 1d / 200 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery11.class ), 1d / 200 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery12.class ), 1d / 200 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery13.class ), 1d / 100 );
+    //     expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.create( (Class) LdbcQuery14.class ), 1d / 100 );
 
-        Map<String,String> defaultSnbInteractiveParams =
-                LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
-                                LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
-                        )
-                );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY );
-        defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY );
-        return Lists.newArrayList(
-                Tuple.tuple2(
-                        ConsoleAndFileDriverConfiguration.fromDefaults(
-                                DummyLdbcSnbInteractiveDb.class.getName(),
-                                LdbcSnbInteractiveWorkload.class.getName(),
-                                1_000_000
-                        ).applyArgs(
-                                defaultSnbInteractiveParams
-                        ).applyArg(
-                                ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                                "true"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY, "100"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY, "200"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY, "400"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY, "800"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY, "1600"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY, "1600"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY, "800"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY, "800"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY, "400"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY, "200"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY, "200"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY, "200"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY, "100"
-                        ).applyArg(
-                                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY, "100"
-                        ),
-                        expectedQueryMixHistogram
-                )
-        );
-    }
+    //     Map<String,String> defaultSnbInteractiveParams =
+    //             LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
+    //                     LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
+    //                     )
+    //             );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY );
+    //     defaultSnbInteractiveParams.remove( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY );
+    //     return Lists.newArrayList(
+    //             Tuple.tuple2(
+    //                     ConsoleAndFileDriverConfiguration.fromDefaults(
+    //                             DummyLdbcSnbInteractiveDb.class.getName(),
+    //                             LdbcSnbInteractiveWorkload.class.getName(),
+    //                             1_000_000
+    //                     ).applyArgs(
+    //                             defaultSnbInteractiveParams
+    //                     ).applyArg(
+    //                             ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+    //                             "true"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
+    //                             TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
+    //                             TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY, "100"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY, "200"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY, "400"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY, "800"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY, "1600"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY, "1600"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY, "800"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY, "800"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY, "400"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY, "200"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY, "200"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY, "200"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY, "100"
+    //                     ).applyArg(
+    //                             LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY, "100"
+    //                     ),
+    //                     expectedQueryMixHistogram
+    //             )
+    //     );
+    // }
 
     @Test
     public void shouldConvertFrequenciesToInterleavesWhenAllFrequenciesProvidedAndAllUpdatesEnabled() throws Exception

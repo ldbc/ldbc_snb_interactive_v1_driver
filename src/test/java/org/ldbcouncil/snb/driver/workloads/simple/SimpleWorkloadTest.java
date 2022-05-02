@@ -5,8 +5,6 @@ import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.DriverConfiguration;
-import org.ldbcouncil.snb.driver.util.Bucket;
-import org.ldbcouncil.snb.driver.util.Histogram;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
 import org.ldbcouncil.snb.driver.workloads.ClassNameWorkloadFactory;
@@ -108,36 +106,6 @@ public class SimpleWorkloadTest extends WorkloadTest
                 ).applyArg(
                         ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
                         "0.0001"
-                )
-        );
-    }
-
-    @Override
-    public List<Tuple2<DriverConfiguration,Histogram<Class,Double>>> configurationsWithExpectedQueryMix()
-            throws Exception
-    {
-        Histogram<Class,Double> expectedQueryMixHistogram = new Histogram<>( 0d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( InsertOperation.class ), 1d );
-        expectedQueryMixHistogram
-                .addBucket( Bucket.DiscreteBucket.<Class>create( ReadModifyWriteOperation.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( ReadOperation.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( ScanOperation.class ), 1d );
-        expectedQueryMixHistogram.addBucket( Bucket.DiscreteBucket.<Class>create( UpdateOperation.class ), 1d );
-
-        return Lists.newArrayList(
-                Tuple.tuple2(
-                        ConsoleAndFileDriverConfiguration.fromDefaults(
-                                SimpleDb.class.getName(),
-                                SimpleWorkload.class.getName(),
-                                1_000_000
-                        ).applyArg(
-                                ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG,
-                                Long.toString( 1_000_000 )
-                        ).applyArg(
-                                ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                                "true"
-                        ),
-                        expectedQueryMixHistogram
                 )
         );
     }

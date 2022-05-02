@@ -331,11 +331,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
         String scaleFactorPropertiesPath = "configuration/ldbc/snb/interactive/sf" + scaleFactor  + ".properties"; 
         // Load the properties file, throw error if file is not present (and thus not supported)
         final Properties scaleFactorProperties = new Properties();
-        System.err.println(scaleFactorPropertiesPath);
 
         try (final InputStream stream =
-        this.getClass().getClassLoader().getResourceAsStream(scaleFactorPropertiesPath)) {
-            scaleFactorProperties.load(stream);
+            this.getClass().getClassLoader().getResourceAsStream(scaleFactorPropertiesPath)) {
+                scaleFactorProperties.load(stream);
         }
         catch (IOException e){
             throw new WorkloadException(
