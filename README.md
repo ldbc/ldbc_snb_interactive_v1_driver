@@ -43,9 +43,7 @@ We use a manual process for deploying Maven artifacts.
 2. In the driver repository, run:
 
     ```bash
-    git clean -xdf .
-    mvn clean deploy
-    cp -r target/snb-mvn/* ../snb-mvn/
+    ./package-mvn-artifacts.sh
     ```
 
 3. Go to the `snb-mvn` directory, check whether the JAR files are correct.
