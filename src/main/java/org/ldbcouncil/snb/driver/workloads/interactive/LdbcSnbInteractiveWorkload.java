@@ -344,11 +344,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
 
         Map<String,String> tempFileParams = MapUtils.propertiesToMap( scaleFactorProperties );
-        boolean overwrite = true;
-        params = MapUtils.mergeMaps(
-            tempFileParams,
-                params,
-                overwrite );
+        Map<String,String> tmp = new HashMap<String,String>(tempFileParams);
+        tmp.keySet().removeAll(params.keySet());
+        params.putAll(tmp);
 
         List<String> frequencyKeys =
                 Lists.newArrayList( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_FREQUENCY_KEYS );
