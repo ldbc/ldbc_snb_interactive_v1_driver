@@ -9,7 +9,13 @@ public class LdbcQuery11Result {
     private final String organizationName;
     private final int organizationWorkFromYear;
 
-    public LdbcQuery11Result(long personId, String personFirstName, String personLastName, String organizationName, int organizationWorkFromYear) {
+    public LdbcQuery11Result(
+        @JsonProperty("personId")long personId,
+        @JsonProperty("personFirstName")String personFirstName,
+        @JsonProperty("personLastName")String personLastName,
+        @JsonProperty("organizationName")String organizationName,
+        @JsonProperty("organizationWorkFromYear")int organizationWorkFromYear
+    ) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
