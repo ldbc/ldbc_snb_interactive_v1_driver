@@ -9,6 +9,7 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import static java.lang.String.format;
 
@@ -45,9 +46,9 @@ public class ValidationParamsToCsvRows implements Iterator<String[]>
         String serializedOperation;
         try
         {
-            serializedOperation = workload.serializeOperation( operation );
+            serializedOperation = OBJECT_MAPPER.writeValueAsString(operation);
         }
-        catch ( SerializingMarshallingException e )
+        catch ( IOException e )
         {
             throw new GeneratorException(
                     format(
@@ -76,7 +77,7 @@ public class ValidationParamsToCsvRows implements Iterator<String[]>
         // Assert that serialization/marshalling is performed correctly
         if ( performSerializationMarshallingChecks )
         {
-            Object marshaledOperationResult;
+            Object marshaledOperationResult = null;
             try
             {
                 marshaledOperationResult = operation.deserializeResult( serializedOperationResult );

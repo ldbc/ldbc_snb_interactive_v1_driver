@@ -61,15 +61,15 @@ public class ScanOperation extends Operation<Vector<Map<String,Iterator<Byte>>>>
     }
 
     @Override
-    public Vector<Map<String,Iterator<Byte>>> deserializeResult( String serializedOperationResult )
-    {
-        return null;
-    }
-
-    @Override
     public int type()
     {
         return TYPE;
+    }
+
+    @Override
+    public Vector<Map<String,Iterator<Byte>>> deserializeResult(String str)
+    {
+        return null;
     }
 
     @Override

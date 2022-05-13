@@ -50,16 +50,17 @@ public class ReadOperation extends Operation<Map<String,Iterator<Byte>>>
     }
 
     @Override
-    public Map<String,Iterator<Byte>> deserializeResult( String serializedOperationResult )
-    {
-        return null;
-    }
-
-    @Override
     public int type()
     {
         return TYPE;
     }
+
+    @Override
+    public Map<String,Iterator<Byte>> deserializeResult(String str)
+    {
+        return null;
+    }
+
 
     @Override
     public boolean equals( Object o )
