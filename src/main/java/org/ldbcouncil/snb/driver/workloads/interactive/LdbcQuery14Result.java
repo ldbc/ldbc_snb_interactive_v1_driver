@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.ldbcouncil.snb.driver.validation.ValidationEquality;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class LdbcQuery14Result
 {
@@ -11,14 +12,14 @@ public class LdbcQuery14Result
     private final double pathWeight;
 
     public LdbcQuery14Result(
-        @JsonProperty("personIdsInPath") Iterable<Long> personIdsInPath,
+        @JsonProperty("personIdsInPath") List<Long> personIdsInPath,
         @JsonProperty("pathWeight") double pathWeight )
     {
         this.personIdsInPath = personIdsInPath;
         this.pathWeight = pathWeight;
     }
 
-    public Iterable<Long> getPersonsIdsInPath()
+    public Iterable<Long> getPersonIdsInPath()
     {
         return personIdsInPath;
     }
