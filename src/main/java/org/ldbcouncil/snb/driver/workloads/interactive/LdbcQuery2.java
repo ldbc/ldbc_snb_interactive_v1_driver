@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
@@ -16,25 +17,28 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
 
     public static final int TYPE = 2;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ2";
     public static final String MAX_DATE = "maxDate";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ2;
     private final Date maxDate;
     private final int limit;
 
-    public LdbcQuery2( long personId, Date maxDate, int limit )
+    public LdbcQuery2(
+        @JsonProperty("personIdQ2") long personIdQ2,
+        @JsonProperty("maxDate") Date maxDate,
+        @JsonProperty("limit") int limit )
     {
         super();
-        this.personId = personId;
+        this.personIdQ2 = personIdQ2;
         this.maxDate = maxDate;
         this.limit = limit;
     }
 
-    public long getPersonId()
+    public long getPersonIdQ2()
     {
-        return personId;
+        return personIdQ2;
     }
 
     public Date getMaxDate()
@@ -50,7 +54,7 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ2)
                 .put(MAX_DATE, maxDate)
                 .put(LIMIT, limit)
                 .build();
@@ -68,7 +72,7 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
 
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ2 != that.personIdQ2 )
         { return false; }
         if ( maxDate != null ? !maxDate.equals( that.maxDate ) : that.maxDate != null )
         { return false; }
@@ -79,7 +83,7 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ2 ^ (personIdQ2 >>> 32));
         result = 31 * result + (maxDate != null ? maxDate.hashCode() : 0);
         result = 31 * result + limit;
         return result;
@@ -89,7 +93,7 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
     public String toString()
     {
         return "LdbcQuery2{" +
-               "personId=" + personId +
+               "personIdQ2=" + personIdQ2 +
                ", maxDate=" + maxDate +
                ", limit=" + limit +
                '}';

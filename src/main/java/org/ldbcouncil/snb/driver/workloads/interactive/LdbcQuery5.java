@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
@@ -24,7 +25,11 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
     private final Date minDate;
     private final int limit;
 
-    public LdbcQuery5( long personId, Date minDate, int limit )
+    public LdbcQuery5(
+        @JsonProperty("personId") long personId,
+        @JsonProperty("minDate") Date minDate,
+        @JsonProperty("limit") int limit
+    )
     {
         super();
         this.personId = personId;

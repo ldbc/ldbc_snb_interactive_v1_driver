@@ -1,10 +1,18 @@
+
+
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.base.Function;
+
 import org.ldbcouncil.snb.driver.Operation;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -14,33 +22,36 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static final int TYPE = 14;
-    public static final String PERSON1_ID = "person1Id";
-    public static final String PERSON2_ID = "person2Id";
+    public static final String PERSON1_ID = "person1IdStartNode";
+    public static final String PERSON2_ID = "person2IdEndNode";
 
-    private final long person1Id;
-    private final long person2Id;
+    private final long person1IdStartNode;
+    private final long person2IdEndNode;
 
-    public LdbcQuery14( long person1Id, long person2Id )
+    public LdbcQuery14(
+        @JsonProperty("person1IdStartNode") long person1IdStartNode,
+        @JsonProperty("person2IdEndNode") long person2IdEndNode
+    )
     {
-        this.person1Id = person1Id;
-        this.person2Id = person2Id;
+        this.person1IdStartNode = person1IdStartNode;
+        this.person2IdEndNode = person2IdEndNode;
     }
 
-    public long getPerson1Id()
+    public long getPerson1IdStartNode()
     {
-        return person1Id;
+        return person1IdStartNode;
     }
 
-    public long getPerson2Id()
+    public long getPerson2IdEndNode()
     {
-        return person2Id;
+        return person2IdEndNode;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON1_ID, person1Id)
-                .put(PERSON2_ID, person2Id)
+                .put(PERSON1_ID, person1IdStartNode)
+                .put(PERSON2_ID, person2IdEndNode)
                 .build();
     }
 
@@ -54,9 +65,9 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
 
         LdbcQuery14 that = (LdbcQuery14) o;
 
-        if ( person1Id != that.person1Id )
+        if ( person1IdStartNode != that.person1IdStartNode )
         { return false; }
-        if ( person2Id != that.person2Id )
+        if ( person2IdEndNode != that.person2IdEndNode )
         { return false; }
 
         return true;
@@ -65,8 +76,8 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (person1Id ^ (person1Id >>> 32));
-        result = 31 * result + (int) (person2Id ^ (person2Id >>> 32));
+        int result = (int) (person1IdStartNode ^ (person1IdStartNode >>> 32));
+        result = 31 * result + (int) (person2IdEndNode ^ (person2IdEndNode >>> 32));
         return result;
     }
 
@@ -74,8 +85,8 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
     public String toString()
     {
         return "LdbcQuery14{" +
-               "person1Id=" + person1Id +
-               ", person2Id=" + person2Id +
+               "person1IdStartNode=" + person1IdStartNode +
+               ", person2IdEndNode=" + person2IdEndNode +
                '}';
     }
 
@@ -85,51 +96,38 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
         List<LdbcQuery14Result> marshaledOperationResult;
         marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery14Result[].class));
         return marshaledOperationResult;
+        // List<List<Object>> resultsAsList;
+        // resultsAsList = OBJECT_MAPPER.readValue(
+        //         serializedResults,
+        //         new TypeReference<List<List<Object>>>()
+        //         {
+        //         }
+        // );
+
+        // List<LdbcQuery14Result> results = new ArrayList<>();
+        // for ( int i = 0; i < resultsAsList.size(); i++ )
+        // {
+        //     List<Object> resultAsList = resultsAsList.get( i );
+        //     Iterable<Long> personsIdsInPath =
+        //             Iterables.transform( (List<Number>) resultAsList.get( 0 ), new Function<Number,Long>()
+        //             {
+        //                 @Override
+        //                 public Long apply( Number number )
+        //                 {
+        //                     return number.longValue();
+        //                 }
+        //             } );
+        //     double pathWeight = ((Number) resultAsList.get( 1 )).doubleValue();
+
+        //     results.add(
+        //             new LdbcQuery14Result(
+        //                     personsIdsInPath,
+        //                     pathWeight
+        //             )
+        //     );
+        // }
+        // return results;
     }
-
-    // @Override
-    // public List<LdbcQuery14Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
-    // {
-    //     List<List<Object>> resultsAsList;
-    //     try
-    //     {
-    //         resultsAsList = OBJECT_MAPPER.readValue(
-    //                 serializedResults,
-    //                 new TypeReference<List<List<Object>>>()
-    //                 {
-    //                 }
-    //         );
-    //     }
-    //     catch ( IOException e )
-    //     {
-    //         throw new SerializingMarshallingException(
-    //                 format( "Error while parsing serialized results\n%s", serializedResults ), e );
-    //     }
-
-    //     List<LdbcQuery14Result> results = new ArrayList<>();
-    //     for ( int i = 0; i < resultsAsList.size(); i++ )
-    //     {
-    //         List<Object> resultAsList = resultsAsList.get( i );
-    //         Iterable<Long> personsIdsInPath =
-    //                 Iterables.transform( (List<Number>) resultAsList.get( 0 ), new Function<Number,Long>()
-    //                 {
-    //                     @Override
-    //                     public Long apply( Number number )
-    //                     {
-    //                         return number.longValue();
-    //                     }
-    //                 } );
-    //         double pathWeight = ((Number) resultAsList.get( 1 )).doubleValue();
-
-    //         results.add(
-    //                 new LdbcQuery14Result(
-    //                         personsIdsInPath,
-    //                         pathWeight
-    //                 )
-    //         );
-    //     }
-    //     return results;
-    // }
 
     @Override
     public int type()

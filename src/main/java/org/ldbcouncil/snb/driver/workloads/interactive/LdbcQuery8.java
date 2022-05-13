@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
@@ -15,22 +16,25 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
 
     public static final int TYPE = 8;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ8";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ8;
     private final int limit;
 
-    public LdbcQuery8( long personId, int limit )
+    public LdbcQuery8(
+        @JsonProperty("personIdQ8") long personIdQ8,
+        @JsonProperty("limit") int limit
+    )
     {
         super();
-        this.personId = personId;
+        this.personIdQ8 = personIdQ8;
         this.limit = limit;
     }
 
-    public long getPersonId()
+    public long getPersonIdQ8()
     {
-        return personId;
+        return personIdQ8;
     }
 
     public int getLimit()
@@ -42,7 +46,7 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ8)
                 .put(LIMIT, limit)
                 .build();
     }
@@ -59,7 +63,7 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
 
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ8 != that.personIdQ8 )
         { return false; }
 
         return true;
@@ -68,7 +72,7 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ8 ^ (personIdQ8 >>> 32));
         result = 31 * result + limit;
         return result;
     }
@@ -77,7 +81,7 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
     public String toString()
     {
         return "LdbcQuery8{" +
-               "personId=" + personId +
+               "personIdQ8=" + personIdQ8 +
                ", limit=" + limit +
                '}';
     }

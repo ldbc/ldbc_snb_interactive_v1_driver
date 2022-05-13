@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
@@ -18,7 +19,10 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
     private final long person1Id;
     private final long person2Id;
 
-    public LdbcQuery13( long person1Id, long person2Id )
+    public LdbcQuery13(
+        @JsonProperty("person1Id") long person1Id,
+        @JsonProperty("person2Id") long person2Id
+    )
     {
         this.person1Id = person1Id;
         this.person2Id = person2Id;
