@@ -1,5 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcShortQuery2PersonPostsResult {
     private final long messageId;
     private final String messageContent;
@@ -9,7 +11,15 @@ public class LdbcShortQuery2PersonPostsResult {
     private final String originalPostAuthorFirstName;
     private final String originalPostAuthorLastName;
 
-    public LdbcShortQuery2PersonPostsResult(long messageId, String messageContent, long messageCreationDate, long originalPostId, long originalPostAuthorId, String originalPostAuthorFirstName, String originalPostAuthorLastName) {
+    public LdbcShortQuery2PersonPostsResult(
+        @JsonProperty("messageId") long messageId,
+        @JsonProperty("messageContent") String messageContent,
+        @JsonProperty("messageCreationDate") long messageCreationDate,
+        @JsonProperty("originalPostId") long originalPostId,
+        @JsonProperty("originalPostAuthorId") long originalPostAuthorId,
+        @JsonProperty("originalPostAuthorFirstName") String originalPostAuthorFirstName,
+        @JsonProperty("originalPostAuthorLastName") String originalPostAuthorLastName
+    ) {
         this.messageId = messageId;
         this.messageContent = messageContent;
         this.messageCreationDate = messageCreationDate;
@@ -19,31 +29,31 @@ public class LdbcShortQuery2PersonPostsResult {
         this.originalPostAuthorLastName = originalPostAuthorLastName;
     }
 
-    public long messageId() {
+    public long getMessageId() {
         return messageId;
     }
 
-    public String messageContent() {
+    public String getMessageContent() {
         return messageContent;
     }
 
-    public long messageCreationDate() {
+    public long getMessageCreationDate() {
         return messageCreationDate;
     }
 
-    public long originalPostId() {
+    public long getOriginalPostId() {
         return originalPostId;
     }
 
-    public long originalPostAuthorId() {
+    public long getOriginalPostAuthorId() {
         return originalPostAuthorId;
     }
 
-    public String originalPostAuthorFirstName() {
+    public String getOriginalPostAuthorFirstName() {
         return originalPostAuthorFirstName;
     }
 
-    public String originalPostAuthorLastName() {
+    public String getOriginalPostAuthorLastName() {
         return originalPostAuthorLastName;
     }
 

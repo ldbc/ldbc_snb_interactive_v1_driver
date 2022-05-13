@@ -1,5 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcShortQuery1PersonProfileResult {
     private final String firstName;
     private final String lastName;
@@ -10,14 +12,15 @@ public class LdbcShortQuery1PersonProfileResult {
     private final String gender;
     private final long creationDate;
 
-    public LdbcShortQuery1PersonProfileResult(String firstName,
-                                              String lastName,
-                                              long birthday,
-                                              String locationIp,
-                                              String browserUsed,
-                                              long cityId,
-                                              String gender,
-                                              long creationDate) {
+    public LdbcShortQuery1PersonProfileResult(
+        @JsonProperty("firstName") String firstName,
+        @JsonProperty("lastName") String lastName,
+        @JsonProperty("birthday")  long birthday,
+        @JsonProperty("locationIp")  String locationIp,
+        @JsonProperty("browserUsed")  String browserUsed,
+        @JsonProperty("cityId")  long cityId,
+        @JsonProperty("gender")  String gender,
+        @JsonProperty("creationDate")  long creationDate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthday = birthday;
@@ -28,35 +31,35 @@ public class LdbcShortQuery1PersonProfileResult {
         this.creationDate = creationDate;
     }
 
-    public String firstName() {
+    public String getFirstName() {
         return firstName;
     }
 
-    public String lastName() {
+    public String getLastName() {
         return lastName;
     }
 
-    public long birthday() {
+    public long getBirthday() {
         return birthday;
     }
 
-    public String locationIp() {
+    public String getLocationIp() {
         return locationIp;
     }
 
-    public String browserUsed() {
+    public String getBrowserUsed() {
         return browserUsed;
     }
 
-    public long cityId() {
+    public long getCityId() {
         return cityId;
     }
 
-    public String gender() {
+    public String getGender() {
         return gender;
     }
 
-    public long creationDate() {
+    public long getCreationDate() {
         return creationDate;
     }
 

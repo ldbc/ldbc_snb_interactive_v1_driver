@@ -1,5 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcShortQuery7MessageRepliesResult {
     private final long commentId;
     private final String commentContent;
@@ -7,44 +9,52 @@ public class LdbcShortQuery7MessageRepliesResult {
     private final long replyAuthorId;
     private final String replyAuthorFirstName;
     private final String replyAuthorLastName;
-    private final boolean replyAuthorKnowsOriginalMessageAuthor;
+    private final boolean isReplyAuthorKnowsOriginalMessageAuthor;
 
-    public LdbcShortQuery7MessageRepliesResult(long commentId, String commentContent, long commentCreationDate, long replyAuthorId, String replyAuthorFirstName, String replyAuthorLastName, boolean replyAuthorKnowsOriginalMessageAuthor) {
+    public LdbcShortQuery7MessageRepliesResult(
+        @JsonProperty("commentId") long commentId,
+        @JsonProperty("commentContent") String commentContent,
+        @JsonProperty("commentCreationDate") long commentCreationDate,
+        @JsonProperty("replyAuthorId") long replyAuthorId,
+        @JsonProperty("replyAuthorFirstName") String replyAuthorFirstName,
+        @JsonProperty("replyAuthorLastName") String replyAuthorLastName,
+        @JsonProperty("isReplyAuthorKnowsOriginalMessageAuthor") boolean isReplyAuthorKnowsOriginalMessageAuthor
+    ) {
         this.commentId = commentId;
         this.commentContent = commentContent;
         this.commentCreationDate = commentCreationDate;
         this.replyAuthorId = replyAuthorId;
         this.replyAuthorFirstName = replyAuthorFirstName;
         this.replyAuthorLastName = replyAuthorLastName;
-        this.replyAuthorKnowsOriginalMessageAuthor = replyAuthorKnowsOriginalMessageAuthor;
+        this.isReplyAuthorKnowsOriginalMessageAuthor = isReplyAuthorKnowsOriginalMessageAuthor;
     }
 
-    public long commentId() {
+    public long getCommentId() {
         return commentId;
     }
 
-    public String commentContent() {
+    public String getCommentContent() {
         return commentContent;
     }
 
-    public long commentCreationDate() {
+    public long getCommentCreationDate() {
         return commentCreationDate;
     }
 
-    public long replyAuthorId() {
+    public long getReplyAuthorId() {
         return replyAuthorId;
     }
 
-    public String replyAuthorFirstName() {
+    public String getReplyAuthorFirstName() {
         return replyAuthorFirstName;
     }
 
-    public String replyAuthorLastName() {
+    public String getReplyAuthorLastName() {
         return replyAuthorLastName;
     }
 
-    public boolean isReplyAuthorKnowsOriginalMessageAuthor() {
-        return replyAuthorKnowsOriginalMessageAuthor;
+    public boolean getIsReplyAuthorKnowsOriginalMessageAuthor() {
+        return isReplyAuthorKnowsOriginalMessageAuthor;
     }
 
     @Override
@@ -57,7 +67,7 @@ public class LdbcShortQuery7MessageRepliesResult {
         if (commentCreationDate != that.commentCreationDate) return false;
         if (commentId != that.commentId) return false;
         if (replyAuthorId != that.replyAuthorId) return false;
-        if (replyAuthorKnowsOriginalMessageAuthor != that.replyAuthorKnowsOriginalMessageAuthor) return false;
+        if (isReplyAuthorKnowsOriginalMessageAuthor != that.isReplyAuthorKnowsOriginalMessageAuthor) return false;
         if (commentContent != null ? !commentContent.equals(that.commentContent) : that.commentContent != null)
             return false;
         if (replyAuthorFirstName != null ? !replyAuthorFirstName.equals(that.replyAuthorFirstName) : that.replyAuthorFirstName != null)
@@ -76,7 +86,7 @@ public class LdbcShortQuery7MessageRepliesResult {
         result = 31 * result + (int) (replyAuthorId ^ (replyAuthorId >>> 32));
         result = 31 * result + (replyAuthorFirstName != null ? replyAuthorFirstName.hashCode() : 0);
         result = 31 * result + (replyAuthorLastName != null ? replyAuthorLastName.hashCode() : 0);
-        result = 31 * result + (replyAuthorKnowsOriginalMessageAuthor ? 1 : 0);
+        result = 31 * result + (isReplyAuthorKnowsOriginalMessageAuthor ? 1 : 0);
         return result;
     }
 
@@ -89,7 +99,7 @@ public class LdbcShortQuery7MessageRepliesResult {
                 ", replyAuthorId=" + replyAuthorId +
                 ", replyAuthorFirstName='" + replyAuthorFirstName + '\'' +
                 ", replyAuthorLastName='" + replyAuthorLastName + '\'' +
-                ", replyAuthorKnowsOriginalMessageAuthor=" + replyAuthorKnowsOriginalMessageAuthor +
+                ", replyAuthorKnowsOriginalMessageAuthor=" + isReplyAuthorKnowsOriginalMessageAuthor +
                 '}';
     }
 }

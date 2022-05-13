@@ -1,31 +1,38 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcShortQuery3PersonFriendsResult {
     private final long personId;
     private final String firstName;
     private final String lastName;
     private final long friendshipCreationDate;
 
-    public LdbcShortQuery3PersonFriendsResult(long personId, String firstName, String lastName, long friendshipCreationDate) {
+    public LdbcShortQuery3PersonFriendsResult(
+        @JsonProperty("personId") long personId,
+        @JsonProperty("firstName") String firstName,
+        @JsonProperty("lastName") String lastName,
+        @JsonProperty("friendshipCreationDate") long friendshipCreationDate
+    ) {
         this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.friendshipCreationDate = friendshipCreationDate;
     }
 
-    public long personId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public String firstName() {
+    public String getFirstName() {
         return firstName;
     }
 
-    public String lastName() {
+    public String getLastName() {
         return lastName;
     }
 
-    public long friendshipCreationDate() {
+    public long getFriendshipCreationDate() {
         return friendshipCreationDate;
     }
 
