@@ -626,7 +626,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
                 List<LdbcQuery14Result> typedResults = (List<LdbcQuery14Result>) result;
                 for ( int i = 0; i < typedResults.size(); i++ )
                 {
-                    for ( Number personId : typedResults.get( i ).getPersonsIdsInPath() )
+                    for ( Number personId : typedResults.get( i ).getPersonIdsInPath() )
                     {
                         personIdBuffer.add( personId.longValue() );
                     }
@@ -639,9 +639,9 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
                 for ( int i = 0; i < typedResults.size(); i++ )
                 {
                     LdbcShortQuery2PersonPostsResult typedResult = typedResults.get( i );
-                    personIdBuffer.add( typedResult.originalPostAuthorId() );
-                    messageIdBuffer.add( typedResult.messageId() );
-                    messageIdBuffer.add( typedResult.originalPostId() );
+                    personIdBuffer.add( typedResult.getOriginalPostAuthorId() );
+                    messageIdBuffer.add( typedResult.getMessageId() );
+                    messageIdBuffer.add( typedResult.getOriginalPostId() );
                 }
                 break;
             }
@@ -651,20 +651,20 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
                         (List<LdbcShortQuery3PersonFriendsResult>) result;
                 for ( int i = 0; i < typedResults.size(); i++ )
                 {
-                    personIdBuffer.add( typedResults.get( i ).personId() );
+                    personIdBuffer.add( typedResults.get( i ).getPersonId() );
                 }
                 break;
             }
             case LdbcShortQuery5MessageCreator.TYPE:
             {
                 LdbcShortQuery5MessageCreatorResult typedResult = (LdbcShortQuery5MessageCreatorResult) result;
-                personIdBuffer.add( typedResult.personId() );
+                personIdBuffer.add( typedResult.getPersonId() );
                 break;
             }
             case LdbcShortQuery6MessageForum.TYPE:
             {
                 LdbcShortQuery6MessageForumResult typedResult = (LdbcShortQuery6MessageForumResult) result;
-                personIdBuffer.add( typedResult.moderatorId() );
+                personIdBuffer.add( typedResult.getModeratorId() );
                 break;
             }
             case LdbcShortQuery7MessageReplies.TYPE:
@@ -674,8 +674,8 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
                 for ( int i = 0; i < typedResults.size(); i++ )
                 {
                     LdbcShortQuery7MessageRepliesResult typedResult = typedResults.get( i );
-                    personIdBuffer.add( typedResult.replyAuthorId() );
-                    messageIdBuffer.add( typedResult.commentId() );
+                    personIdBuffer.add( typedResult.getReplyAuthorId() );
+                    messageIdBuffer.add( typedResult.getCommentId() );
                 }
                 break;
             }

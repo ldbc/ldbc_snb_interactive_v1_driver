@@ -160,8 +160,8 @@ public abstract class WorkloadTest
             // Then
             for ( int i = 0; i < operationsAndResults.size(); i++ )
             {
-                String serializedResult = mapper.writeValueAsString(operationsAndResults.get( i )._1());
-                Object marshaledOperationResult = operationsAndResults.get( i )._1().deserializeResult(serializedResult);
+                String serializedOperation = mapper.writeValueAsString(operationsAndResults.get( i )._1());
+                Object deserializedOperation = mapper.readValue(serializedOperation, Operation.class);
                 
             assertThat(
                     format( "original != marshal(serialize(original))\n" +
@@ -169,10 +169,10 @@ public abstract class WorkloadTest
                             "Serialized: %s\n"                           +
                             "Marshaled: %s",
                             operationsAndResults.get( i )._1(),
-                            serializedResult,
-                            marshaledOperationResult
+                            serializedOperation,
+                            deserializedOperation
                     ),
-                    marshaledOperationResult,
+                    deserializedOperation,
                     equalTo( operationsAndResults.get( i )._1() ) );
             }
         }
