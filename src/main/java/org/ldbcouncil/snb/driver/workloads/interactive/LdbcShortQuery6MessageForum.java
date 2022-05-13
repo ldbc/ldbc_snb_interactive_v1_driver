@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
@@ -11,24 +12,24 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
 {
     public static final int TYPE = 106;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    public static final String MESSAGE_ID = "messageId";
+    public static final String MESSAGE_ID = "messageForumId";
 
-    private final long messageId;
+    private final long messageForumId;
 
-    public LdbcShortQuery6MessageForum( long messageId )
+    public LdbcShortQuery6MessageForum(@JsonProperty("messageForumId") long messageForumId )
     {
-        this.messageId = messageId;
+        this.messageForumId = messageForumId;
     }
 
-    public long getMessageId()
+    public long getMessageForumId()
     {
-        return messageId;
+        return messageForumId;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(MESSAGE_ID, messageId)
+                .put(MESSAGE_ID, messageForumId)
                 .build();
     }
 
@@ -51,7 +52,7 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
 
         LdbcShortQuery6MessageForum that = (LdbcShortQuery6MessageForum) o;
 
-        if ( messageId != that.messageId )
+        if ( messageForumId != that.messageForumId )
         { return false; }
 
         return true;
@@ -60,14 +61,14 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
     @Override
     public int hashCode()
     {
-        return (int) (messageId ^ (messageId >>> 32));
+        return (int) (messageForumId ^ (messageForumId >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcShortQuery6MessageForum{" +
-               "messageId=" + messageId +
+               "messageForumId=" + messageForumId +
                '}';
     }
 

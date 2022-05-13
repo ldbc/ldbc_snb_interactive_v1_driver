@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
@@ -14,21 +15,21 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     public static final int TYPE = 102;
     public static final int DEFAULT_LIMIT = 10;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ2";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ2;
     private final int limit;
 
-    public LdbcShortQuery2PersonPosts( long personId, int limit )
+    public LdbcShortQuery2PersonPosts(@JsonProperty("personIdQ2") long personIdQ2,@JsonProperty("limit") int limit )
     {
-        this.personId = personId;
+        this.personIdQ2 = personIdQ2;
         this.limit = limit;
     }
 
-    public long getPersonId()
+    public long getpersonIdQ2()
     {
-        return personId;
+        return personIdQ2;
     }
 
     public int getLimit()
@@ -39,7 +40,7 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ2)
                 .put(LIMIT, limit)
                 .build();
     }
@@ -64,7 +65,7 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
 
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ2 != that.personIdQ2 )
         { return false; }
 
         return true;
@@ -73,7 +74,7 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ2 ^ (personIdQ2 >>> 32));
         result = 31 * result + limit;
         return result;
     }
@@ -82,7 +83,7 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     public String toString()
     {
         return "LdbcShortQuery2PersonPosts{" +
-               "personId=" + personId +
+               "personIdQ2=" + personIdQ2 +
                ", limit=" + limit +
                '}';
     }

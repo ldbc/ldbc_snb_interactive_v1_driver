@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
@@ -13,24 +14,24 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
 {
     public static final int TYPE = 103;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ3";
 
-    private final long personId;
+    private final long personIdQ3;
 
-    public LdbcShortQuery3PersonFriends( long personId )
+    public LdbcShortQuery3PersonFriends(@JsonProperty("personIdQ3")  long personIdQ3 )
     {
-        this.personId = personId;
+        this.personIdQ3 = personIdQ3;
     }
 
-    public long getPersonId()
+    public long getPersonIdQ3()
     {
-        return personId;
+        return personIdQ3;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ3)
                 .build();
     }
 
@@ -52,7 +53,7 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
 
         LdbcShortQuery3PersonFriends that = (LdbcShortQuery3PersonFriends) o;
 
-        if ( personId != that.personId )
+        if ( personIdQ3 != that.personIdQ3 )
         { return false; }
 
         return true;
@@ -61,14 +62,14 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
     @Override
     public int hashCode()
     {
-        return (int) (personId ^ (personId >>> 32));
+        return (int) (personIdQ3 ^ (personIdQ3 >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcShortQuery3PersonFriends{" +
-               "personId=" + personId +
+               "personIdQ3=" + personIdQ3 +
                '}';
     }
 

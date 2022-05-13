@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
@@ -13,24 +14,24 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
 {
     public static final int TYPE = 107;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    public static final String MESSAGE_ID = "messageId";
+    public static final String MESSAGE_ID = "messageRepliesId";
 
-    private final long messageId;
+    private final long messageRepliesId;
 
-    public LdbcShortQuery7MessageReplies( long messageId )
+    public LdbcShortQuery7MessageReplies(@JsonProperty("messageRepliesId")  long messageRepliesId )
     {
-        this.messageId = messageId;
+        this.messageRepliesId = messageRepliesId;
     }
 
-    public long getMessageId()
+    public long getMessageRepliesId()
     {
-        return messageId;
+        return messageRepliesId;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(MESSAGE_ID, messageId)
+                .put(MESSAGE_ID, messageRepliesId)
                 .build();
     }
 
@@ -52,7 +53,7 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
 
         LdbcShortQuery7MessageReplies that = (LdbcShortQuery7MessageReplies) o;
 
-        if ( messageId != that.messageId )
+        if ( messageRepliesId != that.messageRepliesId )
         { return false; }
 
         return true;
@@ -61,14 +62,14 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
     @Override
     public int hashCode()
     {
-        return (int) (messageId ^ (messageId >>> 32));
+        return (int) (messageRepliesId ^ (messageRepliesId >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcShortQuery7MessageReplies{" +
-               "messageId=" + messageId +
+               "messageRepliesId=" + messageRepliesId +
                '}';
     }
 

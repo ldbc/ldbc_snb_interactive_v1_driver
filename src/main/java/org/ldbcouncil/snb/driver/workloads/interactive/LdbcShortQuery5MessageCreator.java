@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
@@ -12,26 +13,27 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
 {
     public static final int TYPE = 105;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    public static final String MESSAGE_ID = "messageId";
+    public static final String MESSAGE_ID = "messageIdCreator";
 
-    private final long messageId;
+    private final long messageIdCreator;
 
-    public LdbcShortQuery5MessageCreator( long messageId )
+    public LdbcShortQuery5MessageCreator(@JsonProperty("messageIdCreator")   long messageIdCreator )
     {
-        this.messageId = messageId;
+        this.messageIdCreator = messageIdCreator;
     }
 
-    public long getMessageId()
+    public long getMessageIdCreator()
     {
-        return messageId;
+        return messageIdCreator;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(MESSAGE_ID, messageId)
+                .put(MESSAGE_ID, messageIdCreator)
                 .build();
     }
+
     @Override
     public LdbcShortQuery5MessageCreatorResult deserializeResult( String serializedResults ) throws IOException
     {
@@ -50,7 +52,7 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
 
         LdbcShortQuery5MessageCreator that = (LdbcShortQuery5MessageCreator) o;
 
-        if ( messageId != that.messageId )
+        if ( messageIdCreator != that.messageIdCreator )
         { return false; }
 
         return true;
@@ -59,14 +61,14 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
     @Override
     public int hashCode()
     {
-        return (int) (messageId ^ (messageId >>> 32));
+        return (int) (messageIdCreator ^ (messageIdCreator >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcShortQuery5MessageCreator{" +
-               "messageId=" + messageId +
+               "messageIdCreator=" + messageIdCreator +
                '}';
     }
 
