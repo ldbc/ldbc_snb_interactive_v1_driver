@@ -1,18 +1,14 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
 {
@@ -45,32 +41,32 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public String countryXName()
+    public String getCountryXName()
     {
         return countryXName;
     }
 
-    public String countryYName()
+    public String getCountryYName()
     {
         return countryYName;
     }
 
-    public Date startDate()
+    public Date getStartDate()
     {
         return startDate;
     }
 
-    public int durationDays()
+    public int getDurationDays()
     {
         return durationDays;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -139,72 +135,11 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
     }
 
     @Override
-    public List<LdbcQuery3Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery3Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery3Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            long personId = ((Number) resultAsList.get( 0 )).longValue();
-            String personFirstName = (String) resultAsList.get( 1 );
-            String personLastName = (String) resultAsList.get( 2 );
-            long xCount = ((Number) resultAsList.get( 3 )).longValue();
-            long yCount = ((Number) resultAsList.get( 4 )).longValue();
-            long count = ((Number) resultAsList.get( 5 )).longValue();
-
-            results.add( new LdbcQuery3Result(
-                    personId,
-                    personFirstName,
-                    personLastName,
-                    xCount,
-                    yCount,
-                    count
-            ) );
-        }
-
-        return results;
-    }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery3Result> results = (List<LdbcQuery3Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery3Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personId() );
-            resultFields.add( result.personFirstName() );
-            resultFields.add( result.personLastName() );
-            resultFields.add( result.xCount() );
-            resultFields.add( result.yCount() );
-            resultFields.add( result.count() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
+        List<LdbcQuery3Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery3Result[].class));
+        return marshaledOperationResult;
     }
 
     @Override

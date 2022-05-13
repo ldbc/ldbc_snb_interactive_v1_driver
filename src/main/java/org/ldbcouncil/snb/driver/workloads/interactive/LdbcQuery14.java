@@ -1,19 +1,13 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
 {
@@ -32,12 +26,12 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
         this.person2Id = person2Id;
     }
 
-    public long person1Id()
+    public long getPerson1Id()
     {
         return person1Id;
     }
 
-    public long person2Id()
+    public long getPerson2Id()
     {
         return person2Id;
     }
@@ -86,73 +80,56 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
     }
 
     @Override
-    public List<LdbcQuery14Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery14Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue(
-                    serializedResults,
-                    new TypeReference<List<List<Object>>>()
-                    {
-                    }
-            );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery14Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            Iterable<Long> personsIdsInPath =
-                    Iterables.transform( (List<Number>) resultAsList.get( 0 ), new Function<Number,Long>()
-                    {
-                        @Override
-                        public Long apply( Number number )
-                        {
-                            return number.longValue();
-                        }
-                    } );
-            double pathWeight = ((Number) resultAsList.get( 1 )).doubleValue();
-
-            results.add(
-                    new LdbcQuery14Result(
-                            personsIdsInPath,
-                            pathWeight
-                    )
-            );
-        }
-        return results;
+        List<LdbcQuery14Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery14Result[].class));
+        return marshaledOperationResult;
     }
 
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery14Result> results = (List<LdbcQuery14Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery14Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personsIdsInPath() );
-            resultFields.add( result.pathWeight() );
-            resultsFields.add( resultFields );
-        }
+    // @Override
+    // public List<LdbcQuery14Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    // {
+    //     List<List<Object>> resultsAsList;
+    //     try
+    //     {
+    //         resultsAsList = OBJECT_MAPPER.readValue(
+    //                 serializedResults,
+    //                 new TypeReference<List<List<Object>>>()
+    //                 {
+    //                 }
+    //         );
+    //     }
+    //     catch ( IOException e )
+    //     {
+    //         throw new SerializingMarshallingException(
+    //                 format( "Error while parsing serialized results\n%s", serializedResults ), e );
+    //     }
 
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
-    }
+    //     List<LdbcQuery14Result> results = new ArrayList<>();
+    //     for ( int i = 0; i < resultsAsList.size(); i++ )
+    //     {
+    //         List<Object> resultAsList = resultsAsList.get( i );
+    //         Iterable<Long> personsIdsInPath =
+    //                 Iterables.transform( (List<Number>) resultAsList.get( 0 ), new Function<Number,Long>()
+    //                 {
+    //                     @Override
+    //                     public Long apply( Number number )
+    //                     {
+    //                         return number.longValue();
+    //                     }
+    //                 } );
+    //         double pathWeight = ((Number) resultAsList.get( 1 )).doubleValue();
+
+    //         results.add(
+    //                 new LdbcQuery14Result(
+    //                         personsIdsInPath,
+    //                         pathWeight
+    //                 )
+    //         );
+    //     }
+    //     return results;
+    // }
 
     @Override
     public int type()

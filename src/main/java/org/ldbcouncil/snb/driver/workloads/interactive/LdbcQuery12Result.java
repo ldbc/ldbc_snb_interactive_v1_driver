@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.util.ListUtils;
 
@@ -13,7 +14,12 @@ public class LdbcQuery12Result {
     private final Iterable<String> tagNames;
     private final int replyCount;
 
-    public LdbcQuery12Result(long personId, String personFirstName, String personLastName, Iterable<String> tagNames, int replyCount) {
+    public LdbcQuery12Result(
+        @JsonProperty("personId")long personId,
+        @JsonProperty("personFirstName")String personFirstName,
+        @JsonProperty("personLastName")String personLastName,
+        @JsonProperty("tagNames")Iterable<String> tagNames,
+        @JsonProperty("replyCount")int replyCount) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -21,23 +27,23 @@ public class LdbcQuery12Result {
         this.replyCount = replyCount;
     }
 
-    public long personId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public String personFirstName() {
+    public String getPersonFirstName() {
         return personFirstName;
     }
 
-    public String personLastName() {
+    public String getPersonLastName() {
         return personLastName;
     }
 
-    public Iterable<String> tagNames() {
+    public Iterable<String> getTagNames() {
         return tagNames;
     }
 
-    public int replyCount() {
+    public int getReplyCount() {
         return replyCount;
     }
 

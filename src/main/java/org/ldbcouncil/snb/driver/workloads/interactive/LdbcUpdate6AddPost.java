@@ -1,22 +1,18 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 import org.ldbcouncil.snb.driver.util.ListUtils;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
-
+@JsonSerialize(using = LdbcUpdateJsonSerializer.class)
 public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
 {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1006;
     public static final String POST_ID = "postId";
     public static final String IMAGE_FILE = "imageFile";
@@ -71,62 +67,62 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
         this.tagIds = tagIds;
     }
 
-    public long postId()
+    public long getPostId()
     {
         return postId;
     }
 
-    public String imageFile()
+    public String getImageFile()
     {
         return imageFile;
     }
 
-    public Date creationDate()
+    public Date getCreationDate()
     {
         return creationDate;
     }
 
-    public String locationIp()
+    public String getLocationIp()
     {
         return locationIp;
     }
 
-    public String browserUsed()
+    public String getBrowserUsed()
     {
         return browserUsed;
     }
 
-    public String language()
+    public String getLanguage()
     {
         return language;
     }
 
-    public String content()
+    public String getContent()
     {
         return content;
     }
 
-    public int length()
+    public int getLength()
     {
         return length;
     }
 
-    public long authorPersonId()
+    public long getAuthorPersonId()
     {
         return authorPersonId;
     }
 
-    public long forumId()
+    public long getForumId()
     {
         return forumId;
     }
 
-    public long countryId()
+    public long getCountryId()
     {
         return countryId;
     }
 
-    public List<Long> tagIds()
+    public List<Long> getTagIds()
     {
         return tagIds;
     }
@@ -231,24 +227,9 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
     }
 
     @Override
-    public LdbcNoResult marshalResult( String serializedOperationResult )
+    public LdbcNoResult deserializeResult( String serializedResults )
     {
         return LdbcNoResult.INSTANCE;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-    {
-        try
-        {
-            return objectMapper.writeValueAsString(
-                    LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    operationResultInstance ), e );
-        }
     }
 
     @Override

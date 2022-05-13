@@ -1,18 +1,14 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
 {
@@ -38,22 +34,22 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public Date startDate()
+    public Date getStartDate()
     {
         return startDate;
     }
 
-    public int durationDays()
+    public int getDurationDays()
     {
         return durationDays;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -112,62 +108,13 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
     }
 
     @Override
-    public List<LdbcQuery4Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery4Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery4Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            String tagName = (String) resultAsList.get( 0 );
-            int tagCount = ((Number) resultAsList.get( 1 )).intValue();
-
-            results.add( new LdbcQuery4Result(
-                    tagName,
-                    tagCount
-            ) );
-        }
-
-        return results;
+        List<LdbcQuery4Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery4Result[].class));
+        return marshaledOperationResult;
     }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery4Result> results = (List<LdbcQuery4Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery4Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.tagName() );
-            resultFields.add( result.postCount() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
-    }
-
+  
     @Override
     public int type()
     {

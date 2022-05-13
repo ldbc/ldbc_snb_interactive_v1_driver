@@ -110,70 +110,70 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
         List<Operation> operationsToInject = new ArrayList<>();
         switch (operation.type()) {
             case LdbcUpdate1AddPerson.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate1AddPerson) operation).personId());
-                injectShort2(operationsToInject, ((LdbcUpdate1AddPerson) operation).personId());
-                injectShort3(operationsToInject, ((LdbcUpdate1AddPerson) operation).personId());
+                injectShort1(operationsToInject, ((LdbcUpdate1AddPerson) operation).getPersonId());
+                injectShort2(operationsToInject, ((LdbcUpdate1AddPerson) operation).getPersonId());
+                injectShort3(operationsToInject, ((LdbcUpdate1AddPerson) operation).getPersonId());
                 break;
             }
             case LdbcUpdate2AddPostLike.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate2AddPostLike) operation).personId());
-                injectShort2(operationsToInject, ((LdbcUpdate2AddPostLike) operation).personId());
-                injectShort3(operationsToInject, ((LdbcUpdate2AddPostLike) operation).personId());
-                injectShort4(operationsToInject, ((LdbcUpdate2AddPostLike) operation).postId());
-                injectShort5(operationsToInject, ((LdbcUpdate2AddPostLike) operation).postId());
-                injectShort6(operationsToInject, ((LdbcUpdate2AddPostLike) operation).postId());
-                injectShort7(operationsToInject, ((LdbcUpdate2AddPostLike) operation).postId());
+                injectShort1(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPersonId());
+                injectShort2(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPersonId());
+                injectShort3(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPersonId());
+                injectShort4(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPostId());
+                injectShort5(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPostId());
+                injectShort6(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPostId());
+                injectShort7(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPostId());
                 break;
             }
             case LdbcUpdate3AddCommentLike.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).personId());
-                injectShort2(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).personId());
-                injectShort3(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).personId());
-                injectShort4(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).commentId());
-                injectShort5(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).commentId());
-                injectShort6(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).commentId());
-                injectShort7(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).commentId());
+                injectShort1(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getPersonId());
+                injectShort2(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getPersonId());
+                injectShort3(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getPersonId());
+                injectShort4(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getCommentId());
+                injectShort5(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getCommentId());
+                injectShort6(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getCommentId());
+                injectShort7(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getCommentId());
                 break;
             }
             case LdbcUpdate4AddForum.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate4AddForum) operation).moderatorPersonId());
-                injectShort2(operationsToInject, ((LdbcUpdate4AddForum) operation).moderatorPersonId());
-                injectShort3(operationsToInject, ((LdbcUpdate4AddForum) operation).moderatorPersonId());
+                injectShort1(operationsToInject, ((LdbcUpdate4AddForum) operation).getModeratorPersonId());
+                injectShort2(operationsToInject, ((LdbcUpdate4AddForum) operation).getModeratorPersonId());
+                injectShort3(operationsToInject, ((LdbcUpdate4AddForum) operation).getModeratorPersonId());
                 break;
             }
             case LdbcUpdate5AddForumMembership.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).personId());
-                injectShort2(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).personId());
-                injectShort3(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).personId());
+                injectShort1(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).getPersonId());
+                injectShort2(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).getPersonId());
+                injectShort3(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).getPersonId());
                 break;
             }
             case LdbcUpdate6AddPost.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate6AddPost) operation).authorPersonId());
-                injectShort2(operationsToInject, ((LdbcUpdate6AddPost) operation).authorPersonId());
-                injectShort3(operationsToInject, ((LdbcUpdate6AddPost) operation).authorPersonId());
-                injectShort4(operationsToInject, ((LdbcUpdate6AddPost) operation).postId());
-                injectShort5(operationsToInject, ((LdbcUpdate6AddPost) operation).postId());
-                injectShort6(operationsToInject, ((LdbcUpdate6AddPost) operation).postId());
-                injectShort7(operationsToInject, ((LdbcUpdate6AddPost) operation).postId());
+                injectShort1(operationsToInject, ((LdbcUpdate6AddPost) operation).getAuthorPersonId());
+                injectShort2(operationsToInject, ((LdbcUpdate6AddPost) operation).getAuthorPersonId());
+                injectShort3(operationsToInject, ((LdbcUpdate6AddPost) operation).getAuthorPersonId());
+                injectShort4(operationsToInject, ((LdbcUpdate6AddPost) operation).getPostId());
+                injectShort5(operationsToInject, ((LdbcUpdate6AddPost) operation).getPostId());
+                injectShort6(operationsToInject, ((LdbcUpdate6AddPost) operation).getPostId());
+                injectShort7(operationsToInject, ((LdbcUpdate6AddPost) operation).getPostId());
                 break;
             }
             case LdbcUpdate7AddComment.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate7AddComment) operation).authorPersonId());
-                injectShort2(operationsToInject, ((LdbcUpdate7AddComment) operation).authorPersonId());
-                injectShort3(operationsToInject, ((LdbcUpdate7AddComment) operation).authorPersonId());
-                injectShort4(operationsToInject, ((LdbcUpdate7AddComment) operation).commentId());
-                injectShort5(operationsToInject, ((LdbcUpdate7AddComment) operation).commentId());
-                injectShort6(operationsToInject, ((LdbcUpdate7AddComment) operation).commentId());
-                injectShort7(operationsToInject, ((LdbcUpdate7AddComment) operation).commentId());
+                injectShort1(operationsToInject, ((LdbcUpdate7AddComment) operation).getAuthorPersonId());
+                injectShort2(operationsToInject, ((LdbcUpdate7AddComment) operation).getAuthorPersonId());
+                injectShort3(operationsToInject, ((LdbcUpdate7AddComment) operation).getAuthorPersonId());
+                injectShort4(operationsToInject, ((LdbcUpdate7AddComment) operation).getCommentId());
+                injectShort5(operationsToInject, ((LdbcUpdate7AddComment) operation).getCommentId());
+                injectShort6(operationsToInject, ((LdbcUpdate7AddComment) operation).getCommentId());
+                injectShort7(operationsToInject, ((LdbcUpdate7AddComment) operation).getCommentId());
                 break;
             }
             case LdbcUpdate8AddFriendship.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate8AddFriendship) operation).person1Id());
-                injectShort2(operationsToInject, ((LdbcUpdate8AddFriendship) operation).person1Id());
-                injectShort3(operationsToInject, ((LdbcUpdate8AddFriendship) operation).person1Id());
-                injectShort1(operationsToInject, ((LdbcUpdate8AddFriendship) operation).person2Id());
-                injectShort2(operationsToInject, ((LdbcUpdate8AddFriendship) operation).person2Id());
-                injectShort3(operationsToInject, ((LdbcUpdate8AddFriendship) operation).person2Id());
+                injectShort1(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson1Id());
+                injectShort2(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson1Id());
+                injectShort3(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson1Id());
+                injectShort1(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson2Id());
+                injectShort2(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson2Id());
+                injectShort3(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson2Id());
                 break;
             }
         }

@@ -1,5 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcQuery7Result {
     private final long personId;
     private final String personFirstName;
@@ -10,7 +12,16 @@ public class LdbcQuery7Result {
     private final int minutesLatency;
     private final boolean isNew;
 
-    public LdbcQuery7Result(long personId, String personFirstName, String personLastName, long likeCreationDate, long messageId, String messageContent, int minutesLatency, boolean isNew) {
+    public LdbcQuery7Result(
+        @JsonProperty("personId") long personId,
+        @JsonProperty("personFirstName") String personFirstName,
+        @JsonProperty("personLastName") String personLastName,
+        @JsonProperty("likeCreationDate") long likeCreationDate,
+        @JsonProperty("messageId") long messageId,
+        @JsonProperty("messageContent") String messageContent,
+        @JsonProperty("minutesLatency") int minutesLatency,
+        @JsonProperty("isNew") boolean isNew
+    ) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -21,35 +32,35 @@ public class LdbcQuery7Result {
         this.isNew = isNew;
     }
 
-    public long personId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public String personFirstName() {
+    public String getPersonFirstName() {
         return personFirstName;
     }
 
-    public String personLastName() {
+    public String getPersonLastName() {
         return personLastName;
     }
 
-    public long likeCreationDate() {
+    public long getLikeCreationDate() {
         return likeCreationDate;
     }
 
-    public long messageId() {
+    public long getMessageId() {
         return messageId;
     }
 
-    public String messageContent() {
+    public String getMessageContent() {
         return messageContent;
     }
 
-    public int minutesLatency() {
+    public int getMinutesLatency() {
         return minutesLatency;
     }
 
-    public boolean isNew() {
+    public boolean getIsNew() {
         return isNew;
     }
 

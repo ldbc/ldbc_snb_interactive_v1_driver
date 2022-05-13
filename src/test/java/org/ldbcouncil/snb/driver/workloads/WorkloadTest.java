@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
@@ -154,31 +155,25 @@ public abstract class WorkloadTest
             List<Tuple2<Operation,Object>> operationsAndResults = operationsAndResults();
 
             // When
+            ObjectMapper mapper = new ObjectMapper();
 
             // Then
             for ( int i = 0; i < operationsAndResults.size(); i++ )
             {
-                assertThat(
-                        format( "original != marshal(serialize(original))\n" +
-                                "Original: %s\n"                             +
-                                "Serialized: %s\n"                           +
-                                "Marshaled: %s",
-                                operationsAndResults.get( i )._1(),
-                                workload.serializeOperation(
-                                        operationsAndResults.get( i )._1()
-                                ),
-                                workload.marshalOperation(
-                                        workload.serializeOperation(
-                                                operationsAndResults.get( i )._1()
-                                        )
-                                )
-                        ),
-                        workload.marshalOperation(
-                                workload.serializeOperation(
-                                        operationsAndResults.get( i )._1()
-                                )
-                        ),
-                        equalTo( operationsAndResults.get( i )._1() ) );
+                String serializedResult = mapper.writeValueAsString(operationsAndResults.get( i )._1());
+                Object marshaledOperationResult = operationsAndResults.get( i )._1().deserializeResult(serializedResult);
+                
+            assertThat(
+                    format( "original != marshal(serialize(original))\n" +
+                            "Original: %s\n"                             +
+                            "Serialized: %s\n"                           +
+                            "Marshaled: %s",
+                            operationsAndResults.get( i )._1(),
+                            serializedResult,
+                            marshaledOperationResult
+                    ),
+                    marshaledOperationResult,
+                    equalTo( operationsAndResults.get( i )._1() ) );
             }
         }
     }
@@ -190,30 +185,23 @@ public abstract class WorkloadTest
         List<Tuple2<Operation,Object>> operationsAndResults = operationsAndResults();
 
         // When
-
+        ObjectMapper mapper = new ObjectMapper();
         // Then
         for ( int i = 0; i < operationsAndResults.size(); i++ )
         {
+                String serializedResult = mapper.writeValueAsString(operationsAndResults.get( i )._2());
+                Object marshaledOperationResult = operationsAndResults.get( i )._1().deserializeResult(serializedResult);
+                
             assertThat(
                     format( "original != marshal(serialize(original))\n" +
                             "Original: %s\n"                             +
                             "Serialized: %s\n"                           +
                             "Marshaled: %s",
                             operationsAndResults.get( i )._2(),
-                            operationsAndResults.get( i )._1().serializeResult(
-                                    operationsAndResults.get( i )._2()
-                            ),
-                            operationsAndResults.get( i )._1().marshalResult(
-                                    operationsAndResults.get( i )._1().serializeResult(
-                                            operationsAndResults.get( i )._2()
-                                    )
-                            )
+                            serializedResult,
+                            marshaledOperationResult
                     ),
-                    operationsAndResults.get( i )._1().marshalResult(
-                            operationsAndResults.get( i )._1().serializeResult(
-                                    operationsAndResults.get( i )._2()
-                            )
-                    ),
+                    marshaledOperationResult,
                     equalTo( operationsAndResults.get( i )._2() ) );
         }
     }

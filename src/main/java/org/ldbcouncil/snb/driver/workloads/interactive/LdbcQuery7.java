@@ -1,17 +1,13 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
 {
@@ -32,12 +28,12 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -86,80 +82,13 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
     }
 
     @Override
-    public List<LdbcQuery7Result> marshalResult( String serializedResult ) throws SerializingMarshallingException
+    public List<LdbcQuery7Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResult, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error parsing serialized result\n%s", serializedResult ), e );
-        }
-
-        List<LdbcQuery7Result> result = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> row = resultsAsList.get( i );
-            long personId = ((Number) row.get( 0 )).longValue();
-            String personFirstName = (String) row.get( 1 );
-            String personLastName = (String) row.get( 2 );
-            long likeCreationDate = ((Number) row.get( 3 )).longValue();
-            long messageId = ((Number) row.get( 4 )).longValue();
-            String messageContent = (String) row.get( 5 );
-            int minutesLatency = ((Number) row.get( 6 )).intValue();
-            boolean isNew = (Boolean) row.get( 7 );
-
-            result.add( new LdbcQuery7Result(
-                    personId,
-                    personFirstName,
-                    personLastName,
-                    likeCreationDate,
-                    messageId,
-                    messageContent,
-                    minutesLatency,
-                    isNew
-            ) );
-        }
-
-        return result;
+        List<LdbcQuery7Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery7Result[].class));
+        return marshaledOperationResult;
     }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery7Result> results = (List<LdbcQuery7Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery7Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personId() );
-            resultFields.add( result.personFirstName() );
-            resultFields.add( result.personLastName() );
-            resultFields.add( result.likeCreationDate() );
-            resultFields.add( result.messageId() );
-            resultFields.add( result.messageContent() );
-            resultFields.add( result.minutesLatency() );
-            resultFields.add( result.isNew() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
-    }
-
+   
     @Override
     public int type()
     {

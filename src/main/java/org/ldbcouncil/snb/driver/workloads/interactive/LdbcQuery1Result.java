@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.util.ListUtils;
 
@@ -29,19 +30,19 @@ public class LdbcQuery1Result {
     private final Iterable<List<Object>> friendCompanies;
 
     public LdbcQuery1Result(
-            long friendId,
-            String friendLastName,
-            int distanceFromPerson,
-            long friendBirthday,
-            long friendCreationDate,
-            String friendGender,
-            String friendBrowserUsed,
-            String friendLocationIp,
-            Iterable<String> friendEmails,
-            Iterable<String> friendLanguages,
-            String friendCityName,
-            Iterable<List<Object>> friendUniversities,
-            Iterable<List<Object>> friendCompanies) {
+        @JsonProperty("friendId") long friendId,
+        @JsonProperty("friendLastName")     String friendLastName,
+        @JsonProperty("distanceFromPerson")    int distanceFromPerson,
+        @JsonProperty("friendBirthday")     long friendBirthday,
+        @JsonProperty("friendCreationDate")    long friendCreationDate,
+        @JsonProperty("friendGender")    String friendGender,
+        @JsonProperty("friendBrowserUsed")   String friendBrowserUsed,
+        @JsonProperty("friendLocationIp")   String friendLocationIp,
+        @JsonProperty("friendEmails")   Iterable<String> friendEmails,
+        @JsonProperty("friendLanguages")   Iterable<String> friendLanguages,
+        @JsonProperty("friendCityName")    String friendCityName,
+        @JsonProperty("friendUniversities")   Iterable<List<Object>> friendUniversities,
+        @JsonProperty("friendCompanies")   Iterable<List<Object>> friendCompanies) {
         this.friendId = friendId;
         this.friendLastName = friendLastName;
         this.distanceFromPerson = distanceFromPerson;
@@ -57,55 +58,55 @@ public class LdbcQuery1Result {
         this.friendCompanies = friendCompanies;
     }
 
-    public long friendId() {
+    public long getFriendId() {
         return friendId;
     }
 
-    public String friendLastName() {
+    public String getFriendLastName() {
         return friendLastName;
     }
 
-    public int distanceFromPerson() {
+    public int getDistanceFromPerson() {
         return distanceFromPerson;
     }
 
-    public long friendBirthday() {
+    public long getFriendBirthday() {
         return friendBirthday;
     }
 
-    public long friendCreationDate() {
+    public long getFriendCreationDate() {
         return friendCreationDate;
     }
 
-    public String friendGender() {
+    public String getFriendGender() {
         return friendGender;
     }
 
-    public String friendBrowserUsed() {
+    public String getFriendBrowserUsed() {
         return friendBrowserUsed;
     }
 
-    public String friendLocationIp() {
+    public String getFriendLocationIp() {
         return friendLocationIp;
     }
 
-    public Iterable<String> friendEmails() {
+    public Iterable<String> getFriendEmails() {
         return friendEmails;
     }
 
-    public Iterable<String> friendLanguages() {
+    public Iterable<String> getFriendLanguages() {
         return friendLanguages;
     }
 
-    public String friendCityName() {
+    public String getFriendCityName() {
         return friendCityName;
     }
 
-    public Iterable<List<Object>> friendUniversities() {
+    public Iterable<List<Object>> getFriendUniversities() {
         return friendUniversities;
     }
 
-    public Iterable<List<Object>> friendCompanies() {
+    public Iterable<List<Object>> getFriendCompanies() {
         return friendCompanies;
     }
 

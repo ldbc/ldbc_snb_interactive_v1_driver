@@ -1,17 +1,11 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery13 extends Operation<LdbcQuery13Result>
 {
@@ -30,12 +24,12 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
         this.person2Id = person2Id;
     }
 
-    public long person1Id()
+    public long getPerson1Id()
     {
         return person1Id;
     }
 
-    public long person2Id()
+    public long getPerson2Id()
     {
         return person2Id;
     }
@@ -84,41 +78,11 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
     }
 
     @Override
-    public LdbcQuery13Result marshalResult( String serializedResult ) throws SerializingMarshallingException
+    public LdbcQuery13Result deserializeResult( String serializedResults ) throws IOException
     {
-        List<Object> resultAsList;
-        try
-        {
-            resultAsList = OBJECT_MAPPER.readValue( serializedResult, new TypeReference<List<Object>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResult ), e );
-        }
-
-        int shortestPathLength = ((Number) resultAsList.get( 0 )).intValue();
-        return new LdbcQuery13Result( shortestPathLength );
-    }
-
-    @Override
-    public String serializeResult( Object resultObject ) throws SerializingMarshallingException
-    {
-        LdbcQuery13Result result = (LdbcQuery13Result) resultObject;
-        List<Object> resultFields = new ArrayList<>();
-        resultFields.add( result.shortestPathLength() );
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", result.toString() ), e );
-        }
+        LdbcQuery13Result marshaledOperationResult;
+        marshaledOperationResult = OBJECT_MAPPER.readValue(serializedResults, LdbcQuery13Result.class);
+        return marshaledOperationResult;
     }
 
     @Override

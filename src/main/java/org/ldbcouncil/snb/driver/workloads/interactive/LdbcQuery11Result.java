@@ -1,5 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcQuery11Result {
     private final long personId;
     private final String personFirstName;
@@ -7,7 +9,13 @@ public class LdbcQuery11Result {
     private final String organizationName;
     private final int organizationWorkFromYear;
 
-    public LdbcQuery11Result(long personId, String personFirstName, String personLastName, String organizationName, int organizationWorkFromYear) {
+    public LdbcQuery11Result(
+        @JsonProperty("personId")long personId,
+        @JsonProperty("personFirstName")String personFirstName,
+        @JsonProperty("personLastName")String personLastName,
+        @JsonProperty("organizationName")String organizationName,
+        @JsonProperty("organizationWorkFromYear")int organizationWorkFromYear
+    ) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -15,23 +23,23 @@ public class LdbcQuery11Result {
         this.organizationWorkFromYear = organizationWorkFromYear;
     }
 
-    public long personId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public String personFirstName() {
+    public String getPersonFirstName() {
         return personFirstName;
     }
 
-    public String personLastName() {
+    public String getPersonLastName() {
         return personLastName;
     }
 
-    public String organizationName() {
+    public String getOrganizationName() {
         return organizationName;
     }
 
-    public int organizationWorkFromYear() {
+    public int getOrganizationWorkFromYear() {
         return organizationWorkFromYear;
     }
 

@@ -1,18 +1,14 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
 {
@@ -36,17 +32,17 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public Date maxDate()
+    public Date getMaxDate()
     {
         return maxDate;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -100,74 +96,13 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
     }
 
     @Override
-    public List<LdbcQuery2Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery2Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error parsing serialized result\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery2Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            long personId = ((Number) resultAsList.get( 0 )).longValue();
-            String personFirstName = (String) resultAsList.get( 1 );
-            String personLastName = (String) resultAsList.get( 2 );
-            long messageId = ((Number) resultAsList.get( 3 )).longValue();
-            String messageContent = (String) resultAsList.get( 4 );
-            long messageCreationDate = ((Number) resultAsList.get( 5 )).longValue();
-
-            results.add( new LdbcQuery2Result(
-                    personId,
-                    personFirstName,
-                    personLastName,
-                    messageId,
-                    messageContent,
-                    messageCreationDate
-            ) );
-        }
-
-        return results;
+        List<LdbcQuery2Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery2Result[].class));
+        return marshaledOperationResult;
     }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery2Result> results = (List<LdbcQuery2Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery2Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personId() );
-            resultFields.add( result.personFirstName() );
-            resultFields.add( result.personLastName() );
-            resultFields.add( result.messageId() );
-            resultFields.add( result.messageContent() );
-            resultFields.add( result.messageCreationDate() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
-    }
-
+  
     @Override
     public int type()
     {

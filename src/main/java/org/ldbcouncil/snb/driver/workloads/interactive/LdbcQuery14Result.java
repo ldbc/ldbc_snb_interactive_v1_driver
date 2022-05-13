@@ -1,29 +1,29 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.google.common.collect.Lists;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.ldbcouncil.snb.driver.validation.ValidationEquality;
 
 import java.util.Iterator;
 
 public class LdbcQuery14Result
 {
-    private final Iterable<? extends Number> personIdsInPath;
+    private final Iterable<Long> personIdsInPath;
     private final double pathWeight;
 
-    public LdbcQuery14Result( Iterable<? extends Number> personIdsInPath, double pathWeight )
+    public LdbcQuery14Result(
+        @JsonProperty("personIdsInPath") Iterable<Long> personIdsInPath,
+        @JsonProperty("pathWeight") double pathWeight )
     {
         this.personIdsInPath = personIdsInPath;
         this.pathWeight = pathWeight;
     }
 
-    public Iterable<? extends Number> personsIdsInPath()
+    public Iterable<Long> getPersonsIdsInPath()
     {
-        // force to List, as Guava/Jackson magic changes it to a strange collection that breaks equality somewhere
-        // not performance sensitive code path, only used for validation & serialization - not during runs
-        return Lists.newArrayList( personIdsInPath );
+        return personIdsInPath;
     }
 
-    public double pathWeight()
+    public double getPathWeight()
     {
         return pathWeight;
     }
@@ -49,20 +49,20 @@ public class LdbcQuery14Result
         return personIdPathsEqual( personIdsInPath, that.personIdsInPath );
     }
 
-    private boolean personIdPathsEqual( Iterable<? extends Number> path1, Iterable<? extends Number> path2 )
+    private boolean personIdPathsEqual( Iterable<Long> path1, Iterable<Long> path2 )
     {
-        Iterator<? extends Number> path1Iterator = path1.iterator();
-        Iterator<? extends Number> path2Iterator = path2.iterator();
+        Iterator<? extends Long> path1Iterator = path1.iterator();
+        Iterator<? extends Long> path2Iterator = path2.iterator();
         while ( path1Iterator.hasNext() )
         {
             if ( !path2Iterator.hasNext() )
             { return false; }
-            Number path1IdNumber = path1Iterator.next();
-            Number path2IdNumber = path2Iterator.next();
-            if ( null == path1IdNumber || null == path2IdNumber )
+            Long path1IdLong = path1Iterator.next();
+            Long path2IdLong = path2Iterator.next();
+            if ( null == path1IdLong || null == path2IdLong )
             { return false; }
-            long path1Id = path1IdNumber.longValue();
-            long path2Id = path2IdNumber.longValue();
+            long path1Id = path1IdLong.longValue();
+            long path2Id = path2IdLong.longValue();
             if ( path1Id != path2Id )
             { return false; }
         }

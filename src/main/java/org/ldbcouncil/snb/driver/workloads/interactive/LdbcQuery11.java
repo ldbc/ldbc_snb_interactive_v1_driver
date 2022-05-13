@@ -1,17 +1,13 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
 {
@@ -37,22 +33,22 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public String countryName()
+    public String getCountryName()
     {
         return countryName;
     }
 
-    public int workFromYear()
+    public int getWorkFromYear()
     {
         return workFromYear;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -111,69 +107,11 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
     }
 
     @Override
-    public List<LdbcQuery11Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery11Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery11Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            long personId = ((Number) resultAsList.get( 0 )).longValue();
-            String personFirstName = (String) resultAsList.get( 1 );
-            String personLastName = (String) resultAsList.get( 2 );
-            String organizationName = (String) resultAsList.get( 3 );
-            int organizationWorkFromYear = ((Number) resultAsList.get( 4 )).intValue();
-
-            results.add( new LdbcQuery11Result(
-                    personId,
-                    personFirstName,
-                    personLastName,
-                    organizationName,
-                    organizationWorkFromYear
-            ) );
-        }
-
-        return results;
-    }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery11Result> results = (List<LdbcQuery11Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery11Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personId() );
-            resultFields.add( result.personFirstName() );
-            resultFields.add( result.personLastName() );
-            resultFields.add( result.organizationName() );
-            resultFields.add( result.organizationWorkFromYear() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
+        List<LdbcQuery11Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery11Result[].class));
+        return marshaledOperationResult;
     }
 
     @Override

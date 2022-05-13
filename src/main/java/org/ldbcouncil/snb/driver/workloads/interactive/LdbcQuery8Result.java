@@ -1,5 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcQuery8Result {
     private final long personId;
     private final String personFirstName;
@@ -8,7 +10,14 @@ public class LdbcQuery8Result {
     private final long commentId;
     private final String commentContent;
 
-    public LdbcQuery8Result(long personId, String personFirstName, String personLastName, long commentCreationDate, long commentId, String commentContent) {
+    public LdbcQuery8Result(
+        @JsonProperty("personId") long personId,
+        @JsonProperty("personFirstName") String personFirstName,
+        @JsonProperty("personLastName") String personLastName,
+        @JsonProperty("commentCreationDate") long commentCreationDate,
+        @JsonProperty("commentId") long commentId,
+        @JsonProperty("commentContent") String commentContent
+    ) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -17,27 +26,27 @@ public class LdbcQuery8Result {
         this.commentContent = commentContent;
     }
 
-    public long personId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public String personFirstName() {
+    public String getPersonFirstName() {
         return personFirstName;
     }
 
-    public String personLastName() {
+    public String getPersonLastName() {
         return personLastName;
     }
 
-    public long commentCreationDate() {
+    public long getCommentCreationDate() {
         return commentCreationDate;
     }
 
-    public long commentId() {
+    public long getCommentId() {
         return commentId;
     }
 
-    public String commentContent() {
+    public String getCommentContent() {
         return commentContent;
     }
 
