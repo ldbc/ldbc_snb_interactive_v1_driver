@@ -1,15 +1,11 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
 
 import java.util.Date;
 import java.util.Map;
 
-
-@JsonSerialize(using = LdbcUpdateJsonSerializer.class)
 public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
 {
     public static final int TYPE = 1008;

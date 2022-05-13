@@ -1,6 +1,5 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.util.ListUtils;
@@ -10,7 +9,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@JsonSerialize(using = LdbcUpdateJsonSerializer.class)
 public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
 {
     public static final int TYPE = 1007;
