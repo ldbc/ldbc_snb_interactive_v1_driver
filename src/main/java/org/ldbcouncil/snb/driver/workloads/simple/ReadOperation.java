@@ -50,13 +50,7 @@ public class ReadOperation extends Operation<Map<String,Iterator<Byte>>>
     }
 
     @Override
-    public Map<String,Iterator<Byte>> marshalResult( String serializedOperationResult )
-    {
-        return null;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance )
+    public Map<String,Iterator<Byte>> deserializeResult( String serializedOperationResult )
     {
         return null;
     }

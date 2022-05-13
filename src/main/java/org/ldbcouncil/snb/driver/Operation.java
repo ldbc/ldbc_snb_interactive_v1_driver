@@ -2,6 +2,7 @@ package org.ldbcouncil.snb.driver;
 
 import org.ldbcouncil.snb.driver.temporal.TemporalUtil;
 
+import java.io.IOException;
 import java.util.Map;
 
 public abstract class Operation<RESULT_TYPE>
@@ -53,10 +54,8 @@ public abstract class Operation<RESULT_TYPE>
                '}';
     }
 
+
     public abstract Map<String, Object> parameterMap();
 
-    public abstract RESULT_TYPE marshalResult( String serializedOperationResult )
-            throws SerializingMarshallingException;
-
-    public abstract String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException;
+    public abstract RESULT_TYPE deserializeResult( String serializedOperationResult) throws IOException;
 }

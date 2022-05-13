@@ -61,13 +61,7 @@ public class ScanOperation extends Operation<Vector<Map<String,Iterator<Byte>>>>
     }
 
     @Override
-    public Vector<Map<String,Iterator<Byte>>> marshalResult( String serializedOperationResult )
-    {
-        return null;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance )
+    public Vector<Map<String,Iterator<Byte>>> deserializeResult( String serializedOperationResult )
     {
         return null;
     }

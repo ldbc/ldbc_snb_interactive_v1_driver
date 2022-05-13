@@ -24,12 +24,7 @@ public class NothingOperation extends Operation<DummyResult> {
     }
 
     @Override
-    public DummyResult marshalResult(String serializedOperationResult) {
+    public DummyResult deserializeResult(String serializedOperationResult) {
         return new DummyResult();
-    }
-
-    @Override
-    public String serializeResult(Object operationResultInstance) {
-        return "";
     }
 }

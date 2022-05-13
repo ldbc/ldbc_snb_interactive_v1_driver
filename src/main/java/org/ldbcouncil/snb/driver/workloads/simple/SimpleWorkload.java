@@ -17,6 +17,7 @@ import org.ldbcouncil.snb.driver.util.Tuple3;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -312,7 +313,8 @@ public class SimpleWorkload extends Workload
         List<Object> operationAsList;
         try
         {
-            operationAsList = OBJECT_MAPPER.readValue( serializedOperation, TYPE_REFERENCE );
+            operationAsList = Arrays.asList(OBJECT_MAPPER.readValue(serializedOperation, Operation[].class));
+            // operationAsList = OBJECT_MAPPER.readValue( serializedOperation, TYPE_REFERENCE );
         }
         catch ( IOException e )
         {

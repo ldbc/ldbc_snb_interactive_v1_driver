@@ -49,13 +49,7 @@ public class UpdateOperation extends Operation<Object>
     }
 
     @Override
-    public Object marshalResult( String serializedOperationResult )
-    {
-        return null;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance )
+    public Object deserializeResult( String serializedOperationResult )
     {
         return null;
     }

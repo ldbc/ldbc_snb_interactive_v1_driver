@@ -7,12 +7,17 @@ import org.ldbcouncil.snb.driver.generator.GeneratorException;
 
 import java.util.Iterator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import static java.lang.String.format;
+
+import java.io.IOException;
 
 public class ValidationParamsFromCsvRows implements Iterator<ValidationParam>
 {
     private final Iterator<String[]> csvRows;
     private final Workload workload;
+    ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public ValidationParamsFromCsvRows( Iterator<String[]> csvRows, Workload workload )
     {
@@ -46,9 +51,9 @@ public class ValidationParamsFromCsvRows implements Iterator<ValidationParam>
         Object operationResult;
         try
         {
-            operationResult = operation.marshalResult( serializedOperationResult );
+                operationResult = operation.deserializeResult( serializedOperationResult );
         }
-        catch ( SerializingMarshallingException e )
+        catch ( IOException e )
         {
             throw new GeneratorException( format( "Error marshalling operation result\n%s", serializedOperationResult ),
                     e );
