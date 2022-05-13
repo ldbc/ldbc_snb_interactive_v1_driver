@@ -30,12 +30,12 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }

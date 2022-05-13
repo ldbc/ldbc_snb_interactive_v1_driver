@@ -26,7 +26,7 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
         this.messageId = messageId;
     }
 
-    public long messageId()
+    public long getMessageId()
     {
         return messageId;
     }

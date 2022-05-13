@@ -26,7 +26,7 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
         this.personId = personId;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }

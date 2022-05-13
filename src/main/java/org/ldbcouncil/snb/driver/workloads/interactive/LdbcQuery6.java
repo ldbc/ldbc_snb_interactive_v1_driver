@@ -34,17 +34,17 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public String tagName()
+    public String getTagName()
     {
         return tagName;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }

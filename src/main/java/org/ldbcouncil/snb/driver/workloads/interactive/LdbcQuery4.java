@@ -38,22 +38,22 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public Date startDate()
+    public Date getStartDate()
     {
         return startDate;
     }
 
-    public int durationDays()
+    public int getDurationDays()
     {
         return durationDays;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }

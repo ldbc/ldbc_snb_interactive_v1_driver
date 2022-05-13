@@ -36,17 +36,17 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public Date minDate()
+    public Date getMinDate()
     {
         return minDate;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }

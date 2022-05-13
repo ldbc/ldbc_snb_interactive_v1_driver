@@ -30,12 +30,12 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
         this.person2Id = person2Id;
     }
 
-    public long person1Id()
+    public long getPerson1Id()
     {
         return person1Id;
     }
 
-    public long person2Id()
+    public long getPerson2Id()
     {
         return person2Id;
     }

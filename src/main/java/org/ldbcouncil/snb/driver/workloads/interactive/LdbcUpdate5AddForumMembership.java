@@ -30,17 +30,17 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
         this.joinDate = joinDate;
     }
 
-    public long forumId()
+    public long getForumId()
     {
         return forumId;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public Date joinDate()
+    public Date getJoinDate()
     {
         return joinDate;
     }

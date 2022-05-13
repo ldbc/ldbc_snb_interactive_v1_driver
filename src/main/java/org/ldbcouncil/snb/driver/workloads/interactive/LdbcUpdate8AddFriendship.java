@@ -30,17 +30,17 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
         this.creationDate = creationDate;
     }
 
-    public long person1Id()
+    public long getPerson1Id()
     {
         return person1Id;
     }
 
-    public long person2Id()
+    public long getPerson2Id()
     {
         return person2Id;
     }
 
-    public Date creationDate()
+    public Date getCreationDate()
     {
         return creationDate;
     }

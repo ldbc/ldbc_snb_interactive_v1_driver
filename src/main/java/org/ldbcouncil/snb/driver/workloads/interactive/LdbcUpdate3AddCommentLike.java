@@ -30,17 +30,17 @@ public class LdbcUpdate3AddCommentLike extends Operation<LdbcNoResult>
         this.creationDate = creationDate;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public long commentId()
+    public long getCommentId()
     {
         return commentId;
     }
 
-    public Date creationDate()
+    public Date getCreationDate()
     {
         return creationDate;
     }

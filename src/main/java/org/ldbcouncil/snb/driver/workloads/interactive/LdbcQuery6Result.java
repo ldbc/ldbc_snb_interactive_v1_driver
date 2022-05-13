@@ -1,19 +1,24 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcQuery6Result {
     private final String tagName;
     private final int postCount;
 
-    public LdbcQuery6Result(String tagName, int postCount) {
+    public LdbcQuery6Result(
+        @JsonProperty("tagName") String tagName,
+        @JsonProperty("postCount") int postCount
+    ) {
         this.tagName = tagName;
         this.postCount = postCount;
     }
 
-    public String tagName() {
+    public String getTagName() {
         return tagName;
     }
 
-    public int postCount() {
+    public int getPostCount() {
         return postCount;
     }
 

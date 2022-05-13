@@ -34,17 +34,17 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public int month()
+    public int getMonth()
     {
         return month;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }

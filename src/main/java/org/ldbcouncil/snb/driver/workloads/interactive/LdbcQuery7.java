@@ -32,12 +32,12 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }

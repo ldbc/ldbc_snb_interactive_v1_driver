@@ -34,17 +34,17 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public String tagClassName()
+    public String getTagClassName()
     {
         return tagClassName;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }

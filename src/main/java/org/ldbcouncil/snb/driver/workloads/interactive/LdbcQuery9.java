@@ -35,17 +35,17 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public Date maxDate()
+    public Date getMaxDate()
     {
         return maxDate;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }

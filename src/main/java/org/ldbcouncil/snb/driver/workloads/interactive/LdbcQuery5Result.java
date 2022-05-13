@@ -1,19 +1,24 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcQuery5Result {
     private final String forumTitle;
     private final int postCount;
 
-    public LdbcQuery5Result(String forumTitle, int postCount) {
+    public LdbcQuery5Result(
+        @JsonProperty("forumTitle")String forumTitle,
+        @JsonProperty("postCount")int postCount
+    ) {
         this.forumTitle = forumTitle;
         this.postCount = postCount;
     }
 
-    public String forumTitle() {
+    public String getForumTitle() {
         return forumTitle;
     }
 
-    public int postCount() {
+    public int getPostCount() {
         return postCount;
     }
 

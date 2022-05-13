@@ -33,19 +33,19 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
         this.personId = personId;
         this.firstName = firstName;
         this.limit = limit;
-    }
+}
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public String firstName()
+    public String getFirstName()
     {
         return firstName;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -53,9 +53,9 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
-                .put(FIRST_NAME, firstName)
-                .put(LIMIT, limit)
+                .put(PERSON_ID, "getPersonId")
+                .put(FIRST_NAME, "getFirstName")
+                .put(LIMIT, "getLimit")
                 .build();
     }
 

@@ -79,72 +79,72 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
         this.workAt = workAt;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public String personFirstName()
+    public String getPersonFirstName()
     {
         return personFirstName;
     }
 
-    public String personLastName()
+    public String getPersonLastName()
     {
         return personLastName;
     }
 
-    public String gender()
+    public String getGender()
     {
         return gender;
     }
 
-    public Date birthday()
+    public Date getBirthday()
     {
         return birthday;
     }
 
-    public Date creationDate()
+    public Date getCreationDate()
     {
         return creationDate;
     }
 
-    public String locationIp()
+    public String getLocationIp()
     {
         return locationIp;
     }
 
-    public String browserUsed()
+    public String getBrowserUsed()
     {
         return browserUsed;
     }
 
-    public long cityId()
+    public long getCityId()
     {
         return cityId;
     }
 
-    public List<String> languages()
+    public List<String> getLanguages()
     {
         return languages;
     }
 
-    public List<String> emails()
+    public List<String> getEmails()
     {
         return emails;
     }
 
-    public List<Long> tagIds()
+    public List<Long> getTagIds()
     {
         return tagIds;
     }
 
-    public List<Organization> studyAt()
+    public List<Organization> getStudyAt()
     {
         return studyAt;
     }
 
-    public List<Organization> workAt()
+    public List<Organization> getWorkAt()
     {
         return workAt;
     }
@@ -290,12 +290,12 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
             this.year = year;
         }
 
-        public long organizationId()
+        public long getOrganizationId()
         {
             return organizationId;
         }
 
-        public int year()
+        public int getYear()
         {
             return year;
         }

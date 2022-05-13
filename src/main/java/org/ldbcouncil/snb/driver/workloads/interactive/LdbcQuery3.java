@@ -45,32 +45,32 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public String countryXName()
+    public String getCountryXName()
     {
         return countryXName;
     }
 
-    public String countryYName()
+    public String getCountryYName()
     {
         return countryYName;
     }
 
-    public Date startDate()
+    public Date getStartDate()
     {
         return startDate;
     }
 
-    public int durationDays()
+    public int getDurationDays()
     {
         return durationDays;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }

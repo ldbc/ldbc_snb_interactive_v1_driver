@@ -30,17 +30,17 @@ public class LdbcUpdate2AddPostLike extends Operation<LdbcNoResult>
         this.creationDate = creationDate;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public long postId()
+    public long getPostId()
     {
         return postId;
     }
 
-    public Date creationDate()
+    public Date getCreationDate()
     {
         return creationDate;
     }

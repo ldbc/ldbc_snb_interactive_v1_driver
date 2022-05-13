@@ -40,27 +40,27 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
         this.tagIds = tagIds;
     }
 
-    public long forumId()
+    public long getForumId()
     {
         return forumId;
     }
 
-    public String forumTitle()
+    public String getForumTitle()
     {
         return forumTitle;
     }
 
-    public Date creationDate()
+    public Date getCreationDate()
     {
         return creationDate;
     }
 
-    public long moderatorPersonId()
+    public long getModeratorPersonId()
     {
         return moderatorPersonId;
     }
 
-    public List<Long> tagIds()
+    public List<Long> getTagIds()
     {
         return tagIds;
     }

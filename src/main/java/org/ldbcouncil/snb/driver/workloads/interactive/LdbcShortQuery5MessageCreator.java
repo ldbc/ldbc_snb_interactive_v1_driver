@@ -26,7 +26,7 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
         this.messageId = messageId;
     }
 
-    public long messageId()
+    public long getMessageId()
     {
         return messageId;
     }

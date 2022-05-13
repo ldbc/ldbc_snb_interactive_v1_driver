@@ -67,57 +67,57 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
         this.tagIds = tagIds;
     }
 
-    public long commentId()
+    public long getCommentId()
     {
         return commentId;
     }
 
-    public Date creationDate()
+    public Date getCreationDate()
     {
         return creationDate;
     }
 
-    public String locationIp()
+    public String getLocationIp()
     {
         return locationIp;
     }
 
-    public String browserUsed()
+    public String getBrowserUsed()
     {
         return browserUsed;
     }
 
-    public String content()
+    public String getContent()
     {
         return content;
     }
 
-    public int length()
+    public int getLength()
     {
         return length;
     }
 
-    public long authorPersonId()
+    public long getAuthorPersonId()
     {
         return authorPersonId;
     }
 
-    public long countryId()
+    public long getCountryId()
     {
         return countryId;
     }
 
-    public long replyToPostId()
+    public long getReplyToPostId()
     {
         return replyToPostId;
     }
 
-    public long replyToCommentId()
+    public long getReplyToCommentId()
     {
         return replyToCommentId;
     }
 
-    public List<Long> tagIds()
+    public List<Long> getTagIds()
     {
         return tagIds;
     }

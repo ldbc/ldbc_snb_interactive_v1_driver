@@ -32,12 +32,12 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }

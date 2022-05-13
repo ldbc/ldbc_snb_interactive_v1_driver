@@ -37,22 +37,22 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public String countryName()
+    public String getCountryName()
     {
         return countryName;
     }
 
-    public int workFromYear()
+    public int getWorkFromYear()
     {
         return workFromYear;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }

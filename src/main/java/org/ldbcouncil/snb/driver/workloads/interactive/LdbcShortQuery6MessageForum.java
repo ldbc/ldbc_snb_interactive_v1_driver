@@ -26,7 +26,7 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
         this.messageId = messageId;
     }
 
-    public long messageId()
+    public long getMessageId()
     {
         return messageId;
     }

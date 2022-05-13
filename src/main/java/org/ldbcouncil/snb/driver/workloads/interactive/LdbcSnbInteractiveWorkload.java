@@ -1689,9 +1689,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery1 ldbcQuery = (LdbcQuery1) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.firstName() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getFirstName() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1707,9 +1707,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery2 ldbcQuery = (LdbcQuery2) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.maxDate().getTime() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getMaxDate().getTime() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1725,12 +1725,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery3 ldbcQuery = (LdbcQuery3) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.countryXName() );
-            operationAsList.add( ldbcQuery.countryYName() );
-            operationAsList.add( ldbcQuery.startDate().getTime() );
-            operationAsList.add( ldbcQuery.durationDays() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getCountryXName() );
+            operationAsList.add( ldbcQuery.getCountryYName() );
+            operationAsList.add( ldbcQuery.getStartDate().getTime() );
+            operationAsList.add( ldbcQuery.getDurationDays() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1746,10 +1746,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery4 ldbcQuery = (LdbcQuery4) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.startDate().getTime() );
-            operationAsList.add( ldbcQuery.durationDays() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getStartDate().getTime() );
+            operationAsList.add( ldbcQuery.getDurationDays() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1765,9 +1765,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery5 ldbcQuery = (LdbcQuery5) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.minDate().getTime() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getMinDate().getTime() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1783,9 +1783,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery6 ldbcQuery = (LdbcQuery6) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.tagName() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getTagName() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1801,8 +1801,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery7 ldbcQuery = (LdbcQuery7) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1818,8 +1818,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery8 ldbcQuery = (LdbcQuery8) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1835,9 +1835,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery9 ldbcQuery = (LdbcQuery9) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.maxDate().getTime() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getMaxDate().getTime() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1853,9 +1853,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery10 ldbcQuery = (LdbcQuery10) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.month() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getMonth() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1871,10 +1871,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery11 ldbcQuery = (LdbcQuery11) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.countryName() );
-            operationAsList.add( ldbcQuery.workFromYear() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getCountryName() );
+            operationAsList.add( ldbcQuery.getWorkFromYear() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1890,9 +1890,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery12 ldbcQuery = (LdbcQuery12) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.tagClassName() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getTagClassName() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1908,8 +1908,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery13 ldbcQuery = (LdbcQuery13) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.person1Id() );
-            operationAsList.add( ldbcQuery.person2Id() );
+            operationAsList.add( ldbcQuery.getPerson1Id() );
+            operationAsList.add( ldbcQuery.getPerson2Id() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1925,8 +1925,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcQuery14 ldbcQuery = (LdbcQuery14) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.person1Id() );
-            operationAsList.add( ldbcQuery.person2Id() );
+            operationAsList.add( ldbcQuery.getPerson1Id() );
+            operationAsList.add( ldbcQuery.getPerson2Id() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1942,7 +1942,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcShortQuery1PersonProfile ldbcQuery = (LdbcShortQuery1PersonProfile) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
+            operationAsList.add( ldbcQuery.getPersonId() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1958,8 +1958,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcShortQuery2PersonPosts ldbcQuery = (LdbcShortQuery2PersonPosts) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.limit() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getLimit() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1975,7 +1975,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcShortQuery3PersonFriends ldbcQuery = (LdbcShortQuery3PersonFriends) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
+            operationAsList.add( ldbcQuery.getPersonId() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -1991,7 +1991,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcShortQuery4MessageContent ldbcQuery = (LdbcShortQuery4MessageContent) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.messageId() );
+            operationAsList.add( ldbcQuery.getMessageId() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2007,7 +2007,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcShortQuery5MessageCreator ldbcQuery = (LdbcShortQuery5MessageCreator) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.messageId() );
+            operationAsList.add( ldbcQuery.getMessageId() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2023,7 +2023,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcShortQuery6MessageForum ldbcQuery = (LdbcShortQuery6MessageForum) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.messageId() );
+            operationAsList.add( ldbcQuery.getMessageId() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2039,7 +2039,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcShortQuery7MessageReplies ldbcQuery = (LdbcShortQuery7MessageReplies) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.messageId() );
+            operationAsList.add( ldbcQuery.getMessageId() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2055,40 +2055,40 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcUpdate1AddPerson ldbcQuery = (LdbcUpdate1AddPerson) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.personFirstName() );
-            operationAsList.add( ldbcQuery.personLastName() );
-            operationAsList.add( ldbcQuery.gender() );
-            operationAsList.add( ldbcQuery.birthday().getTime() );
-            operationAsList.add( ldbcQuery.creationDate().getTime() );
-            operationAsList.add( ldbcQuery.locationIp() );
-            operationAsList.add( ldbcQuery.browserUsed() );
-            operationAsList.add( ldbcQuery.cityId() );
-            operationAsList.add( ldbcQuery.languages() );
-            operationAsList.add( ldbcQuery.emails() );
-            operationAsList.add( ldbcQuery.tagIds() );
-            Iterable<Map<String,Object>> studyAt = Lists.newArrayList( Iterables.transform( ldbcQuery.studyAt(),
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getPersonFirstName() );
+            operationAsList.add( ldbcQuery.getPersonLastName() );
+            operationAsList.add( ldbcQuery.getGender() );
+            operationAsList.add( ldbcQuery.getBirthday().getTime() );
+            operationAsList.add( ldbcQuery.getCreationDate().getTime() );
+            operationAsList.add( ldbcQuery.getLocationIp() );
+            operationAsList.add( ldbcQuery.getBrowserUsed() );
+            operationAsList.add( ldbcQuery.getCityId() );
+            operationAsList.add( ldbcQuery.getLanguages() );
+            operationAsList.add( ldbcQuery.getEmails() );
+            operationAsList.add( ldbcQuery.getTagIds() );
+            Iterable<Map<String,Object>> studyAt = Lists.newArrayList( Iterables.transform( ldbcQuery.getStudyAt(),
                     new Function<LdbcUpdate1AddPerson.Organization,Map<String,Object>>()
                     {
                         @Override
                         public Map<String,Object> apply( LdbcUpdate1AddPerson.Organization organization )
                         {
                             Map<String,Object> organizationMap = new HashMap<>();
-                            organizationMap.put( "id", organization.organizationId() );
-                            organizationMap.put( "year", organization.year() );
+                            organizationMap.put( "id", organization.getOrganizationId() );
+                            organizationMap.put( "year", organization.getYear() );
                             return organizationMap;
                         }
                     } ) );
             operationAsList.add( studyAt );
             Iterable<Map<String,Object>> workAt = Lists.newArrayList( Iterables
-                    .transform( ldbcQuery.workAt(), new Function<LdbcUpdate1AddPerson.Organization,Map<String,Object>>()
+                    .transform( ldbcQuery.getWorkAt(), new Function<LdbcUpdate1AddPerson.Organization,Map<String,Object>>()
                     {
                         @Override
                         public Map<String,Object> apply( LdbcUpdate1AddPerson.Organization organization )
                         {
                             Map<String,Object> organizationMap = new HashMap<>();
-                            organizationMap.put( "id", organization.organizationId() );
-                            organizationMap.put( "year", organization.year() );
+                            organizationMap.put( "id", organization.getOrganizationId() );
+                            organizationMap.put( "year", organization.getYear() );
                             return organizationMap;
                         }
                     } ) );
@@ -2108,9 +2108,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcUpdate2AddPostLike ldbcQuery = (LdbcUpdate2AddPostLike) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.postId() );
-            operationAsList.add( ldbcQuery.creationDate().getTime() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getPostId() );
+            operationAsList.add( ldbcQuery.getCreationDate().getTime() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2126,9 +2126,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcUpdate3AddCommentLike ldbcQuery = (LdbcUpdate3AddCommentLike) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.commentId() );
-            operationAsList.add( ldbcQuery.creationDate().getTime() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getCommentId() );
+            operationAsList.add( ldbcQuery.getCreationDate().getTime() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2144,11 +2144,11 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcUpdate4AddForum ldbcQuery = (LdbcUpdate4AddForum) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.forumId() );
-            operationAsList.add( ldbcQuery.forumTitle() );
-            operationAsList.add( ldbcQuery.creationDate().getTime() );
-            operationAsList.add( ldbcQuery.moderatorPersonId() );
-            operationAsList.add( ldbcQuery.tagIds() );
+            operationAsList.add( ldbcQuery.getForumId() );
+            operationAsList.add( ldbcQuery.getForumTitle() );
+            operationAsList.add( ldbcQuery.getCreationDate().getTime() );
+            operationAsList.add( ldbcQuery.getModeratorPersonId() );
+            operationAsList.add( ldbcQuery.getTagIds() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2164,9 +2164,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcUpdate5AddForumMembership ldbcQuery = (LdbcUpdate5AddForumMembership) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.forumId() );
-            operationAsList.add( ldbcQuery.personId() );
-            operationAsList.add( ldbcQuery.joinDate().getTime() );
+            operationAsList.add( ldbcQuery.getForumId() );
+            operationAsList.add( ldbcQuery.getPersonId() );
+            operationAsList.add( ldbcQuery.getJoinDate().getTime() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2182,18 +2182,18 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcUpdate6AddPost ldbcQuery = (LdbcUpdate6AddPost) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.postId() );
-            operationAsList.add( ldbcQuery.imageFile() );
-            operationAsList.add( ldbcQuery.creationDate().getTime() );
-            operationAsList.add( ldbcQuery.locationIp() );
-            operationAsList.add( ldbcQuery.browserUsed() );
-            operationAsList.add( ldbcQuery.language() );
-            operationAsList.add( ldbcQuery.content() );
-            operationAsList.add( ldbcQuery.length() );
-            operationAsList.add( ldbcQuery.authorPersonId() );
-            operationAsList.add( ldbcQuery.forumId() );
-            operationAsList.add( ldbcQuery.countryId() );
-            operationAsList.add( ldbcQuery.tagIds() );
+            operationAsList.add( ldbcQuery.getPostId() );
+            operationAsList.add( ldbcQuery.getImageFile() );
+            operationAsList.add( ldbcQuery.getCreationDate().getTime() );
+            operationAsList.add( ldbcQuery.getLocationIp() );
+            operationAsList.add( ldbcQuery.getBrowserUsed() );
+            operationAsList.add( ldbcQuery.getLanguage() );
+            operationAsList.add( ldbcQuery.getContent() );
+            operationAsList.add( ldbcQuery.getLength() );
+            operationAsList.add( ldbcQuery.getAuthorPersonId() );
+            operationAsList.add( ldbcQuery.getForumId() );
+            operationAsList.add( ldbcQuery.getCountryId() );
+            operationAsList.add( ldbcQuery.getTagIds() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2209,17 +2209,17 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcUpdate7AddComment ldbcQuery = (LdbcUpdate7AddComment) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.commentId() );
-            operationAsList.add( ldbcQuery.creationDate() );
-            operationAsList.add( ldbcQuery.locationIp() );
-            operationAsList.add( ldbcQuery.browserUsed() );
-            operationAsList.add( ldbcQuery.content() );
-            operationAsList.add( ldbcQuery.length() );
-            operationAsList.add( ldbcQuery.authorPersonId() );
-            operationAsList.add( ldbcQuery.countryId() );
-            operationAsList.add( ldbcQuery.replyToPostId() );
-            operationAsList.add( ldbcQuery.replyToCommentId() );
-            operationAsList.add( ldbcQuery.tagIds() );
+            operationAsList.add( ldbcQuery.getCommentId() );
+            operationAsList.add( ldbcQuery.getCreationDate() );
+            operationAsList.add( ldbcQuery.getLocationIp() );
+            operationAsList.add( ldbcQuery.getBrowserUsed() );
+            operationAsList.add( ldbcQuery.getContent() );
+            operationAsList.add( ldbcQuery.getLength() );
+            operationAsList.add( ldbcQuery.getAuthorPersonId() );
+            operationAsList.add( ldbcQuery.getCountryId() );
+            operationAsList.add( ldbcQuery.getReplyToPostId() );
+            operationAsList.add( ldbcQuery.getReplyToCommentId() );
+            operationAsList.add( ldbcQuery.getTagIds() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2235,9 +2235,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             LdbcUpdate8AddFriendship ldbcQuery = (LdbcUpdate8AddFriendship) operation;
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add( ldbcQuery.getClass().getName() );
-            operationAsList.add( ldbcQuery.person1Id() );
-            operationAsList.add( ldbcQuery.person2Id() );
-            operationAsList.add( ldbcQuery.creationDate().getTime() );
+            operationAsList.add( ldbcQuery.getPerson1Id() );
+            operationAsList.add( ldbcQuery.getPerson2Id() );
+            operationAsList.add( ldbcQuery.getCreationDate().getTime() );
             try
             {
                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
@@ -2637,26 +2637,26 @@ public class LdbcSnbInteractiveWorkload extends Workload
             Map<Double,List<LdbcQuery14Result>> results1ByWeight = new HashMap<>();
             for ( LdbcQuery14Result typedResult : typedResults1 )
             {
-                List<LdbcQuery14Result> resultByWeight = results1ByWeight.get( typedResult.pathWeight() );
+                List<LdbcQuery14Result> resultByWeight = results1ByWeight.get( typedResult.getPathWeight() );
                 if ( null == resultByWeight )
                 {
                     resultByWeight = new ArrayList<>();
                 }
                 resultByWeight.add( typedResult );
-                results1ByWeight.put( typedResult.pathWeight(), resultByWeight );
+                results1ByWeight.put( typedResult.getPathWeight(), resultByWeight );
             }
 
             List<LdbcQuery14Result> typedResults2 = (List<LdbcQuery14Result>) result2;
             Map<Double,List<LdbcQuery14Result>> results2ByWeight = new HashMap<>();
             for ( LdbcQuery14Result typedResult : typedResults2 )
             {
-                List<LdbcQuery14Result> resultByWeight = results2ByWeight.get( typedResult.pathWeight() );
+                List<LdbcQuery14Result> resultByWeight = results2ByWeight.get( typedResult.getPathWeight() );
                 if ( null == resultByWeight )
                 {
                     resultByWeight = new ArrayList<>();
                 }
                 resultByWeight.add( typedResult );
-                results2ByWeight.put( typedResult.pathWeight(), resultByWeight );
+                results2ByWeight.put( typedResult.getPathWeight(), resultByWeight );
             }
 
             /*

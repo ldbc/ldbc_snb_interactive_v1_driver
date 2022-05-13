@@ -26,7 +26,7 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
         this.personId = personId;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
