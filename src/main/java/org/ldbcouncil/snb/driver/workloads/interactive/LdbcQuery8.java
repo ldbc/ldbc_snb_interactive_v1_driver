@@ -1,17 +1,13 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
 {
@@ -87,74 +83,13 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
     }
 
     @Override
-    public List<LdbcQuery8Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery8Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery8Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            long personId = ((Number) resultAsList.get( 0 )).longValue();
-            String personFirstName = (String) resultAsList.get( 1 );
-            String personLastName = (String) resultAsList.get( 2 );
-            long commentCreationDate = ((Number) resultAsList.get( 3 )).longValue();
-            long commentId = ((Number) resultAsList.get( 4 )).longValue();
-            String commentContent = (String) resultAsList.get( 5 );
-
-            results.add( new LdbcQuery8Result(
-                    personId,
-                    personFirstName,
-                    personLastName,
-                    commentCreationDate,
-                    commentId,
-                    commentContent
-            ) );
-        }
-
-        return results;
+        List<LdbcQuery8Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery8Result[].class));
+        return marshaledOperationResult;
     }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery8Result> results = (List<LdbcQuery8Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery8Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personId() );
-            resultFields.add( result.personFirstName() );
-            resultFields.add( result.personLastName() );
-            resultFields.add( result.commentCreationDate() );
-            resultFields.add( result.commentId() );
-            resultFields.add( result.commentContent() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
-    }
-
+  
     @Override
     public int type()
     {

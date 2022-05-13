@@ -1,22 +1,18 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 import org.ldbcouncil.snb.driver.util.ListUtils;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
-
+@JsonSerialize(using = LdbcUpdateJsonSerializer.class)
 public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
 {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1004;
     public static final String FORUM_ID = "forumId";
     public static final String FORUM_TITLE = "forumTitle";
@@ -130,24 +126,9 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
     }
 
     @Override
-    public LdbcNoResult marshalResult( String serializedOperationResult )
+    public LdbcNoResult deserializeResult( String serializedResults )
     {
         return LdbcNoResult.INSTANCE;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-    {
-        try
-        {
-            return objectMapper.writeValueAsString(
-                    LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    operationResultInstance ), e );
-        }
     }
 
     @Override

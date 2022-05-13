@@ -1,22 +1,18 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3PersonFriendsResult>>
 {
     public static final int TYPE = 103;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     public static final String PERSON_ID = "personId";
 
     private final long personId;
@@ -39,71 +35,11 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
     }
 
     @Override
-    public List<LdbcShortQuery3PersonFriendsResult> marshalResult( String serializedResult )
-            throws SerializingMarshallingException
+    public List<LdbcShortQuery3PersonFriendsResult> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = objectMapper.readValue( serializedResult, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while parsing serialized results\n%s",
-                    serializedResult ), e );
-        }
-
-        List<LdbcShortQuery3PersonFriendsResult> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-
-            long friendId = ((Number) resultAsList.get( 0 )).longValue();
-            String firstName = (String) resultAsList.get( 1 );
-            String lastName = (String) resultAsList.get( 2 );
-            long friendshipCreationDate = ((Number) resultAsList.get( 3 )).longValue();
-
-            results.add(
-                    new LdbcShortQuery3PersonFriendsResult(
-                            friendId,
-                            firstName,
-                            lastName,
-                            friendshipCreationDate
-                    )
-            );
-        }
-        return results;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-    {
-        List<LdbcShortQuery3PersonFriendsResult> results =
-                (List<LdbcShortQuery3PersonFriendsResult>) operationResultInstance;
-
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcShortQuery3PersonFriendsResult result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personId() );
-            resultFields.add( result.firstName() );
-            resultFields.add( result.lastName() );
-            resultFields.add( result.friendshipCreationDate() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return objectMapper.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    results.toString() ), e );
-        }
+        List<LdbcShortQuery3PersonFriendsResult> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcShortQuery3PersonFriendsResult[].class));
+        return marshaledOperationResult;
     }
 
     @Override
