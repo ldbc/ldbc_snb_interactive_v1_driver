@@ -1,10 +1,14 @@
 package org.ldbcouncil.snb.driver.control;
+/**
+ * Interface defining parameters required to run the driver
+ */
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public interface DriverConfiguration
 {
+    // General
     String name();
 
     String dbClassName();
@@ -23,7 +27,11 @@ public interface DriverConfiguration
 
     double timeCompressionRatio();
 
-    ValidationParamOptions validationParamsCreationOptions();
+    boolean validationCreationParams();
+
+    int validationParametersSize();
+
+    boolean validationSerializationCheck();
 
     String databaseValidationFilePath();
 
@@ -52,11 +60,4 @@ public interface DriverConfiguration
     DriverConfiguration applyArg( String argument, String newValue ) throws DriverConfigurationException;
 
     DriverConfiguration applyArgs( Map<String,String> newMap ) throws DriverConfigurationException;
-
-    interface ValidationParamOptions
-    {
-        String filePath();
-
-        int validationSetSize();
-    }
 }

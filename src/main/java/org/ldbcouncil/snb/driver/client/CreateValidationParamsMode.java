@@ -1,11 +1,15 @@
 package org.ldbcouncil.snb.driver.client;
+/**
+ * CreateValidationParamsMode.java
+ * 
+ * Create class to generate validation queries with their results and write them to disk.
+ * 
+ */
 
 import org.ldbcouncil.snb.driver.ClientException;
 import org.ldbcouncil.snb.driver.Db;
-import org.ldbcouncil.snb.driver.DbException;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.Workload;
-import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.WorkloadStreams;
 import org.ldbcouncil.snb.driver.control.ControlService;
 import org.ldbcouncil.snb.driver.control.LoggingService;
@@ -19,7 +23,6 @@ import org.ldbcouncil.snb.driver.validation.ValidationParamsGenerator;
 import org.ldbcouncil.snb.driver.validation.ValidationParamsToCsvRows;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 
@@ -35,6 +38,12 @@ public class CreateValidationParamsMode implements ClientMode<Object>
     private Db database = null;
     private Iterator<Operation> timeMappedOperations = null;
 
+    /**
+     * Create class to generate validation queries.
+     * @param controlService Object with functions to time, log and stored init configuration
+     * @param randomSeed The random seed used for the data generator
+     * @throws ClientException
+     */
     public CreateValidationParamsMode( ControlService controlService, long randomSeed ) throws ClientException
     {
         this.controlService = controlService;
@@ -42,6 +51,10 @@ public class CreateValidationParamsMode implements ClientMode<Object>
         this.randomSeed = randomSeed;
     }
 
+    /**
+     * Initializes the validation parameter class. This loads the configuration given through
+     * validation.properties and the database to use to generate the validation parameters.
+     */
     @Override
     public void init() throws ClientException
     {
@@ -103,19 +116,23 @@ public class CreateValidationParamsMode implements ClientMode<Object>
         loggingService.info( controlService.toString() );
     }
 
+    /**
+     * Create validation parameters. 
+     */
     @Override
     public Object startExecutionAndAwaitCompletion() throws ClientException
     {
         try ( Workload w = workload; Db db = database )
         {
             File validationFileToGenerate =
-                    new File( controlService.configuration().validationParamsCreationOptions().filePath() );
+                    new File( controlService.configuration().databaseValidationFilePath() );
+                
             int validationSetSize = controlService
                     .configuration()
-                    .validationParamsCreationOptions()
-                    .validationSetSize();
-            // TODO get from config parameter
-            boolean performSerializationMarshallingChecks = true;
+                    .validationParametersSize();
+
+            boolean performSerializationMarshallingChecks =
+                controlService.configuration().validationSerializationCheck();
 
             loggingService.info(
                     format( "Generating database validation file: %s", validationFileToGenerate.getAbsolutePath() ) );

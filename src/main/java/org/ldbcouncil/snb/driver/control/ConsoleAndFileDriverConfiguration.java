@@ -119,9 +119,25 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
     public static final String CREATE_VALIDATION_PARAMS_ARG = "cvp";
     private static final String CREATE_VALIDATION_PARAMS_ARG_LONG = "create_validation_parameters";
-    public static final ConsoleAndFileValidationParamOptions CREATE_VALIDATION_PARAMS_DEFAULT = null;
+    public static final boolean CREATE_VALIDATION_PARAMS_DEFAULT = false;
+    public static final String CREATE_VALIDATION_PARAMS_DEFAULT_STRING = Boolean.toString( CREATE_VALIDATION_PARAMS_DEFAULT );
     private static final String CREATE_VALIDATION_PARAMS_DESCRIPTION =
-            "path to where validation parameters file should be created, and size of validation set to create";
+            "Create validation parameters";
+
+    public static final String VALIDATION_PARAMS_SIZE_ARG = "vps";
+    private static final String VALIDATION_PARAMS_SIZE_ARG_LONG = "validation_parameters_size";
+    public static final int VALIDATION_PARAMS_SIZE_DEFAULT = 0;
+    public static final String VALIDATION_PARAMS_SIZE_DEFAULT_STRING = Integer.toString( VALIDATION_PARAMS_SIZE_DEFAULT );
+    private static final String VALIDATION_PARAMS_SIZE_DESCRIPTION =
+            "The size of validation set to create.";
+
+    public static final String VALIDATION_SERIALIZATION_CHECK_ARG = "vsc";
+    private static final String VALIDATION_SERIALIZATION_CHECK_ARG_LONG = "validation_parameters_serialization_check";
+    public static final Boolean VALIDATION_SERIALIZATION_CHECK_DEFAULT = true;
+    public static final String VALIDATION_SERIALIZATION_CHECK_DEFAULT_STRING =
+    Boolean.toString( VALIDATION_SERIALIZATION_CHECK_DEFAULT );
+    private static final String VALIDATION_SERIALIZATION_CHECK_DESCRIPTION =
+            "Check serialized queries and results by deserializing them and compare.";
 
     public static final String CALCULATE_WORKLOAD_STATISTICS_ARG = "stats";
     private static final String CALCULATE_WORKLOAD_STATISTICS_ARG_LONG = "workload_statistics";
@@ -183,7 +199,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private static final Options OPTIONS = buildOptions();
 
     private static final char COMMANDLINE_SEPARATOR_CHAR = '|';
-    private static final String COMMANDLINE_SEPARATOR_REGEX_STRING = "\\|";
+    // private static final String COMMANDLINE_SEPARATOR_REGEX_STRING = "\\|";
 
     public static Map<String,String> defaultsAsMap() throws DriverConfigurationException
     {
@@ -202,11 +218,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         {
             defaultParamsMap.put( DB_VALIDATION_FILE_PATH_ARG, DB_VALIDATION_FILE_PATH_DEFAULT_STRING );
         }
-        if ( null != CREATE_VALIDATION_PARAMS_DEFAULT )
-        {
-            defaultParamsMap
-                    .put( CREATE_VALIDATION_PARAMS_ARG, CREATE_VALIDATION_PARAMS_DEFAULT.toCommandlineString() );
-        }
+        defaultParamsMap.put( CREATE_VALIDATION_PARAMS_ARG_LONG, CREATE_VALIDATION_PARAMS_DEFAULT_STRING );
+        defaultParamsMap.put( VALIDATION_SERIALIZATION_CHECK_ARG, VALIDATION_SERIALIZATION_CHECK_DEFAULT_STRING );
+        defaultParamsMap.put( VALIDATION_PARAMS_SIZE_ARG, VALIDATION_PARAMS_SIZE_DEFAULT_STRING );
         defaultParamsMap.put( CALCULATE_WORKLOAD_STATISTICS_ARG, CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING );
         defaultParamsMap.put( TIME_UNIT_ARG, TIME_UNIT_DEFAULT_STRING );
         defaultParamsMap.put( TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT_STRING );
@@ -272,11 +286,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             TimeUnit timeUnit = TimeUnit.valueOf( paramsMap.get( TIME_UNIT_ARG ) );
             String resultDirPath = paramsMap.get( RESULT_DIR_PATH_ARG );
             double timeCompressionRatio = Double.parseDouble( paramsMap.get( TIME_COMPRESSION_RATIO_ARG ) );
-            ConsoleAndFileValidationParamOptions databaseConsoleAndFileValidationParams =
-                    (null == paramsMap.get( CREATE_VALIDATION_PARAMS_ARG )) ?
-                    null :
-                    ConsoleAndFileValidationParamOptions
-                            .fromCommandlineString( paramsMap.get( CREATE_VALIDATION_PARAMS_ARG ) );
+            int validationParametersSize = Integer.parseInt( paramsMap.get( VALIDATION_PARAMS_SIZE_ARG ) );
+            boolean validationSerializationCheck =
+                Boolean.parseBoolean( paramsMap.get( VALIDATION_SERIALIZATION_CHECK_ARG ) );
             String databaseValidationFilePath = paramsMap.get( DB_VALIDATION_FILE_PATH_ARG );
             boolean calculateWorkloadStatistics =
                     Boolean.parseBoolean( paramsMap.get( CALCULATE_WORKLOAD_STATISTICS_ARG ) );
@@ -284,6 +296,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             long skipCount = Long.parseLong( paramsMap.get( SKIP_COUNT_ARG ) );
             long warmupCount = Long.parseLong( paramsMap.get( WARMUP_COUNT_ARG ) );
             boolean printHelp = Boolean.parseBoolean( paramsMap.get( HELP_ARG ) );
+            boolean createValidationParameters = Boolean.parseBoolean( paramsMap.get( CREATE_VALIDATION_PARAMS_ARG ) );
             boolean ignoreScheduledStartTimes =
                     Boolean.parseBoolean( paramsMap.get( IGNORE_SCHEDULED_START_TIMES_ARG ) );
             boolean flushLog = Boolean.parseBoolean( paramsMap.get( FLUSH_LOG_ARG ) );
@@ -298,7 +311,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    databaseConsoleAndFileValidationParams,
+                    createValidationParameters,
+                    validationParametersSize,
+                    validationSerializationCheck,
                     databaseValidationFilePath,
                     calculateWorkloadStatistics,
                     spinnerSleepDurationAsMilli,
@@ -400,6 +415,16 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             cmdParams.put( CREATE_VALIDATION_PARAMS_ARG, cmd.getOptionValue( CREATE_VALIDATION_PARAMS_ARG ) );
         }
 
+        if ( cmd.hasOption( VALIDATION_PARAMS_SIZE_ARG ) )
+        {
+            cmdParams.put( VALIDATION_PARAMS_SIZE_ARG, cmd.getOptionValue( VALIDATION_PARAMS_SIZE_ARG ) );
+        }
+
+        if ( cmd.hasOption( VALIDATION_SERIALIZATION_CHECK_ARG ) )
+        {
+            cmdParams.put( VALIDATION_SERIALIZATION_CHECK_ARG, cmd.getOptionValue( VALIDATION_SERIALIZATION_CHECK_ARG ) );
+        }
+
         if ( cmd.hasOption( DB_VALIDATION_FILE_PATH_ARG ) )
         {
             cmdParams.put( DB_VALIDATION_FILE_PATH_ARG, cmd.getOptionValue( DB_VALIDATION_FILE_PATH_ARG ) );
@@ -413,11 +438,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         if ( cmd.hasOption( SPINNER_SLEEP_DURATION_ARG ) )
         {
             cmdParams.put( SPINNER_SLEEP_DURATION_ARG, cmd.getOptionValue( SPINNER_SLEEP_DURATION_ARG ) );
-        }
-
-        if ( cmd.hasOption( CREATE_VALIDATION_PARAMS_ARG ) )
-        {
-            cmdParams.put( CREATE_VALIDATION_PARAMS_ARG, cmd.getOptionValue( CREATE_VALIDATION_PARAMS_ARG ) );
         }
 
         if ( cmd.hasOption( HELP_ARG ) )
@@ -438,15 +458,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         if ( cmd.hasOption( SKIP_COUNT_ARG ) )
         {
             cmdParams.put( SKIP_COUNT_ARG, cmd.getOptionValue( SKIP_COUNT_ARG ) );
-        }
-
-        if ( cmd.hasOption( CREATE_VALIDATION_PARAMS_ARG ) )
-        {
-            String[] validationParams = cmd.getOptionValues( CREATE_VALIDATION_PARAMS_ARG );
-            String filePath = validationParams[0];
-            int validationSetSize = Integer.parseInt( validationParams[1] );
-            cmdParams.put( CREATE_VALIDATION_PARAMS_ARG,
-                    new ConsoleAndFileValidationParamOptions( filePath, validationSetSize ).toCommandlineString() );
         }
 
         if ( cmd.hasOption( PROPERTY_FILE_ARG ) )
@@ -500,6 +511,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         paramsMap = replaceKey( paramsMap, RESULT_DIR_PATH_ARG_LONG, RESULT_DIR_PATH_ARG );
         paramsMap = replaceKey( paramsMap, TIME_COMPRESSION_RATIO_ARG_LONG, TIME_COMPRESSION_RATIO_ARG );
         paramsMap = replaceKey( paramsMap, CREATE_VALIDATION_PARAMS_ARG_LONG, CREATE_VALIDATION_PARAMS_ARG );
+        paramsMap = replaceKey( paramsMap, VALIDATION_PARAMS_SIZE_ARG_LONG, VALIDATION_PARAMS_SIZE_ARG );
+        paramsMap = replaceKey( paramsMap, VALIDATION_SERIALIZATION_CHECK_ARG_LONG, VALIDATION_SERIALIZATION_CHECK_ARG );
         paramsMap = replaceKey( paramsMap, DB_VALIDATION_FILE_PATH_ARG_LONG, DB_VALIDATION_FILE_PATH_ARG );
         paramsMap = replaceKey( paramsMap, CALCULATE_WORKLOAD_STATISTICS_ARG_LONG, CALCULATE_WORKLOAD_STATISTICS_ARG );
         paramsMap = replaceKey( paramsMap, SPINNER_SLEEP_DURATION_ARG_LONG, SPINNER_SLEEP_DURATION_ARG );
@@ -578,11 +591,21 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                                 TIME_COMPRESSION_RATIO_ARG_LONG ).create( TIME_COMPRESSION_RATIO_ARG );
         options.addOption( timeCompressionRatioOption );
 
-        Option dbValidationParamsOption = OptionBuilder.hasArgs( 2 ).withValueSeparator( COMMANDLINE_SEPARATOR_CHAR )
-                .withArgName( "path" + COMMANDLINE_SEPARATOR_CHAR + "count" )
-                .withDescription( CREATE_VALIDATION_PARAMS_DESCRIPTION ).withLongOpt(
-                        CREATE_VALIDATION_PARAMS_ARG_LONG ).create( CREATE_VALIDATION_PARAMS_ARG );
-        options.addOption( dbValidationParamsOption );
+        Option createValidationParameters =
+                OptionBuilder.withDescription( CREATE_VALIDATION_PARAMS_DESCRIPTION ).withLongOpt(
+                    CREATE_VALIDATION_PARAMS_ARG_LONG ).create( CREATE_VALIDATION_PARAMS_ARG );
+        options.addOption( createValidationParameters );
+
+        Option validationSerializationOption =
+                OptionBuilder.withDescription( VALIDATION_SERIALIZATION_CHECK_DESCRIPTION ).withLongOpt(
+                    VALIDATION_SERIALIZATION_CHECK_ARG_LONG ).create( VALIDATION_SERIALIZATION_CHECK_ARG );
+        options.addOption( validationSerializationOption );
+
+        Option validationParamsSizeOption =
+                OptionBuilder.hasArgs( 1 ).withArgName( "count" ).withDescription( VALIDATION_PARAMS_SIZE_DESCRIPTION )
+                        .withLongOpt(
+                                VALIDATION_PARAMS_SIZE_ARG_LONG ).create( VALIDATION_PARAMS_SIZE_ARG );
+        options.addOption( validationParamsSizeOption );
 
         Option databaseValidationFilePathOption =
                 OptionBuilder.hasArgs( 1 ).withArgName( "path" ).withDescription( DB_VALIDATION_FILE_PATH_DESCRIPTION )
@@ -635,6 +658,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         return options;
     }
 
+    /**
+     * Returns a HashSet of Strings
+     * @return
+     */
     private static Set<String> coreConfigurationParameterKeys()
     {
         return Sets.newHashSet(
@@ -648,6 +675,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 RESULT_DIR_PATH_ARG,
                 TIME_COMPRESSION_RATIO_ARG,
                 CREATE_VALIDATION_PARAMS_ARG,
+                VALIDATION_PARAMS_SIZE_ARG,
+                VALIDATION_SERIALIZATION_CHECK_ARG,
                 DB_VALIDATION_FILE_PATH_ARG,
                 CALCULATE_WORKLOAD_STATISTICS_ARG,
                 SPINNER_SLEEP_DURATION_ARG,
@@ -658,6 +687,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         );
     }
 
+    /**
+     * Retrieve the usage information of the driver as string
+     * @return The usage information of the driver as string
+     */
     public static String commandlineHelpString()
     {
         Options options = OPTIONS;
@@ -688,7 +721,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private final TimeUnit timeUnit;
     private final String resultDirPath;
     private final double timeCompressionRatio;
-    private final ConsoleAndFileValidationParamOptions validationCreationParams;
+    private final boolean validationCreationParams;
+    private final int validationParametersSize;
+    private final boolean validationSerializationCheck;
     private final String databaseValidationFilePath;
     private final boolean calculateWorkloadStatistics;
     private final long spinnerSleepDurationAsMilli;
@@ -708,7 +743,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             TimeUnit timeUnit,
             String resultDirPath,
             double timeCompressionRatio,
-            ConsoleAndFileValidationParamOptions validationCreationParams,
+            boolean validationCreationParams,
+            int validationParametersSize,
+            boolean validationSerializationCheck,
             String databaseValidationFilePath,
             boolean calculateWorkloadStatistics,
             long spinnerSleepDurationAsMilli,
@@ -733,6 +770,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         this.resultDirPath = resultDirPath;
         this.timeCompressionRatio = timeCompressionRatio;
         this.validationCreationParams = validationCreationParams;
+        this.validationParametersSize = validationParametersSize;
+        this.validationSerializationCheck = validationSerializationCheck;
         this.databaseValidationFilePath = databaseValidationFilePath;
         this.calculateWorkloadStatistics = calculateWorkloadStatistics;
         this.spinnerSleepDurationAsMilli = spinnerSleepDurationAsMilli;
@@ -763,14 +802,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             paramsMap.put( RESULT_DIR_PATH_ARG, resultDirPath );
         }
         paramsMap.put( TIME_COMPRESSION_RATIO_ARG, Double.toString( timeCompressionRatio ) );
-        if ( null != validationCreationParams )
-        {
-            paramsMap.put( CREATE_VALIDATION_PARAMS_ARG, validationCreationParams.toCommandlineString() );
-        }
-        if ( null != databaseValidationFilePath )
-        {
-            paramsMap.put( DB_VALIDATION_FILE_PATH_ARG, databaseValidationFilePath );
-        }
+
         paramsMap.put( CALCULATE_WORKLOAD_STATISTICS_ARG, Boolean.toString( calculateWorkloadStatistics ) );
         paramsMap.put( SPINNER_SLEEP_DURATION_ARG, Long.toString( spinnerSleepDurationAsMilli ) );
         paramsMap.put( HELP_ARG, Boolean.toString( printHelp ) );
@@ -778,6 +810,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         paramsMap.put( WARMUP_COUNT_ARG, Long.toString( warmupCount ) );
         paramsMap.put( SKIP_COUNT_ARG, Long.toString( skipCount ) );
         paramsMap.put( FLUSH_LOG_ARG, Boolean.toString( flushLog ) );
+        // Validation specific
+        paramsMap.put( CREATE_VALIDATION_PARAMS_ARG, Boolean.toString(validationCreationParams) );
+        if ( null != databaseValidationFilePath )
+        {
+            paramsMap.put( DB_VALIDATION_FILE_PATH_ARG, databaseValidationFilePath );
+        }
+        paramsMap.put( VALIDATION_PARAMS_SIZE_ARG, Integer.toString(validationParametersSize) );
+        paramsMap.put( VALIDATION_SERIALIZATION_CHECK_ARG, Boolean.toString(validationSerializationCheck) );
     }
 
     @Override
@@ -842,9 +882,21 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     }
 
     @Override
-    public ValidationParamOptions validationParamsCreationOptions()
+    public boolean validationCreationParams()
     {
         return validationCreationParams;
+    }
+
+    @Override
+    public boolean validationSerializationCheck()
+    {
+        return validationSerializationCheck;
+    }
+
+    @Override
+    public int validationParametersSize()
+    {
+        return validationParametersSize;
     }
 
     @Override
@@ -983,13 +1035,21 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                                          Double.parseDouble(
                                                  newParamsMapWithShortKeys.get( TIME_COMPRESSION_RATIO_ARG ) ) :
                                          timeCompressionRatio;
-        ConsoleAndFileValidationParamOptions newValidationParams =
-                (newParamsMapWithShortKeys.containsKey( CREATE_VALIDATION_PARAMS_ARG ))
-                ? (null == newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG )) ? null
-                                                                                          :
-                  ConsoleAndFileValidationParamOptions
-                          .fromCommandlineString( newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG ) )
-                : validationCreationParams;
+
+        boolean newValidationCreationParams =
+        (newParamsMapWithShortKeys.containsKey( CREATE_VALIDATION_PARAMS_ARG )) ?
+        Boolean.parseBoolean( newParamsMapWithShortKeys.get( CREATE_VALIDATION_PARAMS_ARG ) ) :
+        validationCreationParams;
+
+        int newValidationParametersSize = (newParamsMapWithShortKeys.containsKey( VALIDATION_PARAMS_SIZE_ARG )) ?
+                                               Integer.parseInt(newParamsMapWithShortKeys.get( VALIDATION_PARAMS_SIZE_ARG )) :
+                                               validationParametersSize;
+
+        boolean newValidationSerializationCheck =
+            (newParamsMapWithShortKeys.containsKey( VALIDATION_SERIALIZATION_CHECK_ARG )) ?
+            Boolean.parseBoolean( newParamsMapWithShortKeys.get( VALIDATION_SERIALIZATION_CHECK_ARG ) ) :
+            validationSerializationCheck;
+
         String newDatabaseValidationFilePath = (newParamsMapWithShortKeys.containsKey( DB_VALIDATION_FILE_PATH_ARG )) ?
                                                newParamsMapWithShortKeys.get( DB_VALIDATION_FILE_PATH_ARG ) :
                                                databaseValidationFilePath;
@@ -1029,7 +1089,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 newTimeUnit,
                 newResultDirPath,
                 newTimeCompressionRatio,
-                newValidationParams,
+                newValidationCreationParams,
+                newValidationParametersSize,
+                newValidationSerializationCheck,
                 newDatabaseValidationFilePath,
                 newCalculateWorkloadStatistics,
                 newSpinnerSleepDurationAsMilli,
@@ -1068,17 +1130,20 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             argsList.addAll( Lists.newArrayList( "-" + RESULT_DIR_PATH_ARG, resultDirPath ) );
         }
         argsList.addAll( Lists.newArrayList( "-" + TIME_UNIT_ARG, timeUnit.name() ) );
-        argsList.addAll(
-                Lists.newArrayList( "-" + TIME_COMPRESSION_RATIO_ARG, Double.toString( timeCompressionRatio ) ) );
+        argsList.addAll( Lists.newArrayList( "-" + TIME_COMPRESSION_RATIO_ARG, Double.toString( timeCompressionRatio ) ) );
+
+        // if ( validationCreationParams ){
+        argsList.addAll( Lists.newArrayList( "-" + CREATE_VALIDATION_PARAMS_ARG, Boolean.toString(validationCreationParams ) ));
+        // }
+
+        if ( validationSerializationCheck == false){
+            argsList.addAll( Lists.newArrayList( "-" + VALIDATION_SERIALIZATION_CHECK_ARG, Boolean.toString(validationSerializationCheck ) ));
+        }
         if ( null != databaseValidationFilePath )
         {
             argsList.addAll( Lists.newArrayList( "-" + DB_VALIDATION_FILE_PATH_ARG, databaseValidationFilePath ) );
         }
-        if ( null != validationCreationParams )
-        {
-            argsList.addAll( Lists.newArrayList( "-" + CREATE_VALIDATION_PARAMS_ARG,
-                    validationCreationParams.toCommandlineString() ) );
-        }
+        
         if ( calculateWorkloadStatistics )
         {
             argsList.add( "-" + CALCULATE_WORKLOAD_STATISTICS_ARG );
@@ -1201,20 +1266,15 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         sb.append(
                 "# parameter values specify: (1) where to create the validation parameters file (2) how many " +
                 "validation parameters to generate\n" );
-        sb.append( "# STRING|INT-32 (e.g., " ).append(
-                new ConsoleAndFileValidationParamOptions( "validation_parameters.csv", 1000 ).toCommandlineString() )
-                .append( ")\n" );
+        sb.append( "# BOOLEAN\n");
         sb.append( "# COMMAND: " ).append( "-" ).append( CREATE_VALIDATION_PARAMS_ARG ).append( "/--" )
-                .append( CREATE_VALIDATION_PARAMS_ARG_LONG ).append( "\n" );
-        if ( null == validationCreationParams )
-        {
-            sb.append( "# " ).append( CREATE_VALIDATION_PARAMS_ARG_LONG ).append( "=" ).append( "\n" );
-        }
-        else
-        {
-            sb.append( CREATE_VALIDATION_PARAMS_ARG_LONG ).append( "=" )
-                    .append( validationCreationParams.toCommandlineString() ).append( "\n" );
-        }
+                        .append( CREATE_VALIDATION_PARAMS_ARG_LONG ).append( "\n" );
+        sb.append( "# BOOLEAN\n");
+        sb.append( "# COMMAND: " ).append( "-" ).append( VALIDATION_SERIALIZATION_CHECK_ARG ).append( "/--" )
+                .append( VALIDATION_SERIALIZATION_CHECK_ARG_LONG ).append( "\n" );
+        sb.append( "# INT-32\n");
+        sb.append( "# COMMAND: " ).append( "-" ).append( VALIDATION_PARAMS_SIZE_ARG ).append( "/--" )
+                        .append( VALIDATION_PARAMS_SIZE_ARG_LONG ).append( "\n" );
         sb.append( "\n" );
         sb.append( "# calculate & display workload statistics (operation mix, etc.)\n" );
         sb.append( "# BOOLEAN\n" );
@@ -1333,14 +1393,13 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 .append( resultDirPath() ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Time Compression Ratio:" ) )
                 .append( FLOAT_FORMAT.format( timeCompressionRatio ) ).append( "\n" );
-        String validationCreationParamsString = (null == validationCreationParams) ?
-                                                null :
-                                                format( "File (%s) Validation Set Size (%s)",
-                                                        validationCreationParams.filePath(),
-                                                        validationCreationParams.validationSetSize );
-        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Validation Creation Params:" ) )
-                .append( validationCreationParamsString ).append( "\n" );
-        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Database Validation File:" ) )
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Create Validation Parameters:" ) )
+            .append( validationCreationParams ).append( "\n" );
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Validation Parameter Size:" ) )
+                .append( validationParametersSize ).append( "\n" );
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Validation Serialization Check:" ) )
+                .append( validationSerializationCheck ).append( "\n" );
+        sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Validation Database File:" ) )
                 .append( databaseValidationFilePath ).append( "\n" );
         sb.append( "\t" ).append( format( "%1$-" + padRightDistance + "s", "Calculate Workload Statistics:" ) )
                 .append( calculateWorkloadStatistics ).append( "\n" );
@@ -1411,6 +1470,18 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         {
             return false;
         }
+        if ( validationCreationParams != that.validationCreationParams )
+        {
+            return false;
+        }
+        if ( validationSerializationCheck != that.validationSerializationCheck )
+        {
+            return false;
+        }
+        if ( validationParametersSize != that.validationParametersSize )
+        {
+            return false;
+        }
         if ( databaseValidationFilePath != null ? !databaseValidationFilePath.equals( that.databaseValidationFilePath )
                                                 : that.databaseValidationFilePath != null )
         {
@@ -1440,11 +1511,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         {
             return false;
         }
-        if ( validationCreationParams != null ? !validationCreationParams.equals( that.validationCreationParams )
-                                              : that.validationCreationParams != null )
-        {
-            return false;
-        }
         if ( workloadClassName != null ? !workloadClassName.equals( that.workloadClassName )
                                        : that.workloadClassName != null )
         {
@@ -1471,90 +1537,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         result = 31 * result + (resultDirPath != null ? resultDirPath.hashCode() : 0);
         temp = Double.doubleToLongBits( timeCompressionRatio );
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (validationCreationParams != null ? validationCreationParams.hashCode() : 0);
+        result = 31 * result + (int) (validationParametersSize ^ (validationParametersSize >>> 32));
+        result = 31 * result + (validationCreationParams ? 1 : 0);
+        result = 31 * result + (validationSerializationCheck ? 1 : 0);
         result = 31 * result + (databaseValidationFilePath != null ? databaseValidationFilePath.hashCode() : 0);
         result = 31 * result + (calculateWorkloadStatistics ? 1 : 0);
         result = 31 * result + (int) (spinnerSleepDurationAsMilli ^ (spinnerSleepDurationAsMilli >>> 32));
         result = 31 * result + (printHelp ? 1 : 0);
         result = 31 * result + (ignoreScheduledStartTimes ? 1 : 0);
         return result;
-    }
-
-    public static class ConsoleAndFileValidationParamOptions implements ValidationParamOptions
-    {
-        public static ConsoleAndFileValidationParamOptions fromCommandlineString( String commandlineString )
-                throws DriverConfigurationException
-        {
-            String[] commandlineStringArray = commandlineString.split( COMMANDLINE_SEPARATOR_REGEX_STRING );
-            if ( commandlineStringArray.length != 2 )
-            {
-                throw new DriverConfigurationException(
-                        format( "Unexpected string value (%s). Should contain exactly 2 values.",
-                                commandlineString ) );
-            }
-            String filePath = commandlineStringArray[0];
-            int validationSetSize = Integer.parseInt( commandlineStringArray[1] );
-            return new ConsoleAndFileValidationParamOptions( filePath, validationSetSize );
-        }
-
-        private final String filePath;
-        private final int validationSetSize;
-
-        public ConsoleAndFileValidationParamOptions( String filePath, int validationSetSize )
-        {
-            this.filePath = filePath;
-            this.validationSetSize = validationSetSize;
-        }
-
-        @Override
-        public String filePath()
-        {
-            return filePath;
-        }
-
-        @Override
-        public int validationSetSize()
-        {
-            return validationSetSize;
-        }
-
-        public String toCommandlineString()
-        {
-            return format( "%s%s%s", filePath, COMMANDLINE_SEPARATOR_CHAR, validationSetSize );
-        }
-
-        @Override
-        public boolean equals( Object o )
-        {
-            if ( this == o )
-            {
-                return true;
-            }
-            if ( o == null || getClass() != o.getClass() )
-            {
-                return false;
-            }
-
-            ConsoleAndFileValidationParamOptions that = (ConsoleAndFileValidationParamOptions) o;
-
-            if ( validationSetSize != that.validationSetSize )
-            {
-                return false;
-            }
-            if ( filePath != null ? !filePath.equals( that.filePath ) : that.filePath != null )
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int result = filePath != null ? filePath.hashCode() : 0;
-            result = 31 * result + validationSetSize;
-            return result;
-        }
     }
 }

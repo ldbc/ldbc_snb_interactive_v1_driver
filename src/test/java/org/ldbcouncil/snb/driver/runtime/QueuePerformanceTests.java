@@ -77,8 +77,10 @@ public class QueuePerformanceTests
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         double timeCompressionRatio = 1.0;
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
+        boolean validationCreationParams = false;
+        boolean validationSerializationCheck = false;
+        int validationParamsSize = 0;
         boolean calculateWorkloadStatistics = false;
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
@@ -98,7 +100,9 @@ public class QueuePerformanceTests
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                validationParams,
+                validationCreationParams,
+                validationParamsSize,
+                validationSerializationCheck,
                 dbValidationFilePath,
                 calculateWorkloadStatistics,
                 spinnerSleepDuration,

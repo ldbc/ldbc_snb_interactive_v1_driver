@@ -106,8 +106,10 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.0000001;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
+            boolean validationCreationParams = false;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             boolean calculateWorkloadStatistics = false;
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
@@ -127,7 +129,9 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationCreationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,
                     spinnerSleepDuration,
@@ -309,8 +313,10 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.0000001;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
+            boolean validationCreationParams = false;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             boolean calculateWorkloadStatistics = false;
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
@@ -330,7 +336,9 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationCreationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,
                     spinnerSleepDuration,
@@ -530,8 +538,10 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.000001;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
+            boolean validationCreationParams = false;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             boolean calculateWorkloadStatistics = false;
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
@@ -551,7 +561,9 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationCreationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,
                     spinnerSleepDuration,
@@ -797,8 +809,10 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 1.0;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
+            boolean validationCreationParams = false;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             boolean calculateWorkloadStatistics = false;
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
@@ -818,7 +832,9 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationCreationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,
                     spinnerSleepDuration,

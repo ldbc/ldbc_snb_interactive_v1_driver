@@ -483,6 +483,7 @@ public abstract class WorkloadTest
         }
     }
 
+    // TODO: Test should write to memory, not to physical disk. Mock the file
     @Test
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass() throws Exception
     {
@@ -494,16 +495,10 @@ public abstract class WorkloadTest
             File validationParamsFile = temporaryFolder.newFile();
             assertThat( validationParamsFile.length(), is( 0l ) );
 
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
-                    new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions(
-                            validationParamsFile.getAbsolutePath(),
-                            500
-                    );
 
-            configuration = configuration.applyArg(
-                    ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
-                    validationParams.toCommandlineString()
-            );
+            configuration = configuration.applyArg(ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG, Boolean.toString(true));
+            configuration = configuration.applyArg(ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG, validationParamsFile.getAbsolutePath());
+            configuration = configuration.applyArg(ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_ARG, Integer.toString(500));
 
             ResultsDirectory resultsDirectory = new ResultsDirectory( configuration );
 

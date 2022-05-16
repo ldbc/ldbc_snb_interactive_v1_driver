@@ -1,4 +1,17 @@
 package org.ldbcouncil.snb.driver;
+/**
+ * Client.java
+ * 
+ * Entrypoint for the SNB Driver. This class creates default control classes,
+ * checks which driver mode is specified and starts the application.
+ * There are 4 supported modes (in order of priority):
+ * 1. Create validation parameters
+ * 2. Validate database
+ * 3. Create workload statistics
+ * 4. Execute Benchmark
+ * 
+ * To print the usage help for the driver, use help = true in properties file.
+ */
 
 import org.ldbcouncil.snb.driver.client.CalculateWorkloadStatisticsMode;
 import org.ldbcouncil.snb.driver.client.ClientMode;
@@ -81,11 +94,12 @@ public class Client
             // Print Help
             return new PrintHelpMode( controlService );
         }
-        else if ( null != controlService.configuration().validationParamsCreationOptions() )
+        else if (controlService.configuration().validationCreationParams() )
         {
             // Create Validation Parameters
             DriverConfiguration configuration = controlService.configuration();
             List<String> missingParams = new ArrayList<>();
+
             if ( null == configuration.dbClassName() )
             {
                 missingParams.add( ConsoleAndFileDriverConfiguration.DB_ARG );

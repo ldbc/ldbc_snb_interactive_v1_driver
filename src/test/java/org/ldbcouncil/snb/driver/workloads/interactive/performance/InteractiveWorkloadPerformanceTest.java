@@ -113,8 +113,10 @@ public class InteractiveWorkloadPerformanceTest
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
             double timeCompressionRatio = 0.0000001;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
+            boolean validationCreationParams = false;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             boolean calculateWorkloadStatistics = false;
             long spinnerSleepDuration = 0;
             boolean printHelp = false;
@@ -134,7 +136,9 @@ public class InteractiveWorkloadPerformanceTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationCreationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,
                     spinnerSleepDuration,
@@ -262,8 +266,6 @@ public class InteractiveWorkloadPerformanceTest
         try
         {
             Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
-//            Map<String, String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultWriteOnlyConfig();
-//            Map<String, String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultReadOnlyConfig();
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY, parametersDir );
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, updateStreamsDir );
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_STREAM_PARSER,
@@ -278,8 +280,10 @@ public class InteractiveWorkloadPerformanceTest
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
             double timeCompressionRatio = 0.0000001;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
+            boolean validationCreationParams = false;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             // TODO should be false
             boolean calculateWorkloadStatistics = true;
             long spinnerSleepDuration = 0;
@@ -300,7 +304,9 @@ public class InteractiveWorkloadPerformanceTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationCreationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
                     dbValidationFilePath,
                     calculateWorkloadStatistics,
                     spinnerSleepDuration,
