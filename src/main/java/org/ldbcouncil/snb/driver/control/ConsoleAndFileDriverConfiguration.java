@@ -563,7 +563,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
          * Required
          */
         Option modeOption =
-            OptionBuilder.hasArgs( 1 ).withArgName( "name" ).withDescription( MODE_DESCRIPTION )
+            OptionBuilder.hasArgs( 1 ).withArgName( "mode" ).withDescription( MODE_DESCRIPTION )
                 .withLongOpt(MODE_ARG_LONG).create( MODE_ARG );
         options.addOption( modeOption );
 

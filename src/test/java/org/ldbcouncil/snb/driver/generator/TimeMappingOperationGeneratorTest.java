@@ -345,7 +345,7 @@ public class TimeMappingOperationGeneratorTest
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         // Driver-specific parameters
-        String mode = "mode";
+        String mode = "execute_benchmark";
         String name = "name";
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();

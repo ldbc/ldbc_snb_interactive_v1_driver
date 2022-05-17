@@ -122,6 +122,8 @@ public abstract class Workload implements Closeable
         return DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI;
     }
 
+    public abstract int enabledValidationOperations();
+
     public abstract String serializeOperation( Operation operation ) throws SerializingMarshallingException;
 
     public abstract Operation marshalOperation( String serializedOperation ) throws SerializingMarshallingException;

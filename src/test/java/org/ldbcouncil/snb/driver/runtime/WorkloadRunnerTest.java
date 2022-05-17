@@ -99,7 +99,7 @@ public class WorkloadRunnerTest
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
             // Driver-specific parameters
-            String mode = null;
+            String mode = "execute_benchmark";
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
@@ -527,7 +527,7 @@ public class WorkloadRunnerTest
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
             // Driver-specific parameters
-            String mode = null;
+            String mode = "execute_benchmark";
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
