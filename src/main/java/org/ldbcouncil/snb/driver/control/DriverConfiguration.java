@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 public interface DriverConfiguration
 {
     // General
+    String mode();
+
     String name();
 
     String dbClassName();
@@ -27,15 +29,11 @@ public interface DriverConfiguration
 
     double timeCompressionRatio();
 
-    boolean validationCreationParams();
-
     int validationParametersSize();
 
     boolean validationSerializationCheck();
 
     String databaseValidationFilePath();
-
-    boolean calculateWorkloadStatistics();
 
     long spinnerSleepDurationAsMilli();
 
@@ -60,4 +58,5 @@ public interface DriverConfiguration
     DriverConfiguration applyArg( String argument, String newValue ) throws DriverConfigurationException;
 
     DriverConfiguration applyArgs( Map<String,String> newMap ) throws DriverConfigurationException;
+
 }

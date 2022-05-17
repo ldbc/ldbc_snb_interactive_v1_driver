@@ -114,9 +114,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
     @Override
     public void onInit( Map<String,String> params ) throws WorkloadException
     {
-        List<String> compulsoryKeys = Lists.newArrayList(
-                LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY );
-
+        List<String> compulsoryKeys = Lists.newArrayList();
+        // if (!Boolean.parseBoolean(params.get( ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG ))){
+            compulsoryKeys.add( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY );
+        // }
         compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_ENABLE_KEYS );
         compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS );
         compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_ENABLE_KEYS );

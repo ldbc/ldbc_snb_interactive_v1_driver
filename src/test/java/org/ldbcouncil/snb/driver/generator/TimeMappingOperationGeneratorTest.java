@@ -345,6 +345,7 @@ public class TimeMappingOperationGeneratorTest
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         // Driver-specific parameters
+        String mode = "mode";
         String name = "name";
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
@@ -355,10 +356,8 @@ public class TimeMappingOperationGeneratorTest
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
         String dbValidationFilePath = null;
-        boolean validationCreationParams = false;
         boolean validationSerializationCheck = false;
         int validationParamsSize = 0;
-        boolean calculateWorkloadStatistics = false;
         long spinnerSleepDuration = 0L;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
@@ -368,6 +367,7 @@ public class TimeMappingOperationGeneratorTest
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
+                mode,
                 name,
                 dbClassName,
                 workloadClassName,
@@ -377,11 +377,9 @@ public class TimeMappingOperationGeneratorTest
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                validationCreationParams,
                 validationParamsSize,
                 validationSerializationCheck,
                 dbValidationFilePath,
-                calculateWorkloadStatistics,
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
