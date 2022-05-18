@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
 
@@ -17,7 +18,7 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
     private final long personId;
     private final Date joinDate;
 
-    public LdbcUpdate5AddForumMembership( long forumId, long personId, Date joinDate )
+    public LdbcUpdate5AddForumMembership(@JsonProperty("forumId") long forumId,@JsonProperty("personId") long personId,@JsonProperty("joinDate") Date joinDate )
     {
         this.forumId = forumId;
         this.personId = personId;

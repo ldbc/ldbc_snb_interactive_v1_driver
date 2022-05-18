@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
 
@@ -17,7 +18,11 @@ public class LdbcUpdate2AddPostLike extends Operation<LdbcNoResult>
     private final long postId;
     private final Date creationDate;
 
-    public LdbcUpdate2AddPostLike( long personId, long postId, Date creationDate )
+    public LdbcUpdate2AddPostLike(
+        @JsonProperty("personId")    long personId,
+        @JsonProperty("postId")long postId,
+        @JsonProperty("creationDate")Date creationDate
+    )
     {
         this.personId = personId;
         this.postId = postId;

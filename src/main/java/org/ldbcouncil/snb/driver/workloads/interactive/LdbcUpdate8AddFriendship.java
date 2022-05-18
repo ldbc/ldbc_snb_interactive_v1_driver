@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
 
@@ -17,7 +18,7 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
     private final long person2Id;
     private final Date creationDate;
 
-    public LdbcUpdate8AddFriendship( long person1Id, long person2Id, Date creationDate )
+    public LdbcUpdate8AddFriendship(@JsonProperty("person1Id") long person1Id,@JsonProperty("person2Id") long person2Id,@JsonProperty("creationDate") Date creationDate )
     {
         this.person1Id = person1Id;
         this.person2Id = person2Id;

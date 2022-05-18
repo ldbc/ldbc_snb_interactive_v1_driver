@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.util.ListUtils;
@@ -38,18 +39,19 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
     private final long countryId;
     private final List<Long> tagIds;
 
-    public LdbcUpdate6AddPost( long postId,
-            String imageFile,
-            Date creationDate,
-            String locationIp,
-            String browserUsed,
-            String language,
-            String content,
-            int length,
-            long authorPersonId,
-            long forumId,
-            long countryId,
-            List<Long> tagIds )
+    public LdbcUpdate6AddPost( 
+        @JsonProperty("postId")    long postId,
+            @JsonProperty("imageFile")    String imageFile,
+            @JsonProperty("creationDate")    Date creationDate,
+            @JsonProperty("locationIp")    String locationIp,
+            @JsonProperty("browserUsed")    String browserUsed,
+            @JsonProperty("language")    String language,
+            @JsonProperty("content")    String content,
+            @JsonProperty("length")    int length,
+            @JsonProperty("authorPersonId")    long authorPersonId,
+            @JsonProperty("forumId")    long forumId,
+            @JsonProperty("countryId")    long countryId,
+            @JsonProperty("tagIds")    List<Long> tagIds )
     {
         this.postId = postId;
         this.imageFile = imageFile;

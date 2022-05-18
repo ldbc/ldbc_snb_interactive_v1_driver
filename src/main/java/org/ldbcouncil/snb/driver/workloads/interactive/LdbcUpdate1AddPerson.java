@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.util.ListUtils;
@@ -42,20 +43,21 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
     private final List<Organization> studyAt;
     private final List<Organization> workAt;
 
-    public LdbcUpdate1AddPerson( long personId,
-            String personFirstName,
-            String personLastName,
-            String gender,
-            Date birthday,
-            Date creationDate,
-            String locationIp,
-            String browserUsed,
-            long cityId,
-            List<String> languages,
-            List<String> emails,
-            List<Long> tagIds,
-            List<Organization> studyAt,
-            List<Organization> workAt )
+    public LdbcUpdate1AddPerson(
+        @JsonProperty("personId")    long personId,
+        @JsonProperty("personFirstName")         String personFirstName,
+        @JsonProperty("personLastName")        String personLastName,
+        @JsonProperty("gender")        String gender,
+        @JsonProperty("birthday")        Date birthday,
+        @JsonProperty("creationDate")        Date creationDate,
+        @JsonProperty("locationIp")        String locationIp,
+        @JsonProperty("browserUsed")        String browserUsed,
+        @JsonProperty("cityId")        long cityId,
+        @JsonProperty("languages")        List<String> languages,
+        @JsonProperty("emails")        List<String> emails,
+        @JsonProperty("tagIds")        List<Long> tagIds,
+        @JsonProperty("studyAt")        List<Organization> studyAt,
+        @JsonProperty("workAt")        List<Organization> workAt )
     {
         this.personId = personId;
         this.personFirstName = personFirstName;
@@ -257,7 +259,7 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
         private final long organizationId;
         private final int year;
 
-        public Organization( long organizationId, int year )
+        public Organization(@JsonProperty("organizationId") long organizationId,@JsonProperty("year") int year )
         {
             this.organizationId = organizationId;
             this.year = year;

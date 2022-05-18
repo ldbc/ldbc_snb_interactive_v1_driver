@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.util.ListUtils;
@@ -24,8 +25,8 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
     private final long moderatorPersonId;
     private final List<Long> tagIds;
 
-    public LdbcUpdate4AddForum( long forumId, String forumTitle, Date creationDate, long moderatorPersonId,
-            List<Long> tagIds )
+    public LdbcUpdate4AddForum( @JsonProperty("forumId")long forumId, @JsonProperty("forumTitle")String forumTitle, @JsonProperty("creationDate")Date creationDate,@JsonProperty("moderatorPersonId") long moderatorPersonId,
+    @JsonProperty("tagIds") List<Long> tagIds )
     {
         this.forumId = forumId;
         this.forumTitle = forumTitle;
