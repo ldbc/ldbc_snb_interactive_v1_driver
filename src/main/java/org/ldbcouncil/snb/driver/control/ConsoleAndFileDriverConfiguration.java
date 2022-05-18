@@ -522,7 +522,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
     public static Map<String,String> convertLongKeysToShortKeys( Map<String,String> paramsMap )
     {
-        paramsMap = replaceKey( paramsMap, MODE_ARG, MODE_ARG_LONG );
+        paramsMap = replaceKey( paramsMap, MODE_ARG_LONG,  MODE_ARG);
         paramsMap = replaceKey( paramsMap, OPERATION_COUNT_ARG_LONG, OPERATION_COUNT_ARG );
         paramsMap = replaceKey( paramsMap, NAME_ARG_LONG, NAME_ARG );
         paramsMap = replaceKey( paramsMap, WORKLOAD_ARG_LONG, WORKLOAD_ARG );
