@@ -124,13 +124,6 @@ public abstract class Workload implements Closeable
 
     public abstract int enabledValidationOperations();
 
-    public abstract String serializeOperation( Operation operation ) throws SerializingMarshallingException;
-
-    public abstract Operation marshalOperation( String serializedOperation ) throws SerializingMarshallingException;
-
-    public abstract boolean resultsEqual( Operation operation, Object result1, Object result2 )
-            throws WorkloadException;
-
     public interface DbValidationParametersFilter
     {
         boolean useOperation( Operation operation );

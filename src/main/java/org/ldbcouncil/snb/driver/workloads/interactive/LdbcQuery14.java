@@ -9,11 +9,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.base.Function;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Equator;
 import org.ldbcouncil.snb.driver.Operation;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -96,42 +99,92 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
         List<LdbcQuery14Result> marshaledOperationResult;
         marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery14Result[].class));
         return marshaledOperationResult;
-        // List<List<Object>> resultsAsList;
-        // resultsAsList = OBJECT_MAPPER.readValue(
-        //         serializedResults,
-        //         new TypeReference<List<List<Object>>>()
-        //         {
-        //         }
-        // );
-
-        // List<LdbcQuery14Result> results = new ArrayList<>();
-        // for ( int i = 0; i < resultsAsList.size(); i++ )
-        // {
-        //     List<Object> resultAsList = resultsAsList.get( i );
-        //     Iterable<Long> personsIdsInPath =
-        //             Iterables.transform( (List<Number>) resultAsList.get( 0 ), new Function<Number,Long>()
-        //             {
-        //                 @Override
-        //                 public Long apply( Number number )
-        //                 {
-        //                     return number.longValue();
-        //                 }
-        //             } );
-        //     double pathWeight = ((Number) resultAsList.get( 1 )).doubleValue();
-
-        //     results.add(
-        //             new LdbcQuery14Result(
-        //                     personsIdsInPath,
-        //                     pathWeight
-        //             )
-        //     );
-        // }
-        // return results;
     }
 
     @Override
     public int type()
     {
         return TYPE;
+    }
+
+
+    private static final Equator<LdbcQuery14Result> LDBC_QUERY_14_RESULT_EQUATOR = new Equator<LdbcQuery14Result>()
+    {
+        @Override
+        public boolean equate( LdbcQuery14Result result1, LdbcQuery14Result result2 )
+        {
+            return result1.equals( result2 );
+        }
+
+        @Override
+        public int hash( LdbcQuery14Result result )
+        {
+            return 1;
+        }
+    };
+
+    private boolean resultsEqual(Object result1, Object result2 )
+    {
+        // TODO can this logic not be moved to LdbcQuery14Result class and performed in equals() method?
+        /*
+        Group results by weight, because results with same weight can come in any order
+            Convert
+                [(weight, [ids...]), ...]
+            To
+                Map<weight, [(weight, [ids...])]>
+            */
+        List<LdbcQuery14Result> typedResults1 = (List<LdbcQuery14Result>) result1;
+        Map<Double,List<LdbcQuery14Result>> results1ByWeight = new HashMap<>();
+        for ( LdbcQuery14Result typedResult : typedResults1 )
+        {
+            List<LdbcQuery14Result> resultByWeight = results1ByWeight.get( typedResult.getPathWeight() );
+            if ( null == resultByWeight )
+            {
+                resultByWeight = new ArrayList<>();
+            }
+            resultByWeight.add( typedResult );
+            results1ByWeight.put( typedResult.getPathWeight(), resultByWeight );
+        }
+
+        List<LdbcQuery14Result> typedResults2 = (List<LdbcQuery14Result>) result2;
+        Map<Double,List<LdbcQuery14Result>> results2ByWeight = new HashMap<>();
+        for ( LdbcQuery14Result typedResult : typedResults2 )
+        {
+            List<LdbcQuery14Result> resultByWeight = results2ByWeight.get( typedResult.getPathWeight() );
+            if ( null == resultByWeight )
+            {
+                resultByWeight = new ArrayList<>();
+            }
+            resultByWeight.add( typedResult );
+            results2ByWeight.put( typedResult.getPathWeight(), resultByWeight );
+        }
+
+        /*
+        Perform equality check
+            - compare set of keys
+            - convert list of lists to set of lists & compare contains all for set of lists for each key
+            */
+        // compare set of keys
+        if ( false == results1ByWeight.keySet().equals( results2ByWeight.keySet() ) )
+        {
+            return false;
+        }
+        // convert list of lists to set of lists & compare contains all for set of lists for each key
+        for ( Double weight : results1ByWeight.keySet() )
+        {
+            if ( results1ByWeight.get( weight ).size() != results2ByWeight.get( weight ).size() )
+            {
+                return false;
+            }
+
+            if ( false == CollectionUtils
+                    .isEqualCollection( results1ByWeight.get( weight ), results2ByWeight.get( weight ),
+                            LDBC_QUERY_14_RESULT_EQUATOR ) )
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

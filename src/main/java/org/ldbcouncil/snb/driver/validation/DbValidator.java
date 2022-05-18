@@ -105,7 +105,7 @@ public class DbValidator
 
             Object actualOperationResult = resultReporter.result();
 
-            if ( false == workload.resultsEqual( operation, expectedOperationResult, actualOperationResult ) )
+            if ( false == actualOperationResult.equals(expectedOperationResult))
             {
                 validationParamsIncorrectSoFar++;
                 dbValidationResult

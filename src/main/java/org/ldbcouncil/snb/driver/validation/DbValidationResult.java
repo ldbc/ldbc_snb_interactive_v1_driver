@@ -167,9 +167,10 @@ public class DbValidationResult
         String serializedOperation;
         try
         {
-            serializedOperation = workload.serializeOperation( operation );
+            
+            serializedOperation = OBJECT_MAPPER.writeValueAsString( operation );
         }
-        catch ( SerializingMarshallingException e )
+        catch ( IOException e )
         {
             throw new WorkloadException(
                     format( "Error occurred while serializing operation\nOperation: %s", operation ),

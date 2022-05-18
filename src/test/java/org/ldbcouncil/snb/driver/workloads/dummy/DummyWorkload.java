@@ -68,84 +68,84 @@ public class DummyWorkload extends Workload
         return workloadStreams;
     }
 
-    @Override
-    public String serializeOperation( Operation operation ) throws SerializingMarshallingException
-    {
-        if ( operation.getClass().equals( NothingOperation.class ) )
-        { return NothingOperation.class.getName(); }
-        if ( operation.getClass().equals( TimedNamedOperation1.class ) )
-        {
-            return TimedNamedOperation1.class.getName()
-                   + "|"
-                   + Long.toString( operation.scheduledStartTimeAsMilli() )
-                   + "|"
-                   + Long.toString( operation.timeStamp() )
-                   + "|"
-                   + Long.toString( operation.dependencyTimeStamp() )
-                   + "|"
-                   + serializeName( ((TimedNamedOperation1) operation).name() );
-        }
-        if ( operation.getClass().equals( TimedNamedOperation2.class ) )
-        {
-            return TimedNamedOperation2.class.getName()
-                   + "|"
-                   + Long.toString( operation.scheduledStartTimeAsMilli() )
-                   + "|"
-                   + Long.toString( operation.timeStamp() )
-                   + "|"
-                   + Long.toString( operation.dependencyTimeStamp() )
-                   + "|"
-                   + serializeName( ((TimedNamedOperation2) operation).name() );
-        }
-        throw new SerializingMarshallingException( "Unsupported Operation: " + operation.getClass().getName() );
-    }
+    // @Override
+    // public String serializeOperation( Operation operation ) throws SerializingMarshallingException
+    // {
+    //     if ( operation.getClass().equals( NothingOperation.class ) )
+    //     { return NothingOperation.class.getName(); }
+    //     if ( operation.getClass().equals( TimedNamedOperation1.class ) )
+    //     {
+    //         return TimedNamedOperation1.class.getName()
+    //                + "|"
+    //                + Long.toString( operation.scheduledStartTimeAsMilli() )
+    //                + "|"
+    //                + Long.toString( operation.timeStamp() )
+    //                + "|"
+    //                + Long.toString( operation.dependencyTimeStamp() )
+    //                + "|"
+    //                + serializeName( ((TimedNamedOperation1) operation).name() );
+    //     }
+    //     if ( operation.getClass().equals( TimedNamedOperation2.class ) )
+    //     {
+    //         return TimedNamedOperation2.class.getName()
+    //                + "|"
+    //                + Long.toString( operation.scheduledStartTimeAsMilli() )
+    //                + "|"
+    //                + Long.toString( operation.timeStamp() )
+    //                + "|"
+    //                + Long.toString( operation.dependencyTimeStamp() )
+    //                + "|"
+    //                + serializeName( ((TimedNamedOperation2) operation).name() );
+    //     }
+    //     throw new SerializingMarshallingException( "Unsupported Operation: " + operation.getClass().getName() );
+    // }
 
-    @Override
-    public Operation marshalOperation( String serializedOperation ) throws SerializingMarshallingException
-    {
-        if ( serializedOperation.startsWith( NothingOperation.class.getName() ) )
-        { return new NothingOperation(); }
-        if ( serializedOperation.startsWith( TimedNamedOperation1.class.getName() ) )
-        {
-            String[] serializedOperationTokens = serializedOperation.split( "\\|" );
-            return new TimedNamedOperation1(
-                    Long.parseLong( serializedOperationTokens[1] ),
-                    Long.parseLong( serializedOperationTokens[2] ),
-                    Long.parseLong( serializedOperationTokens[3] ),
-                    marshalName( serializedOperationTokens[4] )
-            );
-        }
-        if ( serializedOperation.startsWith( TimedNamedOperation2.class.getName() ) )
-        {
-            String[] serializedOperationTokens = serializedOperation.split( "\\|" );
-            return new TimedNamedOperation2(
-                    Long.parseLong( serializedOperationTokens[1] ),
-                    Long.parseLong( serializedOperationTokens[2] ),
-                    Long.parseLong( serializedOperationTokens[3] ),
-                    marshalName( serializedOperationTokens[4] )
-            );
-        }
-        throw new SerializingMarshallingException( "Unsupported Operation: " + serializedOperation );
-    }
+    // @Override
+    // public Operation marshalOperation( String serializedOperation ) throws SerializingMarshallingException
+    // {
+    //     if ( serializedOperation.startsWith( NothingOperation.class.getName() ) )
+    //     { return new NothingOperation(); }
+    //     if ( serializedOperation.startsWith( TimedNamedOperation1.class.getName() ) )
+    //     {
+    //         String[] serializedOperationTokens = serializedOperation.split( "\\|" );
+    //         return new TimedNamedOperation1(
+    //                 Long.parseLong( serializedOperationTokens[1] ),
+    //                 Long.parseLong( serializedOperationTokens[2] ),
+    //                 Long.parseLong( serializedOperationTokens[3] ),
+    //                 marshalName( serializedOperationTokens[4] )
+    //         );
+    //     }
+    //     if ( serializedOperation.startsWith( TimedNamedOperation2.class.getName() ) )
+    //     {
+    //         String[] serializedOperationTokens = serializedOperation.split( "\\|" );
+    //         return new TimedNamedOperation2(
+    //                 Long.parseLong( serializedOperationTokens[1] ),
+    //                 Long.parseLong( serializedOperationTokens[2] ),
+    //                 Long.parseLong( serializedOperationTokens[3] ),
+    //                 marshalName( serializedOperationTokens[4] )
+    //         );
+    //     }
+    //     throw new SerializingMarshallingException( "Unsupported Operation: " + serializedOperation );
+    // }
 
-    @Override
-    public boolean resultsEqual( Operation operation, Object result1, Object result2 ) throws WorkloadException
-    {
-        if ( null == result1 || null == result2 )
-        { return false; }
-        else
-        { return result1.equals( result2 ); }
-    }
+    // @Override
+    // public boolean resultsEqual( Operation operation, Object result1, Object result2 ) throws WorkloadException
+    // {
+    //     if ( null == result1 || null == result2 )
+    //     { return false; }
+    //     else
+    //     { return result1.equals( result2 ); }
+    // }
 
-    private String serializeName( String name )
-    {
-        return (null == name) ? "null" : name;
-    }
+    // private String serializeName( String name )
+    // {
+    //     return (null == name) ? "null" : name;
+    // }
 
-    private String marshalName( String nameString )
-    {
-        return ("null".equals( nameString )) ? null : nameString;
-    }
+    // private String marshalName( String nameString )
+    // {
+    //     return ("null".equals( nameString )) ? null : nameString;
+    // }
 
     @Override
     public long maxExpectedInterleaveAsMilli()

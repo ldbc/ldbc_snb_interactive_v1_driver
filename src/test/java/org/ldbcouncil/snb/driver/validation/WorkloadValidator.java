@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import static org.ldbcouncil.snb.driver.validation.WorkloadValidationResult.ResultType;
 import static java.lang.String.format;
 
@@ -357,12 +359,13 @@ public class WorkloadValidator
             }
 
             // Serializing and Marshalling operations works
+            ObjectMapper mapper = new ObjectMapper();
             String serializedOperation;
             try
             {
-                serializedOperation = workloadPass2.serializeOperation( operation );
+                serializedOperation = mapper.writeValueAsString(operation);
             }
-            catch ( SerializingMarshallingException e )
+            catch ( IOException e )
             {
                 return new WorkloadValidationResult(
                         ResultType.UNABLE_TO_SERIALIZE_OPERATION,
@@ -373,9 +376,9 @@ public class WorkloadValidator
             Operation marshaledOperation;
             try
             {
-                marshaledOperation = workloadPass2.marshalOperation( serializedOperation );
+                marshaledOperation = mapper.readValue(serializedOperation, Operation.class);//workloadPass2.marshalOperation( serializedOperation );
             }
-            catch ( SerializingMarshallingException e )
+            catch ( IOException e )
             {
                 return new WorkloadValidationResult(
                         ResultType.UNABLE_TO_MARSHAL_OPERATION,
