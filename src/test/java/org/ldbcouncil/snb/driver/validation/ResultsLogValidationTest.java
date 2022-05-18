@@ -42,6 +42,7 @@ public class ResultsLogValidationTest
     public void shouldPassValidationWhenResultsAreGood()
     {
         long excessiveDelayThresholdAsMilli = 10;
+        boolean recordDelayedOperations = false;
         long excessiveDelayCount = 10;
         Map<String,Long> excessiveDelayCountPerType = new HashMap<>();
         excessiveDelayCountPerType.put( "A", 1l );
@@ -73,12 +74,12 @@ public class ResultsLogValidationTest
         ResultsLogValidator validator = new ResultsLogValidator();
         ResultsLogValidationTolerances tolerances = new ResultsLogValidationTolerances(
                 excessiveDelayThresholdAsMilli,
-                toleratedExcessiveDelayCount,
-                toleratedExcessiveDelayCountPerType
+                toleratedExcessiveDelayCount
         );
         ResultsLogValidationResult result = validator.validate(
                 summary,
-                tolerances
+                tolerances,
+                recordDelayedOperations
         );
         assertTrue( result.toString(), result.isSuccessful() );
     }
@@ -86,6 +87,7 @@ public class ResultsLogValidationTest
     @Test
     public void shouldFailValidationWhenExcessiveDelayCountIsExceeded()
     {
+        boolean recordDelayedOperations = true;
         long excessiveDelayThresholdAsMilli = 10;
         long excessiveDelayCount = 10;
         Map<String,Long> excessiveDelayCountPerType = new HashMap<>();
@@ -111,77 +113,21 @@ public class ResultsLogValidationTest
         );
 
         long toleratedExcessiveDelayCount = excessiveDelayCount - 1;
-        Map<String,Long> toleratedExcessiveDelayCountPerType = new HashMap<>();
-        toleratedExcessiveDelayCountPerType.put( "A", excessiveDelayCountPerType.get( "A" ) );
-        toleratedExcessiveDelayCountPerType.put( "B", excessiveDelayCountPerType.get( "B" ) );
-        toleratedExcessiveDelayCountPerType.put( "C", excessiveDelayCountPerType.get( "C" ) );
         ResultsLogValidator validator = new ResultsLogValidator();
         ResultsLogValidationTolerances tolerances = new ResultsLogValidationTolerances(
                 excessiveDelayThresholdAsMilli,
-                toleratedExcessiveDelayCount,
-                toleratedExcessiveDelayCountPerType
+                toleratedExcessiveDelayCount
         );
         ResultsLogValidationResult result = validator.validate(
                 summary,
-                tolerances
+                tolerances,
+                recordDelayedOperations
         );
         assertFalse( result.toString(), result.isSuccessful() );
-        Assert.assertThat( result.toString(), result.errors().size(), equalTo( 1 ) );
         Assert.assertThat(
                 result.toString(),
                 result.errors().get( 0 ).errorType(),
                 equalTo( ResultsLogValidationResult.ValidationErrorType.TOO_MANY_LATE_OPERATIONS )
-        );
-    }
-
-    @Test
-    public void shouldFailValidationWhenExcessiveDelayCountPerTypeIsExceeded()
-    {
-        long excessiveDelayThresholdAsMilli = 10;
-        long excessiveDelayCount = 10;
-        Map<String,Long> excessiveDelayCountPerType = new HashMap<>();
-        excessiveDelayCountPerType.put( "A", 1l );
-        excessiveDelayCountPerType.put( "B", 2l );
-        excessiveDelayCountPerType.put( "C", 3l );
-        long minDelayAsMilli = 0;
-        long maxDelayAsMilli = 0;
-        long meanDelayAsMilli = 0;
-        Map<String,Long> minDelayAsMilliPerType = new HashMap<>();
-        Map<String,Long> maxDelayAsMilliPerType = new HashMap<>();
-        Map<String,Long> meanDelayAsMilliPerType = new HashMap<>();
-        ResultsLogValidationSummary summary = new ResultsLogValidationSummary(
-                excessiveDelayThresholdAsMilli,
-                excessiveDelayCount,
-                excessiveDelayCountPerType,
-                minDelayAsMilli,
-                maxDelayAsMilli,
-                meanDelayAsMilli,
-                minDelayAsMilliPerType,
-                maxDelayAsMilliPerType,
-                meanDelayAsMilliPerType
-        );
-
-        long toleratedExcessiveDelayCount = excessiveDelayCount;
-        Map<String,Long> toleratedExcessiveDelayCountPerType = new HashMap<>();
-        toleratedExcessiveDelayCountPerType.put( "A", excessiveDelayCountPerType.get( "A" ) );
-        toleratedExcessiveDelayCountPerType.put( "B", excessiveDelayCountPerType.get( "B" ) - 1 );
-        toleratedExcessiveDelayCountPerType.put( "C", excessiveDelayCountPerType.get( "C" ) );
-        ResultsLogValidator validator = new ResultsLogValidator();
-        ResultsLogValidationTolerances tolerances = new ResultsLogValidationTolerances(
-                excessiveDelayThresholdAsMilli,
-                toleratedExcessiveDelayCount,
-                toleratedExcessiveDelayCountPerType
-        );
-        ResultsLogValidationResult result = validator.validate(
-                summary,
-                tolerances
-        );
-        assertFalse( result.toString(), result.isSuccessful() );
-        Assert.assertThat( result.toString(), result.errors().size(), equalTo( 1 ) );
-        Assert.assertThat(
-                result.toString(),
-                result.errors().get( 0 ).errorType(),
-                equalTo( ResultsLogValidationResult.ValidationErrorType.TOO_MANY_LATE_OPERATIONS_FOR_TYPE )
         );
     }
 

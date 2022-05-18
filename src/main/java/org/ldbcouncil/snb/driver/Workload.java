@@ -21,26 +21,26 @@ public abstract class Workload implements Closeable
 
     public abstract Map<Integer,Class<? extends Operation>> operationTypeToClassMapping();
 
+    /**
+     * Calculates the total tolerated delayed operations. Note that this is the total over all the operations
+     * and not for each individual operation type.
+     * @param configuration
+     * @param warmup
+     * @return
+     */
     public ResultsLogValidationTolerances resultsLogValidationTolerances(
             DriverConfiguration configuration,
             boolean warmup
     )
     {
         long excessiveDelayThresholdAsMilli = TimeUnit.SECONDS.toMillis( 1 );
-        double toleratedExcessiveDelayCountPercentage = 0.01;
-        long toleratedExcessiveDelayCount =
+        double toleratedExcessiveDelayCountPercentage = 0.05; // 95% of the queries must run below delay threshold
+        long toleratedExcessiveDelayCount = // Total tolerated excessive delay count
                 (warmup) ? Math.round( configuration.warmupCount() * toleratedExcessiveDelayCountPercentage )
                          : Math.round( configuration.operationCount() * toleratedExcessiveDelayCountPercentage );
-        // TODO this should really be percentages instead of absolute numbers
-        Map<String,Long> toleratedExcessiveDelayCountPerType = new HashMap<>();
-        for ( Class operationType : operationTypeToClassMapping().values() )
-        {
-            toleratedExcessiveDelayCountPerType.put( operationType.getSimpleName(), 10l );
-        }
         return new ResultsLogValidationTolerances(
                 excessiveDelayThresholdAsMilli,
-                toleratedExcessiveDelayCount,
-                toleratedExcessiveDelayCountPerType
+                toleratedExcessiveDelayCount
         );
     }
 
@@ -121,6 +121,8 @@ public abstract class Workload implements Closeable
     {
         return DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI;
     }
+
+    public abstract int enabledValidationOperations();
 
     public abstract String serializeOperation( Operation operation ) throws SerializingMarshallingException;
 

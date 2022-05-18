@@ -17,6 +17,7 @@ import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.WorkloadStreams;
 import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
+import org.ldbcouncil.snb.driver.control.OperationMode;
 import org.ldbcouncil.snb.driver.csv.charseeker.BufferedCharSeeker;
 import org.ldbcouncil.snb.driver.csv.charseeker.CharSeeker;
 import org.ldbcouncil.snb.driver.csv.charseeker.Extractors;
@@ -115,8 +116,14 @@ public class LdbcSnbInteractiveWorkload extends Workload
     @Override
     public void onInit( Map<String,String> params ) throws WorkloadException
     {
-        List<String> compulsoryKeys = Lists.newArrayList(
-                LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY );
+        List<String> compulsoryKeys = Lists.newArrayList();
+
+        // Validation mode does not require parameter directory
+        if (params.containsKey(ConsoleAndFileDriverConfiguration.MODE_ARG)
+            && OperationMode.valueOf(params.get(ConsoleAndFileDriverConfiguration.MODE_ARG)) != OperationMode.validate_database )
+        {
+            compulsoryKeys.add( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY );
+        }
 
         compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_ENABLE_KEYS );
         compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS );
@@ -223,7 +230,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             {
                 Class longReadOperationClass = ClassLoaderHelper.loadClass( longReadOperationClassName );
                 if ( longReadOperationEnabled )
-                { enabledLongReadOperationTypes.add( longReadOperationClass ); }
+                { 
+                    enabledLongReadOperationTypes.add( longReadOperationClass );
+                }
             }
             catch ( ClassLoadingException e )
             {
@@ -256,7 +265,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
             {
                 Class shortReadOperationClass = ClassLoaderHelper.loadClass( shortReadOperationClassName );
                 if ( shortReadOperationEnabled )
-                { enabledShortReadOperationTypes.add( shortReadOperationClass ); }
+                { 
+                    enabledShortReadOperationTypes.add( shortReadOperationClass ); 
+                }
+
             }
             catch ( ClassLoadingException e )
             {
@@ -304,7 +316,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
             {
                 Class writeOperationClass = ClassLoaderHelper.loadClass( writeOperationClassName );
                 if ( writeOperationEnabled )
-                { enabledWriteOperationTypes.add( writeOperationClass ); }
+                { 
+                    enabledWriteOperationTypes.add( writeOperationClass ); 
+                }
+
             }
             catch ( ClassLoadingException e )
             {
@@ -345,8 +360,35 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         Map<String,String> tempFileParams = MapUtils.propertiesToMap( scaleFactorProperties );
         Map<String,String> tmp = new HashMap<String,String>(tempFileParams);
-        tmp.keySet().removeAll(params.keySet());
-        params.putAll(tmp);
+
+        // Check if validation params creation is used. If so, set the frequencies to 1
+        if ( OperationMode.valueOf(params.get(ConsoleAndFileDriverConfiguration.MODE_ARG)) == OperationMode.create_validation )
+        {
+            Map<String, String> freqs = new HashMap<String, String>();
+            String updateInterleave = tmp.get(LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE);
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE, updateInterleave);
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY, "1");
+            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY, "1");
+            freqs.keySet().removeAll(params.keySet());
+            params.putAll(freqs);
+        }
+        else
+        {
+            tmp.keySet().removeAll(params.keySet());
+            params.putAll(tmp);
+        }
 
         List<String> frequencyKeys =
                 Lists.newArrayList( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_FREQUENCY_KEYS );
@@ -1662,38 +1704,40 @@ public class LdbcSnbInteractiveWorkload extends Workload
         return ldbcSnbInteractiveWorkloadStreams;
     }
 
+    /**
+     * Creates the validation parameter filter, which determines the amount of validation parameters
+     * @param requiredValidationParameterCount The total validation parameters to create
+     */
     @Override
     public DbValidationParametersFilter dbValidationParametersFilter( Integer requiredValidationParameterCount )
     {
         Integer operationTypeCount = enabledLongReadOperationTypes.size() + enabledWriteOperationTypes.size();
+
+        // Calculate amount of validation operations to create
         long minimumResultCountPerOperationType = Math.max(
                 1,
                 Math.round( Math.floor(
                         requiredValidationParameterCount.doubleValue() / operationTypeCount.doubleValue() ) )
         );
 
-        long writeAddPersonOperationCount = (enabledWriteOperationTypes.contains( LdbcUpdate1AddPerson.class ))
-                                            ? minimumResultCountPerOperationType
-                                            : 0;
+        long writeAddPersonOperationCount = 0;
+        if (enabledWriteOperationTypes.contains( LdbcUpdate1AddPerson.class ))
+        {
+            writeAddPersonOperationCount = minimumResultCountPerOperationType;
+        }
 
         final Map<Class,Long> remainingRequiredResultsPerUpdateType = new HashMap<>();
-        long resultCountsAssignedForUpdateTypesSoFar = 0;
         for ( Class updateOperationType : enabledWriteOperationTypes )
         {
             if ( updateOperationType.equals( LdbcUpdate1AddPerson.class ) )
             { continue; }
             remainingRequiredResultsPerUpdateType.put( updateOperationType, minimumResultCountPerOperationType );
-            resultCountsAssignedForUpdateTypesSoFar =
-                    resultCountsAssignedForUpdateTypesSoFar + minimumResultCountPerOperationType;
         }
 
         final Map<Class,Long> remainingRequiredResultsPerLongReadType = new HashMap<>();
-        long resultCountsAssignedForLongReadTypesSoFar = 0;
         for ( Class longReadOperationType : enabledLongReadOperationTypes )
         {
             remainingRequiredResultsPerLongReadType.put( longReadOperationType, minimumResultCountPerOperationType );
-            resultCountsAssignedForLongReadTypesSoFar =
-                    resultCountsAssignedForLongReadTypesSoFar + minimumResultCountPerOperationType;
         }
 
         return new LdbcSnbInteractiveDbValidationParametersFilter(
@@ -1702,6 +1746,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 remainingRequiredResultsPerLongReadType,
                 enabledShortReadOperationTypes
         );
+    }
+
+    @Override
+    public int enabledValidationOperations()
+    {
+        return enabledLongReadOperationTypes.size() + enabledWriteOperationTypes.size();
     }
 
     @Override

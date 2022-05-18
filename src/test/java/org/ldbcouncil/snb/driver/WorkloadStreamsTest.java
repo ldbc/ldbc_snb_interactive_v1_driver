@@ -901,6 +901,12 @@ public class WorkloadStreamsTest
         }
 
         @Override
+        public int enabledValidationOperations()
+        {
+            return 0;
+        }
+
+        @Override
         protected void onClose() throws IOException
         {
         }

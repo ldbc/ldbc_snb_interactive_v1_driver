@@ -37,6 +37,11 @@ public class DummyWorkload extends Workload
     }
 
     @Override
+    public int enabledValidationOperations(){
+        return 0;
+    }
+
+    @Override
     public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
     {
         return OPERATION_TYPE_CLASS_MAPPING;

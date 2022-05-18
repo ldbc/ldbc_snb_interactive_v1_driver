@@ -18,6 +18,15 @@ import static java.lang.String.format;
 
 public class DbValidator
 {
+    /**
+     * Validate the database using generated validation parameters.
+     * @param validationParameters Iterator of validation parameters created using 'create_validation' mode
+     * @param db The database connector 
+     * @param validationParamsCount Total validation parameters
+     * @param workload The workload to use, e.g. @see org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkload
+     * @return
+     * @throws WorkloadException
+     */
     public DbValidationResult validate( Iterator<ValidationParam> validationParameters,
             Db db,
             int validationParamsCount,

@@ -64,6 +64,11 @@ public class SimpleWorkload extends Workload
     }
 
     @Override
+    public int enabledValidationOperations(){
+        return 0;
+    }
+
+    @Override
     public WorkloadStreams getStreams( GeneratorFactory gf, boolean hasDbConnected ) throws WorkloadException
     {
         long workloadStartTimeAsMilli = 0;

@@ -1,4 +1,10 @@
 package org.ldbcouncil.snb.driver.validation;
+/**
+ * ResultsLogValidator.java
+ * This class computes and validates the results of the benchmark. Compute reads the result file
+ * and records any delayed operation. Validate checks from the computed summary if it exceeds the
+ * threshold.
+ */
 
 import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileReader;
 import org.ldbcouncil.snb.driver.temporal.TemporalUtil;
@@ -13,11 +19,21 @@ public class ResultsLogValidator
 {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
 
+    /**
+     * Validates the result from the benchmark. Checks the amount of 
+     * @param summary Summary of delayed operations previously computed @see {@link org.ldbcouncil.snb.driver.validation.ResultsLogValidator#compute(File, long)}
+     * @param tolerances The resultsLogValidationTolerances object including the tolerated
+     * delay count. @see {@link org.ldbcouncil.snb.driver.Workload#ResultsLogValidationTolerances(org.ldbcouncil.snb.driver.control.DriverConfiguration, boolean)}
+     * @param recordDelayedOperations Record the late operations even when the total late operations are under the threshold
+     * @return ResultsLogValidationResult containing the list of delayed operations
+     */
     public ResultsLogValidationResult validate(
             ResultsLogValidationSummary summary,
-            ResultsLogValidationTolerances tolerances )
+            ResultsLogValidationTolerances tolerances,
+            boolean recordDelayedOperations )
     {
         ResultsLogValidationResult result = new ResultsLogValidationResult();
+        // Check if total delayed operations is above the threshold
         if ( summary.excessiveDelayCount() > tolerances.toleratedExcessiveDelayCount() )
         {
             result.addError(
@@ -26,26 +42,32 @@ public class ResultsLogValidator
                             summary.excessiveDelayCount(),
                             tolerances.toleratedExcessiveDelayCount() )
             );
+            recordDelayedOperations = true; //Override to give the late operations always when there are too many too late.
         }
         for ( String operationType : summary.excessiveDelayCountPerType().keySet() )
         {
-            long excessiveDelayCountForOperationType = summary.excessiveDelayCountPerType().get( operationType );
-            if ( tolerances.toleratedExcessiveDelayCountPerType().containsKey( operationType ) &&
-                 tolerances.toleratedExcessiveDelayCountPerType().get( operationType ) <
-                 excessiveDelayCountForOperationType )
+            if (recordDelayedOperations)
             {
                 result.addError(
-                        ValidationErrorType.TOO_MANY_LATE_OPERATIONS_FOR_TYPE,
-                        format( "Late Count for %s (%s) > (%s) Tolerated Late Count",
-                                operationType,
-                                summary.excessiveDelayCountPerType().get( operationType ),
-                                tolerances.toleratedExcessiveDelayCountPerType().get( operationType ) )
+                    ValidationErrorType.LATE_OPERATIONS_FOR_TYPE,
+                    format( "Late Count for %s (%s) Tolerated Late Count",
+                            operationType,
+                            summary.excessiveDelayCountPerType().get( operationType )
+                    )
                 );
             }
         }
         return result;
     }
 
+    /***
+     * Loads the benchmark result file and uses the ResultsLogValidationSummaryCalculator to record delayed
+     * operations.
+     * @param resultsLog The File object to the operation result log CSV-file.
+     * @param excessiveDelayThresholdAsMilli The delay threshold when an operation is considered delayed.
+     * @return Summary of the delayed operations in a ResultsLogValidationSummary object
+     * @throws ValidationException When the result CSV file could not be opened or invalid delay is computed.
+     */
     public ResultsLogValidationSummary compute( File resultsLog, long excessiveDelayThresholdAsMilli )
             throws ValidationException
     {
@@ -77,10 +99,16 @@ public class ResultsLogValidator
         {
             throw new ValidationException( format( "Error opening results log: %s", resultsLog.getAbsolutePath() ), e );
         }
-
+        // Create summary
         return calculator.snapshot();
     }
 
+    /**
+     * Calculates the maximum delay in the results used to place results in the Histogram object.
+     * @param resultsLog The File object to the operation result log CSV-file.
+     * @return maximum delay found in the result file.
+     * @throws ValidationException When the delay is invalid (negative)
+     */
     private long maxDelayAsMilli( File resultsLog ) throws ValidationException
     {
         long maxDelayAsMilli = 0;
@@ -102,17 +130,17 @@ public class ResultsLogValidator
                 if ( delayAsMilli < 0 )
                 {
                     throw new ValidationException(
-                            format( "Delay can not be negative\n" +
-                                    "Delay: %s (ms) / %s\n" +
-                                    "Scheduled Start Time: %s (ms) / %s\n" +
-                                    "Actual Start Time: %s (ms) / %s",
-                                    delayAsMilli,
-                                    TEMPORAL_UTIL.milliDurationToString( delayAsMilli ),
-                                    scheduledStartTimeAsMilli,
-                                    TEMPORAL_UTIL.milliTimeToTimeString( scheduledStartTimeAsMilli ),
-                                    actualStartTimeAsMilli,
-                                    TEMPORAL_UTIL.milliTimeToTimeString( actualStartTimeAsMilli )
-                            )
+                        format( "Delay can not be negative\n" +
+                                "Delay: %s (ms) / %s\n" +
+                                "Scheduled Start Time: %s (ms) / %s\n" +
+                                "Actual Start Time: %s (ms) / %s",
+                                delayAsMilli,
+                                TEMPORAL_UTIL.milliDurationToString( delayAsMilli ),
+                                scheduledStartTimeAsMilli,
+                                TEMPORAL_UTIL.milliTimeToTimeString( scheduledStartTimeAsMilli ),
+                                actualStartTimeAsMilli,
+                                TEMPORAL_UTIL.milliTimeToTimeString( actualStartTimeAsMilli )
+                        )
                     );
                 }
                 if ( delayAsMilli > maxDelayAsMilli )

@@ -459,7 +459,8 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     // TODO export result
                     ResultsLogValidationResult validationResult = resultsLogValidator.validate(
                             resultsLogValidationSummary,
-                            resultsLogValidationTolerances
+                            resultsLogValidationTolerances,
+                            controlService.configuration().recordDelayedOperations()
                     );
                     loggingService.info( validationResult.toString() );
                     Files.write(

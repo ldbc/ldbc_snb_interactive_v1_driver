@@ -1,4 +1,12 @@
 package org.ldbcouncil.snb.driver.validation;
+/**
+ * Class generating validation parameters for specified workload.
+ * To generate the validation parameters, the following is required:
+ * - A database where the data is already loaded
+ * - A validation parameters filter to determine which queries needs to be part of the validation parameters
+ * - An iterator with time mapped operations
+ */
+
 
 import org.ldbcouncil.snb.driver.Db;
 import org.ldbcouncil.snb.driver.DbConnectionState;
@@ -29,10 +37,12 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
     private int entriesWrittenSoFar;
     private boolean needMoreValidationParameters;
     private final List<Operation> injectedOperations;
+    private int requiredValidationParameterSize;
 
     public ValidationParamsGenerator( Db db,
             DbValidationParametersFilter dbValidationParametersFilter,
-            Iterator<Operation> operations )
+            Iterator<Operation> operations,
+            int requiredValidationParameterSize )
     {
         this.db = db;
         this.dbValidationParametersFilter = dbValidationParametersFilter;
@@ -41,6 +51,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
         this.entriesWrittenSoFar = 0;
         this.needMoreValidationParameters = true;
         this.injectedOperations = new ArrayList<>();
+        this.requiredValidationParameterSize = requiredValidationParameterSize;
     }
 
     public int entriesWrittenSoFar()
@@ -51,7 +62,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
     @Override
     protected ValidationParam doNext() throws GeneratorException
     {
-        while ( (injectedOperations.size() > 0 || operations.hasNext()) && needMoreValidationParameters )
+        while ( (injectedOperations.size() > 0 || operations.hasNext()) && needMoreValidationParameters && (requiredValidationParameterSize > entriesWrittenSoFar) )
         {
             Operation operation;
             if ( injectedOperations.isEmpty() )
@@ -64,7 +75,9 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
             }
 
             if ( false == dbValidationParametersFilter.useOperation( operation ) )
-            { continue; }
+            { 
+                continue; 
+            }
 
             OperationHandlerRunnableContext operationHandlerRunner;
             try

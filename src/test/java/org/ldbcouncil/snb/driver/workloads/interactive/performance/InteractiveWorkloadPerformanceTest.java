@@ -107,24 +107,27 @@ public class InteractiveWorkloadPerformanceTest
                     Long.toString( TimeUnit.MICROSECONDS.toNanos( 100 ) ) );
             paramsMap.put( DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name() );
             // Driver-specific parameters
+            String mode = "execute_benchmark";
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             int statusDisplayInterval = 2;
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
             double timeCompressionRatio = 0.0000001;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
-            boolean calculateWorkloadStatistics = false;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             long spinnerSleepDuration = 0;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
+            boolean recordDelayedOperations = true;
             long warmupCount = 0;
             long skipCount = 0;
             boolean flushLog = false;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    mode,
                     name,
                     dbClassName,
                     workloadClassName,
@@ -134,9 +137,10 @@ public class InteractiveWorkloadPerformanceTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
-                    calculateWorkloadStatistics,
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
@@ -262,8 +266,6 @@ public class InteractiveWorkloadPerformanceTest
         try
         {
             Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
-//            Map<String, String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultWriteOnlyConfig();
-//            Map<String, String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultReadOnlyConfig();
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY, parametersDir );
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, updateStreamsDir );
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_STREAM_PARSER,
@@ -272,25 +274,27 @@ public class InteractiveWorkloadPerformanceTest
                     Long.toString( TimeUnit.MICROSECONDS.toNanos( 0 ) ) );
             paramsMap.put( DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name() );
             // Driver-specific parameters
+            String mode = "execute_benchmark";
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             int statusDisplayInterval = 2;
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
             double timeCompressionRatio = 0.0000001;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
-            // TODO should be false
-            boolean calculateWorkloadStatistics = true;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             long spinnerSleepDuration = 0;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
+            boolean recordDelayedOperations = true;
             long warmupCount = 0;
             long skipCount = 0;
             boolean flushLog = false;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    mode,
                     name,
                     dbClassName,
                     workloadClassName,
@@ -300,9 +304,10 @@ public class InteractiveWorkloadPerformanceTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
-                    calculateWorkloadStatistics,
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
