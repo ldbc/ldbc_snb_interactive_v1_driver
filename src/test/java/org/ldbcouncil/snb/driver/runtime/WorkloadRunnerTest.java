@@ -99,6 +99,7 @@ public class WorkloadRunnerTest
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
             // Driver-specific parameters
+            String mode = "execute_benchmark";
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
@@ -106,18 +107,20 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.0000001;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
-            boolean calculateWorkloadStatistics = false;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
+            boolean recordDelayedOperations = true;
             long warmupCount = 100;
             long skipCount = 10;
             boolean flushLog = false;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    mode,
                     name,
                     dbClassName,
                     workloadClassName,
@@ -127,9 +130,10 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
-                    calculateWorkloadStatistics,
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
@@ -302,6 +306,7 @@ public class WorkloadRunnerTest
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
             // Driver-specific parameters
+            String mode = "execute_benchmark";
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
@@ -309,18 +314,20 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.0000001;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
-            boolean calculateWorkloadStatistics = false;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
+            boolean recordDelayedOperations = true;
             long warmupCount = 100;
             long skipCount = 10;
             boolean flushLog = false;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    mode,
                     name,
                     dbClassName,
                     workloadClassName,
@@ -330,9 +337,10 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
-                    calculateWorkloadStatistics,
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
@@ -523,6 +531,7 @@ public class WorkloadRunnerTest
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
             // Driver-specific parameters
+            String mode = "execute_benchmark";
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
@@ -530,18 +539,20 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.000001;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
-            boolean calculateWorkloadStatistics = false;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
+            boolean recordDelayedOperations = true;
             long warmupCount = 100;
             long skipCount = 10;
             boolean flushLog = false;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    mode,
                     name,
                     dbClassName,
                     workloadClassName,
@@ -551,9 +562,10 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
-                    calculateWorkloadStatistics,
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
@@ -790,6 +802,7 @@ public class WorkloadRunnerTest
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
             // Driver-specific parameters
+            String mode = "execute_benchmark";
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
@@ -797,18 +810,20 @@ public class WorkloadRunnerTest
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 1.0;
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
-            boolean calculateWorkloadStatistics = false;
+            boolean validationSerializationCheck = false;
+            int validationParamsSize = 0;
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
+            boolean recordDelayedOperations = true;
             long warmupCount = 100;
             long skipCount = 10;
             boolean flushLog = false;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    mode,
                     name,
                     dbClassName,
                     workloadClassName,
@@ -818,9 +833,10 @@ public class WorkloadRunnerTest
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    validationParams,
+                    validationParamsSize,
+                    validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
-                    calculateWorkloadStatistics,
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,

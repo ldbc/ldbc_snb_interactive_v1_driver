@@ -109,6 +109,17 @@ public abstract class WorkloadTest
         return configurationsWithSkip;
     }
 
+    private List<DriverConfiguration> withMode( List<DriverConfiguration> configurations, String mode )
+            throws IOException, DriverConfigurationException
+    {
+        List<DriverConfiguration> configurationsWithSkip = new ArrayList<>();
+        for ( DriverConfiguration configuration : configurations )
+        {
+            configuration.applyArg( ConsoleAndFileDriverConfiguration.MODE_ARG, mode );
+        }
+        return configurationsWithSkip;
+    }
+
     @Test
     public void shouldHaveOneToOneMappingBetweenOperationClassesAndOperationTypes() throws Exception
     {
@@ -483,10 +494,11 @@ public abstract class WorkloadTest
         }
     }
 
+    // TODO: Test should write to memory, not to physical disk. Mock the file and pass it over to the validate_database
     @Test
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass() throws Exception
     {
-        for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )
+        for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs(withMode( configurations(), "create_validation" )) ) ) )
         {
             // **************************************************
             // where validation parameters should be written (ensure file does not yet exist)
@@ -494,16 +506,8 @@ public abstract class WorkloadTest
             File validationParamsFile = temporaryFolder.newFile();
             assertThat( validationParamsFile.length(), is( 0l ) );
 
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
-                    new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions(
-                            validationParamsFile.getAbsolutePath(),
-                            500
-                    );
-
-            configuration = configuration.applyArg(
-                    ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
-                    validationParams.toCommandlineString()
-            );
+            configuration = configuration.applyArg(ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG, validationParamsFile.getAbsolutePath());
+            configuration = configuration.applyArg(ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_ARG, Integer.toString(500));
 
             ResultsDirectory resultsDirectory = new ResultsDirectory( configuration );
 
@@ -535,8 +539,8 @@ public abstract class WorkloadTest
             // **************************************************
             // configuration for using validation parameters file to validate the database
             // **************************************************
+            configuration = configuration.applyArg(ConsoleAndFileDriverConfiguration.MODE_ARG, "validate_database");
             configuration = configuration
-                    .applyArg( ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG, null )
                     .applyArg(
                             ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG,
                             validationParamsFile.getAbsolutePath()

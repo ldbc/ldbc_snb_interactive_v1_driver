@@ -68,6 +68,7 @@ public class QueuePerformanceTests
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         // LDBC Interactive Workload-specific parameters
         // Driver-specific parameters
+        String mode = null;
         String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
@@ -77,18 +78,20 @@ public class QueuePerformanceTests
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         double timeCompressionRatio = 1.0;
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
-        boolean calculateWorkloadStatistics = false;
+        boolean validationSerializationCheck = false;
+        int validationParamsSize = 0;
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
+        boolean recordDelayedOperations = true;
         long warmupCount = 0;
         long skipCount = 0;
         boolean flushLog = false;
 
         DriverConfiguration config = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
+                mode,
                 name,
                 dbClassName,
                 workloadClassName,
@@ -98,9 +101,10 @@ public class QueuePerformanceTests
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                validationParams,
+                validationParamsSize,
+                validationSerializationCheck,
+                recordDelayedOperations,
                 dbValidationFilePath,
-                calculateWorkloadStatistics,
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,

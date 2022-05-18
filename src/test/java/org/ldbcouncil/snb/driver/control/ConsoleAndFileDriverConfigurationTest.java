@@ -91,15 +91,17 @@ public class ConsoleAndFileDriverConfigurationTest
     public void toMapThenFromMapShouldReturnSameResultWhenAllParamsAreInitiallySetViaConstructor()
             throws DriverConfigurationException
     {
+        String mode = "execute_benchmark";
         long operationCount = 2;
         int threadCount = 4;
         int statusDisplayInterval = 1000;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = "results dir";
         Double timeCompressionRatio = 1.0;
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationCreationParams = null;
+        int validationParamsSize = 0;
+        boolean validationSerializationCheck = false;
+        boolean recordDelayedOperations = true;
         String databaseValidationFilePath = null;
-        boolean calculateWorkloadStatistics = false;
         long spinnerSleepDuration = 0L;
         boolean printHelp = false;
         String name = "LDBC-SNB";
@@ -111,6 +113,7 @@ public class ConsoleAndFileDriverConfigurationTest
 
         ConsoleAndFileDriverConfiguration configurationBefore = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
+                mode,
                 name,
                 DummyLdbcSnbInteractiveDb.class.getName(),
                 LdbcSnbInteractiveWorkload.class.getName(),
@@ -120,9 +123,10 @@ public class ConsoleAndFileDriverConfigurationTest
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                validationCreationParams,
+                validationParamsSize,
+                validationSerializationCheck,
+                recordDelayedOperations,
                 databaseValidationFilePath,
-                calculateWorkloadStatistics,
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
@@ -186,9 +190,6 @@ public class ConsoleAndFileDriverConfigurationTest
         String workloadClassName = "workload";
         long operationCount = 2;
 
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParamOptions =
-                new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions( "file", 2 );
-
         Map<String,String> paramsFromPublicStaticDefaultValuesAsMap = new HashMap<>();
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.THREADS_ARG,
@@ -208,14 +209,14 @@ public class ConsoleAndFileDriverConfigurationTest
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING );
         paramsFromPublicStaticDefaultValuesAsMap.put(
-                ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
-                validationParamOptions.toCommandlineString() );
+            ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_ARG,
+            ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_DEFAULT_STRING );
+        paramsFromPublicStaticDefaultValuesAsMap.put(
+            ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_ARG,
+            ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_DEFAULT_STRING );
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG,
                 ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING );
-        paramsFromPublicStaticDefaultValuesAsMap.put(
-                ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG,
-                ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING );
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.HELP_ARG, ConsoleAndFileDriverConfiguration.HELP_DEFAULT_STRING );
         paramsFromPublicStaticDefaultValuesAsMap.put(
@@ -326,18 +327,15 @@ public class ConsoleAndFileDriverConfigurationTest
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING );
-        if ( null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT )
-        {
-            paramsFromPublicStaticDefaultValuesAsMap.put(
-                    ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
-                    ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT.toCommandlineString() );
-        }
+        paramsFromPublicStaticDefaultValuesAsMap.put(
+            ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_ARG,
+            ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_DEFAULT_STRING );
+        paramsFromPublicStaticDefaultValuesAsMap.put(
+            ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_ARG,
+            ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_DEFAULT_STRING );
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG,
                 ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING );
-        paramsFromPublicStaticDefaultValuesAsMap.put(
-                ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG,
-                ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING );
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.HELP_ARG, ConsoleAndFileDriverConfiguration.HELP_DEFAULT_STRING );
         paramsFromPublicStaticDefaultValuesAsMap.put(
@@ -399,18 +397,18 @@ public class ConsoleAndFileDriverConfigurationTest
                 ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING );
-        if ( null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT )
-        {
-            optionalParamsMap.put( ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
-                    ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT.toCommandlineString() );
-        }
+
+        optionalParamsMap.put( ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_ARG,
+            ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_DEFAULT_STRING);
+        
+        optionalParamsMap.put( ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_ARG,
+            ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_DEFAULT_STRING);
+
         if ( null != ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING )
         {
             optionalParamsMap.put( ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG,
                     ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING );
         }
-        optionalParamsMap.put( ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG,
-                ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.HELP_ARG,
                 ConsoleAndFileDriverConfiguration.HELP_DEFAULT_STRING );
         optionalParamsMap.put( ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
@@ -446,30 +444,30 @@ public class ConsoleAndFileDriverConfigurationTest
         if ( null != ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT )
         {
             optionalParamsArgsList.addAll(
-                    Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG,
-                            ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT_STRING ) );
+                Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG,
+                    ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT_STRING ) );
         }
         optionalParamsArgsList.addAll(
-                Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                        ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING ) );
-        if ( null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT )
-        {
+            Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
+                ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING ) );
+        
+        optionalParamsArgsList.addAll(
+            Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_ARG,
+                ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_DEFAULT_STRING ) );
+
+        if (ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_DEFAULT == false){
             optionalParamsArgsList.addAll(
-                    Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG,
-                            ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT
-                                    .toCommandlineString() ) );
+                Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_ARG,
+                        ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_DEFAULT_STRING ) );
         }
+
         if ( null != ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING )
         {
             optionalParamsArgsList.addAll(
                     Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG,
                             ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING ) );
         }
-        if ( ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT )
-        {
-            optionalParamsArgsList.addAll(
-                    Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG ) );
-        }
+
         if ( ConsoleAndFileDriverConfiguration.HELP_DEFAULT )
         { optionalParamsArgsList.addAll( Lists.newArrayList( "-" + ConsoleAndFileDriverConfiguration.HELP_ARG ) ); }
         if ( ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT )
@@ -528,13 +526,12 @@ public class ConsoleAndFileDriverConfigurationTest
                 is( ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT ) );
         assertThat( configurationFromParams.timeCompressionRatio(),
                 is( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT ) );
-        assertThat( configurationFromParams.validationParamsCreationOptions(),
-                is( (DriverConfiguration.ValidationParamOptions) ConsoleAndFileDriverConfiguration
-                        .CREATE_VALIDATION_PARAMS_DEFAULT ) );
+        assertThat( configurationFromParams.validationParametersSize(),
+                is( ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_DEFAULT));
+        assertThat( configurationFromParams.validationSerializationCheck(),
+                is( ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_DEFAULT));
         assertThat( configurationFromParams.databaseValidationFilePath(),
                 is( ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT ) );
-        assertThat( configurationFromParams.calculateWorkloadStatistics(),
-                is( ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT ) );
         assertThat( configurationFromParams.shouldPrintHelpString(),
                 is( ConsoleAndFileDriverConfiguration.HELP_DEFAULT ) );
         assertThat( configurationFromParams.ignoreScheduledStartTimes(),
@@ -549,6 +546,7 @@ public class ConsoleAndFileDriverConfigurationTest
     public void shouldReturnSameAsConstructedWith()
     {
         Map<String,String> paramsMap = new HashMap<>();
+        String mode = "execute_benchmark";
         String name = "name";
         String dbClassName = "dbClassName";
         String workloadClassName = "workloadClassName";
@@ -558,10 +556,10 @@ public class ConsoleAndFileDriverConfigurationTest
         TimeUnit timeUnit = TimeUnit.SECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
-                new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions( "file", 1 );
-        String dbValidationFilePath = null;
-        boolean calculateWorkloadStatistics = false;
+        int validationParamsSize = 1;
+        boolean validationSerializationCheck = true;
+        boolean recordDelayedOperations = true;
+        String dbValidationFilePath = "file";
         long spinnerSleepDuration = 0L;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
@@ -571,6 +569,7 @@ public class ConsoleAndFileDriverConfigurationTest
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
+                mode,
                 name,
                 dbClassName,
                 workloadClassName,
@@ -580,9 +579,10 @@ public class ConsoleAndFileDriverConfigurationTest
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                validationParams,
+                validationParamsSize,
+                validationSerializationCheck,
+                recordDelayedOperations,
                 dbValidationFilePath,
-                calculateWorkloadStatistics,
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
@@ -592,6 +592,7 @@ public class ConsoleAndFileDriverConfigurationTest
         );
 
         assertThat( params.asMap(), equalTo( paramsMap ) );
+        assertThat( params.mode(), equalTo( mode ) );
         assertThat( params.name(), equalTo( name ) );
         assertThat( params.dbClassName(), equalTo( dbClassName ) );
         assertThat( params.workloadClassName(), equalTo( workloadClassName ) );
@@ -601,10 +602,9 @@ public class ConsoleAndFileDriverConfigurationTest
         assertThat( params.timeUnit(), equalTo( timeUnit ) );
         assertThat( params.resultDirPath(), equalTo( resultDirPath ) );
         assertThat( params.timeCompressionRatio(), equalTo( timeCompressionRatio ) );
-        assertThat( params.validationParamsCreationOptions(),
-                equalTo( (DriverConfiguration.ValidationParamOptions) validationParams ) );
+        assertThat( params.validationSerializationCheck(), equalTo( validationSerializationCheck ) );
+        assertThat( params.validationParametersSize(), equalTo( validationParamsSize ) );
         assertThat( params.databaseValidationFilePath(), equalTo( dbValidationFilePath ) );
-        assertThat( params.calculateWorkloadStatistics(), equalTo( calculateWorkloadStatistics ) );
         assertThat( params.shouldPrintHelpString(), equalTo( printHelp ) );
         assertThat( params.ignoreScheduledStartTimes(), equalTo( ignoreScheduledStartTimes ) );
         assertThat( params.spinnerSleepDurationAsMilli(), equalTo( spinnerSleepDuration ) );

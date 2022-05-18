@@ -345,6 +345,7 @@ public class TimeMappingOperationGeneratorTest
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         // Driver-specific parameters
+        String mode = "execute_benchmark";
         String name = "name";
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
@@ -354,11 +355,12 @@ public class TimeMappingOperationGeneratorTest
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
-        boolean calculateWorkloadStatistics = false;
+        boolean validationSerializationCheck = false;
+        int validationParamsSize = 0;
         long spinnerSleepDuration = 0L;
         boolean printHelp = false;
+        boolean recordDelayedOperations = true;
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 0;
         long skipCount = 0;
@@ -366,6 +368,7 @@ public class TimeMappingOperationGeneratorTest
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
+                mode,
                 name,
                 dbClassName,
                 workloadClassName,
@@ -375,9 +378,10 @@ public class TimeMappingOperationGeneratorTest
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                validationParams,
+                validationParamsSize,
+                validationSerializationCheck,
+                recordDelayedOperations,
                 dbValidationFilePath,
-                calculateWorkloadStatistics,
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,

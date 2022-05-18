@@ -8,7 +8,7 @@ public class ResultsLogValidationResult
     public enum ValidationErrorType
     {
         TOO_MANY_LATE_OPERATIONS,
-        TOO_MANY_LATE_OPERATIONS_FOR_TYPE,
+        LATE_OPERATIONS_FOR_TYPE,
         UNEXPECTED
     }
 

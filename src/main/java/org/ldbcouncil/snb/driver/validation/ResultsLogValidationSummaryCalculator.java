@@ -1,4 +1,9 @@
 package org.ldbcouncil.snb.driver.validation;
+/**
+ * ResultsLogValidationSummaryCalculator.java
+ * Stores per operation the delayed operations into a histogram (method RecordDelay)
+ * and creates a summary of the delayed operations using (method snapshot)
+ */
 
 import org.HdrHistogram.Histogram;
 
@@ -24,6 +29,11 @@ class ResultsLogValidationSummaryCalculator
         this.delaysAboveThreshold = 0;
     }
 
+    /**
+     * Stores the operation in Histogram object if the delay exceeded the threshold.
+     * @param operationType The operation type
+     * @param delayAsMilli The delay in milliseconds for the operation
+     */
     void recordDelay( String operationType, long delayAsMilli )
     {
         delays.recordValue( delayAsMilli );
@@ -49,6 +59,10 @@ class ResultsLogValidationSummaryCalculator
         }
     }
 
+    /**
+     * Creates a summary with statistics of the delays
+     * @return ResultsLogValidationSummary object
+     */
     ResultsLogValidationSummary snapshot()
     {
         Map<String,Long> minDelayAsMilliPerType = new HashMap<>();
