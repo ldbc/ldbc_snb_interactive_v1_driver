@@ -212,28 +212,28 @@ public class InteractiveReadEventStreamReadersTest
         LdbcQuery4 operation;
 
         operation = (LdbcQuery4) reader.next();
-        assertThat(operation.getPersonId(), is(12094628092905L));
+        assertThat(operation.getPersonIdQ4(), is(12094628092905L));
         assertThat(operation.getDurationDays(), is(43));
         calendar.clear();
         calendar.set(2011, Calendar.APRIL, 1);
         assertThat(operation.getStartDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery4) reader.next();
-        assertThat(operation.getPersonId(), is(9895606011404L));
+        assertThat(operation.getPersonIdQ4(), is(9895606011404L));
         assertThat(operation.getDurationDays(), is(36));
         calendar.clear();
         calendar.set(2012, Calendar.JANUARY, 1);
         assertThat(operation.getStartDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery4) reader.next();
-        assertThat(operation.getPersonId(), is(14293651244033L));
+        assertThat(operation.getPersonIdQ4(), is(14293651244033L));
         assertThat(operation.getDurationDays(), is(57));
         calendar.clear();
         calendar.set(2011, Calendar.JULY, 1);
         assertThat(operation.getStartDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery4) reader.next();
-        assertThat(operation.getPersonId(), is(13194139602632L));
+        assertThat(operation.getPersonIdQ4(), is(13194139602632L));
         assertThat(operation.getDurationDays(), is(81));
         calendar.clear();
         calendar.set(2011, Calendar.JULY, 1);
@@ -645,21 +645,21 @@ public class InteractiveReadEventStreamReadersTest
         LdbcQuery13 operation;
 
         operation = (LdbcQuery13) reader.next();
-        assertThat(operation.getPerson1Id(), is(9895605643992L));
-        assertThat(operation.getPerson2Id(), is(1099512323797L));
+        assertThat(operation.getPerson1IdQ13StartNode(), is(9895605643992L));
+        assertThat(operation.getPerson2IdQ13EndNode(), is(1099512323797L));
         // OperationTest.assertCorrectParameterMap(operation);
 
         operation = (LdbcQuery13) reader.next();
-        assertThat(operation.getPerson1Id(), is(979201L));
-        assertThat(operation.getPerson2Id(), is(95384L));
+        assertThat(operation.getPerson1IdQ13StartNode(), is(979201L));
+        assertThat(operation.getPerson2IdQ13EndNode(), is(95384L));
 
         operation = (LdbcQuery13) reader.next();
-        assertThat(operation.getPerson1Id(), is(129891L));
-        assertThat(operation.getPerson2Id(), is(9895606000517L));
+        assertThat(operation.getPerson1IdQ13StartNode(), is(129891L));
+        assertThat(operation.getPerson2IdQ13EndNode(), is(9895606000517L));
 
         operation = (LdbcQuery13) reader.next();
-        assertThat(operation.getPerson1Id(), is(13194140498760L));
-        assertThat(operation.getPerson2Id(), is(7696582276748L));
+        assertThat(operation.getPerson1IdQ13StartNode(), is(13194140498760L));
+        assertThat(operation.getPerson2IdQ13EndNode(), is(7696582276748L));
 
         assertThat(reader.hasNext(), is(false));
     }

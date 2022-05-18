@@ -41,6 +41,22 @@ public class LdbcShortQuery4MessageContent extends Operation<LdbcShortQuery4Mess
     }
    
     @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o )
+        { return true; }
+        if ( o == null || getClass() != o.getClass() )
+        { return false; }
+
+        LdbcShortQuery4MessageContent that = (LdbcShortQuery4MessageContent) o;
+
+        if ( messageIdContent != that.messageIdContent )
+        { return false; }
+
+        return true;
+    }
+
+    @Override
     public int hashCode()
     {
         return (int) (messageIdContent ^ (messageIdContent >>> 32));
