@@ -100,6 +100,7 @@ public class ConsoleAndFileDriverConfigurationTest
         Double timeCompressionRatio = 1.0;
         int validationParamsSize = 0;
         boolean validationSerializationCheck = false;
+        boolean recordDelayedOperations = true;
         String databaseValidationFilePath = null;
         long spinnerSleepDuration = 0L;
         boolean printHelp = false;
@@ -124,6 +125,7 @@ public class ConsoleAndFileDriverConfigurationTest
                 timeCompressionRatio,
                 validationParamsSize,
                 validationSerializationCheck,
+                recordDelayedOperations,
                 databaseValidationFilePath,
                 spinnerSleepDuration,
                 printHelp,
@@ -556,6 +558,7 @@ public class ConsoleAndFileDriverConfigurationTest
         Double timeCompressionRatio = 1.0;
         int validationParamsSize = 1;
         boolean validationSerializationCheck = true;
+        boolean recordDelayedOperations = true;
         String dbValidationFilePath = "file";
         long spinnerSleepDuration = 0L;
         boolean printHelp = false;
@@ -578,6 +581,7 @@ public class ConsoleAndFileDriverConfigurationTest
                 timeCompressionRatio,
                 validationParamsSize,
                 validationSerializationCheck,
+                recordDelayedOperations,
                 dbValidationFilePath,
                 spinnerSleepDuration,
                 printHelp,

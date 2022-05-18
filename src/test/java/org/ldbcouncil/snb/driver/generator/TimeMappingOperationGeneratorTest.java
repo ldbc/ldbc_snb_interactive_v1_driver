@@ -360,6 +360,7 @@ public class TimeMappingOperationGeneratorTest
         int validationParamsSize = 0;
         long spinnerSleepDuration = 0L;
         boolean printHelp = false;
+        boolean recordDelayedOperations = true;
         boolean ignoreScheduledStartTimes = false;
         long warmupCount = 0;
         long skipCount = 0;
@@ -379,6 +380,7 @@ public class TimeMappingOperationGeneratorTest
                 timeCompressionRatio,
                 validationParamsSize,
                 validationSerializationCheck,
+                recordDelayedOperations,
                 dbValidationFilePath,
                 spinnerSleepDuration,
                 printHelp,

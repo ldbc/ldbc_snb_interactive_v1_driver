@@ -80,6 +80,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private static final String IGNORE_SCHEDULED_START_TIMES_DESCRIPTION =
             "executes operations as fast as possible, ignoring their scheduled start times";
 
+    public static final String RECORD_DELAYED_OPERATIONS_ARG = "log_delayed";
+    public static final boolean RECORD_DELAYED_OPERATIONS_DEFAULT = true;
+    public static final String RECORD_DELAYED_OPERATIONS_DEFAULT_STRING = Boolean.toString( RECORD_DELAYED_OPERATIONS_DEFAULT );
+    private static final String RECORD_DELAYED_OPERATIONS_DESCRIPTION = "print usage instruction";
+
     public static final String HELP_ARG = "help";
     public static final boolean HELP_DEFAULT = false;
     public static final String HELP_DEFAULT_STRING = Boolean.toString( HELP_DEFAULT );
@@ -211,6 +216,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         {
             defaultParamsMap.put( DB_VALIDATION_FILE_PATH_ARG, DB_VALIDATION_FILE_PATH_DEFAULT_STRING );
         }
+        defaultParamsMap.put( RECORD_DELAYED_OPERATIONS_ARG, RECORD_DELAYED_OPERATIONS_DEFAULT_STRING );
         defaultParamsMap.put( VALIDATION_SERIALIZATION_CHECK_ARG, VALIDATION_SERIALIZATION_CHECK_DEFAULT_STRING );
         defaultParamsMap.put( VALIDATION_PARAMS_SIZE_ARG, VALIDATION_PARAMS_SIZE_DEFAULT_STRING );
         defaultParamsMap.put( TIME_UNIT_ARG, TIME_UNIT_DEFAULT_STRING );
@@ -322,6 +328,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             long skipCount = Long.parseLong( paramsMap.get( SKIP_COUNT_ARG ) );
             long warmupCount = Long.parseLong( paramsMap.get( WARMUP_COUNT_ARG ) );
             boolean printHelp = Boolean.parseBoolean( paramsMap.get( HELP_ARG ) );
+            boolean recordDelayedOperations = Boolean.parseBoolean(paramsMap.get (RECORD_DELAYED_OPERATIONS_ARG));
             boolean ignoreScheduledStartTimes =
                     Boolean.parseBoolean( paramsMap.get( IGNORE_SCHEDULED_START_TIMES_ARG ) );
             boolean flushLog = Boolean.parseBoolean( paramsMap.get( FLUSH_LOG_ARG ) );
@@ -339,8 +346,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                     timeCompressionRatio,
                     validationParametersSize,
                     validationSerializationCheck,
+                    recordDelayedOperations,
                     databaseValidationFilePath,
-                    // calculateWorkloadStatistics,
                     spinnerSleepDurationAsMilli,
                     printHelp,
                     ignoreScheduledStartTimes,
@@ -633,6 +640,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                                 DB_VALIDATION_FILE_PATH_ARG_LONG ).create( DB_VALIDATION_FILE_PATH_ARG );
         options.addOption( databaseValidationFilePathOption );
 
+        Option recordDelayedOperations = OptionBuilder.withDescription( RECORD_DELAYED_OPERATIONS_DESCRIPTION ).create( RECORD_DELAYED_OPERATIONS_ARG );
+        options.addOption( recordDelayedOperations );
+
         Option spinnerSleepDurationOption = OptionBuilder.hasArgs( 1 ).withArgName( "duration" )
                 .withDescription( SPINNER_SLEEP_DURATION_DESCRIPTION ).withLongOpt(
                         SPINNER_SLEEP_DURATION_ARG_LONG ).create( SPINNER_SLEEP_DURATION_ARG );
@@ -738,6 +748,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     private final double timeCompressionRatio;
     private final int validationParametersSize;
     private final boolean validationSerializationCheck;
+    private final boolean recordDelayedOperations;
     private final String databaseValidationFilePath;
     private final long spinnerSleepDurationAsMilli;
     private final boolean printHelp;
@@ -759,6 +770,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
             double timeCompressionRatio,
             int validationParametersSize,
             boolean validationSerializationCheck,
+            boolean recordDelayedOperations,
             String databaseValidationFilePath,
             long spinnerSleepDurationAsMilli,
             boolean printHelp,
@@ -784,6 +796,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         this.timeCompressionRatio = timeCompressionRatio;
         this.validationParametersSize = validationParametersSize;
         this.validationSerializationCheck = validationSerializationCheck;
+        this.recordDelayedOperations = recordDelayedOperations;
         this.databaseValidationFilePath = databaseValidationFilePath;
         this.spinnerSleepDurationAsMilli = spinnerSleepDurationAsMilli;
         this.printHelp = printHelp;
@@ -821,6 +834,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
         paramsMap.put( SPINNER_SLEEP_DURATION_ARG, Long.toString( spinnerSleepDurationAsMilli ) );
         paramsMap.put( HELP_ARG, Boolean.toString( printHelp ) );
+        paramsMap.put( RECORD_DELAYED_OPERATIONS_ARG, Boolean.toString( recordDelayedOperations ) );
         paramsMap.put( IGNORE_SCHEDULED_START_TIMES_ARG, Boolean.toString( ignoreScheduledStartTimes ) );
         paramsMap.put( WARMUP_COUNT_ARG, Long.toString( warmupCount ) );
         paramsMap.put( SKIP_COUNT_ARG, Long.toString( skipCount ) );
@@ -911,6 +925,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
     public int validationParametersSize()
     {
         return validationParametersSize;
+    }
+
+    @Override
+    public boolean recordDelayedOperations()
+    {
+        return recordDelayedOperations;
     }
 
     @Override
@@ -1067,6 +1087,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
         boolean newPrintHelp = (newParamsMapWithShortKeys.containsKey( HELP_ARG )) ?
                                Boolean.parseBoolean( newParamsMapWithShortKeys.get( HELP_ARG ) ) :
                                printHelp;
+        boolean newRecordDelayedOperations = (newParamsMapWithShortKeys.containsKey( RECORD_DELAYED_OPERATIONS_ARG )) ?
+                               Boolean.parseBoolean( newParamsMapWithShortKeys.get( RECORD_DELAYED_OPERATIONS_ARG ) ) :
+                               recordDelayedOperations;
+
         boolean newIgnoreScheduledStartTimes =
                 (newParamsMapWithShortKeys.containsKey( IGNORE_SCHEDULED_START_TIMES_ARG )) ?
                 Boolean.parseBoolean( newParamsMapWithShortKeys.get( IGNORE_SCHEDULED_START_TIMES_ARG ) ) :
@@ -1095,6 +1119,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
                 newTimeCompressionRatio,
                 newValidationParametersSize,
                 newValidationSerializationCheck,
+                newRecordDelayedOperations,
                 newDatabaseValidationFilePath,
                 newSpinnerSleepDurationAsMilli,
                 newPrintHelp,

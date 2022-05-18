@@ -24,13 +24,16 @@ public class ResultsLogValidator
      * @param summary Summary of delayed operations previously computed @see {@link org.ldbcouncil.snb.driver.validation.ResultsLogValidator#compute(File, long)}
      * @param tolerances The resultsLogValidationTolerances object including the tolerated
      * delay count. @see {@link org.ldbcouncil.snb.driver.Workload#ResultsLogValidationTolerances(org.ldbcouncil.snb.driver.control.DriverConfiguration, boolean)}
+     * @param recordDelayedOperations Record the late operations even when the total late operations are under the threshold
      * @return ResultsLogValidationResult containing the list of delayed operations
      */
     public ResultsLogValidationResult validate(
             ResultsLogValidationSummary summary,
-            ResultsLogValidationTolerances tolerances )
+            ResultsLogValidationTolerances tolerances,
+            boolean recordDelayedOperations )
     {
         ResultsLogValidationResult result = new ResultsLogValidationResult();
+        // Check if total delayed operations is above the threshold
         if ( summary.excessiveDelayCount() > tolerances.toleratedExcessiveDelayCount() )
         {
             result.addError(
@@ -39,21 +42,18 @@ public class ResultsLogValidator
                             summary.excessiveDelayCount(),
                             tolerances.toleratedExcessiveDelayCount() )
             );
+            recordDelayedOperations = true; //Override to give the late operations always when there are too many too late.
         }
-
         for ( String operationType : summary.excessiveDelayCountPerType().keySet() )
         {
-            long excessiveDelayCountForOperationType = summary.excessiveDelayCountPerType().get( operationType );
-            if ( tolerances.toleratedExcessiveDelayCountPerType().containsKey( operationType ) &&
-                 tolerances.toleratedExcessiveDelayCountPerType().get( operationType ) <
-                 excessiveDelayCountForOperationType )
+            if (recordDelayedOperations)
             {
                 result.addError(
-                        ValidationErrorType.TOO_MANY_LATE_OPERATIONS_FOR_TYPE,
-                        format( "Late Count for %s (%s) > (%s) Tolerated Late Count",
-                                operationType,
-                                summary.excessiveDelayCountPerType().get( operationType ),
-                                tolerances.toleratedExcessiveDelayCountPerType().get( operationType ) )
+                    ValidationErrorType.LATE_OPERATIONS_FOR_TYPE,
+                    format( "Late Count for %s (%s) Tolerated Late Count",
+                            operationType,
+                            summary.excessiveDelayCountPerType().get( operationType )
+                    )
                 );
             }
         }

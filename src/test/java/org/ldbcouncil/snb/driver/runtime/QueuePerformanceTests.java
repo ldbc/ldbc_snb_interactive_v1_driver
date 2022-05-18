@@ -84,6 +84,7 @@ public class QueuePerformanceTests
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
+        boolean recordDelayedOperations = true;
         long warmupCount = 0;
         long skipCount = 0;
         boolean flushLog = false;
@@ -102,6 +103,7 @@ public class QueuePerformanceTests
                 timeCompressionRatio,
                 validationParamsSize,
                 validationSerializationCheck,
+                recordDelayedOperations,
                 dbValidationFilePath,
                 spinnerSleepDuration,
                 printHelp,

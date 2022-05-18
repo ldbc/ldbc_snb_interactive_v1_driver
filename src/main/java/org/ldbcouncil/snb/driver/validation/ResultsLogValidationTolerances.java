@@ -1,21 +1,21 @@
 package org.ldbcouncil.snb.driver.validation;
+/**
+ * ResultsLogValidationTolerances.java
+ * 
+ */
 
-import java.util.Map;
 
 public class ResultsLogValidationTolerances
 {
     private final long excessiveDelayThresholdAsMilli;
     private final long toleratedExcessiveDelayCount;
-    private final Map<String,Long> toleratedExcessiveDelayCountPerType;
 
     public ResultsLogValidationTolerances(
-            long excessiveDelayThresholdAsMilli,
-            long toleratedExcessiveDelayCount,
-            Map<String,Long> toleratedExcessiveDelayCountPerType )
+        long excessiveDelayThresholdAsMilli,
+        long toleratedExcessiveDelayCount)
     {
         this.excessiveDelayThresholdAsMilli = excessiveDelayThresholdAsMilli;
         this.toleratedExcessiveDelayCount = toleratedExcessiveDelayCount;
-        this.toleratedExcessiveDelayCountPerType = toleratedExcessiveDelayCountPerType;
     }
 
     public long excessiveDelayThresholdAsMilli()
@@ -26,10 +26,5 @@ public class ResultsLogValidationTolerances
     public long toleratedExcessiveDelayCount()
     {
         return toleratedExcessiveDelayCount;
-    }
-
-    public Map<String,Long> toleratedExcessiveDelayCountPerType()
-    {
-        return toleratedExcessiveDelayCountPerType;
     }
 }

@@ -33,6 +33,8 @@ public interface DriverConfiguration
 
     boolean validationSerializationCheck();
 
+    boolean recordDelayedOperations();
+
     String databaseValidationFilePath();
 
     long spinnerSleepDurationAsMilli();

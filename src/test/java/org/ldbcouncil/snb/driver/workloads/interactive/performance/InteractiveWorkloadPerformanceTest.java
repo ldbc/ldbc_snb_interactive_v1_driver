@@ -120,6 +120,7 @@ public class InteractiveWorkloadPerformanceTest
             long spinnerSleepDuration = 0;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
+            boolean recordDelayedOperations = true;
             long warmupCount = 0;
             long skipCount = 0;
             boolean flushLog = false;
@@ -138,6 +139,7 @@ public class InteractiveWorkloadPerformanceTest
                     timeCompressionRatio,
                     validationParamsSize,
                     validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
                     spinnerSleepDuration,
                     printHelp,
@@ -285,6 +287,7 @@ public class InteractiveWorkloadPerformanceTest
             long spinnerSleepDuration = 0;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
+            boolean recordDelayedOperations = true;
             long warmupCount = 0;
             long skipCount = 0;
             boolean flushLog = false;
@@ -303,6 +306,7 @@ public class InteractiveWorkloadPerformanceTest
                     timeCompressionRatio,
                     validationParamsSize,
                     validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
                     spinnerSleepDuration,
                     printHelp,

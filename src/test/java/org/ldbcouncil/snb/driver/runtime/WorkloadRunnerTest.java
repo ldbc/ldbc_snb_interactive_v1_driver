@@ -113,6 +113,7 @@ public class WorkloadRunnerTest
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
+            boolean recordDelayedOperations = true;
             long warmupCount = 100;
             long skipCount = 10;
             boolean flushLog = false;
@@ -131,6 +132,7 @@ public class WorkloadRunnerTest
                     timeCompressionRatio,
                     validationParamsSize,
                     validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
                     spinnerSleepDuration,
                     printHelp,
@@ -318,6 +320,7 @@ public class WorkloadRunnerTest
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
+            boolean recordDelayedOperations = true;
             long warmupCount = 100;
             long skipCount = 10;
             boolean flushLog = false;
@@ -336,6 +339,7 @@ public class WorkloadRunnerTest
                     timeCompressionRatio,
                     validationParamsSize,
                     validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
                     spinnerSleepDuration,
                     printHelp,
@@ -541,6 +545,7 @@ public class WorkloadRunnerTest
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
+            boolean recordDelayedOperations = true;
             long warmupCount = 100;
             long skipCount = 10;
             boolean flushLog = false;
@@ -559,6 +564,7 @@ public class WorkloadRunnerTest
                     timeCompressionRatio,
                     validationParamsSize,
                     validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
                     spinnerSleepDuration,
                     printHelp,
@@ -810,6 +816,7 @@ public class WorkloadRunnerTest
             long spinnerSleepDuration = 0L;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
+            boolean recordDelayedOperations = true;
             long warmupCount = 100;
             long skipCount = 10;
             boolean flushLog = false;
@@ -828,6 +835,7 @@ public class WorkloadRunnerTest
                     timeCompressionRatio,
                     validationParamsSize,
                     validationSerializationCheck,
+                    recordDelayedOperations,
                     dbValidationFilePath,
                     spinnerSleepDuration,
                     printHelp,
