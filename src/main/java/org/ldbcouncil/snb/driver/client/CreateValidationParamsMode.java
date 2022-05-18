@@ -92,26 +92,21 @@ public class CreateValidationParamsMode implements ClientMode<Object>
                 format( "Retrieving operation stream for workload: %s", workload.getClass().getSimpleName() ) );
         try
         {
-            int validationSetSize = controlService
-                    .configuration()
-                    .validationParametersSize();
-            int operationCount = validationSetSize * workload.enabledValidationOperations();
-                    
             /**
              * Create the workloadstreams which are used to create the validation parameters.
-             * The operation count used here is to ensure enough operations are created to
-             * create the validation parameters.
+             * TODO: Change operation count dependency so enough operations in the workloadstream
+             * are generated to satisfy validation parameters count.
              */
             boolean returnStreamsWithDbConnector = false;
             Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
-                    WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
-                            controlService.configuration(),
-                            gf,
-                            returnStreamsWithDbConnector,
-                            0,
-                            operationCount,
-                            controlService.loggingServiceFactory()
-                    );
+                WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                    controlService.configuration(),
+                    gf,
+                    returnStreamsWithDbConnector,
+                    0,
+                    controlService.configuration().operationCount(),
+                    controlService.loggingServiceFactory()
+                );
             workload = streamsAndWorkload._2();
             WorkloadStreams workloadStreams = streamsAndWorkload._1();
             timeMappedOperations =
