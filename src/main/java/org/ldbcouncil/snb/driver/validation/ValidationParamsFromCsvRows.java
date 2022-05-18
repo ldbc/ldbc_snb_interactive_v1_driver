@@ -41,9 +41,9 @@ public class ValidationParamsFromCsvRows implements Iterator<ValidationParam>
         Operation operation;
         try
         {
-            operation = workload.marshalOperation( serializedOperation );
+            operation = OBJECT_MAPPER.readValue(serializedOperation, Operation.class);
         }
-        catch ( SerializingMarshallingException e )
+        catch ( IOException e )
         {
             throw new GeneratorException( format( "Error marshalling operation\n%s", serializedOperation ), e );
         }
