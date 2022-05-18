@@ -15,21 +15,21 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     public static final int TYPE = 102;
     public static final int DEFAULT_LIMIT = 10;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    public static final String PERSON_ID = "personIdQ2";
+    public static final String PERSON_ID = "personIdSQ2";
     public static final String LIMIT = "limit";
 
-    private final long personIdQ2;
+    private final long personIdSQ2;
     private final int limit;
 
-    public LdbcShortQuery2PersonPosts(@JsonProperty("personIdQ2") long personIdQ2,@JsonProperty("limit") int limit )
+    public LdbcShortQuery2PersonPosts(@JsonProperty("personIdSQ2") long personIdSQ2,@JsonProperty("limit") int limit )
     {
-        this.personIdQ2 = personIdQ2;
+        this.personIdSQ2 = personIdSQ2;
         this.limit = limit;
     }
 
-    public long getpersonIdQ2()
+    public long getPersonIdSQ2()
     {
-        return personIdQ2;
+        return personIdSQ2;
     }
 
     public int getLimit()
@@ -40,7 +40,7 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personIdQ2)
+                .put(PERSON_ID, personIdSQ2)
                 .put(LIMIT, limit)
                 .build();
     }
@@ -65,7 +65,7 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
 
         if ( limit != that.limit )
         { return false; }
-        if ( personIdQ2 != that.personIdQ2 )
+        if ( personIdSQ2 != that.personIdSQ2 )
         { return false; }
 
         return true;
@@ -74,7 +74,7 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     @Override
     public int hashCode()
     {
-        int result = (int) (personIdQ2 ^ (personIdQ2 >>> 32));
+        int result = (int) (personIdSQ2 ^ (personIdSQ2 >>> 32));
         result = 31 * result + limit;
         return result;
     }
@@ -83,7 +83,7 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     public String toString()
     {
         return "LdbcShortQuery2PersonPosts{" +
-               "personIdQ2=" + personIdQ2 +
+               "personIdSQ2=" + personIdSQ2 +
                ", limit=" + limit +
                '}';
     }

@@ -13,36 +13,36 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static final int TYPE = 13;
-    public static final String PERSON1_ID = "person1Id";
-    public static final String PERSON2_ID = "person2Id";
+    public static final String PERSON1_ID = "person1IdQ13StartNode";
+    public static final String PERSON2_ID = "person2IdQ13EndNode";
 
-    private final long person1Id;
-    private final long person2Id;
+    private final long person1IdQ13StartNode;
+    private final long person2IdQ13EndNode;
 
     public LdbcQuery13(
-        @JsonProperty("person1Id") long person1Id,
-        @JsonProperty("person2Id") long person2Id
+        @JsonProperty("person1IdQ13StartNode") long person1IdQ13StartNode,
+        @JsonProperty("person2IdQ13EndNode") long person2IdQ13EndNode
     )
     {
-        this.person1Id = person1Id;
-        this.person2Id = person2Id;
+        this.person1IdQ13StartNode = person1IdQ13StartNode;
+        this.person2IdQ13EndNode = person2IdQ13EndNode;
     }
 
-    public long getPerson1Id()
+    public long getPerson1IdQ13StartNode()
     {
-        return person1Id;
+        return person1IdQ13StartNode;
     }
 
-    public long getPerson2Id()
+    public long getPerson2IdQ13EndNode()
     {
-        return person2Id;
+        return person2IdQ13EndNode;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON1_ID, person1Id)
-                .put(PERSON2_ID, person2Id)
+                .put(PERSON1_ID, person1IdQ13StartNode)
+                .put(PERSON2_ID, person2IdQ13EndNode)
                 .build();
     }
 
@@ -56,9 +56,9 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
 
         LdbcQuery13 that = (LdbcQuery13) o;
 
-        if ( person1Id != that.person1Id )
+        if ( person1IdQ13StartNode != that.person1IdQ13StartNode )
         { return false; }
-        if ( person2Id != that.person2Id )
+        if ( person2IdQ13EndNode != that.person2IdQ13EndNode )
         { return false; }
 
         return true;
@@ -67,8 +67,8 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
     @Override
     public int hashCode()
     {
-        int result = (int) (person1Id ^ (person1Id >>> 32));
-        result = 31 * result + (int) (person2Id ^ (person2Id >>> 32));
+        int result = (int) (person1IdQ13StartNode ^ (person1IdQ13StartNode >>> 32));
+        result = 31 * result + (int) (person2IdQ13EndNode ^ (person2IdQ13EndNode >>> 32));
         return result;
     }
 
@@ -76,8 +76,8 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
     public String toString()
     {
         return "LdbcQuery13{" +
-               "person1Id=" + person1Id +
-               ", person2Id=" + person2Id +
+               "person1IdQ13StartNode=" + person1IdQ13StartNode +
+               ", person2IdQ13EndNode=" + person2IdQ13EndNode +
                '}';
     }
 
