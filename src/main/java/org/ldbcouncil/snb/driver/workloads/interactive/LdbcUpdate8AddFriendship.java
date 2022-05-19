@@ -1,4 +1,12 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcUpdate8AddFriendship.java
+ * 
+ * Interactive workload insert query 8:
+ * -- Add friendship --
+ * 
+ * Add a friendship edge (knows) between two Persons.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -18,7 +26,11 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
     private final long person2Id;
     private final Date creationDate;
 
-    public LdbcUpdate8AddFriendship(@JsonProperty("person1Id") long person1Id,@JsonProperty("person2Id") long person2Id,@JsonProperty("creationDate") Date creationDate )
+    public LdbcUpdate8AddFriendship(
+        @JsonProperty("person1Id")    long person1Id,
+        @JsonProperty("person2Id")    long person2Id,
+        @JsonProperty("creationDate") Date creationDate
+    )
     {
         this.person1Id = person1Id;
         this.person2Id = person2Id;
@@ -39,7 +51,6 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
     {
         return creationDate;
     }
-
 
     @Override
     public Map<String, Object> parameterMap() {

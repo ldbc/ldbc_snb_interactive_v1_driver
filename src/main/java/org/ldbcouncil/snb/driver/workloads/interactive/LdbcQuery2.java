@@ -1,5 +1,14 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
-
+/**
+ * LdbcQuery2.java
+ * 
+ * Interactive workload complex read query 2:
+ * -- Recent messages by your friends --
+ * 
+ * Given a start Person (person), find the most recent Messages from all of that
+ * Person’s friends (friend nodes). Only consider Messages created before the 
+ * given maxDate (excluding that day).
+ */
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -27,8 +36,9 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
 
     public LdbcQuery2(
         @JsonProperty("personIdQ2") long personIdQ2,
-        @JsonProperty("maxDate") Date maxDate,
-        @JsonProperty("limit") int limit )
+        @JsonProperty("maxDate")    Date maxDate,
+        @JsonProperty("limit")      int limit
+    )
     {
         super();
         this.personIdQ2 = personIdQ2;

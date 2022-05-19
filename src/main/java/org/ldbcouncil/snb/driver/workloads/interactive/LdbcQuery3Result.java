@@ -11,13 +11,14 @@ public class LdbcQuery3Result {
     private final long count;
 
     public LdbcQuery3Result(
-        @JsonProperty("personId") long personId,
+        @JsonProperty("personId")        long personId,
         @JsonProperty("personFirstName") String personFirstName,
-        @JsonProperty("personLastName") String personLastName,
-        @JsonProperty("xCount") long xCount,
-        @JsonProperty("yCount") long yCount,
-        @JsonProperty("count") long count
-    ) {
+        @JsonProperty("personLastName")  String personLastName,
+        @JsonProperty("xCount")          long xCount,
+        @JsonProperty("yCount")          long yCount,
+        @JsonProperty("count")           long count
+    )
+    {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;

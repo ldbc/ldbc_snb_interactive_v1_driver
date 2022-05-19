@@ -9,11 +9,12 @@ public class LdbcShortQuery3PersonFriendsResult {
     private final long friendshipCreationDate;
 
     public LdbcShortQuery3PersonFriendsResult(
-        @JsonProperty("personId") long personId,
-        @JsonProperty("firstName") String firstName,
-        @JsonProperty("lastName") String lastName,
+        @JsonProperty("personId")               long personId,
+        @JsonProperty("firstName")              String firstName,
+        @JsonProperty("lastName")               String lastName,
         @JsonProperty("friendshipCreationDate") long friendshipCreationDate
-    ) {
+    )
+    {
         this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;

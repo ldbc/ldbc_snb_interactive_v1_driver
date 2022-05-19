@@ -1,4 +1,13 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcUpdate7AddComment.java
+ * 
+ * Interactive workload insert query 7:
+ * -- Add comment --
+ * 
+ * Add a Comment node replying to a Post/Comment, connected to the network
+ * by 4 possible edge types (replyOf, hasCreator, isLocatedIn, hasTag).
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -38,17 +47,17 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
     private final List<Long> tagIds;
 
     public LdbcUpdate7AddComment(
-        @JsonProperty("commentId")  long commentId,
-            @JsonProperty("creationDate")   Date creationDate,
-            @JsonProperty("locationIp")   String locationIp,
-            @JsonProperty("browserUsed")    String browserUsed,
-            @JsonProperty("content")    String content,
-            @JsonProperty("length")    int length,
-            @JsonProperty("tagIdauthorPersonIds")    long authorPersonId,
-            @JsonProperty("countryId")    long countryId,
-            @JsonProperty("replyToPostId")    long replyToPostId,
-            @JsonProperty("tagreplyToCommentIdIds")     long replyToCommentId,
-            @JsonProperty("tagIds")    List<Long> tagIds )
+        @JsonProperty("commentId")              long commentId,
+        @JsonProperty("creationDate")           Date creationDate,
+        @JsonProperty("locationIp")             String locationIp,
+        @JsonProperty("browserUsed")            String browserUsed,
+        @JsonProperty("content")                String content,
+        @JsonProperty("length")                 int length,
+        @JsonProperty("tagIdauthorPersonIds")   long authorPersonId,
+        @JsonProperty("countryId")              long countryId,
+        @JsonProperty("replyToPostId")          long replyToPostId,
+        @JsonProperty("tagreplyToCommentIdIds") long replyToCommentId,
+        @JsonProperty("tagIds")                 List<Long> tagIds )
     {
         this.commentId = commentId;
         this.creationDate = creationDate;

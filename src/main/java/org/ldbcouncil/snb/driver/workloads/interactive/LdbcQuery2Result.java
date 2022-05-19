@@ -11,13 +11,14 @@ public class LdbcQuery2Result {
     private final long messageCreationDate;
 
     public LdbcQuery2Result(
-        @JsonProperty("personId") long personId,
-        @JsonProperty("personFirstName") String personFirstName,
-        @JsonProperty("personLastName") String personLastName, 
-        @JsonProperty("messageId") long messageId,
-        @JsonProperty("messageContent") String messageContent,
+        @JsonProperty("personId")            long personId,
+        @JsonProperty("personFirstName")     String personFirstName,
+        @JsonProperty("personLastName")      String personLastName, 
+        @JsonProperty("messageId")           long messageId,
+        @JsonProperty("messageContent")      String messageContent,
         @JsonProperty("messageCreationDate") long messageCreationDate
-    ) {
+    )
+    {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;

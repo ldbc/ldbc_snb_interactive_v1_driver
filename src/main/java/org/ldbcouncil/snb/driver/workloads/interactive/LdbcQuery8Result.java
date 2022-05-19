@@ -11,13 +11,14 @@ public class LdbcQuery8Result {
     private final String commentContent;
 
     public LdbcQuery8Result(
-        @JsonProperty("personId") long personId,
-        @JsonProperty("personFirstName") String personFirstName,
-        @JsonProperty("personLastName") String personLastName,
+        @JsonProperty("personId")            long personId,
+        @JsonProperty("personFirstName")     String personFirstName,
+        @JsonProperty("personLastName")      String personLastName,
         @JsonProperty("commentCreationDate") long commentCreationDate,
-        @JsonProperty("commentId") long commentId,
-        @JsonProperty("commentContent") String commentContent
-    ) {
+        @JsonProperty("commentId")           long commentId,
+        @JsonProperty("commentContent")      String commentContent
+    )
+    {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;

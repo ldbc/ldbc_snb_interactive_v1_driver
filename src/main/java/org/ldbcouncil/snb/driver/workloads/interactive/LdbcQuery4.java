@@ -1,4 +1,16 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery4.java
+ * 
+ * Interactive workload complex read query 4:
+ * -- New topics --
+ * 
+ * Given a start Person (personId), find Tags that are attached to Posts
+ * that were created by that Person’s friends. Only include Tags that 
+ * were attached to friends’ Posts created within a given time interval,
+ * and that were never attached to friends’ Posts created before this
+ * interval.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,10 +40,11 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
     private final int limit;
 
     public LdbcQuery4(
-        @JsonProperty("personIdQ4") long personIdQ4,
-        @JsonProperty("startDate") Date startDate,
+        @JsonProperty("personIdQ4")   long personIdQ4,
+        @JsonProperty("startDate")    Date startDate,
         @JsonProperty("durationDays") int durationDays,
-        @JsonProperty("limit") int limit )
+        @JsonProperty("limit")        int limit
+    )
     {
         this.personIdQ4 = personIdQ4;
         this.startDate = startDate;

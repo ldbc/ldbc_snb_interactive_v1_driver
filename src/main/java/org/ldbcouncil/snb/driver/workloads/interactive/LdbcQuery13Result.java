@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class LdbcQuery13Result {
     private final int shortestPathLength;
 
-    public LdbcQuery13Result(@JsonProperty("shortestPathLength") int shortestPathLength) {
+    public LdbcQuery13Result(
+        @JsonProperty("shortestPathLength") int shortestPathLength
+    )
+    {
         this.shortestPathLength = shortestPathLength;
     }
 

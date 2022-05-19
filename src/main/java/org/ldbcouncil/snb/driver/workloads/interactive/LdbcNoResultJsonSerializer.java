@@ -1,5 +1,9 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
-
+/**
+ * LdbcNoResultJsonSerializer.java
+ * 
+ * The LdbcNoResult is serialized to -1, which requires custom serialization.
+ */
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;

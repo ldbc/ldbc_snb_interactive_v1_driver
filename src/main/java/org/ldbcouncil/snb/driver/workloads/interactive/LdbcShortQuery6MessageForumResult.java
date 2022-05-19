@@ -10,12 +10,13 @@ public class LdbcShortQuery6MessageForumResult {
     private final String moderatorLastName;
 
     public LdbcShortQuery6MessageForumResult(
-        @JsonProperty("forumId") long forumId,
-        @JsonProperty("forumTitle") String forumTitle,
-        @JsonProperty("moderatorId") long moderatorId,
+        @JsonProperty("forumId")            long forumId,
+        @JsonProperty("forumTitle")         String forumTitle,
+        @JsonProperty("moderatorId")        long moderatorId,
         @JsonProperty("moderatorFirstName") String moderatorFirstName,
-        @JsonProperty("moderatorLastName") String moderatorLastName
-    ) {
+        @JsonProperty("moderatorLastName")  String moderatorLastName
+    )
+    {
         this.forumId = forumId;
         this.forumTitle = forumTitle;
         this.moderatorId = moderatorId;

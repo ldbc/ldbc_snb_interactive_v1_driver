@@ -1,4 +1,12 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcUpdate3AddCommentLike.java
+ * 
+ * Interactive workload insert query 3:
+ * -- Add like to comment --
+ * 
+ * Add a likes edge to a Comment.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -18,7 +26,11 @@ public class LdbcUpdate3AddCommentLike extends Operation<LdbcNoResult>
     private final long commentId;
     private final Date creationDate;
 
-    public LdbcUpdate3AddCommentLike( @JsonProperty("personId")long personId,@JsonProperty("commentId") long commentId,@JsonProperty("creationDate") Date creationDate )
+    public LdbcUpdate3AddCommentLike(
+        @JsonProperty("personId")     long personId,
+        @JsonProperty("commentId")    long commentId,
+        @JsonProperty("creationDate") Date creationDate
+    )
     {
         this.personId = personId;
         this.commentId = commentId;

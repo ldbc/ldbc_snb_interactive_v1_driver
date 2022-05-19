@@ -1,4 +1,13 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcShortQuery1PersonProfile.java
+ * 
+ * Interactive workload short read query 1:
+ * -- Profile of a person --
+ * 
+ * Given a start Person, retrieve their first name, last name,
+ * birthday, IP address, browser, and city of residence.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,25 +21,27 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
 {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     public static final int TYPE = 101;
-    public static final String PERSON_ID = "personIdQ1";
+    public static final String PERSON_ID = "personIdSQ1";
 
-    private final long personIdQ1;
+    private final long personIdSQ1;
 
-    public LdbcShortQuery1PersonProfile(@JsonProperty("personIdQ1") long personIdQ1 )
+    public LdbcShortQuery1PersonProfile(
+        @JsonProperty("personIdSQ1") long personIdSQ1
+    )
     {
-        this.personIdQ1 = personIdQ1;
+        this.personIdSQ1 = personIdSQ1;
     }
 
-    public long getPersonIdQ1()
+    public long getPersonIdSQ1()
     {
-        return personIdQ1;
+        return personIdSQ1;
     }
 
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personIdQ1)
+                .put(PERSON_ID, personIdSQ1)
                 .build();
     }
     @Override
@@ -51,7 +62,7 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
 
         LdbcShortQuery1PersonProfile that = (LdbcShortQuery1PersonProfile) o;
 
-        if ( personIdQ1 != that.personIdQ1 )
+        if ( personIdSQ1 != that.personIdSQ1 )
         { return false; }
 
         return true;
@@ -60,14 +71,14 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
     @Override
     public int hashCode()
     {
-        return (int) (personIdQ1 ^ (personIdQ1 >>> 32));
+        return (int) (personIdSQ1 ^ (personIdSQ1 >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcShortQuery1PersonProfile{" +
-               "personIdQ1=" + personIdQ1 +
+               "personIdSQ1=" + personIdSQ1 +
                '}';
     }
 

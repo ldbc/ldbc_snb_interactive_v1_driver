@@ -1,4 +1,12 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcUpdate5AddForumMembership.java
+ * 
+ * Interactive workload insert query 5:
+ * -- Add forum membership --
+ * 
+ * Add a Forum membership edge (hasMember) to a Person
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -18,7 +26,11 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
     private final long personId;
     private final Date joinDate;
 
-    public LdbcUpdate5AddForumMembership(@JsonProperty("forumId") long forumId,@JsonProperty("personId") long personId,@JsonProperty("joinDate") Date joinDate )
+    public LdbcUpdate5AddForumMembership(
+        @JsonProperty("forumId")  long forumId,
+        @JsonProperty("personId") long personId,
+        @JsonProperty("joinDate") Date joinDate
+    )
     {
         this.forumId = forumId;
         this.personId = personId;

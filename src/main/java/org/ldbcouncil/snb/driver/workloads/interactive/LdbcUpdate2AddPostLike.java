@@ -1,4 +1,12 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcUpdate2AddPostLike.java
+ * 
+ * Interactive workload insert query 2:
+ * -- Add like to post --
+ * 
+ * Add like to post
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -19,9 +27,9 @@ public class LdbcUpdate2AddPostLike extends Operation<LdbcNoResult>
     private final Date creationDate;
 
     public LdbcUpdate2AddPostLike(
-        @JsonProperty("personId")    long personId,
-        @JsonProperty("postId")long postId,
-        @JsonProperty("creationDate")Date creationDate
+        @JsonProperty("personId")     long personId,
+        @JsonProperty("postId")       long postId,
+        @JsonProperty("creationDate") Date creationDate
     )
     {
         this.personId = personId;

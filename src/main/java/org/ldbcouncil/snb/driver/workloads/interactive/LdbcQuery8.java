@@ -1,4 +1,15 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery8.java
+ * 
+ * Interactive workload complex read query 8:
+ * -- Recent replies --
+ * 
+ * Given a start Person, find the most recent Comments that are replies 
+ * to Messages of the start Person. Only consider direct (single-hop)
+ * replies, not the transitive (multi-hop) ones. Return the reply Comments,
+ * and the Person that created each reply Comment.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +35,7 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
 
     public LdbcQuery8(
         @JsonProperty("personIdQ8") long personIdQ8,
-        @JsonProperty("limit") int limit
+        @JsonProperty("limit")      int limit
     )
     {
         super();

@@ -12,14 +12,15 @@ public class LdbcShortQuery7MessageRepliesResult {
     private final boolean isReplyAuthorKnowsOriginalMessageAuthor;
 
     public LdbcShortQuery7MessageRepliesResult(
-        @JsonProperty("commentId") long commentId,
-        @JsonProperty("commentContent") String commentContent,
-        @JsonProperty("commentCreationDate") long commentCreationDate,
-        @JsonProperty("replyAuthorId") long replyAuthorId,
-        @JsonProperty("replyAuthorFirstName") String replyAuthorFirstName,
-        @JsonProperty("replyAuthorLastName") String replyAuthorLastName,
+        @JsonProperty("commentId")                               long commentId,
+        @JsonProperty("commentContent")                          String commentContent,
+        @JsonProperty("commentCreationDate")                     long commentCreationDate,
+        @JsonProperty("replyAuthorId")                           long replyAuthorId,
+        @JsonProperty("replyAuthorFirstName")                    String replyAuthorFirstName,
+        @JsonProperty("replyAuthorLastName")                     String replyAuthorLastName,
         @JsonProperty("isReplyAuthorKnowsOriginalMessageAuthor") boolean isReplyAuthorKnowsOriginalMessageAuthor
-    ) {
+    )
+    {
         this.commentId = commentId;
         this.commentContent = commentContent;
         this.commentCreationDate = commentCreationDate;

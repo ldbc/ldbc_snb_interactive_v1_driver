@@ -1,4 +1,15 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery1.java
+ * 
+ * Interactive workload complex read query 1:
+ * -- Transitive friends with certain name --
+ * 
+ * Given a start person, find Persons with a given first name (fristName) that 
+ * the start Person is connected to (excluding start Person) by at most 3 steps 
+ * via the knows relationships. Return Persons, including the distance (1..3), 
+ * summaries of the Persons workplaces and places of study.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,27 +27,28 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
 
     public static final int TYPE = 1;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ1";
     public static final String FIRST_NAME = "firstName";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ1;
     private final String firstName;
     private final int limit;
 
     public LdbcQuery1(
-        @JsonProperty("personId") long personId,
+        @JsonProperty("personIdQ1")  long personIdQ1,
         @JsonProperty("firstName") String firstName,
-        @JsonProperty("limit") int limit )
+        @JsonProperty("limit")     int limit
+    )
     {
-        this.personId = personId;
+        this.personIdQ1 = personIdQ1;
         this.firstName = firstName;
         this.limit = limit;
-}
+    }
 
-    public long getPersonId()
+    public long getPersonIdQ1()
     {
-        return personId;
+        return personIdQ1;
     }
 
     public String getFirstName()
@@ -52,7 +64,7 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, "getPersonId")
+                .put(PERSON_ID, "getPersonIdQ1")
                 .put(FIRST_NAME, "getFirstName")
                 .put(LIMIT, "getLimit")
                 .build();
@@ -70,7 +82,7 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
 
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ1 != that.personIdQ1 )
         { return false; }
         if ( firstName != null ? !firstName.equals( that.firstName ) : that.firstName != null )
         { return false; }
@@ -81,7 +93,7 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ1 ^ (personIdQ1 >>> 32));
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + limit;
         return result;
@@ -91,7 +103,7 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
     public String toString()
     {
         return "LdbcQuery1{" +
-               "personId=" + personId +
+               "personIdQ1=" + personIdQ1 +
                ", firstName='" + firstName + '\'' +
                ", limit=" + limit +
                '}';

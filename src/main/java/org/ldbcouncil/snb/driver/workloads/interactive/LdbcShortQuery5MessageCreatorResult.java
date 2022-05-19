@@ -8,10 +8,11 @@ public class LdbcShortQuery5MessageCreatorResult {
     private final String lastName;
 
     public LdbcShortQuery5MessageCreatorResult(
-        @JsonProperty("personId") long personId,
+        @JsonProperty("personId")  long personId,
         @JsonProperty("firstName") String firstName,
-        @JsonProperty("lastName") String lastName
-    ) {
+        @JsonProperty("lastName")  String lastName
+    )
+    {
         this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;

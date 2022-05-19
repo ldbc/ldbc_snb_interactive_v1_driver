@@ -15,11 +15,13 @@ public class LdbcQuery12Result {
     private final int replyCount;
 
     public LdbcQuery12Result(
-        @JsonProperty("personId")long personId,
-        @JsonProperty("personFirstName")String personFirstName,
-        @JsonProperty("personLastName")String personLastName,
-        @JsonProperty("tagNames")Iterable<String> tagNames,
-        @JsonProperty("replyCount")int replyCount) {
+        @JsonProperty("personId")        long personId,
+        @JsonProperty("personFirstName") String personFirstName,
+        @JsonProperty("personLastName")  String personLastName,
+        @JsonProperty("tagNames")        Iterable<String> tagNames,
+        @JsonProperty("replyCount")      int replyCount
+    )
+    {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;

@@ -13,15 +13,16 @@ public class LdbcQuery7Result {
     private final boolean isNew;
 
     public LdbcQuery7Result(
-        @JsonProperty("personId") long personId,
-        @JsonProperty("personFirstName") String personFirstName,
-        @JsonProperty("personLastName") String personLastName,
+        @JsonProperty("personId")         long personId,
+        @JsonProperty("personFirstName")  String personFirstName,
+        @JsonProperty("personLastName")   String personLastName,
         @JsonProperty("likeCreationDate") long likeCreationDate,
-        @JsonProperty("messageId") long messageId,
-        @JsonProperty("messageContent") String messageContent,
-        @JsonProperty("minutesLatency") int minutesLatency,
-        @JsonProperty("isNew") boolean isNew
-    ) {
+        @JsonProperty("messageId")        long messageId,
+        @JsonProperty("messageContent")   String messageContent,
+        @JsonProperty("minutesLatency")   int minutesLatency,
+        @JsonProperty("isNew")            boolean isNew
+    )
+    {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;

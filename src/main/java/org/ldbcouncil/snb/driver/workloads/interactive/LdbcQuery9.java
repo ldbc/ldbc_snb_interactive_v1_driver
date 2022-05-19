@@ -1,4 +1,14 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery9.java
+ * 
+ * Interactive workload complex read query 9:
+ * -- Recent messages by friends or friends of friends --
+ * 
+ * Given a start Person, find the most recent Messages created by
+ * that Person’s friends or friends of friends (excluding start Person).
+ * Only consider Messages created before the given maxDate (excluding that day).
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,8 +37,8 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>>
 
     public LdbcQuery9(
         @JsonProperty("personIdQ9") long personIdQ9,
-        @JsonProperty("maxDate") Date maxDate,
-        @JsonProperty("limit") int limit
+        @JsonProperty("maxDate")    Date maxDate,
+        @JsonProperty("limit")      int limit
     )
     {
         this.personIdQ9 = personIdQ9;

@@ -7,9 +7,10 @@ public class LdbcQuery6Result {
     private final int postCount;
 
     public LdbcQuery6Result(
-        @JsonProperty("tagName") String tagName,
+        @JsonProperty("tagName")   String tagName,
         @JsonProperty("postCount") int postCount
-    ) {
+    )
+    {
         this.tagName = tagName;
         this.postCount = postCount;
     }

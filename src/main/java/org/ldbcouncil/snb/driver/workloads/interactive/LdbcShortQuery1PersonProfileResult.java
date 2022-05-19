@@ -20,7 +20,9 @@ public class LdbcShortQuery1PersonProfileResult {
         @JsonProperty("browserUsed")  String browserUsed,
         @JsonProperty("cityId")  long cityId,
         @JsonProperty("gender")  String gender,
-        @JsonProperty("creationDate")  long creationDate) {
+        @JsonProperty("creationDate")  long creationDate
+    )
+    {
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthday = birthday;

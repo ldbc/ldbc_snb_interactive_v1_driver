@@ -1,4 +1,12 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcShortQuery4MessageContent.java
+ * 
+ * Interactive workload short read query 4:
+ * -- Content of a message --
+ * 
+ * Given a Message, retrieve its content and creation date.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +24,9 @@ public class LdbcShortQuery4MessageContent extends Operation<LdbcShortQuery4Mess
 
     private final long messageIdContent;
 
-    public LdbcShortQuery4MessageContent(@JsonProperty("messageIdContent")  long messageIdContent )
+    public LdbcShortQuery4MessageContent(
+        @JsonProperty("messageIdContent") long messageIdContent
+    )
     {
         this.messageIdContent = messageIdContent;
     }

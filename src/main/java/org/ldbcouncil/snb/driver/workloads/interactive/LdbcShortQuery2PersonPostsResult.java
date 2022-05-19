@@ -19,7 +19,8 @@ public class LdbcShortQuery2PersonPostsResult {
         @JsonProperty("originalPostAuthorId") long originalPostAuthorId,
         @JsonProperty("originalPostAuthorFirstName") String originalPostAuthorFirstName,
         @JsonProperty("originalPostAuthorLastName") String originalPostAuthorLastName
-    ) {
+    )
+    {
         this.messageId = messageId;
         this.messageContent = messageContent;
         this.messageCreationDate = messageCreationDate;

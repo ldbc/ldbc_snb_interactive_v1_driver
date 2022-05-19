@@ -1,4 +1,16 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcShortQuery2PersonPosts.java
+ * 
+ * Interactive workload short read query 2:
+ * -- Recent messages of a person --
+ * 
+ * Given a start Person, retrieve the last 10 Messages created by
+ * that user. For each Message, return that Message, the original Post in 
+ * its conversation (post), and the author of that Post (originalPoster).
+ * If any of the Messages is a Post, then the original Post (post) will
+ * be the same Message, i.e. that Message will appear twice in that result.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +33,10 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     private final long personIdSQ2;
     private final int limit;
 
-    public LdbcShortQuery2PersonPosts(@JsonProperty("personIdSQ2") long personIdSQ2,@JsonProperty("limit") int limit )
+    public LdbcShortQuery2PersonPosts(
+        @JsonProperty("personIdSQ2") long personIdSQ2,
+        @JsonProperty("limit")       int limit
+    )
     {
         this.personIdSQ2 = personIdSQ2;
         this.limit = limit;

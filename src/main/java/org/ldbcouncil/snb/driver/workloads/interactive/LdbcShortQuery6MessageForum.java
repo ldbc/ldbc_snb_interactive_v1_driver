@@ -1,4 +1,15 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcShortQuery6MessageForum.java
+ * 
+ * Interactive workload short read query 6:
+ * -- Forum of a message --
+ * 
+ * Given a Message, retrieve the Forum that contains it and the
+ * Person that moderates that Forum. Since Comments are not directly
+ * contained in Forums, for Comments, return the Forum containing
+ * the original Post in the thread which the Comment is replying to.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +27,9 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
 
     private final long messageForumId;
 
-    public LdbcShortQuery6MessageForum(@JsonProperty("messageForumId") long messageForumId )
+    public LdbcShortQuery6MessageForum(
+        @JsonProperty("messageForumId") long messageForumId
+    )
     {
         this.messageForumId = messageForumId;
     }

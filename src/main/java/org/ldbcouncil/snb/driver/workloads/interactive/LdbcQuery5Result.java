@@ -7,9 +7,10 @@ public class LdbcQuery5Result {
     private final int postCount;
 
     public LdbcQuery5Result(
-        @JsonProperty("forumTitle")String forumTitle,
-        @JsonProperty("postCount")int postCount
-    ) {
+        @JsonProperty("forumTitle") String forumTitle,
+        @JsonProperty("postCount")  int postCount
+    )
+    {
         this.forumTitle = forumTitle;
         this.postCount = postCount;
     }

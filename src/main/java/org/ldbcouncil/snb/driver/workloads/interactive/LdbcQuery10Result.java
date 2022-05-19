@@ -11,13 +11,14 @@ public class LdbcQuery10Result {
     private final String personCityName;
 
     public LdbcQuery10Result(
-        @JsonProperty("personId")long personId,
-        @JsonProperty("personFirstName")String personFirstName,
-        @JsonProperty("personLastName")String personLastName,
-        @JsonProperty("commonInterestScore")int commonInterestScore,
-        @JsonProperty("personGender")String personGender,
-        @JsonProperty("personCityName")String personCityName
-    ) {
+        @JsonProperty("personId")            long personId,
+        @JsonProperty("personFirstName")     String personFirstName,
+        @JsonProperty("personLastName")      String personLastName,
+        @JsonProperty("commonInterestScore") int commonInterestScore,
+        @JsonProperty("personGender")        String personGender,
+        @JsonProperty("personCityName")      String personCityName
+    )
+    {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;

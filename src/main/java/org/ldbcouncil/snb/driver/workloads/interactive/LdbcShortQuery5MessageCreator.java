@@ -1,4 +1,12 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcShortQuery5MessageCreator.java
+ * 
+ * Interactive workload short read query 5:
+ * -- Creator of a message --
+ * 
+ * Given a Message, retrieve its author.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +25,9 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
 
     private final long messageIdCreator;
 
-    public LdbcShortQuery5MessageCreator(@JsonProperty("messageIdCreator")   long messageIdCreator )
+    public LdbcShortQuery5MessageCreator(
+        @JsonProperty("messageIdCreator") long messageIdCreator
+    )
     {
         this.messageIdCreator = messageIdCreator;
     }

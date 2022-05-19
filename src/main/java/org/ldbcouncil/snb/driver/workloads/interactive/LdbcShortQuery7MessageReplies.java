@@ -1,4 +1,16 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcShortQuery7MessageReplies.java
+ * 
+ * Interactive workload short read query 7:
+ * -- Replies of a message --
+ * 
+ * Given a Message, retrieve the (1-hop) Comments that reply to it.
+ * In addition, return a boolean flag knows indicating if the author
+ * of the reply (replyAuthor) knows the author of the original
+ * message (messageAuthor). If author is same as original author,
+ * return False for knows flag.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +30,7 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
 
     private final long messageRepliesId;
 
-    public LdbcShortQuery7MessageReplies(@JsonProperty("messageRepliesId")  long messageRepliesId )
+    public LdbcShortQuery7MessageReplies( @JsonProperty("messageRepliesId") long messageRepliesId )
     {
         this.messageRepliesId = messageRepliesId;
     }

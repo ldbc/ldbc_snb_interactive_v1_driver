@@ -1,4 +1,12 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcUpdate1AddPerson.java
+ * 
+ * Interactive workload insert query 1:
+ * -- Add person --
+ * 
+ * Add a Person node, connected to the network by 4 possible edge types.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -44,20 +52,21 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
     private final List<Organization> workAt;
 
     public LdbcUpdate1AddPerson(
-        @JsonProperty("personId")    long personId,
-        @JsonProperty("personFirstName")         String personFirstName,
-        @JsonProperty("personLastName")        String personLastName,
-        @JsonProperty("gender")        String gender,
+        @JsonProperty("personId")        long personId,
+        @JsonProperty("personFirstName") String personFirstName,
+        @JsonProperty("personLastName")  String personLastName,
+        @JsonProperty("gender")          String gender,
         @JsonProperty("birthday")        Date birthday,
-        @JsonProperty("creationDate")        Date creationDate,
-        @JsonProperty("locationIp")        String locationIp,
-        @JsonProperty("browserUsed")        String browserUsed,
-        @JsonProperty("cityId")        long cityId,
-        @JsonProperty("languages")        List<String> languages,
-        @JsonProperty("emails")        List<String> emails,
-        @JsonProperty("tagIds")        List<Long> tagIds,
-        @JsonProperty("studyAt")        List<Organization> studyAt,
-        @JsonProperty("workAt")        List<Organization> workAt )
+        @JsonProperty("creationDate")    Date creationDate,
+        @JsonProperty("locationIp")      String locationIp,
+        @JsonProperty("browserUsed")     String browserUsed,
+        @JsonProperty("cityId")          long cityId,
+        @JsonProperty("languages")       List<String> languages,
+        @JsonProperty("emails")          List<String> emails,
+        @JsonProperty("tagIds")          List<Long> tagIds,
+        @JsonProperty("studyAt")         List<Organization> studyAt,
+        @JsonProperty("workAt")          List<Organization> workAt
+    )
     {
         this.personId = personId;
         this.personFirstName = personFirstName;
@@ -259,7 +268,10 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
         private final long organizationId;
         private final int year;
 
-        public Organization(@JsonProperty("organizationId") long organizationId,@JsonProperty("year") int year )
+        public Organization(
+            @JsonProperty("organizationId") long organizationId,
+            @JsonProperty("year")           int year
+        )
         {
             this.organizationId = organizationId;
             this.year = year;

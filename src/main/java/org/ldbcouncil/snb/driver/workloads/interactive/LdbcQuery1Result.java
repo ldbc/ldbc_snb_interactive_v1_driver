@@ -30,19 +30,21 @@ public class LdbcQuery1Result {
     private final Iterable<List<Object>> friendCompanies;
 
     public LdbcQuery1Result(
-        @JsonProperty("friendId") long friendId,
+        @JsonProperty("friendId")           long friendId,
         @JsonProperty("friendLastName")     String friendLastName,
-        @JsonProperty("distanceFromPerson")    int distanceFromPerson,
+        @JsonProperty("distanceFromPerson") int distanceFromPerson,
         @JsonProperty("friendBirthday")     long friendBirthday,
-        @JsonProperty("friendCreationDate")    long friendCreationDate,
-        @JsonProperty("friendGender")    String friendGender,
-        @JsonProperty("friendBrowserUsed")   String friendBrowserUsed,
+        @JsonProperty("friendCreationDate") long friendCreationDate,
+        @JsonProperty("friendGender")       String friendGender,
+        @JsonProperty("friendBrowserUsed")  String friendBrowserUsed,
         @JsonProperty("friendLocationIp")   String friendLocationIp,
-        @JsonProperty("friendEmails")   Iterable<String> friendEmails,
-        @JsonProperty("friendLanguages")   Iterable<String> friendLanguages,
-        @JsonProperty("friendCityName")    String friendCityName,
-        @JsonProperty("friendUniversities")   Iterable<List<Object>> friendUniversities,
-        @JsonProperty("friendCompanies")   Iterable<List<Object>> friendCompanies) {
+        @JsonProperty("friendEmails")       Iterable<String> friendEmails,
+        @JsonProperty("friendLanguages")    Iterable<String> friendLanguages,
+        @JsonProperty("friendCityName")     String friendCityName,
+        @JsonProperty("friendUniversities") Iterable<List<Object>> friendUniversities,
+        @JsonProperty("friendCompanies")    Iterable<List<Object>> friendCompanies
+    )
+    {
         this.friendId = friendId;
         this.friendLastName = friendLastName;
         this.distanceFromPerson = distanceFromPerson;

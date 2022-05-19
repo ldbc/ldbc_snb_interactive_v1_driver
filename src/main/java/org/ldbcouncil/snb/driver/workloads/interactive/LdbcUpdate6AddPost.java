@@ -1,4 +1,13 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcUpdate6AddPost.java
+ * 
+ * Interactive workload insert query 6:
+ * -- Add post --
+ * 
+ * Add a Post node to the social network connected by 4 possible edge types
+ * (hasCreator, containerOf, isLocatedIn, hasTag).
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -40,18 +49,19 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
     private final List<Long> tagIds;
 
     public LdbcUpdate6AddPost( 
-        @JsonProperty("postId")    long postId,
-            @JsonProperty("imageFile")    String imageFile,
-            @JsonProperty("creationDate")    Date creationDate,
-            @JsonProperty("locationIp")    String locationIp,
-            @JsonProperty("browserUsed")    String browserUsed,
-            @JsonProperty("language")    String language,
-            @JsonProperty("content")    String content,
-            @JsonProperty("length")    int length,
-            @JsonProperty("authorPersonId")    long authorPersonId,
-            @JsonProperty("forumId")    long forumId,
-            @JsonProperty("countryId")    long countryId,
-            @JsonProperty("tagIds")    List<Long> tagIds )
+        @JsonProperty("postId")         long postId,
+        @JsonProperty("imageFile")      String imageFile,
+        @JsonProperty("creationDate")   Date creationDate,
+        @JsonProperty("locationIp")     String locationIp,
+        @JsonProperty("browserUsed")    String browserUsed,
+        @JsonProperty("language")       String language,
+        @JsonProperty("content")        String content,
+        @JsonProperty("length")         int length,
+        @JsonProperty("authorPersonId") long authorPersonId,
+        @JsonProperty("forumId")        long forumId,
+        @JsonProperty("countryId")      long countryId,
+        @JsonProperty("tagIds")         List<Long> tagIds
+    )
     {
         this.postId = postId;
         this.imageFile = imageFile;

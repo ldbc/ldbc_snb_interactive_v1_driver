@@ -1,4 +1,16 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery13.java
+ * 
+ * Interactive workload complex read query 13:
+ * -- Single shortest path --
+ * 
+ * Given two Persons, find the shortest path between these two Persons in
+ * the subgraph induced by the knows edges. Return the length of this path:
+ * -  −1: no path found
+ * -  0: start person = end person
+ * -  > 0: path found (start person ≠ end person)
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +33,7 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
 
     public LdbcQuery13(
         @JsonProperty("person1IdQ13StartNode") long person1IdQ13StartNode,
-        @JsonProperty("person2IdQ13EndNode") long person2IdQ13EndNode
+        @JsonProperty("person2IdQ13EndNode")   long person2IdQ13EndNode
     )
     {
         this.person1IdQ13StartNode = person1IdQ13StartNode;

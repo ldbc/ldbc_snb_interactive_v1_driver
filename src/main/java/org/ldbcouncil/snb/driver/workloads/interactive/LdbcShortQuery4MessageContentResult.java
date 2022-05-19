@@ -7,9 +7,10 @@ public class LdbcShortQuery4MessageContentResult {
     private final long messageCreationDate;
 
     public LdbcShortQuery4MessageContentResult(
-        @JsonProperty("messageContent") String messageContent,
+        @JsonProperty("messageContent")      String messageContent,
         @JsonProperty("messageCreationDate") long messageCreationDate
-    ) {
+    )
+    {
         this.messageContent = messageContent;
         this.messageCreationDate = messageCreationDate;
     }

@@ -1,4 +1,12 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcUpdate4AddForum.java
+ * 
+ * Interactive workload insert query 4:
+ * -- Add forum --
+ * 
+ * Add a Forum node, connected to the network by 2 possible edge types.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -25,8 +33,13 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
     private final long moderatorPersonId;
     private final List<Long> tagIds;
 
-    public LdbcUpdate4AddForum( @JsonProperty("forumId")long forumId, @JsonProperty("forumTitle")String forumTitle, @JsonProperty("creationDate")Date creationDate,@JsonProperty("moderatorPersonId") long moderatorPersonId,
-    @JsonProperty("tagIds") List<Long> tagIds )
+    public LdbcUpdate4AddForum(
+        @JsonProperty("forumId")           long forumId,
+        @JsonProperty("forumTitle")        String forumTitle,
+        @JsonProperty("creationDate")      Date creationDate,
+        @JsonProperty("moderatorPersonId") long moderatorPersonId,
+        @JsonProperty("tagIds")            List<Long> tagIds
+    )
     {
         this.forumId = forumId;
         this.forumTitle = forumTitle;

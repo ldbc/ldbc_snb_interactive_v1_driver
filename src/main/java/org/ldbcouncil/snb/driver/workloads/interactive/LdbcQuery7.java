@@ -1,4 +1,20 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery7.java
+ * 
+ * Interactive workload complex read query 7:
+ * -- Recent likers --
+ * 
+ * Given a start Person, find the most recent likes on any of start
+ * Person’s Messages. Find Persons that liked (likes edge) any of
+ * start Person’s Messages, the Messages they liked most recently,
+ * the creation date of that like, and the latency in minutes
+ * (minutesLatency) between creation of Messages and like.
+ * Additionally, for each Person found return a flag indicating
+ * (isNew) whether the liker is a friend of start Person. In case
+ * that a Person liked multiple Messages at the same time, return the
+ * Message with lowest identifier.
+ */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +40,7 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
 
     public LdbcQuery7(
         @JsonProperty("personIdQ7") long personIdQ7,
-        @JsonProperty("limit") int limit
+        @JsonProperty("limit")      int limit
     )
     {
         super();
