@@ -15,6 +15,7 @@ import org.ldbcouncil.snb.driver.temporal.TemporalUtil;
 import org.ldbcouncil.snb.driver.temporal.TimeSource;
 import org.ldbcouncil.snb.driver.util.Tuple3;
 import org.ldbcouncil.snb.driver.workloads.WorkloadFactory;
+import org.ldbcouncil.snb.driver.workloads.dummy.DummyWorkload;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -359,13 +360,14 @@ public class WorkloadValidator
             }
 
             // Serializing and Marshalling operations works
-            ObjectMapper mapper = new ObjectMapper();
             String serializedOperation;
+            // NOTE: Temporary workaround until workload abstraction is removed in the driver.
+            DummyWorkload dummyWorkload = (DummyWorkload) workloadPass2;
             try
             {
-                serializedOperation = mapper.writeValueAsString(operation);
+                serializedOperation = dummyWorkload.serializeOperation(operation);
             }
-            catch ( IOException e )
+            catch ( SerializingMarshallingException e )
             {
                 return new WorkloadValidationResult(
                         ResultType.UNABLE_TO_SERIALIZE_OPERATION,
@@ -376,9 +378,9 @@ public class WorkloadValidator
             Operation marshaledOperation;
             try
             {
-                marshaledOperation = mapper.readValue(serializedOperation, Operation.class);//workloadPass2.marshalOperation( serializedOperation );
+                marshaledOperation = dummyWorkload.marshalOperation( serializedOperation );
             }
-            catch ( IOException e )
+            catch ( SerializingMarshallingException e )
             {
                 return new WorkloadValidationResult(
                         ResultType.UNABLE_TO_MARSHAL_OPERATION,
