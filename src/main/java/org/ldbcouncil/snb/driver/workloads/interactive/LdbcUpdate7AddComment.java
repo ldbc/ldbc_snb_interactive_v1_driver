@@ -128,23 +128,6 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
     }
 
     @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(COMMENT_ID, commentId)
-                .put(CREATION_DATE, creationDate)
-                .put(LOCATION_IP, locationIp)
-                .put(BROWSER_USED, browserUsed)
-                .put(CONTENT, content)
-                .put(LENGTH, length)
-                .put(AUTHOR_PERSON_ID, authorPersonId)
-                .put(COUNTRY_ID, countryId)
-                .put(REPLY_TO_POST_ID, replyToPostId)
-                .put(REPLY_TO_COMMENT_ID, replyToCommentId)
-                .put(TAG_IDS, tagIds)
-                .build();
-    }
-
-    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

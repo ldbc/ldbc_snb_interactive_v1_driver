@@ -51,17 +51,6 @@ public class ReadModifyWriteOperation extends Operation<Object>
     }
 
     @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(TABLE, table)
-                .put(KEY, key)
-                .put(READ_FIELDS, readFields)
-                .put(WRITE_VALUES, writeValues)
-                .build();
-    }
-
-
-    @Override
     public int type()
     {
         return TYPE;

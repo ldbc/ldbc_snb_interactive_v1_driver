@@ -64,14 +64,6 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
     }
 
     @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(PERSON1_ID, person1IdQ14StartNode)
-                .put(PERSON2_ID, person2IdQ14EndNode)
-                .build();
-    }
-
-    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

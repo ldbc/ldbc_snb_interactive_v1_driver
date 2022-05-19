@@ -53,15 +53,6 @@ public class LdbcUpdate3AddCommentLike extends Operation<LdbcNoResult>
     }
 
     @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
-                .put(COMMENT_ID, commentId)
-                .put(CREATION_DATE, creationDate)
-                .build();
-    }
-
-    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

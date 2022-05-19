@@ -139,12 +139,6 @@ public abstract class Operation<RESULT_TYPE>
     }
 
     /**
-     * Maps the operation variable of an operation to the getter function
-     * @return Map with operation variable as key and name of getter function
-     */
-    public abstract Map<String, Object> parameterMap();
-
-    /**
      * Deserializes a list of result objects
      * @param serializedOperationResult The serialized result object in a list
      * @return Deserialized result object

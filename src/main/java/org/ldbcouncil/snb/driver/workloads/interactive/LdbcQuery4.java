@@ -73,16 +73,6 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
     }
 
     @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personIdQ4)
-                .put(START_DATE, startDate)
-                .put(DURATION_DAYS, durationDays)
-                .put(LIMIT, limit)
-                .build();
-    }
-
-    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

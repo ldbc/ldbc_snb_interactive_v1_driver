@@ -53,15 +53,6 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
         return limit;
     }
 
-
-    @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personIdQ8)
-                .put(LIMIT, limit)
-                .build();
-    }
-
     @Override
     public boolean equals( Object o )
     {

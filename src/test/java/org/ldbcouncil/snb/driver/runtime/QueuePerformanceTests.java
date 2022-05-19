@@ -31,12 +31,6 @@ public class QueuePerformanceTests
     final Operation TERMINATE_OPERATION = new Operation<Object>()
     {
         @Override
-        public Map<String,Object> parameterMap()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public int type()
         {
             throw new UnsupportedOperationException();

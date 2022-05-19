@@ -65,15 +65,6 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
     }
 
     @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personIdQ5)
-                .put(MIN_DATE, minDate)
-                .put(LIMIT, limit)
-                .build();
-    }
-
-    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

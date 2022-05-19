@@ -53,15 +53,6 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
     }
 
     @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(PERSON1_ID, person1Id)
-                .put(PERSON2_ID, person2Id)
-                .put(CREATION_DATE, creationDate)
-                .build();
-    }
-
-    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

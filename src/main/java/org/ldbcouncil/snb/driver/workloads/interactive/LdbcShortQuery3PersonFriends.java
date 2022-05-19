@@ -38,13 +38,6 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
     }
 
     @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personIdSQ3)
-                .build();
-    }
-
-    @Override
     public List<LdbcShortQuery3PersonFriendsResult> deserializeResult( String serializedResults ) throws IOException
     {
         List<LdbcShortQuery3PersonFriendsResult> marshaledOperationResult;

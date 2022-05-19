@@ -37,13 +37,6 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
         return personIdSQ1;
     }
 
-
-    @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personIdSQ1)
-                .build();
-    }
     @Override
     public LdbcShortQuery1PersonProfileResult deserializeResult( String serializedResults ) throws IOException
     {

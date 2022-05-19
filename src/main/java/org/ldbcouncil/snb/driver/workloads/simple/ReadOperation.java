@@ -41,15 +41,6 @@ public class ReadOperation extends Operation<Map<String,Iterator<Byte>>>
     }
 
     @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(TABLE, table)
-                .put(KEY, key)
-                .put(FIELDS, fields)
-                .build();
-    }
-
-    @Override
     public int type()
     {
         return TYPE;

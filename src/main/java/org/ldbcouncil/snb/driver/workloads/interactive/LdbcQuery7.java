@@ -59,14 +59,6 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
     }
 
     @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personIdQ7)
-                .put(LIMIT, limit)
-                .build();
-    }
-
-    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

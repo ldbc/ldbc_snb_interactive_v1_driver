@@ -38,13 +38,6 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
     }
 
     @Override
-    public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(MESSAGE_ID, messageIdCreator)
-                .build();
-    }
-
-    @Override
     public LdbcShortQuery5MessageCreatorResult deserializeResult( String serializedResults ) throws IOException
     {
         LdbcShortQuery5MessageCreatorResult marshaledOperationResult;
