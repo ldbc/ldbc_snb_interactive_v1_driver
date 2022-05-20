@@ -155,6 +155,26 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON_ID, personId)
+                .put(PERSON_FIRST_NAME, personFirstName)
+                .put(PERSON_LAST_NAME, personLastName)
+                .put(GENDER, gender)
+                .put(BIRTHDAY, birthday)
+                .put(CREATION_DATE, creationDate)
+                .put(LOCATION_IP, locationIp)
+                .put(BROWSER_USED, browserUsed)
+                .put(CITY_ID, cityId)
+                .put(LANGUAGES, languages)
+                .put(EMAILS, emails)
+                .put(TAG_IDS, tagIds)
+                .put(STUDY_AT, studyAt)
+                .put(WORK_AT, workAt)
+                .build();
+    }
+
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

@@ -74,6 +74,17 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(FORUM_ID, forumId)
+                .put(FORUM_TITLE, forumTitle)
+                .put(CREATION_DATE, creationDate)
+                .put(MODERATOR_PERSON_ID, moderatorPersonId)
+                .put(TAG_IDS, tagIds)
+                .build();
+    }
+
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

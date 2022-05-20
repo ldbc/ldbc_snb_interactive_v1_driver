@@ -67,6 +67,16 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
         return limit;
     }
 
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON_ID, personIdQ10)
+                .put(MONTH, month)
+                .put(LIMIT, limit)
+                .build();
+    }
+
     @Override
     public boolean equals( Object o )
     {

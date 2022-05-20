@@ -62,6 +62,15 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>>
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON_ID, personIdQ9)
+                .put(MAX_DATE, maxDate)
+                .put(LIMIT, limit)
+                .build();
+    }
+
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

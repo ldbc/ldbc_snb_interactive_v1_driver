@@ -138,6 +138,24 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(POST_ID, postId)
+                .put(IMAGE_FILE, imageFile)
+                .put(CREATION_DATE, creationDate)
+                .put(LOCATION_IP, locationIp)
+                .put(BROWSER_USED, browserUsed)
+                .put(LANGUAGE, language)
+                .put(CONTENT, content)
+                .put(LENGTH, length)
+                .put(AUTHOR_PERSON_ID, authorPersonId)
+                .put(FORUM_ID, forumId)
+                .put(COUNTRY_ID, countryId)
+                .put(TAG_IDS, tagIds)
+                .build();
+    }
+
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

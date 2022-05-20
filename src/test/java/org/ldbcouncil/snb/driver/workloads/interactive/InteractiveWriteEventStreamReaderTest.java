@@ -7,7 +7,7 @@ import org.ldbcouncil.snb.driver.csv.charseeker.CharSeeker;
 import org.ldbcouncil.snb.driver.csv.charseeker.Extractors;
 import org.ldbcouncil.snb.driver.csv.charseeker.Readables;
 import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileReader;
-// import org.ldbcouncil.snb.driver.workloads.OperationTest;
+import org.ldbcouncil.snb.driver.workloads.OperationTest;
 import org.junit.Test;
 
 import java.io.BufferedReader;

@@ -53,6 +53,15 @@ public class LdbcUpdate2AddPostLike extends Operation<LdbcNoResult>
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON_ID, personId)
+                .put(POST_ID, postId)
+                .put(CREATION_DATE, creationDate)
+                .build();
+    }
+
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

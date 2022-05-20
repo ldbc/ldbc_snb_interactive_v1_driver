@@ -53,6 +53,14 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON_ID, personIdSQ2)
+                .put(LIMIT, limit)
+                .build();
+    }
+
+    @Override
     public List<LdbcShortQuery2PersonPostsResult> deserializeResult( String serializedResults ) throws IOException
     {
         List<LdbcShortQuery2PersonPostsResult> marshaledOperationResult;

@@ -40,6 +40,14 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(MESSAGE_ID, messageForumId)
+                .build();
+    }
+
+
+    @Override
     public LdbcShortQuery6MessageForumResult deserializeResult( String serializedResults ) throws IOException
     {
         LdbcShortQuery6MessageForumResult marshaledOperationResult;

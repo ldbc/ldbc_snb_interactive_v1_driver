@@ -91,6 +91,18 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PERSON_ID, personIdQ3)
+            .put(COUNTRY_X_NAME, countryXName)
+            .put(COUNTRY_Y_NAME, countryYName)
+            .put(START_DATE, startDate)
+            .put(DURATION_DAYS, durationDays)
+            .put(LIMIT, limit)
+            .build();
+    }
+
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

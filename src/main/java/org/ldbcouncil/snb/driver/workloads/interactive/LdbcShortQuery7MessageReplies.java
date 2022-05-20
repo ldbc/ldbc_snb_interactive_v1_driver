@@ -41,6 +41,13 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(MESSAGE_ID, messageRepliesId)
+                .build();
+    }
+
+    @Override
     public List<LdbcShortQuery7MessageRepliesResult> deserializeResult( String serializedResults ) throws IOException
     {
         List<LdbcShortQuery7MessageRepliesResult> marshaledOperationResult;

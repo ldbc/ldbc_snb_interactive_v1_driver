@@ -53,6 +53,15 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(FORUM_ID, forumId)
+                .put(PERSON_ID, personId)
+                .put(JOIN_DATE, joinDate)
+                .build();
+    }
+
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

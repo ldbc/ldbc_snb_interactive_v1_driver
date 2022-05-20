@@ -9,6 +9,11 @@ public class NothingOperation extends Operation<DummyResult> {
     public static final int TYPE = 0;
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.of();
+    }
+
+    @Override
     public boolean equals(Object that) {
         return true;
     }

@@ -21,6 +21,13 @@ public class TimedNamedOperation3 extends NothingOperation {
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(NAME, name)
+                .build();
+    }
+
+    @Override
     public String toString() {
         return "TimedNamedOperation3{" +
                 "scheduledStartTime=" + scheduledStartTimeAsMilli() +

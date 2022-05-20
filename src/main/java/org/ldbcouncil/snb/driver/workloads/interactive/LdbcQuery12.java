@@ -66,6 +66,15 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON_ID, personIdQ12)
+                .put(TAG_CLASS_NAME, tagClassName)
+                .put(LIMIT, limit)
+                .build();
+    }
+
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

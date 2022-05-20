@@ -40,6 +40,15 @@ public class UpdateOperation extends Operation<Object>
     }
 
     @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(TABLE, table)
+                .put(KEY, key)
+                .put(VALUES, values)
+                .build();
+    }
+
+    @Override
     public int type()
     {
         return TYPE;

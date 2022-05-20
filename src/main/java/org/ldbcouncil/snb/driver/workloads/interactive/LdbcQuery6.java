@@ -63,6 +63,16 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
         return limit;
     }
 
+
+    @Override
+    public Map<String, Object> parameterMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put(PERSON_ID, personIdQ6)
+                .put(TAG_NAME, tagName)
+                .put(LIMIT, limit)
+                .build();
+    }
+
     @Override
     public boolean equals( Object o )
     {
