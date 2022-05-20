@@ -27,7 +27,9 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
 
     private final long personIdSQ3;
 
-    public LdbcShortQuery3PersonFriends( @JsonProperty("personIdSQ3") long personIdSQ3 )
+    public LdbcShortQuery3PersonFriends(
+        @JsonProperty("personIdSQ3") long personIdSQ3
+    )
     {
         this.personIdSQ3 = personIdSQ3;
     }

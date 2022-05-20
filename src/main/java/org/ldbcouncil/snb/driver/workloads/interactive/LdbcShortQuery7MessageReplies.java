@@ -30,7 +30,9 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
 
     private final long messageRepliesId;
 
-    public LdbcShortQuery7MessageReplies( @JsonProperty("messageRepliesId") long messageRepliesId )
+    public LdbcShortQuery7MessageReplies(
+        @JsonProperty("messageRepliesId") long messageRepliesId
+    )
     {
         this.messageRepliesId = messageRepliesId;
     }

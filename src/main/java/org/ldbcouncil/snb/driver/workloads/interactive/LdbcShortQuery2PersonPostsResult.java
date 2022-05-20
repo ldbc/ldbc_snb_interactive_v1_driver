@@ -12,13 +12,13 @@ public class LdbcShortQuery2PersonPostsResult {
     private final String originalPostAuthorLastName;
 
     public LdbcShortQuery2PersonPostsResult(
-        @JsonProperty("messageId") long messageId,
-        @JsonProperty("messageContent") String messageContent,
-        @JsonProperty("messageCreationDate") long messageCreationDate,
-        @JsonProperty("originalPostId") long originalPostId,
-        @JsonProperty("originalPostAuthorId") long originalPostAuthorId,
+        @JsonProperty("messageId")                   long messageId,
+        @JsonProperty("messageContent")              String messageContent,
+        @JsonProperty("messageCreationDate")         long messageCreationDate,
+        @JsonProperty("originalPostId")              long originalPostId,
+        @JsonProperty("originalPostAuthorId")        long originalPostAuthorId,
         @JsonProperty("originalPostAuthorFirstName") String originalPostAuthorFirstName,
-        @JsonProperty("originalPostAuthorLastName") String originalPostAuthorLastName
+        @JsonProperty("originalPostAuthorLastName")  String originalPostAuthorLastName
     )
     {
         this.messageId = messageId;

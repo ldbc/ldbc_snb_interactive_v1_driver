@@ -13,14 +13,14 @@ public class LdbcShortQuery1PersonProfileResult {
     private final long creationDate;
 
     public LdbcShortQuery1PersonProfileResult(
-        @JsonProperty("firstName") String firstName,
-        @JsonProperty("lastName") String lastName,
-        @JsonProperty("birthday")  long birthday,
-        @JsonProperty("locationIp")  String locationIp,
+        @JsonProperty("firstName")    String firstName,
+        @JsonProperty("lastName")     String lastName,
+        @JsonProperty("birthday")     long birthday,
+        @JsonProperty("locationIp")   String locationIp,
         @JsonProperty("browserUsed")  String browserUsed,
-        @JsonProperty("cityId")  long cityId,
-        @JsonProperty("gender")  String gender,
-        @JsonProperty("creationDate")  long creationDate
+        @JsonProperty("cityId")       long cityId,
+        @JsonProperty("gender")       String gender,
+        @JsonProperty("creationDate") long creationDate
     )
     {
         this.firstName = firstName;
