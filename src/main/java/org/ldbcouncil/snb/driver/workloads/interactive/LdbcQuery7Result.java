@@ -1,5 +1,13 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
-
+/**
+ * LdbcQuery7Result.java
+ * 
+ * Class handling the result for query 7.
+ * NOTE: This query result is susceptible to difference in the minutesLatency
+ * result due to leap seconds. (https://www.ietf.org/timezones/data/leap-seconds.list)
+ * To mitigate this, in the equal function a delta of 1 second is taken into account
+ * when comparing Query 7 results.
+ */
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class LdbcQuery7Result {
@@ -67,6 +75,8 @@ public class LdbcQuery7Result {
 
     @Override
     public boolean equals(Object o) {
+        int leapSecondDelta = 1;
+
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -75,7 +85,7 @@ public class LdbcQuery7Result {
         if (messageId != that.messageId) return false;
         if (isNew != that.isNew) return false;
         if (likeCreationDate != that.likeCreationDate) return false;
-        if (minutesLatency != that.minutesLatency) return false;
+        if (Math.abs(minutesLatency - that.minutesLatency) <= leapSecondDelta) return false;
         if (personId != that.personId) return false;
         if (messageContent != null ? !messageContent.equals(that.messageContent) : that.messageContent != null)
             return false;
