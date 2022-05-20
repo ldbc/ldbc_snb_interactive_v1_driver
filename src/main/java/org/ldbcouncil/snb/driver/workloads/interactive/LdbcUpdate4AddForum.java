@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.util.ListUtils;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -102,16 +101,10 @@ public class LdbcUpdate4AddForum extends Operation<LdbcNoResult>
         { return false; }
         if ( forumTitle != null ? !forumTitle.equals( that.forumTitle ) : that.forumTitle != null )
         { return false; }
-        if ( tagIds != null ? !ListUtils.listsEqual( sort( tagIds ), sort( that.tagIds ) ) : that.tagIds != null )
+        if ( tagIds != null ? !ListUtils.listsEqual( tagIds , that.tagIds ) : that.tagIds != null )
         { return false; }
 
         return true;
-    }
-
-    private <T extends Comparable> List<T> sort( List<T> list )
-    {
-        Collections.sort( list );
-        return list;
     }
 
     @Override

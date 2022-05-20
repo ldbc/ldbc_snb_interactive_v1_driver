@@ -1,10 +1,9 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Arrays;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
@@ -25,8 +24,10 @@ public class InteractiveOperationResultEqualityTest
         Iterable<String> friendEmails1 = Lists.newArrayList("1a", "1b");
         Iterable<String> friendLanguages1 = Lists.newArrayList("1a", "1b");
         String friendCityName1 = "\u16a0";
-        Iterable<List<Object>> friendUniversities1 = Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("1a", "1b", "1c"), Lists.<Object>newArrayList("1d", "1e", "1f"));
-        Iterable<List<Object>> friendCompanies1 = Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("1a", 1, "1c"), Lists.<Object>newArrayList("1d", 2, "1f"));
+        Iterable<LdbcQuery1Result.Organization> friendUniversities1a = Arrays.asList(new LdbcQuery1Result.Organization("someUniversityA", 13, "1c"), new LdbcQuery1Result.Organization("someUniversityA2", 14, "1f"));
+        Iterable<LdbcQuery1Result.Organization> friendCompanies1a = Arrays.asList(new LdbcQuery1Result.Organization("someCompanyA", 16, "1c"), new LdbcQuery1Result.Organization("someCompanyA2", 14, "1f"));
+        Iterable<LdbcQuery1Result.Organization> friendUniversities1b = Arrays.asList(new LdbcQuery1Result.Organization("someUniversityA", 13, "1c"), new LdbcQuery1Result.Organization("someUniversityA2", 14, "1f"));
+        Iterable<LdbcQuery1Result.Organization> friendCompanies1b = Arrays.asList(new LdbcQuery1Result.Organization("someCompanyA", 16, "1c"), new LdbcQuery1Result.Organization("someCompanyA2", 14, "1f"));
 
         long friendId2 = 2;
         String friendLastName2 = "last2";
@@ -39,8 +40,8 @@ public class InteractiveOperationResultEqualityTest
         Iterable<String> friendEmails2 = Lists.newArrayList("2a", "2b");
         Iterable<String> friendLanguages2 = Lists.newArrayList("2a", "2b");
         String friendCityName2 = "\u3055";
-        Iterable<List<Object>> friendUniversities2 = Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("2a", "2b", "2c"), Lists.<Object>newArrayList("2d", "2e", "2f"));
-        Iterable<List<Object>> friendCompanies2 = Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("2a", "2b", "2c"), Lists.<Object>newArrayList("2d", "2e", "2f"));
+        Iterable<LdbcQuery1Result.Organization> friendUniversities2 = Arrays.asList(new LdbcQuery1Result.Organization("someUniversityC", 13, "2c"), new LdbcQuery1Result.Organization("someUniversityD", 14, "2f"));
+        Iterable<LdbcQuery1Result.Organization> friendCompanies2 = Arrays.asList(new LdbcQuery1Result.Organization("someCompanyC", 16, "2c"), new LdbcQuery1Result.Organization("someCompanyC", 14, "2f"));
 
         LdbcQuery1Result result1a = new LdbcQuery1Result(
                 friendId1,
@@ -54,8 +55,8 @@ public class InteractiveOperationResultEqualityTest
                 friendEmails1,
                 friendLanguages1,
                 friendCityName1,
-                friendUniversities1,
-                friendCompanies1
+                friendUniversities1a,
+                friendCompanies1a
         );
 
         LdbcQuery1Result result1b = new LdbcQuery1Result(
@@ -70,8 +71,8 @@ public class InteractiveOperationResultEqualityTest
                 Lists.newArrayList("1b", "1a"),
                 Lists.newArrayList("1b", "1a"),
                 friendCityName1,
-                Sets.<List<Object>>newHashSet(Lists.<Object>newArrayList("1d", "1e", "1f"), Lists.<Object>newArrayList("1a", "1b", "1c")),
-                Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("1d", 2, "1f"), Lists.<Object>newArrayList("1a", 1, "1c"))
+                friendUniversities1b,
+                friendCompanies1b
         );
 
         LdbcQuery1Result result1c = new LdbcQuery1Result(
@@ -86,8 +87,8 @@ public class InteractiveOperationResultEqualityTest
                 Lists.newArrayList("1b", "1a"),
                 Lists.newArrayList("1b", "1a"),
                 friendCityName1,
-                Sets.<List<Object>>newHashSet(Lists.<Object>newArrayList("1d", "1e", "1f"), Lists.<Object>newArrayList("1a", "1b", "1c")),
-                Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("1d", 2, "1f"), Lists.<Object>newArrayList("1a", "1", "1c"))
+                friendUniversities1a,
+                friendCompanies1b
         );
 
         LdbcQuery1Result result2a = new LdbcQuery1Result(
@@ -118,7 +119,7 @@ public class InteractiveOperationResultEqualityTest
                 friendEmails1,
                 friendLanguages1,
                 friendCityName1,
-                friendUniversities1,
+                friendUniversities1a,
                 friendCompanies2
         );
 

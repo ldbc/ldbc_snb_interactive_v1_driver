@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.util.ListUtils;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -193,11 +192,11 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
         { return false; }
         if ( creationDate != null ? !creationDate.equals( that.creationDate ) : that.creationDate != null )
         { return false; }
-        if ( emails != null ? !ListUtils.listsEqual( sort( emails ), sort( that.emails ) ) : that.emails != null )
+        if ( emails != null ? !ListUtils.listsEqual( emails ,  that.emails ) : that.emails != null )
         { return false; }
         if ( gender != null ? !gender.equals( that.gender ) : that.gender != null )
         { return false; }
-        if ( languages != null ? !ListUtils.listsEqual( sort( languages ), sort( that.languages ) )
+        if ( languages != null ? !ListUtils.listsEqual( languages , that.languages )
                                : that.languages != null )
         { return false; }
         if ( locationIp != null ? !locationIp.equals( that.locationIp ) : that.locationIp != null )
@@ -208,18 +207,12 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
         { return false; }
         if ( studyAt != null ? !studyAt.equals( that.studyAt ) : that.studyAt != null )
         { return false; }
-        if ( tagIds != null ? !ListUtils.listsEqual( sort( tagIds ), sort( that.tagIds ) ) : that.tagIds != null )
+        if ( tagIds != null ? !ListUtils.listsEqual( tagIds ,  that.tagIds  ) : that.tagIds != null )
         { return false; }
         if ( workAt != null ? !workAt.equals( that.workAt ) : that.workAt != null )
         { return false; }
 
         return true;
-    }
-
-    private <T extends Comparable> List<T> sort( List<T> list )
-    {
-        Collections.sort( list );
-        return list;
     }
 
     @Override
