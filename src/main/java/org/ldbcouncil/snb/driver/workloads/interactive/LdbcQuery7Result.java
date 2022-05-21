@@ -85,7 +85,8 @@ public class LdbcQuery7Result {
         if (messageId != that.messageId) return false;
         if (isNew != that.isNew) return false;
         if (likeCreationDate != that.likeCreationDate) return false;
-        if (Math.abs(minutesLatency - that.minutesLatency) <= leapSecondDelta) return false;
+        if (Math.abs(minutesLatency - that.minutesLatency) > leapSecondDelta)
+            return false;
         if (personId != that.personId) return false;
         if (messageContent != null ? !messageContent.equals(that.messageContent) : that.messageContent != null)
             return false;
