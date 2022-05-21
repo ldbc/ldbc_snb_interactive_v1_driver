@@ -205,11 +205,11 @@ public class LdbcQuery1Result {
 
             Organization that = (Organization) o;
 
-            if ( organizationName != that.organizationName )
+            if ( !organizationName.equals(that.organizationName ))
             { return false; }
             if ( year != that.year )
             { return false; }
-            if ( placeName != that.placeName )
+            if (! placeName.equals(that.placeName ))
             { return false; }
             return true;
         }
