@@ -26,7 +26,8 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
 
     public static final int TYPE = 2;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personIdQ2";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String MAX_DATE = "maxDate";
     public static final String LIMIT = "limit";
 

@@ -21,7 +21,8 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
 {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     public static final int TYPE = 101;
-    public static final String PERSON_ID = "personIdSQ1";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
 
     private final long personIdSQ1;
 

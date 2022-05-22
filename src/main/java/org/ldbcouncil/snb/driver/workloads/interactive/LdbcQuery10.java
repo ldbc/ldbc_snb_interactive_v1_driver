@@ -33,7 +33,8 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
 
     public static final int TYPE = 10;
     public static final int DEFAULT_LIMIT = 10;
-    public static final String PERSON_ID = "personIdQ10";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String MONTH = "month";
     public static final String LIMIT = "limit";
 

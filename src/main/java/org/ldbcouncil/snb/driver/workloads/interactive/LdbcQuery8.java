@@ -27,7 +27,8 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
 
     public static final int TYPE = 8;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personIdQ8";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String LIMIT = "limit";
 
     private final long personIdQ8;

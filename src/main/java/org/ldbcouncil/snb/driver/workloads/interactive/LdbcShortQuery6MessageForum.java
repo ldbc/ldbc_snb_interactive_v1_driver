@@ -23,7 +23,8 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
 {
     public static final int TYPE = 106;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    public static final String MESSAGE_ID = "messageForumId";
+    // Parameters used for replacement in queries
+    public static final String MESSAGE_ID = "messageId";
 
     private final long messageForumId;
 

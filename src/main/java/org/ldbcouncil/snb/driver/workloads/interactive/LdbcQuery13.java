@@ -25,8 +25,9 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static final int TYPE = 13;
-    public static final String PERSON1_ID = "person1IdQ13StartNode";
-    public static final String PERSON2_ID = "person2IdQ13EndNode";
+    // Parameters used for replacement in queries
+    public static final String PERSON1_ID = "person1Id";
+    public static final String PERSON2_ID = "person2Id";
 
     private final long person1IdQ13StartNode;
     private final long person2IdQ13EndNode;

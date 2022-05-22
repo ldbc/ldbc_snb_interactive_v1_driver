@@ -31,7 +31,8 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
 
     public static final int TYPE = 12;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personIdQ12";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String TAG_CLASS_NAME = "tagClassName";
     public static final String LIMIT = "limit";
 

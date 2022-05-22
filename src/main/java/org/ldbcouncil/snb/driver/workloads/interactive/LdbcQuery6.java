@@ -29,7 +29,8 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
 
     public static final int TYPE = 6;
     public static final int DEFAULT_LIMIT = 10;
-    public static final String PERSON_ID = "personIdQ6";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String TAG_NAME = "tagName";
     public static final String LIMIT = "limit";
 

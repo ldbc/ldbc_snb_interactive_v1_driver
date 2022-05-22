@@ -26,7 +26,8 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
 {
     public static final int TYPE = 107;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    public static final String MESSAGE_ID = "messageRepliesId";
+    // Parameters used for replacement in queries
+    public static final String MESSAGE_ID = "messageId";
 
     private final long messageRepliesId;
 

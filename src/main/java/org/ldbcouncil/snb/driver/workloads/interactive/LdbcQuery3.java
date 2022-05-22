@@ -29,7 +29,8 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
 
     public static final int TYPE = 3;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personIdQ3";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String COUNTRY_X_NAME  = "countryXName";
     public static final String COUNTRY_Y_NAME  = "countryYName";
     public static final String START_DATE = "startDate";

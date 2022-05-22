@@ -27,7 +27,8 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     public static final int TYPE = 102;
     public static final int DEFAULT_LIMIT = 10;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    public static final String PERSON_ID = "personIdSQ2";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String LIMIT = "limit";
 
     private final long personIdSQ2;

@@ -23,7 +23,8 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
 {
     public static final int TYPE = 103;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    public static final String PERSON_ID = "personIdSQ3";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
 
     private final long personIdSQ3;
 
