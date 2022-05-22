@@ -1,25 +1,32 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcShortQuery5MessageCreatorResult {
     private final long personId;
     private final String firstName;
     private final String lastName;
 
-    public LdbcShortQuery5MessageCreatorResult(long personId, String firstName, String lastName) {
+    public LdbcShortQuery5MessageCreatorResult(
+        @JsonProperty("personId")  long personId,
+        @JsonProperty("firstName") String firstName,
+        @JsonProperty("lastName")  String lastName
+    )
+    {
         this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
-    public long personId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public String firstName() {
+    public String getFirstName() {
         return firstName;
     }
 
-    public String lastName() {
+    public String getLastName() {
         return lastName;
     }
 

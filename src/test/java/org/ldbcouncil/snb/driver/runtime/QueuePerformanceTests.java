@@ -43,16 +43,11 @@ public class QueuePerformanceTests
         }
 
         @Override
-        public Object marshalResult( String serializedOperationResult ) throws SerializingMarshallingException
+        public Object deserializeResult(String str)
         {
             throw new UnsupportedOperationException();
         }
 
-        @Override
-        public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-        {
-            throw new UnsupportedOperationException();
-        }
     };
 
     final Integer TERMINATE = -1;

@@ -1,13 +1,18 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcQuery13Result {
     private final int shortestPathLength;
 
-    public LdbcQuery13Result(int shortestPathLength) {
+    public LdbcQuery13Result(
+        @JsonProperty("shortestPathLength") int shortestPathLength
+    )
+    {
         this.shortestPathLength = shortestPathLength;
     }
 
-    public int shortestPathLength() {
+    public int getShortestPathLength() {
         return shortestPathLength;
     }
 

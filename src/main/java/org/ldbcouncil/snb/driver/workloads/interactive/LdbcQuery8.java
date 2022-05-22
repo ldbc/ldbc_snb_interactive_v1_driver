@@ -1,17 +1,25 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery8.java
+ * 
+ * Interactive workload complex read query 8:
+ * -- Recent replies --
+ * 
+ * Given a start Person, find the most recent Comments that are replies 
+ * to Messages of the start Person. Only consider direct (single-hop)
+ * replies, not the transitive (multi-hop) ones. Return the reply Comments,
+ * and the Person that created each reply Comment.
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
 {
@@ -19,25 +27,28 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
 
     public static final int TYPE = 8;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ8";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ8;
     private final int limit;
 
-    public LdbcQuery8( long personId, int limit )
+    public LdbcQuery8(
+        @JsonProperty("personIdQ8") long personIdQ8,
+        @JsonProperty("limit")      int limit
+    )
     {
         super();
-        this.personId = personId;
+        this.personIdQ8 = personIdQ8;
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonIdQ8()
     {
-        return personId;
+        return personIdQ8;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -46,7 +57,7 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ8)
                 .put(LIMIT, limit)
                 .build();
     }
@@ -63,7 +74,7 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
 
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ8 != that.personIdQ8 )
         { return false; }
 
         return true;
@@ -72,7 +83,7 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ8 ^ (personIdQ8 >>> 32));
         result = 31 * result + limit;
         return result;
     }
@@ -81,80 +92,19 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
     public String toString()
     {
         return "LdbcQuery8{" +
-               "personId=" + personId +
+               "personIdQ8=" + personIdQ8 +
                ", limit=" + limit +
                '}';
     }
 
     @Override
-    public List<LdbcQuery8Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery8Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery8Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            long personId = ((Number) resultAsList.get( 0 )).longValue();
-            String personFirstName = (String) resultAsList.get( 1 );
-            String personLastName = (String) resultAsList.get( 2 );
-            long commentCreationDate = ((Number) resultAsList.get( 3 )).longValue();
-            long commentId = ((Number) resultAsList.get( 4 )).longValue();
-            String commentContent = (String) resultAsList.get( 5 );
-
-            results.add( new LdbcQuery8Result(
-                    personId,
-                    personFirstName,
-                    personLastName,
-                    commentCreationDate,
-                    commentId,
-                    commentContent
-            ) );
-        }
-
-        return results;
+        List<LdbcQuery8Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery8Result[].class));
+        return marshaledOperationResult;
     }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery8Result> results = (List<LdbcQuery8Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery8Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personId() );
-            resultFields.add( result.personFirstName() );
-            resultFields.add( result.personLastName() );
-            resultFields.add( result.commentCreationDate() );
-            resultFields.add( result.commentId() );
-            resultFields.add( result.commentContent() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
-    }
-
+  
     @Override
     public int type()
     {

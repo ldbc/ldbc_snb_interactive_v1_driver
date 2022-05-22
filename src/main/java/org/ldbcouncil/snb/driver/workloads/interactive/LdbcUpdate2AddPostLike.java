@@ -1,19 +1,22 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcUpdate2AddPostLike.java
+ * 
+ * Interactive workload insert query 2:
+ * -- Add like to post --
+ * 
+ * Add like to post
+ */
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
-import static java.lang.String.format;
-
 public class LdbcUpdate2AddPostLike extends Operation<LdbcNoResult>
 {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1002;
     public static final String PERSON_ID = "personId";
     public static final String POST_ID = "postId";
@@ -23,24 +26,28 @@ public class LdbcUpdate2AddPostLike extends Operation<LdbcNoResult>
     private final long postId;
     private final Date creationDate;
 
-    public LdbcUpdate2AddPostLike( long personId, long postId, Date creationDate )
+    public LdbcUpdate2AddPostLike(
+        @JsonProperty("personId")     long personId,
+        @JsonProperty("postId")       long postId,
+        @JsonProperty("creationDate") Date creationDate
+    )
     {
         this.personId = personId;
         this.postId = postId;
         this.creationDate = creationDate;
     }
 
-    public long personId()
+    public long getPersonId()
     {
         return personId;
     }
 
-    public long postId()
+    public long getPostId()
     {
         return postId;
     }
 
-    public Date creationDate()
+    public Date getCreationDate()
     {
         return creationDate;
     }
@@ -94,24 +101,9 @@ public class LdbcUpdate2AddPostLike extends Operation<LdbcNoResult>
     }
 
     @Override
-    public LdbcNoResult marshalResult( String serializedOperationResult )
+    public LdbcNoResult deserializeResult( String serializedResults )
     {
         return LdbcNoResult.INSTANCE;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-    {
-        try
-        {
-            return objectMapper.writeValueAsString(
-                    LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    operationResultInstance ), e );
-        }
     }
 
     @Override

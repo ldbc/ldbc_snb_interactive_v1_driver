@@ -1,5 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.util.ListUtils;
 
@@ -13,7 +14,14 @@ public class LdbcQuery12Result {
     private final Iterable<String> tagNames;
     private final int replyCount;
 
-    public LdbcQuery12Result(long personId, String personFirstName, String personLastName, Iterable<String> tagNames, int replyCount) {
+    public LdbcQuery12Result(
+        @JsonProperty("personId")        long personId,
+        @JsonProperty("personFirstName") String personFirstName,
+        @JsonProperty("personLastName")  String personLastName,
+        @JsonProperty("tagNames")        Iterable<String> tagNames,
+        @JsonProperty("replyCount")      int replyCount
+    )
+    {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -21,23 +29,23 @@ public class LdbcQuery12Result {
         this.replyCount = replyCount;
     }
 
-    public long personId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public String personFirstName() {
+    public String getPersonFirstName() {
         return personFirstName;
     }
 
-    public String personLastName() {
+    public String getPersonLastName() {
         return personLastName;
     }
 
-    public Iterable<String> tagNames() {
+    public Iterable<String> getTagNames() {
         return tagNames;
     }
 
-    public int replyCount() {
+    public int getReplyCount() {
         return replyCount;
     }
 
@@ -54,21 +62,10 @@ public class LdbcQuery12Result {
             return false;
         if (personLastName != null ? !personLastName.equals(that.personLastName) : that.personLastName != null)
             return false;
-        if (tagNames != null ? !tagNamesEqual(tagNames, that.tagNames) : that.tagNames != null)
+        if (tagNames != null ? !ListUtils.listsEqual(tagNames, that.tagNames) : that.tagNames != null)
             return false;
 
         return true;
-    }
-
-    private boolean tagNamesEqual(Iterable<String> tagNames1, Iterable<String> tagNames2) {
-        if (null == tagNames1 || null == tagNames2) return false;
-        return ListUtils.listsEqual(sort(tagNames1), sort(tagNames2));
-    }
-
-    private List<String> sort(Iterable<String> iterable) {
-        List<String> list = Lists.newArrayList(iterable);
-        Collections.sort(list);
-        return list;
     }
 
     @Override

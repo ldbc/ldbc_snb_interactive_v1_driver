@@ -1,5 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcQuery2Result {
     private final long personId;
     private final String personFirstName;
@@ -8,7 +10,15 @@ public class LdbcQuery2Result {
     private final String messageContent;
     private final long messageCreationDate;
 
-    public LdbcQuery2Result(long personId, String personFirstName, String personLastName, long messageId, String messageContent, long messageCreationDate) {
+    public LdbcQuery2Result(
+        @JsonProperty("personId")            long personId,
+        @JsonProperty("personFirstName")     String personFirstName,
+        @JsonProperty("personLastName")      String personLastName, 
+        @JsonProperty("messageId")           long messageId,
+        @JsonProperty("messageContent")      String messageContent,
+        @JsonProperty("messageCreationDate") long messageCreationDate
+    )
+    {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -17,27 +27,27 @@ public class LdbcQuery2Result {
         this.messageCreationDate = messageCreationDate;
     }
 
-    public long personId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public String personFirstName() {
+    public String getPersonFirstName() {
         return personFirstName;
     }
 
-    public String personLastName() {
+    public String getPersonLastName() {
         return personLastName;
     }
 
-    public long messageId() {
+    public long getMessageId() {
         return messageId;
     }
 
-    public String messageContent() {
+    public String getMessageContent() {
         return messageContent;
     }
 
-    public long messageCreationDate() {
+    public long getMessageCreationDate() {
         return messageCreationDate;
     }
 

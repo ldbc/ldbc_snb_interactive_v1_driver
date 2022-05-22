@@ -1,17 +1,29 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery12.java
+ * 
+ * Interactive workload complex read query 12:
+ * -- Expert search --
+ * 
+ * Given a start Person, find the Comments that this Person’s friends
+ * made in reply to Posts, considering only those Comments that are direct
+ * (single-hop) replies to Posts, not the transitive (multi-hop) ones. Only
+ * consider Posts with a Tag in a given TagClass or in a descendent of that
+ * TagClass. Count the number of these reply Comments, and collect the Tags
+ * that were attached to the Posts they replied to, but only collect Tags
+ * with the given TagClass or with a descendant of that TagClass. Return
+ * Persons with at least one reply, the reply count, and the collection of Tags
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
 {
@@ -19,32 +31,36 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
 
     public static final int TYPE = 12;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ12";
     public static final String TAG_CLASS_NAME = "tagClassName";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ12;
     private final String tagClassName;
     private final int limit;
 
-    public LdbcQuery12( long personId, String tagClassName, int limit )
+    public LdbcQuery12(
+        @JsonProperty("personIdQ12")  long personIdQ12,
+        @JsonProperty("tagClassName") String tagClassName,
+        @JsonProperty("limit")        int limit
+    )
     {
-        this.personId = personId;
+        this.personIdQ12 = personIdQ12;
         this.tagClassName = tagClassName;
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonIdQ12()
     {
-        return personId;
+        return personIdQ12;
     }
 
-    public String tagClassName()
+    public String getTagClassName()
     {
         return tagClassName;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -52,7 +68,7 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ12)
                 .put(TAG_CLASS_NAME, tagClassName)
                 .put(LIMIT, limit)
                 .build();
@@ -70,7 +86,7 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
 
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ12 != that.personIdQ12 )
         { return false; }
         if ( tagClassName != null ? !tagClassName.equals( that.tagClassName ) : that.tagClassName != null )
         { return false; }
@@ -81,7 +97,7 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ12 ^ (personIdQ12 >>> 32));
         result = 31 * result + (tagClassName != null ? tagClassName.hashCode() : 0);
         result = 31 * result + limit;
         return result;
@@ -91,76 +107,18 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
     public String toString()
     {
         return "LdbcQuery12{" +
-               "personId=" + personId +
+               "personIdQ12=" + personIdQ12 +
                ", tagClassName='" + tagClassName + '\'' +
                ", limit=" + limit +
                '}';
     }
 
     @Override
-    public List<LdbcQuery12Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery12Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery12Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            long personId = ((Number) resultAsList.get( 0 )).longValue();
-            String personFirstName = (String) resultAsList.get( 1 );
-            String personLastName = (String) resultAsList.get( 2 );
-            Iterable<String> tagNames = (List<String>) resultAsList.get( 3 );
-            int replyCount = ((Number) resultAsList.get( 4 )).intValue();
-
-            results.add( new LdbcQuery12Result(
-                    personId,
-                    personFirstName,
-                    personLastName,
-                    tagNames,
-                    replyCount
-            ) );
-        }
-
-        return results;
-    }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery12Result> results = (List<LdbcQuery12Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery12Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personId() );
-            resultFields.add( result.personFirstName() );
-            resultFields.add( result.personLastName() );
-            resultFields.add( result.tagNames() );
-            resultFields.add( result.replyCount() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
+        List<LdbcQuery12Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery12Result[].class));
+        return marshaledOperationResult;
     }
 
     @Override

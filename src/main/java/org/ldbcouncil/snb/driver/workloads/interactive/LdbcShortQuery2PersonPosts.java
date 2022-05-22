@@ -1,41 +1,53 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcShortQuery2PersonPosts.java
+ * 
+ * Interactive workload short read query 2:
+ * -- Recent messages of a person --
+ * 
+ * Given a start Person, retrieve the last 10 Messages created by
+ * that user. For each Message, return that Message, the original Post in 
+ * its conversation (post), and the author of that Post (originalPoster).
+ * If any of the Messages is a Post, then the original Post (post) will
+ * be the same Message, i.e. that Message will appear twice in that result.
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2PersonPostsResult>>
 {
     public static final int TYPE = 102;
     public static final int DEFAULT_LIMIT = 10;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    public static final String PERSON_ID = "personId";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    public static final String PERSON_ID = "personIdSQ2";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdSQ2;
     private final int limit;
 
-    public LdbcShortQuery2PersonPosts( long personId, int limit )
+    public LdbcShortQuery2PersonPosts(
+        @JsonProperty("personIdSQ2") long personIdSQ2,
+        @JsonProperty("limit")       int limit
+    )
     {
-        this.personId = personId;
+        this.personIdSQ2 = personIdSQ2;
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonIdSQ2()
     {
-        return personId;
+        return personIdSQ2;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -43,86 +55,17 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdSQ2)
                 .put(LIMIT, limit)
                 .build();
     }
 
     @Override
-    public List<LdbcShortQuery2PersonPostsResult> marshalResult( String serializedResult )
-            throws SerializingMarshallingException
+    public List<LdbcShortQuery2PersonPostsResult> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = objectMapper.readValue( serializedResult, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while parsing serialized results\n%s",
-                    serializedResult ), e );
-        }
-
-        List<LdbcShortQuery2PersonPostsResult> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-
-            long messageId = ((Number) resultAsList.get( 0 )).longValue();
-            String messageContent = (String) resultAsList.get( 1 );
-            long messageCreationDate = ((Number) resultAsList.get( 2 )).longValue();
-            long originalPostId = ((Number) resultAsList.get( 3 )).longValue();
-            long originalPostAuthorId = ((Number) resultAsList.get( 4 )).longValue();
-            String originalPostAuthorFirstName = (String) resultAsList.get( 5 );
-            String originalPostAuthorLastName = (String) resultAsList.get( 6 );
-
-            results.add(
-                    new LdbcShortQuery2PersonPostsResult(
-                            messageId,
-                            messageContent,
-                            messageCreationDate,
-                            originalPostId,
-                            originalPostAuthorId,
-                            originalPostAuthorFirstName,
-                            originalPostAuthorLastName
-                    )
-            );
-        }
-        return results;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-    {
-        List<LdbcShortQuery2PersonPostsResult> results =
-                (List<LdbcShortQuery2PersonPostsResult>) operationResultInstance;
-
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcShortQuery2PersonPostsResult result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.messageId() );
-            resultFields.add( result.messageContent() );
-            resultFields.add( result.messageCreationDate() );
-            resultFields.add( result.originalPostId() );
-            resultFields.add( result.originalPostAuthorId() );
-            resultFields.add( result.originalPostAuthorFirstName() );
-            resultFields.add( result.originalPostAuthorLastName() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return objectMapper.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    results.toString() ), e );
-        }
+        List<LdbcShortQuery2PersonPostsResult> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcShortQuery2PersonPostsResult[].class));
+        return marshaledOperationResult;
     }
 
     @Override
@@ -137,7 +80,7 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
 
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdSQ2 != that.personIdSQ2 )
         { return false; }
 
         return true;
@@ -146,7 +89,7 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdSQ2 ^ (personIdSQ2 >>> 32));
         result = 31 * result + limit;
         return result;
     }
@@ -155,7 +98,7 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
     public String toString()
     {
         return "LdbcShortQuery2PersonPosts{" +
-               "personId=" + personId +
+               "personIdSQ2=" + personIdSQ2 +
                ", limit=" + limit +
                '}';
     }

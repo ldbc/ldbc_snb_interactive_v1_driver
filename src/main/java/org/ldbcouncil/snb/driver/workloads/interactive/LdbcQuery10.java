@@ -1,17 +1,31 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery10.java
+ * 
+ * Interactive workload complex read query 10:
+ * -- Friend recommendation --
+ * 
+ * Given a start Person with id personId, find that Person’s friends of friends (foaf) 
+ * – excluding the start Person and his/her immediate friends –, who were born on or
+ * after the 21st of a given month (in any year) and before the 22nd of the following
+ * month. Calculate the similarity between each friend and the start person, where
+ * commonInterestScore is defined as follows:
+ * - common = number of Posts created by friend, such that the Post has a Tag that 
+ *   the start person is interested in
+ * - uncommon = number of Posts created by friend, such that the Post has no Tag
+ *   that the start person is interested in
+ * - commonInterestScore = common - uncommon
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
 {
@@ -19,32 +33,36 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
 
     public static final int TYPE = 10;
     public static final int DEFAULT_LIMIT = 10;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ10";
     public static final String MONTH = "month";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ10;
     private final int month;
     private final int limit;
 
-    public LdbcQuery10( long personId, int month, int limit )
+    public LdbcQuery10(
+        @JsonProperty("personIdQ10") long personIdQ10,
+        @JsonProperty("month")       int month,
+        @JsonProperty("limit")       int limit
+    )
     {
-        this.personId = personId;
+        this.personIdQ10 = personIdQ10;
         this.month = month;
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonIdQ10()
     {
-        return personId;
+        return personIdQ10;
     }
 
-    public int month()
+    public int getMonth()
     {
         return month;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -53,7 +71,7 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ10)
                 .put(MONTH, month)
                 .put(LIMIT, limit)
                 .build();
@@ -73,7 +91,7 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
         { return false; }
         if ( month != that.month )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ10 != that.personIdQ10 )
         { return false; }
 
         return true;
@@ -82,7 +100,7 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ10 ^ (personIdQ10 >>> 32));
         result = 31 * result + month;
         result = 31 * result + limit;
         return result;
@@ -92,79 +110,18 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
     public String toString()
     {
         return "LdbcQuery10{" +
-               "personId=" + personId +
+               "personIdQ10=" + personIdQ10 +
                ", month=" + month +
                ", limit=" + limit +
                '}';
     }
 
     @Override
-    public List<LdbcQuery10Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery10Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery10Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            long personId = ((Number) resultAsList.get( 0 )).longValue();
-            String personFirstName = (String) resultAsList.get( 1 );
-            String personLastName = (String) resultAsList.get( 2 );
-            int commonInterestScore = ((Number) resultAsList.get( 3 )).intValue();
-            String personGender = (String) resultAsList.get( 4 );
-            String personCityName = (String) resultAsList.get( 5 );
-
-            results.add( new LdbcQuery10Result(
-                    personId,
-                    personFirstName,
-                    personLastName,
-                    commonInterestScore,
-                    personGender,
-                    personCityName
-            ) );
-        }
-
-        return results;
-    }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery10Result> results = (List<LdbcQuery10Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery10Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personId() );
-            resultFields.add( result.personFirstName() );
-            resultFields.add( result.personLastName() );
-            resultFields.add( result.commonInterestScore() );
-            resultFields.add( result.personGender() );
-            resultFields.add( result.personCityName() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
+        List<LdbcQuery10Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery10Result[].class));
+        return marshaledOperationResult;
     }
 
     @Override

@@ -7,14 +7,20 @@ import org.ldbcouncil.snb.driver.generator.GeneratorException;
 
 import java.util.Iterator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import static java.lang.String.format;
+
+import java.io.IOException;
 
 public class ValidationParamsToCsvRows implements Iterator<String[]>
 {
     private final Iterator<ValidationParam> validationParams;
     private final Workload workload;
     private final boolean performSerializationMarshallingChecks;
-
+    ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     public ValidationParamsToCsvRows( Iterator<ValidationParam> validationParams,
             Workload workload,
             boolean performSerializationMarshallingChecks )
@@ -40,9 +46,9 @@ public class ValidationParamsToCsvRows implements Iterator<String[]>
         String serializedOperation;
         try
         {
-            serializedOperation = workload.serializeOperation( operation );
+            serializedOperation = OBJECT_MAPPER.writeValueAsString(operation);
         }
-        catch ( SerializingMarshallingException e )
+        catch ( IOException e )
         {
             throw new GeneratorException(
                     format(
@@ -55,9 +61,9 @@ public class ValidationParamsToCsvRows implements Iterator<String[]>
         String serializedOperationResult;
         try
         {
-            serializedOperationResult = operation.serializeResult( operationResult );
+            serializedOperationResult = OBJECT_MAPPER.writeValueAsString(operationResult);
         }
-        catch ( SerializingMarshallingException e )
+        catch ( JsonProcessingException e )
         {
             throw new GeneratorException(
                     format(
@@ -71,12 +77,12 @@ public class ValidationParamsToCsvRows implements Iterator<String[]>
         // Assert that serialization/marshalling is performed correctly
         if ( performSerializationMarshallingChecks )
         {
-            Object marshaledOperationResult;
+            Object marshaledOperationResult = null;
             try
             {
-                marshaledOperationResult = operation.marshalResult( serializedOperationResult );
+                marshaledOperationResult = operation.deserializeResult( serializedOperationResult );
             }
-            catch ( SerializingMarshallingException e )
+            catch (IOException e )
             {
                 throw new GeneratorException(
                         format( ""
@@ -87,7 +93,7 @@ public class ValidationParamsToCsvRows implements Iterator<String[]>
                                 operation, operationResult, serializedOperationResult ),
                         e );
             }
-            if ( false == marshaledOperationResult.equals( operationResult ) )
+            if (!marshaledOperationResult.equals( operationResult ) )
             {
                 throw new GeneratorException(
                         format( ""

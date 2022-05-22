@@ -1,22 +1,25 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcUpdate7AddComment.java
+ * 
+ * Interactive workload insert query 7:
+ * -- Add comment --
+ * 
+ * Add a Comment node replying to a Post/Comment, connected to the network
+ * by 4 possible edge types (replyOf, hasCreator, isLocatedIn, hasTag).
+ */
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 import org.ldbcouncil.snb.driver.util.ListUtils;
 
-import java.io.IOException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
-
 public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
 {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1007;
     public static final String COMMENT_ID = "commentId";
     public static final String CREATION_DATE = "creationDate";
@@ -42,17 +45,18 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
     private final long replyToCommentId;
     private final List<Long> tagIds;
 
-    public LdbcUpdate7AddComment( long commentId,
-            Date creationDate,
-            String locationIp,
-            String browserUsed,
-            String content,
-            int length,
-            long authorPersonId,
-            long countryId,
-            long replyToPostId,
-            long replyToCommentId,
-            List<Long> tagIds )
+    public LdbcUpdate7AddComment(
+        @JsonProperty("commentId")              long commentId,
+        @JsonProperty("creationDate")           Date creationDate,
+        @JsonProperty("locationIp")             String locationIp,
+        @JsonProperty("browserUsed")            String browserUsed,
+        @JsonProperty("content")                String content,
+        @JsonProperty("length")                 int length,
+        @JsonProperty("tagIdauthorPersonIds")   long authorPersonId,
+        @JsonProperty("countryId")              long countryId,
+        @JsonProperty("replyToPostId")          long replyToPostId,
+        @JsonProperty("tagreplyToCommentIdIds") long replyToCommentId,
+        @JsonProperty("tagIds")                 List<Long> tagIds )
     {
         this.commentId = commentId;
         this.creationDate = creationDate;
@@ -67,57 +71,57 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
         this.tagIds = tagIds;
     }
 
-    public long commentId()
+    public long getCommentId()
     {
         return commentId;
     }
 
-    public Date creationDate()
+    public Date getCreationDate()
     {
         return creationDate;
     }
 
-    public String locationIp()
+    public String getLocationIp()
     {
         return locationIp;
     }
 
-    public String browserUsed()
+    public String getBrowserUsed()
     {
         return browserUsed;
     }
 
-    public String content()
+    public String getContent()
     {
         return content;
     }
 
-    public int length()
+    public int getLength()
     {
         return length;
     }
 
-    public long authorPersonId()
+    public long getAuthorPersonId()
     {
         return authorPersonId;
     }
 
-    public long countryId()
+    public long getCountryId()
     {
         return countryId;
     }
 
-    public long replyToPostId()
+    public long getReplyToPostId()
     {
         return replyToPostId;
     }
 
-    public long replyToCommentId()
+    public long getReplyToCommentId()
     {
         return replyToCommentId;
     }
 
-    public List<Long> tagIds()
+    public List<Long> getTagIds()
     {
         return tagIds;
     }
@@ -169,16 +173,10 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
         { return false; }
         if ( locationIp != null ? !locationIp.equals( that.locationIp ) : that.locationIp != null )
         { return false; }
-        if ( tagIds != null ? !ListUtils.listsEqual( sort( tagIds ), sort( that.tagIds ) ) : that.tagIds != null )
+        if ( tagIds != null ? !ListUtils.listsEqual( tagIds, that.tagIds ) : that.tagIds != null )
         { return false; }
 
         return true;
-    }
-
-    private <T extends Comparable> List<T> sort( List<T> list )
-    {
-        Collections.sort( list );
-        return list;
     }
 
     @Override
@@ -217,24 +215,9 @@ public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
     }
 
     @Override
-    public LdbcNoResult marshalResult( String serializedOperationResult )
+    public LdbcNoResult deserializeResult( String serializedResults )
     {
         return LdbcNoResult.INSTANCE;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-    {
-        try
-        {
-            return objectMapper.writeValueAsString(
-                    LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    operationResultInstance ), e );
-        }
     }
 
     @Override

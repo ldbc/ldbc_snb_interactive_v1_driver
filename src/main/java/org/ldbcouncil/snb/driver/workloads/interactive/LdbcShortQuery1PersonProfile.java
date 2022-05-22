@@ -1,106 +1,57 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcShortQuery1PersonProfile.java
+ * 
+ * Interactive workload short read query 1:
+ * -- Profile of a person --
+ * 
+ * Given a start Person, retrieve their first name, last name,
+ * birthday, IP address, browser, and city of residence.
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1PersonProfileResult>
 {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     public static final int TYPE = 101;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdSQ1";
 
-    private final long personId;
+    private final long personIdSQ1;
 
-    public LdbcShortQuery1PersonProfile( long personId )
+    public LdbcShortQuery1PersonProfile(
+        @JsonProperty("personIdSQ1") long personIdSQ1
+    )
     {
-        this.personId = personId;
+        this.personIdSQ1 = personIdSQ1;
     }
 
-    public long personId()
+    public long getPersonIdSQ1()
     {
-        return personId;
+        return personIdSQ1;
     }
 
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdSQ1)
                 .build();
     }
-
     @Override
-    public LdbcShortQuery1PersonProfileResult marshalResult( String serializedResult )
-            throws SerializingMarshallingException
+    public LdbcShortQuery1PersonProfileResult deserializeResult( String serializedResults ) throws IOException
     {
-        List<Object> resultAsList;
-        try
-        {
-            resultAsList = objectMapper.readValue( serializedResult, new TypeReference<List<Object>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while parsing serialized results\n%s",
-                    serializedResult ), e );
-        }
-
-        String firstName = (String) resultAsList.get( 0 );
-        String lastName = (String) resultAsList.get( 1 );
-        long birthday = ((Number) resultAsList.get( 2 )).longValue();
-        String locationIp = (String) resultAsList.get( 3 );
-        String browserUsed = (String) resultAsList.get( 4 );
-        long cityId = ((Number) resultAsList.get( 5 )).longValue();
-        String gender = (String) resultAsList.get( 6 );
-        long creationDate = ((Number) resultAsList.get( 7 )).longValue();
-
-        return new LdbcShortQuery1PersonProfileResult(
-                firstName,
-                lastName,
-                birthday,
-                locationIp,
-                browserUsed,
-                cityId,
-                gender,
-                creationDate
-        );
+        LdbcShortQuery1PersonProfileResult marshaledOperationResult;
+        marshaledOperationResult = OBJECT_MAPPER.readValue(serializedResults, LdbcShortQuery1PersonProfileResult.class);
+        return marshaledOperationResult;
     }
-
-    @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-    {
-        LdbcShortQuery1PersonProfileResult result = (LdbcShortQuery1PersonProfileResult) operationResultInstance;
-        List<Object> resultFields = new ArrayList<>();
-        resultFields.add( result.firstName() );
-        resultFields.add( result.lastName() );
-        resultFields.add( result.birthday() );
-        resultFields.add( result.locationIp() );
-        resultFields.add( result.browserUsed() );
-        resultFields.add( result.cityId() );
-        resultFields.add( result.gender() );
-        resultFields.add( result.creationDate() );
-        try
-        {
-            return objectMapper.writeValueAsString( resultFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    result.toString() ), e );
-        }
-    }
-
+   
     @Override
     public boolean equals( Object o )
     {
@@ -111,7 +62,7 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
 
         LdbcShortQuery1PersonProfile that = (LdbcShortQuery1PersonProfile) o;
 
-        if ( personId != that.personId )
+        if ( personIdSQ1 != that.personIdSQ1 )
         { return false; }
 
         return true;
@@ -120,14 +71,14 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
     @Override
     public int hashCode()
     {
-        return (int) (personId ^ (personId >>> 32));
+        return (int) (personIdSQ1 ^ (personIdSQ1 >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcShortQuery1PersonProfile{" +
-               "personId=" + personId +
+               "personIdSQ1=" + personIdSQ1 +
                '}';
     }
 

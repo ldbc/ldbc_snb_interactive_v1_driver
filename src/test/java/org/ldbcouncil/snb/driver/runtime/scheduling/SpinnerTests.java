@@ -26,6 +26,7 @@ public class SpinnerTests
     ManualTimeSource timeSource = new ManualTimeSource( 0 );
     DecimalFormat integerFormat = new DecimalFormat( "###,###,###,###,###" );
 
+    @Ignore
     @Test
     public void shouldPassWhenNoCheckAndStartTimeArrives() throws InterruptedException
     {
@@ -59,6 +60,7 @@ public class SpinnerTests
         spinningThread.join( ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING );
     }
 
+    @Ignore
     @Test
     public void shouldPassOnlyWhenCheckPassesAndStartTimeArrives() throws InterruptedException
     {
@@ -107,6 +109,7 @@ public class SpinnerTests
         spinningThread.join( ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING );
     }
 
+    @Ignore
     @Test
     public void shouldFailWhenCheckFails() throws InterruptedException
     {

@@ -1,18 +1,27 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery5.java
+ * 
+ * Interactive workload complex read query 5:
+ * -- New groups --
+ * 
+ * Given a start Person, denote their friends and friends of friends
+ * (excluding the start Person) as otherPerson. Find Forums that any
+ * Person otherPerson became a member of after a given date (minDate).
+ * For each of those Forums, count the number of Posts that were
+ * created by the Person otherPerson.
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
 {
@@ -20,33 +29,37 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
 
     public static final int TYPE = 5;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ5";
     public static final String MIN_DATE = "minDate";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ5;
     private final Date minDate;
     private final int limit;
 
-    public LdbcQuery5( long personId, Date minDate, int limit )
+    public LdbcQuery5(
+        @JsonProperty("personIdQ5") long personIdQ5,
+        @JsonProperty("minDate")    Date minDate,
+        @JsonProperty("limit")      int limit
+    )
     {
         super();
-        this.personId = personId;
+        this.personIdQ5 = personIdQ5;
         this.minDate = minDate;
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonIdQ5()
     {
-        return personId;
+        return personIdQ5;
     }
 
-    public Date minDate()
+    public Date getMinDate()
     {
         return minDate;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -54,7 +67,7 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ5)
                 .put(MIN_DATE, minDate)
                 .put(LIMIT, limit)
                 .build();
@@ -72,7 +85,7 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
 
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ5 != that.personIdQ5 )
         { return false; }
         if ( minDate != null ? !minDate.equals( that.minDate ) : that.minDate != null )
         { return false; }
@@ -83,7 +96,7 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ5 ^ (personIdQ5 >>> 32));
         result = 31 * result + (minDate != null ? minDate.hashCode() : 0);
         result = 31 * result + limit;
         return result;
@@ -93,69 +106,20 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
     public String toString()
     {
         return "LdbcQuery5{" +
-               "personId=" + personId +
+               "personIdQ5=" + personIdQ5 +
                ", minDate=" + minDate +
                ", limit=" + limit +
                '}';
     }
 
     @Override
-    public List<LdbcQuery5Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery5Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery5Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            String forumTitle = (String) resultAsList.get( 0 );
-            int postCount = ((Number) resultAsList.get( 1 )).intValue();
-
-            results.add( new LdbcQuery5Result(
-                    forumTitle,
-                    postCount
-            ) );
-        }
-
-        return results;
+        List<LdbcQuery5Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery5Result[].class));
+        return marshaledOperationResult;
     }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery5Result> results = (List<LdbcQuery5Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery5Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.forumTitle() );
-            resultFields.add( result.postCount() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
-    }
-
+  
     @Override
     public int type()
     {

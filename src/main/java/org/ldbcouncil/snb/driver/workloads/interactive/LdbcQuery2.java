@@ -1,18 +1,24 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
-
-import com.fasterxml.jackson.core.type.TypeReference;
+/**
+ * LdbcQuery2.java
+ * 
+ * Interactive workload complex read query 2:
+ * -- Recent messages by your friends --
+ * 
+ * Given a start Person (person), find the most recent Messages from all of that
+ * Person’s friends (friend nodes). Only consider Messages created before the 
+ * given maxDate (excluding that day).
+ */
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
 {
@@ -20,33 +26,37 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
 
     public static final int TYPE = 2;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ2";
     public static final String MAX_DATE = "maxDate";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ2;
     private final Date maxDate;
     private final int limit;
 
-    public LdbcQuery2( long personId, Date maxDate, int limit )
+    public LdbcQuery2(
+        @JsonProperty("personIdQ2") long personIdQ2,
+        @JsonProperty("maxDate")    Date maxDate,
+        @JsonProperty("limit")      int limit
+    )
     {
         super();
-        this.personId = personId;
+        this.personIdQ2 = personIdQ2;
         this.maxDate = maxDate;
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonIdQ2()
     {
-        return personId;
+        return personIdQ2;
     }
 
-    public Date maxDate()
+    public Date getMaxDate()
     {
         return maxDate;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -54,7 +64,7 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ2)
                 .put(MAX_DATE, maxDate)
                 .put(LIMIT, limit)
                 .build();
@@ -72,7 +82,7 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
 
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ2 != that.personIdQ2 )
         { return false; }
         if ( maxDate != null ? !maxDate.equals( that.maxDate ) : that.maxDate != null )
         { return false; }
@@ -83,7 +93,7 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ2 ^ (personIdQ2 >>> 32));
         result = 31 * result + (maxDate != null ? maxDate.hashCode() : 0);
         result = 31 * result + limit;
         return result;
@@ -93,81 +103,20 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
     public String toString()
     {
         return "LdbcQuery2{" +
-               "personId=" + personId +
+               "personIdQ2=" + personIdQ2 +
                ", maxDate=" + maxDate +
                ", limit=" + limit +
                '}';
     }
 
     @Override
-    public List<LdbcQuery2Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery2Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error parsing serialized result\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery2Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            long personId = ((Number) resultAsList.get( 0 )).longValue();
-            String personFirstName = (String) resultAsList.get( 1 );
-            String personLastName = (String) resultAsList.get( 2 );
-            long messageId = ((Number) resultAsList.get( 3 )).longValue();
-            String messageContent = (String) resultAsList.get( 4 );
-            long messageCreationDate = ((Number) resultAsList.get( 5 )).longValue();
-
-            results.add( new LdbcQuery2Result(
-                    personId,
-                    personFirstName,
-                    personLastName,
-                    messageId,
-                    messageContent,
-                    messageCreationDate
-            ) );
-        }
-
-        return results;
+        List<LdbcQuery2Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery2Result[].class));
+        return marshaledOperationResult;
     }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery2Result> results = (List<LdbcQuery2Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery2Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personId() );
-            resultFields.add( result.personFirstName() );
-            resultFields.add( result.personLastName() );
-            resultFields.add( result.messageId() );
-            resultFields.add( result.messageContent() );
-            resultFields.add( result.messageCreationDate() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
-    }
-
+  
     @Override
     public int type()
     {

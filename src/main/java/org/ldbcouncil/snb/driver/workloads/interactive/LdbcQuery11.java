@@ -1,17 +1,24 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery11.java
+ * 
+ * Interactive workload complex read query 11:
+ * -- Job Referral --
+ * 
+ * Given a start Person, find that Person’s friends and friends of friends
+ * (excluding start Person) who started working in some Company in a given
+ * Country, before a given date (year).
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
 {
@@ -19,40 +26,45 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
 
     public static final int TYPE = 11;
     public static final int DEFAULT_LIMIT = 10;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ11";
     public static final String COUNTRY_NAME = "countryName";
     public static final String WORK_FROM_YEAR = "workFromYear";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ11;
     private final String countryName;
     private final int workFromYear;
     private final int limit;
 
-    public LdbcQuery11( long personId, String countryName, int workFromYear, int limit )
+    public LdbcQuery11(
+        @JsonProperty("personIdQ11")     long personIdQ11,
+        @JsonProperty("countryName")  String countryName,
+        @JsonProperty("workFromYear") int workFromYear,
+        @JsonProperty("limit")        int limit
+    )
     {
-        this.personId = personId;
+        this.personIdQ11 = personIdQ11;
         this.countryName = countryName;
         this.workFromYear = workFromYear;
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonIdQ11()
     {
-        return personId;
+        return personIdQ11;
     }
 
-    public String countryName()
+    public String getCountryName()
     {
         return countryName;
     }
 
-    public int workFromYear()
+    public int getWorkFromYear()
     {
         return workFromYear;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -60,7 +72,7 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ11)
                 .put(COUNTRY_NAME, countryName)
                 .put(WORK_FROM_YEAR, workFromYear)
                 .put(LIMIT, limit)
@@ -79,7 +91,7 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
 
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ11 != that.personIdQ11 )
         { return false; }
         if ( workFromYear != that.workFromYear )
         { return false; }
@@ -92,7 +104,7 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ11 ^ (personIdQ11 >>> 32));
         result = 31 * result + (countryName != null ? countryName.hashCode() : 0);
         result = 31 * result + workFromYear;
         result = 31 * result + limit;
@@ -103,7 +115,7 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
     public String toString()
     {
         return "LdbcQuery11{" +
-               "personId=" + personId +
+               "personIdQ11=" + personIdQ11 +
                ", countryName='" + countryName + '\'' +
                ", workFromYear=" + workFromYear +
                ", limit=" + limit +
@@ -111,69 +123,11 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
     }
 
     @Override
-    public List<LdbcQuery11Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery11Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery11Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            long personId = ((Number) resultAsList.get( 0 )).longValue();
-            String personFirstName = (String) resultAsList.get( 1 );
-            String personLastName = (String) resultAsList.get( 2 );
-            String organizationName = (String) resultAsList.get( 3 );
-            int organizationWorkFromYear = ((Number) resultAsList.get( 4 )).intValue();
-
-            results.add( new LdbcQuery11Result(
-                    personId,
-                    personFirstName,
-                    personLastName,
-                    organizationName,
-                    organizationWorkFromYear
-            ) );
-        }
-
-        return results;
-    }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery11Result> results = (List<LdbcQuery11Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery11Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.personId() );
-            resultFields.add( result.personFirstName() );
-            resultFields.add( result.personLastName() );
-            resultFields.add( result.organizationName() );
-            resultFields.add( result.organizationWorkFromYear() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
+        List<LdbcQuery11Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery11Result[].class));
+        return marshaledOperationResult;
     }
 
     @Override

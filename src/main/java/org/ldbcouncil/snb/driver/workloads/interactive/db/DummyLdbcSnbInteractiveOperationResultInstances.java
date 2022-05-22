@@ -3,7 +3,7 @@ package org.ldbcouncil.snb.driver.workloads.interactive.db;
 import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.workloads.interactive.*;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class DummyLdbcSnbInteractiveOperationResultInstances {
 
@@ -12,7 +12,12 @@ public class DummyLdbcSnbInteractiveOperationResultInstances {
      */
 
     public static LdbcQuery1Result read1Result() {
-        return new LdbcQuery1Result(1, "\u16a0", 3, 4, 5, "\u3055", "\u4e35", "\u0634", Lists.newArrayList("\u05e4"), Lists.newArrayList("10"), "11", Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("12", "13", "14")), Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("15", "16", "17")));
+        return new LdbcQuery1Result(1, "\u16a0", 3, 4, 5, "\u3055", "\u4e35", "\u0634",
+        Lists.newArrayList("\u05e4"),
+        Lists.newArrayList("10"),
+        "11",
+        Arrays.asList(new LdbcQuery1Result.Organization("someCompany", 13, "14")),
+        Arrays.asList(new LdbcQuery1Result.Organization("someUniversity", 16, "17")));
     }
 
     public static LdbcQuery2Result read2Result() {

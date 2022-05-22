@@ -1,5 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcQuery3Result {
     private final long personId;
     private final String personFirstName;
@@ -8,7 +10,15 @@ public class LdbcQuery3Result {
     private final long yCount;
     private final long count;
 
-    public LdbcQuery3Result(long personId, String personFirstName, String personLastName, long xCount, long yCount, long count) {
+    public LdbcQuery3Result(
+        @JsonProperty("personId")        long personId,
+        @JsonProperty("personFirstName") String personFirstName,
+        @JsonProperty("personLastName")  String personLastName,
+        @JsonProperty("xCount")          long xCount,
+        @JsonProperty("yCount")          long yCount,
+        @JsonProperty("count")           long count
+    )
+    {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -17,27 +27,27 @@ public class LdbcQuery3Result {
         this.count = count;
     }
 
-    public long personId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public String personFirstName() {
+    public String getPersonFirstName() {
         return personFirstName;
     }
 
-    public String personLastName() {
+    public String getPersonLastName() {
         return personLastName;
     }
 
-    public long xCount() {
+    public long getXCount() {
         return xCount;
     }
 
-    public long yCount() {
+    public long getYCount() {
         return yCount;
     }
 
-    public long count() {
+    public long getCount() {
         return count;
     }
 

@@ -1,4 +1,14 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery7Result.java
+ * 
+ * Class handling the result for query 7.
+ * NOTE: This query result is susceptible to difference in the minutesLatency
+ * result due to leap seconds. (https://www.ietf.org/timezones/data/leap-seconds.list)
+ * To mitigate this, in the equal function a delta of 1 second is taken into account
+ * when comparing Query 7 results.
+ */
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class LdbcQuery7Result {
     private final long personId;
@@ -10,7 +20,17 @@ public class LdbcQuery7Result {
     private final int minutesLatency;
     private final boolean isNew;
 
-    public LdbcQuery7Result(long personId, String personFirstName, String personLastName, long likeCreationDate, long messageId, String messageContent, int minutesLatency, boolean isNew) {
+    public LdbcQuery7Result(
+        @JsonProperty("personId")         long personId,
+        @JsonProperty("personFirstName")  String personFirstName,
+        @JsonProperty("personLastName")   String personLastName,
+        @JsonProperty("likeCreationDate") long likeCreationDate,
+        @JsonProperty("messageId")        long messageId,
+        @JsonProperty("messageContent")   String messageContent,
+        @JsonProperty("minutesLatency")   int minutesLatency,
+        @JsonProperty("isNew")            boolean isNew
+    )
+    {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -21,40 +41,42 @@ public class LdbcQuery7Result {
         this.isNew = isNew;
     }
 
-    public long personId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public String personFirstName() {
+    public String getPersonFirstName() {
         return personFirstName;
     }
 
-    public String personLastName() {
+    public String getPersonLastName() {
         return personLastName;
     }
 
-    public long likeCreationDate() {
+    public long getLikeCreationDate() {
         return likeCreationDate;
     }
 
-    public long messageId() {
+    public long getMessageId() {
         return messageId;
     }
 
-    public String messageContent() {
+    public String getMessageContent() {
         return messageContent;
     }
 
-    public int minutesLatency() {
+    public int getMinutesLatency() {
         return minutesLatency;
     }
 
-    public boolean isNew() {
+    public boolean getIsNew() {
         return isNew;
     }
 
     @Override
     public boolean equals(Object o) {
+        int leapSecondDelta = 1;
+
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -63,7 +85,8 @@ public class LdbcQuery7Result {
         if (messageId != that.messageId) return false;
         if (isNew != that.isNew) return false;
         if (likeCreationDate != that.likeCreationDate) return false;
-        if (minutesLatency != that.minutesLatency) return false;
+        if (Math.abs(minutesLatency - that.minutesLatency) > leapSecondDelta)
+            return false;
         if (personId != that.personId) return false;
         if (messageContent != null ? !messageContent.equals(that.messageContent) : that.messageContent != null)
             return false;

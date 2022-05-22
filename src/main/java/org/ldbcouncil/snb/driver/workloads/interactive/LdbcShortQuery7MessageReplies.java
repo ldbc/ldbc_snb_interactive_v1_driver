@@ -1,118 +1,60 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcShortQuery7MessageReplies.java
+ * 
+ * Interactive workload short read query 7:
+ * -- Replies of a message --
+ * 
+ * Given a Message, retrieve the (1-hop) Comments that reply to it.
+ * In addition, return a boolean flag knows indicating if the author
+ * of the reply (replyAuthor) knows the author of the original
+ * message (messageAuthor). If author is same as original author,
+ * return False for knows flag.
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery7MessageRepliesResult>>
 {
     public static final int TYPE = 107;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    public static final String MESSAGE_ID = "messageId";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    public static final String MESSAGE_ID = "messageRepliesId";
 
-    private final long messageId;
+    private final long messageRepliesId;
 
-    public LdbcShortQuery7MessageReplies( long messageId )
+    public LdbcShortQuery7MessageReplies(
+        @JsonProperty("messageRepliesId") long messageRepliesId
+    )
     {
-        this.messageId = messageId;
+        this.messageRepliesId = messageRepliesId;
     }
 
-    public long messageId()
+    public long getMessageRepliesId()
     {
-        return messageId;
+        return messageRepliesId;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(MESSAGE_ID, messageId)
+                .put(MESSAGE_ID, messageRepliesId)
                 .build();
     }
 
     @Override
-    public List<LdbcShortQuery7MessageRepliesResult> marshalResult( String serializedResult )
-            throws SerializingMarshallingException
+    public List<LdbcShortQuery7MessageRepliesResult> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = objectMapper.readValue( serializedResult, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while parsing serialized results\n%s",
-                    serializedResult ), e );
-        }
-
-        List<LdbcShortQuery7MessageRepliesResult> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-
-            long commentId = ((Number) resultAsList.get( 0 )).longValue();
-            String commentContent = (String) resultAsList.get( 1 );
-            long commentCreationDate = ((Number) resultAsList.get( 2 )).longValue();
-            long replyAuthorId = ((Number) resultAsList.get( 3 )).longValue();
-            String replyAuthorFirstName = (String) resultAsList.get( 4 );
-            String replyAuthorLastName = (String) resultAsList.get( 5 );
-            boolean isReplyAuthorKnowsOriginalMessageAuthor = (Boolean) resultAsList.get( 6 );
-
-            results.add(
-                    new LdbcShortQuery7MessageRepliesResult(
-                            commentId,
-                            commentContent,
-                            commentCreationDate,
-                            replyAuthorId,
-                            replyAuthorFirstName,
-                            replyAuthorLastName,
-                            isReplyAuthorKnowsOriginalMessageAuthor
-                    )
-            );
-        }
-        return results;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-    {
-        List<LdbcShortQuery7MessageRepliesResult> results =
-                (List<LdbcShortQuery7MessageRepliesResult>) operationResultInstance;
-
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcShortQuery7MessageRepliesResult result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.commentId() );
-            resultFields.add( result.commentContent() );
-            resultFields.add( result.commentCreationDate() );
-            resultFields.add( result.replyAuthorId() );
-            resultFields.add( result.replyAuthorFirstName() );
-            resultFields.add( result.replyAuthorLastName() );
-            resultFields.add( result.isReplyAuthorKnowsOriginalMessageAuthor() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return objectMapper.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    results.toString() ), e );
-        }
+        List<LdbcShortQuery7MessageRepliesResult> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcShortQuery7MessageRepliesResult[].class));
+        return marshaledOperationResult;
     }
 
     @Override
@@ -125,7 +67,7 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
 
         LdbcShortQuery7MessageReplies that = (LdbcShortQuery7MessageReplies) o;
 
-        if ( messageId != that.messageId )
+        if ( messageRepliesId != that.messageRepliesId )
         { return false; }
 
         return true;
@@ -134,14 +76,14 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
     @Override
     public int hashCode()
     {
-        return (int) (messageId ^ (messageId >>> 32));
+        return (int) (messageRepliesId ^ (messageRepliesId >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcShortQuery7MessageReplies{" +
-               "messageId=" + messageId +
+               "messageRepliesId=" + messageRepliesId +
                '}';
     }
 

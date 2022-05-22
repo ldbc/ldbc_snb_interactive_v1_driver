@@ -1,18 +1,27 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery4.java
+ * 
+ * Interactive workload complex read query 4:
+ * -- New topics --
+ * 
+ * Given a start Person (personId), find Tags that are attached to Posts
+ * that were created by that Person’s friends. Only include Tags that 
+ * were attached to friends’ Posts created within a given time interval,
+ * and that were never attached to friends’ Posts created before this
+ * interval.
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
 {
@@ -20,40 +29,45 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
 
     public static final int TYPE = 4;
     public static final int DEFAULT_LIMIT = 10;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ4";
     public static final String START_DATE = "startDate";
     public static final String DURATION_DAYS = "durationDays";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ4;
     private final Date startDate;
     private final int durationDays;
     private final int limit;
 
-    public LdbcQuery4( long personId, Date startDate, int durationDays, int limit )
+    public LdbcQuery4(
+        @JsonProperty("personIdQ4")   long personIdQ4,
+        @JsonProperty("startDate")    Date startDate,
+        @JsonProperty("durationDays") int durationDays,
+        @JsonProperty("limit")        int limit
+    )
     {
-        this.personId = personId;
+        this.personIdQ4 = personIdQ4;
         this.startDate = startDate;
         this.durationDays = durationDays;
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonIdQ4()
     {
-        return personId;
+        return personIdQ4;
     }
 
-    public Date startDate()
+    public Date getStartDate()
     {
         return startDate;
     }
 
-    public int durationDays()
+    public int getDurationDays()
     {
         return durationDays;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -61,7 +75,7 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ4)
                 .put(START_DATE, startDate)
                 .put(DURATION_DAYS, durationDays)
                 .put(LIMIT, limit)
@@ -82,7 +96,7 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
         { return false; }
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ4 != that.personIdQ4 )
         { return false; }
         if ( startDate != null ? !startDate.equals( that.startDate ) : that.startDate != null )
         { return false; }
@@ -93,7 +107,7 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ4 ^ (personIdQ4 >>> 32));
         result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
         result = 31 * result + durationDays;
         result = 31 * result + limit;
@@ -104,7 +118,7 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
     public String toString()
     {
         return "LdbcQuery4{" +
-               "personId=" + personId +
+               "personIdQ4=" + personIdQ4 +
                ", startDate=" + startDate +
                ", durationDays=" + durationDays +
                ", limit=" + limit +
@@ -112,62 +126,13 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
     }
 
     @Override
-    public List<LdbcQuery4Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery4Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery4Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            String tagName = (String) resultAsList.get( 0 );
-            int tagCount = ((Number) resultAsList.get( 1 )).intValue();
-
-            results.add( new LdbcQuery4Result(
-                    tagName,
-                    tagCount
-            ) );
-        }
-
-        return results;
+        List<LdbcQuery4Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery4Result[].class));
+        return marshaledOperationResult;
     }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery4Result> results = (List<LdbcQuery4Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery4Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.tagName() );
-            resultFields.add( result.postCount() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
-    }
-
+  
     @Override
     public int type()
     {

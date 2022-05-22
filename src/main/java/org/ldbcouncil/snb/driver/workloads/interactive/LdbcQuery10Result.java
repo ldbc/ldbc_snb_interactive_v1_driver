@@ -1,5 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcQuery10Result {
     private final long personId;
     private final String personFirstName;
@@ -8,7 +10,15 @@ public class LdbcQuery10Result {
     private final String personGender;
     private final String personCityName;
 
-    public LdbcQuery10Result(long personId, String personFirstName, String personLastName, int commonInterestScore, String personGender, String personCityName) {
+    public LdbcQuery10Result(
+        @JsonProperty("personId")            long personId,
+        @JsonProperty("personFirstName")     String personFirstName,
+        @JsonProperty("personLastName")      String personLastName,
+        @JsonProperty("commonInterestScore") int commonInterestScore,
+        @JsonProperty("personGender")        String personGender,
+        @JsonProperty("personCityName")      String personCityName
+    )
+    {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -17,27 +27,27 @@ public class LdbcQuery10Result {
         this.personCityName = personCityName;
     }
 
-    public long personId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public String personFirstName() {
+    public String getPersonFirstName() {
         return personFirstName;
     }
 
-    public String personLastName() {
+    public String getPersonLastName() {
         return personLastName;
     }
 
-    public String personGender() {
+    public String getPersonGender() {
         return personGender;
     }
 
-    public String personCityName() {
+    public String getPersonCityName() {
         return personCityName;
     }
 
-    public int commonInterestScore() {
+    public int getCommonInterestScore() {
         return commonInterestScore;
     }
 

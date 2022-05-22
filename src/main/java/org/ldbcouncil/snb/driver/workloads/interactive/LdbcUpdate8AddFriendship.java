@@ -1,19 +1,22 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcUpdate8AddFriendship.java
+ * 
+ * Interactive workload insert query 8:
+ * -- Add friendship --
+ * 
+ * Add a friendship edge (knows) between two Persons.
+ */
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
-import static java.lang.String.format;
-
 public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
 {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1008;
     public static final String PERSON1_ID = "person1Id";
     public static final String PERSON2_ID = "person2Id";
@@ -23,28 +26,31 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
     private final long person2Id;
     private final Date creationDate;
 
-    public LdbcUpdate8AddFriendship( long person1Id, long person2Id, Date creationDate )
+    public LdbcUpdate8AddFriendship(
+        @JsonProperty("person1Id")    long person1Id,
+        @JsonProperty("person2Id")    long person2Id,
+        @JsonProperty("creationDate") Date creationDate
+    )
     {
         this.person1Id = person1Id;
         this.person2Id = person2Id;
         this.creationDate = creationDate;
     }
 
-    public long person1Id()
+    public long getPerson1Id()
     {
         return person1Id;
     }
 
-    public long person2Id()
+    public long getPerson2Id()
     {
         return person2Id;
     }
 
-    public Date creationDate()
+    public Date getCreationDate()
     {
         return creationDate;
     }
-
 
     @Override
     public Map<String, Object> parameterMap() {
@@ -95,24 +101,9 @@ public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
     }
 
     @Override
-    public LdbcNoResult marshalResult( String serializedOperationResult )
+    public LdbcNoResult deserializeResult( String serializedResults )
     {
         return LdbcNoResult.INSTANCE;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-    {
-        try
-        {
-            return objectMapper.writeValueAsString(
-                    LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    operationResultInstance ), e );
-        }
     }
 
     @Override

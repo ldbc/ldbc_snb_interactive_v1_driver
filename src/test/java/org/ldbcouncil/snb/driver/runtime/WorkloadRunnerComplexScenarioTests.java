@@ -30,6 +30,7 @@ import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2Factory;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation3;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -55,6 +56,7 @@ public class WorkloadRunnerComplexScenarioTests
     private final CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
     private final GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
 
+    @Ignore
     @Test
     public void oneExecutorShouldNotBeAbleToStarveAnotherOfThreads()
             throws WorkloadException, CompletionTimeException, DbException, InterruptedException,
@@ -523,6 +525,7 @@ public class WorkloadRunnerComplexScenarioTests
         }
     }
 
+    @Ignore
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync()
             throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException,
@@ -809,6 +812,7 @@ public class WorkloadRunnerComplexScenarioTests
         }
     }
 
+    @Ignore
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking()
             throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException,
@@ -1418,6 +1422,7 @@ public class WorkloadRunnerComplexScenarioTests
         }
     }
 
+    @Ignore
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking()
             throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException,

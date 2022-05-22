@@ -1,5 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcShortQuery6MessageForumResult {
     private final long forumId;
     private final String forumTitle;
@@ -7,7 +9,14 @@ public class LdbcShortQuery6MessageForumResult {
     private final String moderatorFirstName;
     private final String moderatorLastName;
 
-    public LdbcShortQuery6MessageForumResult(long forumId, String forumTitle, long moderatorId, String moderatorFirstName, String moderatorLastName) {
+    public LdbcShortQuery6MessageForumResult(
+        @JsonProperty("forumId")            long forumId,
+        @JsonProperty("forumTitle")         String forumTitle,
+        @JsonProperty("moderatorId")        long moderatorId,
+        @JsonProperty("moderatorFirstName") String moderatorFirstName,
+        @JsonProperty("moderatorLastName")  String moderatorLastName
+    )
+    {
         this.forumId = forumId;
         this.forumTitle = forumTitle;
         this.moderatorId = moderatorId;
@@ -15,23 +24,23 @@ public class LdbcShortQuery6MessageForumResult {
         this.moderatorLastName = moderatorLastName;
     }
 
-    public long forumId() {
+    public long getForumId() {
         return forumId;
     }
 
-    public String forumTitle() {
+    public String getForumTitle() {
         return forumTitle;
     }
 
-    public long moderatorId() {
+    public long getModeratorId() {
         return moderatorId;
     }
 
-    public String moderatorFirstName() {
+    public String getModeratorFirstName() {
         return moderatorFirstName;
     }
 
-    public String moderatorLastName() {
+    public String getModeratorLastName() {
         return moderatorLastName;
     }
 

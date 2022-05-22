@@ -1,17 +1,27 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery6.java
+ * 
+ * Interactive workload complex read query 6:
+ * -- Tag co-occurrence --
+ * 
+ * Given a start Person and some Tag, find the other Tags
+ * that occur together with this Tag on Posts that were created
+ * by start Person’s friends and friends of friends
+ * (excluding start Person). Return top 10 Tags, and the count
+ * of Posts that were created by these Persons, which contain
+ * both this Tag and the given Tag.
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
 {
@@ -19,32 +29,36 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
 
     public static final int TYPE = 6;
     public static final int DEFAULT_LIMIT = 10;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "personIdQ6";
     public static final String TAG_NAME = "tagName";
     public static final String LIMIT = "limit";
 
-    private final long personId;
+    private final long personIdQ6;
     private final String tagName;
     private final int limit;
 
-    public LdbcQuery6( long personId, String tagName, int limit )
+    public LdbcQuery6(
+        @JsonProperty("personIdQ6") long personIdQ6,
+        @JsonProperty("tagName")    String tagName,
+        @JsonProperty("limit")      int limit
+    )
     {
-        this.personId = personId;
+        this.personIdQ6 = personIdQ6;
         this.tagName = tagName;
         this.limit = limit;
     }
 
-    public long personId()
+    public long getPersonIdQ6()
     {
-        return personId;
+        return personIdQ6;
     }
 
-    public String tagName()
+    public String getTagName()
     {
         return tagName;
     }
 
-    public int limit()
+    public int getLimit()
     {
         return limit;
     }
@@ -53,7 +67,7 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, personIdQ6)
                 .put(TAG_NAME, tagName)
                 .put(LIMIT, limit)
                 .build();
@@ -71,7 +85,7 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
 
         if ( limit != that.limit )
         { return false; }
-        if ( personId != that.personId )
+        if ( personIdQ6 != that.personIdQ6 )
         { return false; }
         if ( tagName != null ? !tagName.equals( that.tagName ) : that.tagName != null )
         { return false; }
@@ -82,7 +96,7 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
     @Override
     public int hashCode()
     {
-        int result = (int) (personId ^ (personId >>> 32));
+        int result = (int) (personIdQ6 ^ (personIdQ6 >>> 32));
         result = 31 * result + (tagName != null ? tagName.hashCode() : 0);
         result = 31 * result + limit;
         return result;
@@ -92,69 +106,20 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
     public String toString()
     {
         return "LdbcQuery6{" +
-               "personId=" + personId +
+               "personIdQ6=" + personIdQ6 +
                ", tagName='" + tagName + '\'' +
                ", limit=" + limit +
                '}';
     }
 
     @Override
-    public List<LdbcQuery6Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcQuery6Result> deserializeResult( String serializedResults ) throws IOException
     {
-        List<List<Object>> resultsAsList;
-        try
-        {
-            resultsAsList = OBJECT_MAPPER.readValue( serializedResults, new TypeReference<List<List<Object>>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResults ), e );
-        }
-
-        List<LdbcQuery6Result> results = new ArrayList<>();
-        for ( int i = 0; i < resultsAsList.size(); i++ )
-        {
-            List<Object> resultAsList = resultsAsList.get( i );
-            String tagName = (String) resultAsList.get( 0 );
-            int tagCount = ((Number) resultAsList.get( 1 )).intValue();
-
-            results.add( new LdbcQuery6Result(
-                    tagName,
-                    tagCount
-            ) );
-        }
-
-        return results;
+        List<LdbcQuery6Result> marshaledOperationResult;
+        marshaledOperationResult = Arrays.asList(OBJECT_MAPPER.readValue(serializedResults, LdbcQuery6Result[].class));
+        return marshaledOperationResult;
     }
-
-    @Override
-    public String serializeResult( Object resultsObject ) throws SerializingMarshallingException
-    {
-        List<LdbcQuery6Result> results = (List<LdbcQuery6Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for ( int i = 0; i < results.size(); i++ )
-        {
-            LdbcQuery6Result result = results.get( i );
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add( result.tagName() );
-            resultFields.add( result.postCount() );
-            resultsFields.add( resultFields );
-        }
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultsFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", results.toString() ), e );
-        }
-    }
-
+  
     @Override
     public int type()
     {

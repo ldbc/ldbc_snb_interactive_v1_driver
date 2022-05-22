@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.String.format;
 
+import java.io.IOError;
+
 public class SingleThreadOperationExecutor implements OperationExecutor
 {
     static final Operation TERMINATE_OPERATION = new Operation()
@@ -35,17 +37,10 @@ public class SingleThreadOperationExecutor implements OperationExecutor
         }
 
         @Override
-        public Object marshalResult( String serializedOperationResult ) throws SerializingMarshallingException
+        public Object deserializeResult( String serializedOperationResult )
         {
             throw new UnsupportedOperationException();
         }
-
-        @Override
-        public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-        {
-            throw new UnsupportedOperationException();
-        }
-
     };
 
     private final SingleThreadOperationExecutorThread executorThread;

@@ -15,11 +15,14 @@ import org.ldbcouncil.snb.driver.temporal.TemporalUtil;
 import org.ldbcouncil.snb.driver.temporal.TimeSource;
 import org.ldbcouncil.snb.driver.util.Tuple3;
 import org.ldbcouncil.snb.driver.workloads.WorkloadFactory;
+import org.ldbcouncil.snb.driver.workloads.dummy.DummyWorkload;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.ldbcouncil.snb.driver.validation.WorkloadValidationResult.ResultType;
 import static java.lang.String.format;
@@ -358,9 +361,11 @@ public class WorkloadValidator
 
             // Serializing and Marshalling operations works
             String serializedOperation;
+            // NOTE: Temporary workaround until workload abstraction is removed in the driver.
+            DummyWorkload dummyWorkload = (DummyWorkload) workloadPass2;
             try
             {
-                serializedOperation = workloadPass2.serializeOperation( operation );
+                serializedOperation = dummyWorkload.serializeOperation(operation);
             }
             catch ( SerializingMarshallingException e )
             {
@@ -373,7 +378,7 @@ public class WorkloadValidator
             Operation marshaledOperation;
             try
             {
-                marshaledOperation = workloadPass2.marshalOperation( serializedOperation );
+                marshaledOperation = dummyWorkload.marshalOperation( serializedOperation );
             }
             catch ( SerializingMarshallingException e )
             {

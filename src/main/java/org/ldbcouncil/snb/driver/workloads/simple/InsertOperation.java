@@ -50,22 +50,17 @@ public class InsertOperation extends Operation<Object>
     }
 
     @Override
-    public Object marshalResult( String serializedOperationResult )
-    {
-        return null;
-    }
-
-    @Override
-    public String serializeResult( Object operationResultInstance )
-    {
-        return null;
-    }
-
-    @Override
     public int type()
     {
         return TYPE;
     }
+
+    @Override
+    public Object deserializeResult(String str)
+    {
+        return null;
+    }
+
 
     @Override
     public boolean equals( Object o )

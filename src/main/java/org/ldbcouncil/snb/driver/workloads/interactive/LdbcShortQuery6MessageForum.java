@@ -1,97 +1,60 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcShortQuery6MessageForum.java
+ * 
+ * Interactive workload short read query 6:
+ * -- Forum of a message --
+ * 
+ * Given a Message, retrieve the Forum that contains it and the
+ * Person that moderates that Forum. Since Comments are not directly
+ * contained in Forums, for Comments, return the Forum containing
+ * the original Post in the thread which the Comment is replying to.
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6MessageForumResult>
 {
     public static final int TYPE = 106;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    public static final String MESSAGE_ID = "messageId";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    public static final String MESSAGE_ID = "messageForumId";
 
-    private final long messageId;
+    private final long messageForumId;
 
-    public LdbcShortQuery6MessageForum( long messageId )
+    public LdbcShortQuery6MessageForum(
+        @JsonProperty("messageForumId") long messageForumId
+    )
     {
-        this.messageId = messageId;
+        this.messageForumId = messageForumId;
     }
 
-    public long messageId()
+    public long getMessageForumId()
     {
-        return messageId;
+        return messageForumId;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(MESSAGE_ID, messageId)
+                .put(MESSAGE_ID, messageForumId)
                 .build();
     }
 
-    @Override
-    public LdbcShortQuery6MessageForumResult marshalResult( String serializedResult )
-            throws SerializingMarshallingException
-    {
-        List<Object> resultAsList;
-        try
-        {
-            resultAsList = objectMapper.readValue( serializedResult, new TypeReference<List<Object>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while parsing serialized results\n%s",
-                    serializedResult ), e );
-        }
-
-        long forumId = ((Number) resultAsList.get( 0 )).longValue();
-        String forumTitle = (String) resultAsList.get( 1 );
-        long moderatorId = ((Number) resultAsList.get( 2 )).longValue();
-        String moderatorFirstName = (String) resultAsList.get( 3 );
-        String moderatorLastName = (String) resultAsList.get( 4 );
-
-        return new LdbcShortQuery6MessageForumResult(
-                forumId,
-                forumTitle,
-                moderatorId,
-                moderatorFirstName,
-                moderatorLastName
-        );
-    }
 
     @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
+    public LdbcShortQuery6MessageForumResult deserializeResult( String serializedResults ) throws IOException
     {
-        LdbcShortQuery6MessageForumResult result = (LdbcShortQuery6MessageForumResult) operationResultInstance;
-        List<Object> resultFields = new ArrayList<>();
-        resultFields.add( result.forumId() );
-        resultFields.add( result.forumTitle() );
-        resultFields.add( result.moderatorId() );
-        resultFields.add( result.moderatorFirstName() );
-        resultFields.add( result.moderatorLastName() );
-
-        try
-        {
-            return objectMapper.writeValueAsString( resultFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    result.toString() ), e );
-        }
+        LdbcShortQuery6MessageForumResult marshaledOperationResult;
+        marshaledOperationResult = OBJECT_MAPPER.readValue(serializedResults, LdbcShortQuery6MessageForumResult.class);
+        return marshaledOperationResult;
     }
-
+ 
     @Override
     public boolean equals( Object o )
     {
@@ -102,7 +65,7 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
 
         LdbcShortQuery6MessageForum that = (LdbcShortQuery6MessageForum) o;
 
-        if ( messageId != that.messageId )
+        if ( messageForumId != that.messageForumId )
         { return false; }
 
         return true;
@@ -111,14 +74,14 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
     @Override
     public int hashCode()
     {
-        return (int) (messageId ^ (messageId >>> 32));
+        return (int) (messageForumId ^ (messageForumId >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcShortQuery6MessageForum{" +
-               "messageId=" + messageId +
+               "messageForumId=" + messageForumId +
                '}';
     }
 

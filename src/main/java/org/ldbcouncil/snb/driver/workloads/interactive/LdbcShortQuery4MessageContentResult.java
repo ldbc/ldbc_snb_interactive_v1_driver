@@ -1,19 +1,25 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LdbcShortQuery4MessageContentResult {
     private final String messageContent;
     private final long messageCreationDate;
 
-    public LdbcShortQuery4MessageContentResult(String messageContent, long messageCreationDate) {
+    public LdbcShortQuery4MessageContentResult(
+        @JsonProperty("messageContent")      String messageContent,
+        @JsonProperty("messageCreationDate") long messageCreationDate
+    )
+    {
         this.messageContent = messageContent;
         this.messageCreationDate = messageCreationDate;
     }
 
-    public String messageContent() {
+    public String getMessageContent() {
         return messageContent;
     }
 
-    public long messageCreationDate() {
+    public long getMessageCreationDate() {
         return messageCreationDate;
     }
 

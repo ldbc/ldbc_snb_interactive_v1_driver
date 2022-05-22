@@ -41,6 +41,7 @@ public class DbValidationResult
             {
             };
     private final DefaultPrettyPrinter defaultPrettyPrinter;
+    ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     DbValidationResult( Db db )
     {
@@ -166,9 +167,10 @@ public class DbValidationResult
         String serializedOperation;
         try
         {
-            serializedOperation = workload.serializeOperation( operation );
+            
+            serializedOperation = OBJECT_MAPPER.writeValueAsString( operation );
         }
-        catch ( SerializingMarshallingException e )
+        catch ( IOException e )
         {
             throw new WorkloadException(
                     format( "Error occurred while serializing operation\nOperation: %s", operation ),
@@ -178,9 +180,10 @@ public class DbValidationResult
         String serializedResult;
         try
         {
-            serializedResult = operation.serializeResult( result );
+            serializedResult = OBJECT_MAPPER.writeValueAsString( result );
+            // serializedResult = operation.serializeResult( result );
         }
-        catch ( SerializingMarshallingException e )
+        catch ( IOException e )
         {
             throw new WorkloadException(
                     format( "Error occurred while serializing operation result\nResult: %s", result.toString() ),

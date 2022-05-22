@@ -68,7 +68,6 @@ public class DummyWorkload extends Workload
         return workloadStreams;
     }
 
-    @Override
     public String serializeOperation( Operation operation ) throws SerializingMarshallingException
     {
         if ( operation.getClass().equals( NothingOperation.class ) )
@@ -100,7 +99,6 @@ public class DummyWorkload extends Workload
         throw new SerializingMarshallingException( "Unsupported Operation: " + operation.getClass().getName() );
     }
 
-    @Override
     public Operation marshalOperation( String serializedOperation ) throws SerializingMarshallingException
     {
         if ( serializedOperation.startsWith( NothingOperation.class.getName() ) )
@@ -128,7 +126,6 @@ public class DummyWorkload extends Workload
         throw new SerializingMarshallingException( "Unsupported Operation: " + serializedOperation );
     }
 
-    @Override
     public boolean resultsEqual( Operation operation, Object result1, Object result2 ) throws WorkloadException
     {
         if ( null == result1 || null == result2 )

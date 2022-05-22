@@ -1,50 +1,60 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcQuery13.java
+ * 
+ * Interactive workload complex read query 13:
+ * -- Single shortest path --
+ * 
+ * Given two Persons, find the shortest path between these two Persons in
+ * the subgraph induced by the knows edges. Return the length of this path:
+ * -  −1: no path found
+ * -  0: start person = end person
+ * -  > 0: path found (start person ≠ end person)
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
 
 public class LdbcQuery13 extends Operation<LdbcQuery13Result>
 {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static final int TYPE = 13;
-    public static final String PERSON1_ID = "person1Id";
-    public static final String PERSON2_ID = "person2Id";
+    public static final String PERSON1_ID = "person1IdQ13StartNode";
+    public static final String PERSON2_ID = "person2IdQ13EndNode";
 
-    private final long person1Id;
-    private final long person2Id;
+    private final long person1IdQ13StartNode;
+    private final long person2IdQ13EndNode;
 
-    public LdbcQuery13( long person1Id, long person2Id )
+    public LdbcQuery13(
+        @JsonProperty("person1IdQ13StartNode") long person1IdQ13StartNode,
+        @JsonProperty("person2IdQ13EndNode")   long person2IdQ13EndNode
+    )
     {
-        this.person1Id = person1Id;
-        this.person2Id = person2Id;
+        this.person1IdQ13StartNode = person1IdQ13StartNode;
+        this.person2IdQ13EndNode = person2IdQ13EndNode;
     }
 
-    public long person1Id()
+    public long getPerson1IdQ13StartNode()
     {
-        return person1Id;
+        return person1IdQ13StartNode;
     }
 
-    public long person2Id()
+    public long getPerson2IdQ13EndNode()
     {
-        return person2Id;
+        return person2IdQ13EndNode;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON1_ID, person1Id)
-                .put(PERSON2_ID, person2Id)
+                .put(PERSON1_ID, person1IdQ13StartNode)
+                .put(PERSON2_ID, person2IdQ13EndNode)
                 .build();
     }
 
@@ -58,9 +68,9 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
 
         LdbcQuery13 that = (LdbcQuery13) o;
 
-        if ( person1Id != that.person1Id )
+        if ( person1IdQ13StartNode != that.person1IdQ13StartNode )
         { return false; }
-        if ( person2Id != that.person2Id )
+        if ( person2IdQ13EndNode != that.person2IdQ13EndNode )
         { return false; }
 
         return true;
@@ -69,8 +79,8 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
     @Override
     public int hashCode()
     {
-        int result = (int) (person1Id ^ (person1Id >>> 32));
-        result = 31 * result + (int) (person2Id ^ (person2Id >>> 32));
+        int result = (int) (person1IdQ13StartNode ^ (person1IdQ13StartNode >>> 32));
+        result = 31 * result + (int) (person2IdQ13EndNode ^ (person2IdQ13EndNode >>> 32));
         return result;
     }
 
@@ -78,47 +88,17 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
     public String toString()
     {
         return "LdbcQuery13{" +
-               "person1Id=" + person1Id +
-               ", person2Id=" + person2Id +
+               "person1IdQ13StartNode=" + person1IdQ13StartNode +
+               ", person2IdQ13EndNode=" + person2IdQ13EndNode +
                '}';
     }
 
     @Override
-    public LdbcQuery13Result marshalResult( String serializedResult ) throws SerializingMarshallingException
+    public LdbcQuery13Result deserializeResult( String serializedResults ) throws IOException
     {
-        List<Object> resultAsList;
-        try
-        {
-            resultAsList = OBJECT_MAPPER.readValue( serializedResult, new TypeReference<List<Object>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while parsing serialized results\n%s", serializedResult ), e );
-        }
-
-        int shortestPathLength = ((Number) resultAsList.get( 0 )).intValue();
-        return new LdbcQuery13Result( shortestPathLength );
-    }
-
-    @Override
-    public String serializeResult( Object resultObject ) throws SerializingMarshallingException
-    {
-        LdbcQuery13Result result = (LdbcQuery13Result) resultObject;
-        List<Object> resultFields = new ArrayList<>();
-        resultFields.add( result.shortestPathLength() );
-
-        try
-        {
-            return OBJECT_MAPPER.writeValueAsString( resultFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException(
-                    format( "Error while trying to serialize result\n%s", result.toString() ), e );
-        }
+        LdbcQuery13Result marshaledOperationResult;
+        marshaledOperationResult = OBJECT_MAPPER.readValue(serializedResults, LdbcQuery13Result.class);
+        return marshaledOperationResult;
     }
 
     @Override

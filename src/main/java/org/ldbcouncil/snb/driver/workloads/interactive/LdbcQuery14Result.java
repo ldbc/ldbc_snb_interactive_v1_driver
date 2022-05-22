@@ -1,6 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.google.common.collect.Lists;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.ldbcouncil.snb.driver.validation.ValidationEquality;
 
 import java.util.Iterator;
@@ -10,20 +11,21 @@ public class LdbcQuery14Result
     private final Iterable<? extends Number> personIdsInPath;
     private final double pathWeight;
 
-    public LdbcQuery14Result( Iterable<? extends Number> personIdsInPath, double pathWeight )
+    public LdbcQuery14Result(
+        @JsonProperty("personIdsInPath") Iterable<? extends Number> personIdsInPath,
+        @JsonProperty("pathWeight")      double pathWeight
+    )
     {
         this.personIdsInPath = personIdsInPath;
         this.pathWeight = pathWeight;
     }
 
-    public Iterable<? extends Number> personsIdsInPath()
+    public Iterable<? extends Number> getPersonIdsInPath()
     {
-        // force to List, as Guava/Jackson magic changes it to a strange collection that breaks equality somewhere
-        // not performance sensitive code path, only used for validation & serialization - not during runs
-        return Lists.newArrayList( personIdsInPath );
+        return personIdsInPath;
     }
 
-    public double pathWeight()
+    public double getPathWeight()
     {
         return pathWeight;
     }

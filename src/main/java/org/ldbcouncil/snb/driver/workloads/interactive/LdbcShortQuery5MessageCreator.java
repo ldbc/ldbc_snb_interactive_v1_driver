@@ -1,91 +1,57 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcShortQuery5MessageCreator.java
+ * 
+ * Interactive workload short read query 5:
+ * -- Creator of a message --
+ * 
+ * Given a Message, retrieve its author.
+ */
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
 
 public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5MessageCreatorResult>
 {
     public static final int TYPE = 105;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    public static final String MESSAGE_ID = "messageId";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    public static final String MESSAGE_ID = "messageIdCreator";
 
-    private final long messageId;
+    private final long messageIdCreator;
 
-    public LdbcShortQuery5MessageCreator( long messageId )
+    public LdbcShortQuery5MessageCreator(
+        @JsonProperty("messageIdCreator") long messageIdCreator
+    )
     {
-        this.messageId = messageId;
+        this.messageIdCreator = messageIdCreator;
     }
 
-    public long messageId()
+    public long getMessageIdCreator()
     {
-        return messageId;
+        return messageIdCreator;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(MESSAGE_ID, messageId)
+                .put(MESSAGE_ID, messageIdCreator)
                 .build();
     }
 
     @Override
-    public LdbcShortQuery5MessageCreatorResult marshalResult( String serializedResult )
-            throws SerializingMarshallingException
+    public LdbcShortQuery5MessageCreatorResult deserializeResult( String serializedResults ) throws IOException
     {
-        List<Object> resultAsList;
-        try
-        {
-            resultAsList = objectMapper.readValue( serializedResult, new TypeReference<List<Object>>()
-            {
-            } );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while parsing serialized results\n%s",
-                    serializedResult ), e );
-        }
-
-        long personId = ((Number) resultAsList.get( 0 )).longValue();
-        String firstName = (String) resultAsList.get( 1 );
-        String lastName = (String) resultAsList.get( 2 );
-
-        return new LdbcShortQuery5MessageCreatorResult(
-                personId,
-                firstName,
-                lastName
-        );
+        LdbcShortQuery5MessageCreatorResult marshaledOperationResult;
+        marshaledOperationResult = OBJECT_MAPPER.readValue(serializedResults, LdbcShortQuery5MessageCreatorResult.class);
+        return marshaledOperationResult;
     }
-
-    @Override
-    public String serializeResult( Object operationResultInstance ) throws SerializingMarshallingException
-    {
-        LdbcShortQuery5MessageCreatorResult result = (LdbcShortQuery5MessageCreatorResult) operationResultInstance;
-        List<Object> resultFields = new ArrayList<>();
-        resultFields.add( result.personId() );
-        resultFields.add( result.firstName() );
-        resultFields.add( result.lastName() );
-
-        try
-        {
-            return objectMapper.writeValueAsString( resultFields );
-        }
-        catch ( IOException e )
-        {
-            throw new SerializingMarshallingException( format( "Error while trying to serialize result\n%s",
-                    result.toString() ), e );
-        }
-    }
-
+ 
     @Override
     public boolean equals( Object o )
     {
@@ -96,7 +62,7 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
 
         LdbcShortQuery5MessageCreator that = (LdbcShortQuery5MessageCreator) o;
 
-        if ( messageId != that.messageId )
+        if ( messageIdCreator != that.messageIdCreator )
         { return false; }
 
         return true;
@@ -105,14 +71,14 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
     @Override
     public int hashCode()
     {
-        return (int) (messageId ^ (messageId >>> 32));
+        return (int) (messageIdCreator ^ (messageIdCreator >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcShortQuery5MessageCreator{" +
-               "messageId=" + messageId +
+               "messageIdCreator=" + messageIdCreator +
                '}';
     }
 
