@@ -93,7 +93,6 @@ public class InteractiveShortReadGeneratorTest
         // round robbin will choose short read 1 before short read 4
         assertThat(operation.type(), equalTo(LdbcShortQuery1PersonProfile.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(2l));
-        // OperationTest.assertCorrectParameterMap(operation);
 
 
         assertThat(state, is(initialProbability));
@@ -111,7 +110,6 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(3l));
-        // OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability));
@@ -127,7 +125,6 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery3PersonFriends.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(4l));
-        // OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -143,7 +140,6 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(5l));
-        // OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -159,7 +155,6 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(6l));
-        // OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -172,7 +167,6 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery6MessageForum.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(7l));
-        // OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -185,7 +179,6 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(8l));
-        // OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -201,7 +194,6 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery1PersonProfile.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(9l));
-        // OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -217,7 +209,6 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(10l));
-        // OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -233,7 +224,6 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery3PersonFriends.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(11l));
-        // OperationTest.assertCorrectParameterMap(operation);
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -249,7 +239,6 @@ public class InteractiveShortReadGeneratorTest
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
         assertThat(operation.scheduledStartTimeAsMilli(), equalTo(12l));
-        // OperationTest.assertCorrectParameterMap(operation);
     }
 
     @Test
