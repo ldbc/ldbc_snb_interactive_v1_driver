@@ -29,7 +29,8 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
 
     public static final int TYPE = 4;
     public static final int DEFAULT_LIMIT = 10;
-    public static final String PERSON_ID = "personIdQ4";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String START_DATE = "startDate";
     public static final String DURATION_DAYS = "durationDays";
     public static final String LIMIT = "limit";

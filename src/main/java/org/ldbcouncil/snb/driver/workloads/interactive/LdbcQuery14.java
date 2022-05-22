@@ -38,8 +38,9 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static final int TYPE = 14;
-    public static final String PERSON1_ID = "person1IdQ14StartNode";
-    public static final String PERSON2_ID = "person2IdEndNode";
+    // Parameters used for replacement in queries
+    public static final String PERSON1_ID = "person1Id";
+    public static final String PERSON2_ID = "person2Id";
 
     private final long person1IdQ14StartNode;
     private final long person2IdQ14EndNode;

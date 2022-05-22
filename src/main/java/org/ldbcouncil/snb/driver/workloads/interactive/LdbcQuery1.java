@@ -27,7 +27,8 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
 
     public static final int TYPE = 1;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personIdQ1";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String FIRST_NAME = "firstName";
     public static final String LIMIT = "limit";
 

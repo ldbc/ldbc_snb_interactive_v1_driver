@@ -20,7 +20,8 @@ public class LdbcShortQuery4MessageContent extends Operation<LdbcShortQuery4Mess
 {
     public static final int TYPE = 104;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    public static final String MESSAGE_ID = "messageIdContent";
+    // Parameters used for replacement in queries
+    public static final String MESSAGE_ID = "messageId";
 
     private final long messageIdContent;
 

@@ -27,7 +27,8 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>>
 
     public static final int TYPE = 9;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personIdQ9";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String MAX_DATE = "maxDate";
     public static final String LIMIT = "limit";
 

@@ -26,7 +26,8 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
 
     public static final int TYPE = 11;
     public static final int DEFAULT_LIMIT = 10;
-    public static final String PERSON_ID = "personIdQ11";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String COUNTRY_NAME = "countryName";
     public static final String WORK_FROM_YEAR = "workFromYear";
     public static final String LIMIT = "limit";

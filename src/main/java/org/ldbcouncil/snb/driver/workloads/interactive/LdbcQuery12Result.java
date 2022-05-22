@@ -1,11 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.util.ListUtils;
-
-import java.util.Collections;
-import java.util.List;
 
 public class LdbcQuery12Result {
     private final long personId;

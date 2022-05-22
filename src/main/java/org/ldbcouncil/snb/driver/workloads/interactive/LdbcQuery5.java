@@ -29,7 +29,8 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
 
     public static final int TYPE = 5;
     public static final int DEFAULT_LIMIT = 20;
-    public static final String PERSON_ID = "personIdQ5";
+    // Parameters used for replacement in queries
+    public static final String PERSON_ID = "personId";
     public static final String MIN_DATE = "minDate";
     public static final String LIMIT = "limit";
 
