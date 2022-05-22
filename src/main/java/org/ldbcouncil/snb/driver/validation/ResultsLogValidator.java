@@ -36,6 +36,7 @@ public class ResultsLogValidator
         // Check if total delayed operations is above the threshold
         if ( summary.excessiveDelayCount() > tolerances.toleratedExcessiveDelayCount() )
         {
+            result.aboveThreshold();
             result.addError(
                     ValidationErrorType.TOO_MANY_LATE_OPERATIONS,
                     format( "Late Count (%s) > (%s) Tolerated Late Count",
@@ -46,7 +47,7 @@ public class ResultsLogValidator
         }
         for ( String operationType : summary.excessiveDelayCountPerType().keySet() )
         {
-            if (recordDelayedOperations)
+            if (recordDelayedOperations && summary.excessiveDelayCountPerType().get( operationType ) > 0)
             {
                 result.addError(
                     ValidationErrorType.LATE_OPERATIONS_FOR_TYPE,

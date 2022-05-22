@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.Db;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.util.MapUtils;
@@ -181,7 +180,6 @@ public class DbValidationResult
         try
         {
             serializedResult = OBJECT_MAPPER.writeValueAsString( result );
-            // serializedResult = operation.serializeResult( result );
         }
         catch ( IOException e )
         {

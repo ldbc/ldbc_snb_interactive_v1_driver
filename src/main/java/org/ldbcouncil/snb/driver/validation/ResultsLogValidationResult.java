@@ -11,6 +11,7 @@ public class ResultsLogValidationResult
         LATE_OPERATIONS_FOR_TYPE,
         UNEXPECTED
     }
+    private boolean aboveThreshold = false;
 
     public static class ValidationError
     {
@@ -46,6 +47,16 @@ public class ResultsLogValidationResult
         errors.add( new ValidationError( validationErrorType, errorMessage ) );
     }
 
+    public void aboveThreshold()
+    {
+        this.aboveThreshold = true;
+    }
+
+    public boolean getAboveThreshold()
+    {
+        return this.aboveThreshold;
+    }
+
     public List<ValidationError> errors()
     {
         return errors;
@@ -53,7 +64,27 @@ public class ResultsLogValidationResult
 
     public boolean isSuccessful()
     {
-        return errors.isEmpty();
+        return !aboveThreshold;
+    }
+
+    public String getScheduleAuditResult(boolean recordDelayedOperations)
+    {
+        StringBuffer sb = new StringBuffer();
+        if ( isSuccessful() )
+        {
+            sb.append( "PASSED SCHEDULE AUDIT -- workload operations executed to schedule" );
+        }
+        else
+        {   recordDelayedOperations = true;
+            sb.append( "FAILED SCHEDULE AUDIT -- errors:" );
+        }
+        if (recordDelayedOperations){
+            for ( ValidationError error : errors )
+            {
+                sb.append( "\n\t" ).append( error.errorType().name() ).append( " : " ).append( error.message() );
+            }
+        }
+        return sb.toString();
     }
 
     @Override

@@ -462,7 +462,9 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                             resultsLogValidationTolerances,
                             controlService.configuration().recordDelayedOperations()
                     );
-                    loggingService.info( validationResult.toString() );
+                    loggingService.info( validationResult.getScheduleAuditResult(
+                        controlService.configuration().recordDelayedOperations()
+                    ) );
                     Files.write(
                             resultsValidationFile.toPath(),
                             resultsLogValidationSummary.toJson().getBytes( StandardCharsets.UTF_8 )
