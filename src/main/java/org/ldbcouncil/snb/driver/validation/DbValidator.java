@@ -11,8 +11,14 @@ import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.runtime.ConcurrentErrorReporter;
 
+// SNB Specific
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery14;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery14Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloadConfiguration;
+
 import java.text.DecimalFormat;
 import java.util.Iterator;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -37,6 +43,9 @@ public class DbValidator
         DbValidationResult dbValidationResult = new DbValidationResult( db );
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ResultReporter resultReporter = new ResultReporter.SimpleResultReporter( errorReporter );
+
+        Map<Integer, Class<? extends Operation>> operationMap =
+            LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping();
 
         int validationParamsProcessedSoFar = 0;
         int validationParamsCrashedSoFar = 0;
@@ -104,8 +113,22 @@ public class DbValidator
             }
 
             Object actualOperationResult = resultReporter.result();
+            
+            // Exception for Q14 where the path ordering for equal weights is not defined.
+            // This comparison should be made on list level and then on individual paths
+            // where paths with equal weights are grouped and compared.
+            // TODO: Either remove workload abstraction or move this to separate validator class.
+            if (LdbcQuery14.class  == operationMap.get(operation.type()))
+            {
+                if (!LdbcQuery14Result.resultListEqual(expectedOperationResult, actualOperationResult)){
+                    validationParamsIncorrectSoFar++;
+                    dbValidationResult
+                            .reportIncorrectResultForOperation( operation, expectedOperationResult, actualOperationResult );
+                    continue;
+                }
+            }
 
-            if ( false == actualOperationResult.equals(expectedOperationResult))
+            else if ( false == actualOperationResult.equals(expectedOperationResult))
             {
                 validationParamsIncorrectSoFar++;
                 dbValidationResult
