@@ -114,6 +114,18 @@ public class LdbcQuery14Result
     }
 
     @Override
+    public int hashCode()
+    {
+        int result = Long.valueOf(Double.doubleToLongBits(pathWeight)).hashCode();
+        Iterator i = personIdsInPath.iterator();
+        while (i.hasNext()) {
+            Object obj = i.next();
+            result = 31 * result + (obj==null ? 0 : obj.hashCode());
+        }
+        return result;
+    }
+
+    @Override
     public String toString()
     {
         return "LdbcQuery14Result{" +
