@@ -39,11 +39,11 @@ public class LdbcQuery3Result {
         return personLastName;
     }
 
-    public long getXCount() {
+    public long getxCount() {
         return xCount;
     }
 
-    public long getYCount() {
+    public long getyCount() {
         return yCount;
     }
 
