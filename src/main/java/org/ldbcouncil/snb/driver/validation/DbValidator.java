@@ -12,8 +12,8 @@ import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.runtime.ConcurrentErrorReporter;
 
 // SNB Specific
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery14;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery14Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14Result;
 import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 
 import java.text.DecimalFormat;

@@ -2,6 +2,27 @@ package org.ldbcouncil.snb.driver.workloads.interactive.db;
 
 import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.workloads.interactive.*;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery10Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery11Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery12Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery13Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery1Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery2Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery3Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery4Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery5Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery6Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery7Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery8Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery9Result;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery1PersonProfileResult;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery2PersonPostsResult;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery3PersonFriendsResult;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery4MessageContentResult;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery5MessageCreatorResult;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery6MessageForumResult;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery7MessageRepliesResult;
 
 import java.util.List;
 

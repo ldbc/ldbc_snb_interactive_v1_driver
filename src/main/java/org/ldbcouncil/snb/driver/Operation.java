@@ -8,38 +8,35 @@ package org.ldbcouncil.snb.driver;
  * result object.
  */
 import org.ldbcouncil.snb.driver.temporal.TemporalUtil;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery1;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery2;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery3;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery4;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery5;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery6;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery7;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery8;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery9;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery10;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery11;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery12;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery13;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcQuery14;
-
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcShortQuery1PersonProfile;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcShortQuery2PersonPosts;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcShortQuery3PersonFriends;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcShortQuery4MessageContent;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcShortQuery5MessageCreator;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcShortQuery6MessageForum;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcShortQuery7MessageReplies;
-
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcUpdate1AddPerson;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcUpdate2AddPostLike;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcUpdate3AddCommentLike;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcUpdate4AddForum;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcUpdate5AddForumMembership;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcUpdate6AddPost;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcUpdate7AddComment;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcUpdate8AddFriendship;
-
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery1;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery10;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery11;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery12;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery13;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery2;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery3;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery4;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery5;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery6;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery7;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery8;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery9;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery1PersonProfile;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery2PersonPosts;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery3PersonFriends;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery4MessageContent;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery5MessageCreator;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery6MessageForum;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery7MessageReplies;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate1AddPerson;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate2AddPostLike;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate3AddCommentLike;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate4AddForum;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate5AddForumMembership;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate6AddPost;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate7AddComment;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate8AddFriendship;
 
 import java.io.IOException;
 import java.util.Map;
