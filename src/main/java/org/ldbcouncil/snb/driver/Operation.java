@@ -8,35 +8,7 @@ package org.ldbcouncil.snb.driver;
  * result object.
  */
 import org.ldbcouncil.snb.driver.temporal.TemporalUtil;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery1;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery10;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery11;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery12;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery13;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery2;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery3;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery4;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery5;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery6;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery7;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery8;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery9;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery1PersonProfile;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery2PersonPosts;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery3PersonFriends;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery4MessageContent;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery5MessageCreator;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery6MessageForum;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcShortQuery7MessageReplies;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate1AddPerson;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate2AddPostLike;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate3AddCommentLike;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate4AddForum;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate5AddForumMembership;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate6AddPost;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate7AddComment;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate8AddFriendship;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.io.IOException;
 import java.util.Map;
@@ -119,7 +91,7 @@ public abstract class Operation<RESULT_TYPE>
 
     /**
      * Get type of operation
-     * @see org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloadConfiguration#operationTypeToClassMapping()
+     * @see @link org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloadConfiguration#operationTypeToClassMapping()
      * for mapping of LDBC queries
      * @return Type as integer
      */
