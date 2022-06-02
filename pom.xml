@@ -107,6 +107,11 @@
             <artifactId>commons-io</artifactId>
             <version>${commons.io.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.duckdb</groupId>
+            <artifactId>duckdb_jdbc</artifactId>
+            <version>0.3.3</version>
+        </dependency>
     </dependencies>
 
     <build>
