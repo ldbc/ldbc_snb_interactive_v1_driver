@@ -13,15 +13,15 @@ import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.WorkloadStreams;
 import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.OperationMode;
+import org.ldbcouncil.snb.driver.csv.CsvLoader;
+import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
 import org.ldbcouncil.snb.driver.csv.charseeker.BufferedCharSeeker;
-import org.ldbcouncil.snb.driver.csv.charseeker.CharSeeker;
 import org.ldbcouncil.snb.driver.csv.charseeker.Extractors;
-import org.ldbcouncil.snb.driver.csv.charseeker.Mark;
 import org.ldbcouncil.snb.driver.csv.charseeker.Readables;
 import org.ldbcouncil.snb.driver.csv.charseeker.ThreadAheadReadable;
 import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileReader;
-import org.ldbcouncil.snb.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
+import org.ldbcouncil.snb.driver.generator.QueryEventStreamReader;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
 import org.ldbcouncil.snb.driver.util.ClassLoaderHelper;
 import org.ldbcouncil.snb.driver.util.ClassLoadingException;
@@ -33,10 +33,10 @@ import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -751,828 +751,60 @@ public class LdbcSnbInteractiveWorkload extends Workload
          * *******
          * *******/
 
-        /*
+         /*
          * Create read operation streams, with specified interleaves
          */
-        int bufferSize = 1 * 1024 * 1024;
-        char columnDelimiter = '|';
-        char arrayDelimiter = ';';
-        char tupleDelimiter = ',';
-
-        Iterator<Operation> readOperation1Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query1EventStreamReader.Query1Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation1File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation1File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation1File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation1StreamWithoutTimes = new Query1EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation1StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation1InterleaveAsMilli,
-                            readOperation1InterleaveAsMilli );
-
-            readOperation1Stream = gf.assignStartTimes(
-                    operation1StartTimes,
-                    operation1StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
+        CsvLoader loader;
+        try {
+            DuckDbConnectionState db = new DuckDbConnectionState();
+            loader = new CsvLoader(db);
         }
-
-        Iterator<Operation> readOperation2Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query2EventStreamReader.Query2Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation2File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation2File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation2File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation2StreamWithoutTimes = new Query2EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation2StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation2InterleaveAsMilli,
-                            readOperation2InterleaveAsMilli );
-
-            readOperation2Stream = gf.assignStartTimes(
-                    operation2StartTimes,
-                    operation2StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
+        catch (SQLException e){
+            throw new WorkloadException(format("Error creating loader for operation streams %s", e));
         }
+        ReadOperationStream readOperationStream = new ReadOperationStream(gf, workloadStartTimeAsMilli, loader);
+        
+        QueryEventStreamReader.EventDecoder<Object[]> decoder1 = new Query1EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation1Stream = readOperationStream.readOperationStream(Query1EventStreamReader.class, decoder1, readOperation1InterleaveAsMilli, readOperation1File);
 
-        Iterator<Operation> readOperation3Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query3EventStreamReader.Query3Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation3File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation3File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation3File.getAbsolutePath() ), e );
-            }
+        QueryEventStreamReader.EventDecoder<Object[]> decoder2 = new Query2EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation2Stream = readOperationStream.readOperationStream(Query2EventStreamReader.class, decoder2, readOperation2InterleaveAsMilli, readOperation2File);
 
-            Iterator<Operation> operation3StreamWithoutTimes = new Query3EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
+        QueryEventStreamReader.EventDecoder<Object[]> decoder3 = new Query3EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation3Stream = readOperationStream.readOperationStream(Query3EventStreamReader.class, decoder3, readOperation3InterleaveAsMilli, readOperation3File);
 
-            Iterator<Long> operation3StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation3InterleaveAsMilli,
-                            readOperation3InterleaveAsMilli );
+        QueryEventStreamReader.EventDecoder<Object[]> decoder4 = new Query4EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation4Stream = readOperationStream.readOperationStream(Query4EventStreamReader.class, decoder4, readOperation4InterleaveAsMilli, readOperation4File);
 
-            readOperation3Stream = gf.assignStartTimes(
-                    operation3StartTimes,
-                    operation3StreamWithoutTimes
-            );
+        QueryEventStreamReader.EventDecoder<Object[]> decoder5 = new Query5EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation5Stream = readOperationStream.readOperationStream(Query5EventStreamReader.class, decoder5, readOperation5InterleaveAsMilli, readOperation5File);
 
-            readOperationFileReaders.add( charSeeker );
-        }
+        QueryEventStreamReader.EventDecoder<Object[]> decoder6 = new Query6EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation6Stream = readOperationStream.readOperationStream(Query6EventStreamReader.class, decoder6, readOperation6InterleaveAsMilli, readOperation6File);
 
-        Iterator<Operation> readOperation4Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query4EventStreamReader.Query4Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation4File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation4File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation4File.getAbsolutePath() ), e );
-            }
+        QueryEventStreamReader.EventDecoder<Object[]> decoder7 = new Query7EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation7Stream = readOperationStream.readOperationStream(Query7EventStreamReader.class, decoder7, readOperation7InterleaveAsMilli, readOperation7File);
 
-            Iterator<Operation> operation4StreamWithoutTimes = new Query4EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
+        QueryEventStreamReader.EventDecoder<Object[]> decoder8 = new Query8EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation8Stream = readOperationStream.readOperationStream(Query8EventStreamReader.class, decoder8, readOperation8InterleaveAsMilli, readOperation8File);
 
-            Iterator<Long> operation4StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation4InterleaveAsMilli,
-                            readOperation4InterleaveAsMilli );
+        QueryEventStreamReader.EventDecoder<Object[]> decoder9 = new Query9EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation9Stream = readOperationStream.readOperationStream(Query9EventStreamReader.class, decoder9, readOperation9InterleaveAsMilli, readOperation9File);
 
-            readOperation4Stream = gf.assignStartTimes(
-                    operation4StartTimes,
-                    operation4StreamWithoutTimes
-            );
+        QueryEventStreamReader.EventDecoder<Object[]> decoder10 = new Query10EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation10Stream = readOperationStream.readOperationStream(Query10EventStreamReader.class, decoder10, readOperation10InterleaveAsMilli, readOperation10File);
 
-            readOperationFileReaders.add( charSeeker );
-        }
+        QueryEventStreamReader.EventDecoder<Object[]> decoder11 = new Query11EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation11Stream = readOperationStream.readOperationStream(Query11EventStreamReader.class, decoder11, readOperation11InterleaveAsMilli, readOperation11File);
 
-        Iterator<Operation> readOperation5Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query5EventStreamReader.Query5Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation5File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation5File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation5File.getAbsolutePath() ), e );
-            }
+        QueryEventStreamReader.EventDecoder<Object[]> decoder12 = new Query12EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation12Stream = readOperationStream.readOperationStream(Query12EventStreamReader.class, decoder12, readOperation12InterleaveAsMilli, readOperation12File);
 
-            Iterator<Operation> operation5StreamWithoutTimes = new Query5EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
+        QueryEventStreamReader.EventDecoder<Object[]> decoder13 = new Query13EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation13Stream = readOperationStream.readOperationStream(Query13EventStreamReader.class, decoder13, readOperation13InterleaveAsMilli, readOperation13File);
 
-            Iterator<Long> operation5StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation5InterleaveAsMilli,
-                            readOperation5InterleaveAsMilli );
-
-            readOperation5Stream = gf.assignStartTimes(
-                    operation5StartTimes,
-                    operation5StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation6Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query6EventStreamReader.Query6Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation6File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation6File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation6File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation6StreamWithoutTimes = new Query6EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation6StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation6InterleaveAsMilli,
-                            readOperation6InterleaveAsMilli );
-
-            readOperation6Stream = gf.assignStartTimes(
-                    operation6StartTimes,
-                    operation6StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation7Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query7EventStreamReader.Query7Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation7File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation7File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation7File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation7StreamWithoutTimes = new Query7EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation7StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation7InterleaveAsMilli,
-                            readOperation7InterleaveAsMilli );
-
-            readOperation7Stream = gf.assignStartTimes(
-                    operation7StartTimes,
-                    operation7StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation8Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query8EventStreamReader.Query8Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation8File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation8File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation8File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation8StreamWithoutTimes = new Query8EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation8StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation8InterleaveAsMilli,
-                            readOperation8InterleaveAsMilli );
-
-            readOperation8Stream = gf.assignStartTimes(
-                    operation8StartTimes,
-                    operation8StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation9Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query9EventStreamReader.Query9Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation9File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation9File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation9File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation9StreamWithoutTimes = new Query9EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation9StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation9InterleaveAsMilli,
-                            readOperation9InterleaveAsMilli );
-
-            readOperation9Stream = gf.assignStartTimes(
-                    operation9StartTimes,
-                    operation9StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation10Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query10EventStreamReader.Query10Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation10File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation10File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation10File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation10StreamWithoutTimes = new Query10EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation10StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation10InterleaveAsMilli,
-                            readOperation10InterleaveAsMilli );
-
-            readOperation10Stream = gf.assignStartTimes(
-                    operation10StartTimes,
-                    operation10StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation11Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query11EventStreamReader.Query11Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation11File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation11File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation11File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation11StreamWithoutTimes = new Query11EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation11StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation11InterleaveAsMilli,
-                            readOperation11InterleaveAsMilli );
-
-            readOperation11Stream = gf.assignStartTimes(
-                    operation11StartTimes,
-                    operation11StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation12Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query12EventStreamReader.Query12Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation12File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation12File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation12File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation12StreamWithoutTimes = new Query12EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation12StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation12InterleaveAsMilli,
-                            readOperation12InterleaveAsMilli );
-
-            readOperation12Stream = gf.assignStartTimes(
-                    operation12StartTimes,
-                    operation12StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation13Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query13EventStreamReader.Query13Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation13File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation13File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation13File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation13StreamWithoutTimes = new Query13EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation13StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation13InterleaveAsMilli,
-                            readOperation13InterleaveAsMilli );
-
-            readOperation13Stream = gf.assignStartTimes(
-                    operation13StartTimes,
-                    operation13StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation14Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query14EventStreamReader.Query14Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation14File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation14File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation14File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation14StreamWithoutTimes = new Query14EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation14StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation14InterleaveAsMilli,
-                            readOperation14InterleaveAsMilli );
-
-            readOperation14Stream = gf.assignStartTimes(
-                    operation14StartTimes,
-                    operation14StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
+        QueryEventStreamReader.EventDecoder<Object[]> decoder14 = new Query14EventStreamReader.QueryDecoder();
+        Iterator<Operation> readOperation14Stream = readOperationStream.readOperationStream(Query14EventStreamReader.class, decoder14, readOperation14InterleaveAsMilli, readOperation14File);
 
         if ( enabledLongReadOperationTypes.contains( LdbcQuery1.class ) )
         { asynchronousNonDependencyStreamsList.add( readOperation1Stream ); }
@@ -1619,9 +851,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         /* *******
          * *******
-         * *******
          *  SHORT READS
-         * *******
          * *******
          * *******/
 
@@ -1680,9 +910,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         /* **************
          * **************
-         * **************
          *  FINAL STREAMS
-         * **************
          * **************
          * **************/
 

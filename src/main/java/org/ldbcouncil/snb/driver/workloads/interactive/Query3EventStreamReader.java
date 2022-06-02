@@ -2,14 +2,12 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 
 
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.csv.charseeker.CharSeeker;
-import org.ldbcouncil.snb.driver.csv.charseeker.Extractors;
-import org.ldbcouncil.snb.driver.csv.charseeker.Mark;
-import org.ldbcouncil.snb.driver.generator.CsvEventStreamReaderBasicCharSeeker;
-import org.ldbcouncil.snb.driver.generator.GeneratorException;
+import org.ldbcouncil.snb.driver.WorkloadException;
+import org.ldbcouncil.snb.driver.generator.QueryEventStreamReader;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery3;
 
-import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -52,68 +50,34 @@ public class Query3EventStreamReader implements Iterator<Operation>
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
 
-    public static class Query3Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
+    /**
+     * Inner class used for decoding Resultset data for query 3 parameters.
+     */
+    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Object[]>
     {
-        /*
-        personId|startDate|durationDays|countryXName|countryYName
-        7696581543848|1293840000|28|Egypt|Sri_Lanka
+    //     personId|startDate|durationDays|countryXName|countryYName
+    //     7696581543848|1293840000|28|Egypt|Sri_Lanka
+
+        /**
+         * @param rs: Resultset object containing the row to decode
+        * @return Object array
+         * @throws SQLException when an error occurs reading the resultset
          */
         @Override
-        public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark )
-                throws IOException
+        public Object[] decodeEvent( ResultSet rs ) throws WorkloadException
         {
-            long personId;
-            if ( charSeeker.seek( mark, columnDelimiters ) )
+            try
             {
-                personId = charSeeker.extract( mark, extractors.long_() ).longValue();
+                long personId = rs.getLong(1);
+                Date maxDate = new Date(rs.getLong(2));
+                int durationDays = rs.getInt(3);
+                String countryXName = rs.getString(4);
+                String countryYName = rs.getString(5);
+                return new Object[]{personId, maxDate, durationDays, countryXName, countryYName};
             }
-            else
-            {
-                // if first column of next row contains nothing it means the file is finished
-                return null;
+            catch (SQLException e){
+                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
             }
-
-            Date date;
-            if ( charSeeker.seek( mark, columnDelimiters ) )
-            {
-                date = new Date( charSeeker.extract( mark, extractors.long_() ).longValue() );
-            }
-            else
-            {
-                throw new GeneratorException( "Error retrieving date" );
-            }
-
-            int durationDays;
-            if ( charSeeker.seek( mark, columnDelimiters ) )
-            {
-                durationDays = charSeeker.extract( mark, extractors.int_() ).intValue();
-            }
-            else
-            {
-                throw new GeneratorException( "Error retrieving duration days" );
-            }
-
-            String countryX;
-            if ( charSeeker.seek( mark, columnDelimiters ) )
-            {
-                countryX = charSeeker.extract( mark, extractors.string() ).value();
-            }
-            else
-            {
-                throw new GeneratorException( "Error retrieving countryX" );
-            }
-
-            String countryY;
-            if ( charSeeker.seek( mark, columnDelimiters ) )
-            {
-                countryY = charSeeker.extract( mark, extractors.string() ).value();
-            }
-            else
-            {
-                throw new GeneratorException( "Error retrieving countryY" );
-            }
-
-            return new Object[]{personId, date, durationDays, countryX, countryY};
         }
     }
 }
