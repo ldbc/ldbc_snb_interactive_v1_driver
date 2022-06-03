@@ -15,7 +15,7 @@ import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.csv.CsvLoader;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
-import org.ldbcouncil.snb.driver.generator.QueryEventStreamReader;
+import org.ldbcouncil.snb.driver.generator.QueryEventStreamDecoder;
 
 public class ReadOperationStream {
     
@@ -34,7 +34,7 @@ public class ReadOperationStream {
 
     public Iterator<Operation> readOperationStream(
         Class evenStreamReaderClass,
-        QueryEventStreamReader.EventDecoder<Object[]> decoder,
+        QueryEventStreamDecoder.EventDecoder<Object[]> decoder,
         long readOperationInterleaveAsMilli,
         File readOperationFile
     ) throws WorkloadException

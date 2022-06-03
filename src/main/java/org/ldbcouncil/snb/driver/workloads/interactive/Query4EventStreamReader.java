@@ -3,7 +3,7 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
-import org.ldbcouncil.snb.driver.generator.QueryEventStreamReader;
+import org.ldbcouncil.snb.driver.generator.QueryEventStreamDecoder;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery4;
 
 import java.sql.ResultSet;
@@ -47,7 +47,7 @@ public class Query4EventStreamReader implements Iterator<Operation>
     {
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
-    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Object[]>
+    public static class QueryDecoder implements QueryEventStreamDecoder.EventDecoder<Object[]>
     {
     //     personId|startDate|durationDays
     //     15393164964332|1349049600|34

@@ -14,7 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.ldbcouncil.snb.driver.WorkloadException;
-import org.ldbcouncil.snb.driver.generator.QueryEventStreamReader;
+import org.ldbcouncil.snb.driver.generator.QueryEventStreamDecoder;
 
 import static java.lang.String.format;
 
@@ -26,7 +26,7 @@ public class CsvLoader {
         this.db = db;
     }
 
-    public Iterator<Object[]> loadOperationStream(String path, char delimiter, QueryEventStreamReader.EventDecoder<Object[]> decoder) throws WorkloadException, SQLException
+    public Iterator<Object[]> loadOperationStream(String path, char delimiter, QueryEventStreamDecoder.EventDecoder<Object[]> decoder) throws WorkloadException, SQLException
     {
         Statement stmt = null;
         List<Object[]> results = new ArrayList<>();

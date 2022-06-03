@@ -3,7 +3,7 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
-import org.ldbcouncil.snb.driver.generator.QueryEventStreamReader;
+import org.ldbcouncil.snb.driver.generator.QueryEventStreamDecoder;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery3;
 
 import java.sql.ResultSet;
@@ -53,7 +53,7 @@ public class Query3EventStreamReader implements Iterator<Operation>
     /**
      * Inner class used for decoding Resultset data for query 3 parameters.
      */
-    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Object[]>
+    public static class QueryDecoder implements QueryEventStreamDecoder.EventDecoder<Object[]>
     {
     //     personId|startDate|durationDays|countryXName|countryYName
     //     7696581543848|1293840000|28|Egypt|Sri_Lanka
