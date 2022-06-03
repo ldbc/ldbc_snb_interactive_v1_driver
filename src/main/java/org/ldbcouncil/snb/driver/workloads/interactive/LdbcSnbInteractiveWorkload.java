@@ -59,21 +59,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private List<Closeable> personUpdateOperationsFileReaders = new ArrayList<>();
     private List<File> personUpdateOperationFiles = new ArrayList<>();
 
-    private List<Closeable> readOperationFileReaders = new ArrayList<>();
-    private File readOperation1File;
-    private File readOperation2File;
-    private File readOperation3File;
-    private File readOperation4File;
-    private File readOperation5File;
-    private File readOperation6File;
-    private File readOperation7File;
-    private File readOperation8File;
-    private File readOperation9File;
-    private File readOperation10File;
-    private File readOperation11File;
-    private File readOperation12File;
-    private File readOperation13File;
-    private File readOperation14File;
+    private Map<Integer,Long> longReadInterleavesAsMilli;
 
     private long readOperation1InterleaveAsMilli;
     private long readOperation2InterleaveAsMilli;
@@ -93,7 +79,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private long updateInterleaveAsMilli;
     private double compressionRatio;
     private double shortReadDissipationFactor;
-
+    private OperationMode operationMode;
+    private File parametersDir;
+    
     private Set<Class> enabledLongReadOperationTypes;
     private Set<Class> enabledShortReadOperationTypes;
     private Set<Class> enabledWriteOperationTypes;
@@ -110,9 +98,13 @@ public class LdbcSnbInteractiveWorkload extends Workload
     {
         List<String> compulsoryKeys = Lists.newArrayList();
 
+        // Check operation mode, default is execute_benchmark
+        if (params.containsKey(ConsoleAndFileDriverConfiguration.MODE_ARG)){
+            operationMode = OperationMode.valueOf(params.get(ConsoleAndFileDriverConfiguration.MODE_ARG));
+        }
+
         // Validation mode does not require parameter directory
-        if (params.containsKey(ConsoleAndFileDriverConfiguration.MODE_ARG)
-            && OperationMode.valueOf(params.get(ConsoleAndFileDriverConfiguration.MODE_ARG)) != OperationMode.validate_database )
+        if (operationMode != OperationMode.validate_database )
         {
             compulsoryKeys.add( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY );
         }
@@ -155,53 +147,41 @@ public class LdbcSnbInteractiveWorkload extends Workload
             personUpdateOperationFiles = new ArrayList<>();
         }
 
-        File parametersDir =
-                new File( params.get( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY ).trim() );
-        if ( false == parametersDir.exists() )
+        if (operationMode != OperationMode.validate_database)
         {
-            throw new WorkloadException(
-                    format( "Parameters directory does not exist: %s", parametersDir.getAbsolutePath() ) );
-        }
-        for ( String readOperationParamsFilename :
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES )
-        {
-            File readOperationParamsFile = new File( parametersDir, readOperationParamsFilename );
-            if ( false == readOperationParamsFile.exists() )
+            parametersDir = new File( params.get( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY ).trim() );
+            if ( false == parametersDir.exists() )
             {
                 throw new WorkloadException(
-                        format( "Read operation parameters file does not exist: %s",
-                                readOperationParamsFile.getAbsolutePath() ) );
+                        format( "Parameters directory does not exist: %s", parametersDir.getAbsolutePath() ) );
             }
+            for ( String readOperationParamsFilename :
+                    LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES )
+            {
+                File readOperationParamsFile = new File( parametersDir, readOperationParamsFilename );
+                if ( false == readOperationParamsFile.exists() )
+                {
+                    throw new WorkloadException(
+                            format( "Read operation parameters file does not exist: %s",
+                                    readOperationParamsFile.getAbsolutePath() ) );
+                }
+            }
+            longReadInterleavesAsMilli = new HashMap<>();
+            longReadInterleavesAsMilli.put( LdbcQuery1.TYPE, readOperation1InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery2.TYPE, readOperation2InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery3.TYPE, readOperation3InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery4.TYPE, readOperation4InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery5.TYPE, readOperation5InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery6.TYPE, readOperation6InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery7.TYPE, readOperation7InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery8.TYPE, readOperation8InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery9.TYPE, readOperation9InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery10.TYPE, readOperation10InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery11.TYPE, readOperation11InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery12.TYPE, readOperation12InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery13.TYPE, readOperation13InterleaveAsMilli );
+            longReadInterleavesAsMilli.put( LdbcQuery14.TYPE, readOperation14InterleaveAsMilli );
         }
-        readOperation1File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_PARAMS_FILENAME );
-        readOperation2File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_PARAMS_FILENAME );
-        readOperation3File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_PARAMS_FILENAME );
-        readOperation4File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_PARAMS_FILENAME );
-        readOperation5File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_PARAMS_FILENAME );
-        readOperation7File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_PARAMS_FILENAME );
-        readOperation8File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_PARAMS_FILENAME );
-        readOperation9File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_PARAMS_FILENAME );
-        readOperation6File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_PARAMS_FILENAME );
-        readOperation10File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_PARAMS_FILENAME );
-        readOperation11File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_PARAMS_FILENAME );
-        readOperation12File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_PARAMS_FILENAME );
-        readOperation13File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_PARAMS_FILENAME );
-        readOperation14File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_PARAMS_FILENAME );
-
         enabledLongReadOperationTypes = new HashSet<>();
         for ( String longReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration
                 .LONG_READ_OPERATION_ENABLE_KEYS )
@@ -490,10 +470,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
             personUpdateOperationsFileReader.close();
         }
 
-        for ( Closeable readOperationFileReader : readOperationFileReaders )
-        {
-            readOperationFileReader.close();
-        }
+        // for ( Closeable readOperationFileReader : readOperationFileReaders )
+        // {
+        //     readOperationFileReader.close();
+        // }
     }
 
     private Tuple2<Iterator<Operation>,Closeable> fileToWriteStreamParser( File updateOperationsFile,
@@ -570,80 +550,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
          */
         if ( enabledWriteOperationTypes.contains( LdbcUpdate1AddPerson.class ) )
         {
-            for ( File personUpdateOperationFile : personUpdateOperationFiles )
-            {
-                Iterator<Operation> personUpdateOperationsParser;
-                try
-                {
-                    Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
-                            fileToWriteStreamParser( personUpdateOperationFile, parser );
-                    personUpdateOperationsParser = parserAndCloseable._1();
-                    personUpdateOperationsFileReaders.add( parserAndCloseable._2() );
-                }
-                catch ( IOException e )
-                {
-                    throw new WorkloadException(
-                            "Unable to open person update stream: " + personUpdateOperationFile.getAbsolutePath(), e );
-                }
-                if ( false == personUpdateOperationsParser.hasNext() )
-                {
-                    // Update stream is empty
-                    System.out.println(
-                            format( ""
-                                    + "***********************************************\n"
-                                    + "  !! WARNING !!\n"
-                                    + "  Update stream is empty: %s\n"
-                                    + "  Check that data generation process completed successfully\n"
-                                    + "***********************************************",
-                                    personUpdateOperationFile.getAbsolutePath()
-                            )
-                    );
-                    continue;
-                }
-                PeekingIterator<Operation> unfilteredPersonUpdateOperations =
-                        Iterators.peekingIterator( personUpdateOperationsParser );
-
-                try
-                {
-                    if ( unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli() <
-                         workloadStartTimeAsMilli )
-                    {
-                        workloadStartTimeAsMilli = unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli();
-                    }
-                }
-                catch ( NoSuchElementException e )
-                {
-                    // do nothing, exception just means that stream was empty
-                }
-
-                // Filter Write Operations
-                Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>()
-                {
-                    @Override
-                    public boolean apply( Operation operation )
-                    {
-                        return enabledWriteOperationTypes.contains( operation.getClass() );
-                    }
-                };
-                Iterator<Operation> filteredPersonUpdateOperations =
-                        Iterators.filter( unfilteredPersonUpdateOperations, enabledWriteOperationsFilter );
-
-                Set<Class<? extends Operation>> dependentPersonUpdateOperationTypes = Sets.newHashSet();
-                Set<Class<? extends Operation>> dependencyPersonUpdateOperationTypes =
-                        Sets.<Class<? extends Operation>>newHashSet(
-                                LdbcUpdate1AddPerson.class
-                        );
-
-                ChildOperationGenerator personUpdateChildOperationGenerator = null;
-
-                ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                        dependentPersonUpdateOperationTypes,
-                        dependencyPersonUpdateOperationTypes,
-                        filteredPersonUpdateOperations,
-                        Collections.<Operation>emptyIterator(),
-                        personUpdateChildOperationGenerator
-                );
-            }
+            workloadStartTimeAsMilli = getPersonUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams);
         }
 
         /*
@@ -658,85 +565,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
              enabledWriteOperationTypes.contains( LdbcUpdate8AddFriendship.class )
                 )
         {
-            for ( File forumUpdateOperationFile : forumUpdateOperationFiles )
-            {
-                Iterator<Operation> forumUpdateOperationsParser;
-                try
-                {
-                    Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
-                            fileToWriteStreamParser( forumUpdateOperationFile, parser );
-                    forumUpdateOperationsParser = parserAndCloseable._1();
-                    forumUpdateOperationsFileReaders.add( parserAndCloseable._2() );
-                }
-                catch ( IOException e )
-                {
-                    throw new WorkloadException(
-                            "Unable to open forum update stream: " + forumUpdateOperationFile.getAbsolutePath(), e );
-                }
-                if ( false == forumUpdateOperationsParser.hasNext() )
-                {
-                    // Update stream is empty
-                    System.out.println(
-                            format( ""
-                                    + "***********************************************\n"
-                                    + "  !! WARNING !!\n"
-                                    + "  Update stream is empty: %s\n"
-                                    + "  Check that data generation process completed successfully\n"
-                                    + "***********************************************",
-                                    forumUpdateOperationFile.getAbsolutePath()
-                            )
-                    );
-                    continue;
-                }
-                PeekingIterator<Operation> unfilteredForumUpdateOperations =
-                        Iterators.peekingIterator( forumUpdateOperationsParser );
-
-                try
-                {
-                    if ( unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli )
-                    {
-                        workloadStartTimeAsMilli = unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli();
-                    }
-                }
-                catch ( NoSuchElementException e )
-                {
-                    // do nothing, exception just means that stream was empty
-                }
-
-                // Filter Write Operations
-                Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>()
-                {
-                    @Override
-                    public boolean apply( Operation operation )
-                    {
-                        return enabledWriteOperationTypes.contains( operation.getClass() );
-                    }
-                };
-                Iterator<Operation> filteredForumUpdateOperations =
-                        Iterators.filter( unfilteredForumUpdateOperations, enabledWriteOperationsFilter );
-
-                Set<Class<? extends Operation>> dependentForumUpdateOperationTypes =
-                        Sets.<Class<? extends Operation>>newHashSet(
-                                LdbcUpdate2AddPostLike.class,
-                                LdbcUpdate3AddCommentLike.class,
-                                LdbcUpdate4AddForum.class,
-                                LdbcUpdate5AddForumMembership.class,
-                                LdbcUpdate6AddPost.class,
-                                LdbcUpdate7AddComment.class,
-                                LdbcUpdate8AddFriendship.class
-                        );
-                Set<Class<? extends Operation>> dependencyForumUpdateOperationTypes = Sets.newHashSet();
-
-                ChildOperationGenerator forumUpdateChildOperationGenerator = null;
-
-                ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                        dependentForumUpdateOperationTypes,
-                        dependencyForumUpdateOperationTypes,
-                        Collections.<Operation>emptyIterator(),
-                        filteredForumUpdateOperations,
-                        forumUpdateChildOperationGenerator
-                );
-            }
+            workloadStartTimeAsMilli = getForumUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams);
         }
 
         if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
@@ -749,10 +578,272 @@ public class LdbcSnbInteractiveWorkload extends Workload
          * *******
          * *******
          * *******/
+        asynchronousNonDependencyStreamsList = getOperationStreams(gf, workloadStartTimeAsMilli);
+        /*
+         * Merge all dependency asynchronous operation streams, ordered by operation start times
+         */
+        Iterator<Operation> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
+                asynchronousDependencyStreamsList.toArray( new Iterator[asynchronousDependencyStreamsList.size()] )
+        );
+        /*
+         * Merge all non dependency asynchronous operation streams, ordered by operation start times
+         */
+        Iterator<Operation> asynchronousNonDependencyStreams = gf.mergeSortOperationsByTimeStamp(
+                asynchronousNonDependencyStreamsList
+                        .toArray( new Iterator[asynchronousNonDependencyStreamsList.size()] )
+        );
 
+        /* *******
+         * *******
+         *  SHORT READS
+         * *******
+         * *******/
+
+        ChildOperationGenerator shortReadsChildGenerator = null;
+        if ( false == enabledShortReadOperationTypes.isEmpty() )
+        {
+            shortReadsChildGenerator = getShortReadGenerator(hasDbConnected);
+        }
+
+        /* **************
+         * **************
+         *  FINAL STREAMS
+         * **************
+         * **************/
+
+        ldbcSnbInteractiveWorkloadStreams.setAsynchronousStream(
+                dependentAsynchronousOperationTypes,
+                dependencyAsynchronousOperationTypes,
+                asynchronousDependencyStreams,
+                asynchronousNonDependencyStreams,
+                shortReadsChildGenerator
+        );
+
+        return ldbcSnbInteractiveWorkloadStreams;
+    }
+
+    private LdbcSnbShortReadGenerator getShortReadGenerator(boolean hasDbConnected)
+    {
+        RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( 42l );
+        double initialProbability = 1.0;
+        Queue<Long> personIdBuffer = (hasDbConnected)
+                                     ? LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 )
+                                     : LdbcSnbShortReadGenerator.constantBuffer( 1 );
+        Queue<Long> messageIdBuffer = (hasDbConnected)
+                                      ? LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 )
+                                      : LdbcSnbShortReadGenerator.constantBuffer( 1 );
+        LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY scheduledStartTimePolicy = (hasDbConnected)
+                                                                                         ?
+                                                                                         LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_ACTUAL_FINISH_TIME
+                                                                                         :
+                                                                                         LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_SCHEDULED_START_TIME;
+        LdbcSnbShortReadGenerator.BufferReplenishFun bufferReplenishFun = (hasDbConnected)
+                                                                          ? new LdbcSnbShortReadGenerator
+                .ResultBufferReplenishFun(
+                personIdBuffer, messageIdBuffer )
+                                                                          : new LdbcSnbShortReadGenerator
+                                                                                  .NoOpBufferReplenishFun();
+        return new LdbcSnbShortReadGenerator(
+                initialProbability,
+                shortReadDissipationFactor,
+                updateInterleaveAsMilli,
+                enabledShortReadOperationTypes,
+                compressionRatio,
+                personIdBuffer,
+                messageIdBuffer,
+                randomFactory,
+                longReadInterleavesAsMilli,
+                scheduledStartTimePolicy,
+                bufferReplenishFun
+        );
+    }
+
+    private long getPersonUpdateStreams(GeneratorFactory gf, long workloadStartTimeAsMilli, WorkloadStreams ldbcSnbInteractiveWorkloadStreams) throws WorkloadException
+    {
+        for ( File personUpdateOperationFile : personUpdateOperationFiles )
+        {
+            Iterator<Operation> personUpdateOperationsParser;
+            try
+            {
+                Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
+                        fileToWriteStreamParser( personUpdateOperationFile, parser );
+                personUpdateOperationsParser = parserAndCloseable._1();
+                personUpdateOperationsFileReaders.add( parserAndCloseable._2() );
+            }
+            catch ( IOException e )
+            {
+                throw new WorkloadException(
+                        "Unable to open person update stream: " + personUpdateOperationFile.getAbsolutePath(), e );
+            }
+            if ( false == personUpdateOperationsParser.hasNext() )
+            {
+                // Update stream is empty
+                System.out.println(
+                        format( ""
+                                + "***********************************************\n"
+                                + "  !! WARNING !!\n"
+                                + "  Update stream is empty: %s\n"
+                                + "  Check that data generation process completed successfully\n"
+                                + "***********************************************",
+                                personUpdateOperationFile.getAbsolutePath()
+                        )
+                );
+                continue;
+            }
+            PeekingIterator<Operation> unfilteredPersonUpdateOperations =
+                    Iterators.peekingIterator( personUpdateOperationsParser );
+
+            try
+            {
+                if ( unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli() <
+                     workloadStartTimeAsMilli )
+                {
+                    workloadStartTimeAsMilli = unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli();
+                }
+            }
+            catch ( NoSuchElementException e )
+            {
+                // do nothing, exception just means that stream was empty
+            }
+
+            // Filter Write Operations
+            Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>()
+            {
+                @Override
+                public boolean apply( Operation operation )
+                {
+                    return enabledWriteOperationTypes.contains( operation.getClass() );
+                }
+            };
+            Iterator<Operation> filteredPersonUpdateOperations =
+                    Iterators.filter( unfilteredPersonUpdateOperations, enabledWriteOperationsFilter );
+
+            Set<Class<? extends Operation>> dependentPersonUpdateOperationTypes = Sets.newHashSet();
+            Set<Class<? extends Operation>> dependencyPersonUpdateOperationTypes =
+                    Sets.<Class<? extends Operation>>newHashSet(
+                            LdbcUpdate1AddPerson.class
+                    );
+
+            ChildOperationGenerator personUpdateChildOperationGenerator = null;
+
+            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
+                    dependentPersonUpdateOperationTypes,
+                    dependencyPersonUpdateOperationTypes,
+                    filteredPersonUpdateOperations,
+                    Collections.<Operation>emptyIterator(),
+                    personUpdateChildOperationGenerator
+            );
+        }
+        return workloadStartTimeAsMilli;
+    }
+
+    private long getForumUpdateStreams(GeneratorFactory gf, long workloadStartTimeAsMilli, WorkloadStreams ldbcSnbInteractiveWorkloadStreams) throws WorkloadException
+    {
+        for ( File forumUpdateOperationFile : forumUpdateOperationFiles )
+        {
+            Iterator<Operation> forumUpdateOperationsParser;
+            try
+            {
+                Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
+                        fileToWriteStreamParser( forumUpdateOperationFile, parser );
+                forumUpdateOperationsParser = parserAndCloseable._1();
+                forumUpdateOperationsFileReaders.add( parserAndCloseable._2() );
+            }
+            catch ( IOException e )
+            {
+                throw new WorkloadException(
+                        "Unable to open forum update stream: " + forumUpdateOperationFile.getAbsolutePath(), e );
+            }
+            if ( false == forumUpdateOperationsParser.hasNext() )
+            {
+                // Update stream is empty
+                System.out.println(
+                        format( ""
+                                + "***********************************************\n"
+                                + "  !! WARNING !!\n"
+                                + "  Update stream is empty: %s\n"
+                                + "  Check that data generation process completed successfully\n"
+                                + "***********************************************",
+                                forumUpdateOperationFile.getAbsolutePath()
+                        )
+                );
+                continue;
+            }
+            PeekingIterator<Operation> unfilteredForumUpdateOperations =
+                    Iterators.peekingIterator( forumUpdateOperationsParser );
+
+            try
+            {
+                if ( unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli )
+                {
+                    workloadStartTimeAsMilli = unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli();
+                }
+            }
+            catch ( NoSuchElementException e )
+            {
+                // do nothing, exception just means that stream was empty
+            }
+
+            // Filter Write Operations
+            Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>()
+            {
+                @Override
+                public boolean apply( Operation operation )
+                {
+                    return enabledWriteOperationTypes.contains( operation.getClass() );
+                }
+            };
+            Iterator<Operation> filteredForumUpdateOperations =
+                    Iterators.filter( unfilteredForumUpdateOperations, enabledWriteOperationsFilter );
+
+            Set<Class<? extends Operation>> dependentForumUpdateOperationTypes =
+                    Sets.<Class<? extends Operation>>newHashSet(
+                            LdbcUpdate2AddPostLike.class,
+                            LdbcUpdate3AddCommentLike.class,
+                            LdbcUpdate4AddForum.class,
+                            LdbcUpdate5AddForumMembership.class,
+                            LdbcUpdate6AddPost.class,
+                            LdbcUpdate7AddComment.class,
+                            LdbcUpdate8AddFriendship.class
+                    );
+            Set<Class<? extends Operation>> dependencyForumUpdateOperationTypes = Sets.newHashSet();
+
+            ChildOperationGenerator forumUpdateChildOperationGenerator = null;
+
+            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
+                    dependentForumUpdateOperationTypes,
+                    dependencyForumUpdateOperationTypes,
+                    Collections.<Operation>emptyIterator(),
+                    filteredForumUpdateOperations,
+                    forumUpdateChildOperationGenerator
+            );
+
+        }
+        return workloadStartTimeAsMilli;
+    }
+
+
+    private List<Iterator<?>> getOperationStreams(GeneratorFactory gf, long workloadStartTimeAsMilli) throws WorkloadException
+    {
+        List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
          /*
          * Create read operation streams, with specified interleaves
          */
+        File readOperation1File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_PARAMS_FILENAME );
+        File readOperation2File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_PARAMS_FILENAME );
+        File readOperation3File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_PARAMS_FILENAME );
+        File readOperation4File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_PARAMS_FILENAME );
+        File readOperation5File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_PARAMS_FILENAME );
+        File readOperation7File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_PARAMS_FILENAME );
+        File readOperation8File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_PARAMS_FILENAME );
+        File readOperation9File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_PARAMS_FILENAME );
+        File readOperation6File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_PARAMS_FILENAME );
+        File readOperation10File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_PARAMS_FILENAME );
+        File readOperation11File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_PARAMS_FILENAME );
+        File readOperation12File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_PARAMS_FILENAME );
+        File readOperation13File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_PARAMS_FILENAME );
+        File readOperation14File = new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_PARAMS_FILENAME );
+
         CsvLoader loader;
         try {
             DuckDbConnectionState db = new DuckDbConnectionState();
@@ -833,95 +924,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         { asynchronousNonDependencyStreamsList.add( readOperation13Stream ); }
         if ( enabledLongReadOperationTypes.contains( LdbcQuery14.class ) )
         { asynchronousNonDependencyStreamsList.add( readOperation14Stream ); }
-
-        /*
-         * Merge all dependency asynchronous operation streams, ordered by operation start times
-         */
-        Iterator<Operation> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
-                asynchronousDependencyStreamsList.toArray( new Iterator[asynchronousDependencyStreamsList.size()] )
-        );
-        /*
-         * Merge all non dependency asynchronous operation streams, ordered by operation start times
-         */
-        Iterator<Operation> asynchronousNonDependencyStreams = gf.mergeSortOperationsByTimeStamp(
-                asynchronousNonDependencyStreamsList
-                        .toArray( new Iterator[asynchronousNonDependencyStreamsList.size()] )
-        );
-
-        /* *******
-         * *******
-         *  SHORT READS
-         * *******
-         * *******/
-
-        ChildOperationGenerator shortReadsChildGenerator = null;
-        if ( false == enabledShortReadOperationTypes.isEmpty() )
-        {
-            Map<Integer,Long> longReadInterleavesAsMilli = new HashMap<>();
-            longReadInterleavesAsMilli.put( LdbcQuery1.TYPE, readOperation1InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery2.TYPE, readOperation2InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery3.TYPE, readOperation3InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery4.TYPE, readOperation4InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery5.TYPE, readOperation5InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery6.TYPE, readOperation6InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery7.TYPE, readOperation7InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery8.TYPE, readOperation8InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery9.TYPE, readOperation9InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery10.TYPE, readOperation10InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery11.TYPE, readOperation11InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery12.TYPE, readOperation12InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery13.TYPE, readOperation13InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery14.TYPE, readOperation14InterleaveAsMilli );
-
-            RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( 42l );
-            double initialProbability = 1.0;
-            Queue<Long> personIdBuffer = (hasDbConnected)
-                                         ? LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 )
-                                         : LdbcSnbShortReadGenerator.constantBuffer( 1 );
-            Queue<Long> messageIdBuffer = (hasDbConnected)
-                                          ? LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 )
-                                          : LdbcSnbShortReadGenerator.constantBuffer( 1 );
-            LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY scheduledStartTimePolicy = (hasDbConnected)
-                                                                                             ?
-                                                                                             LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_ACTUAL_FINISH_TIME
-                                                                                             :
-                                                                                             LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_SCHEDULED_START_TIME;
-            LdbcSnbShortReadGenerator.BufferReplenishFun bufferReplenishFun = (hasDbConnected)
-                                                                              ? new LdbcSnbShortReadGenerator
-                    .ResultBufferReplenishFun(
-                    personIdBuffer, messageIdBuffer )
-                                                                              : new LdbcSnbShortReadGenerator
-                                                                                      .NoOpBufferReplenishFun();
-            shortReadsChildGenerator = new LdbcSnbShortReadGenerator(
-                    initialProbability,
-                    shortReadDissipationFactor,
-                    updateInterleaveAsMilli,
-                    enabledShortReadOperationTypes,
-                    compressionRatio,
-                    personIdBuffer,
-                    messageIdBuffer,
-                    randomFactory,
-                    longReadInterleavesAsMilli,
-                    scheduledStartTimePolicy,
-                    bufferReplenishFun
-            );
-        }
-
-        /* **************
-         * **************
-         *  FINAL STREAMS
-         * **************
-         * **************/
-
-        ldbcSnbInteractiveWorkloadStreams.setAsynchronousStream(
-                dependentAsynchronousOperationTypes,
-                dependencyAsynchronousOperationTypes,
-                asynchronousDependencyStreams,
-                asynchronousNonDependencyStreams,
-                shortReadsChildGenerator
-        );
-
-        return ldbcSnbInteractiveWorkloadStreams;
+        return asynchronousNonDependencyStreamsList;
     }
 
     /**
