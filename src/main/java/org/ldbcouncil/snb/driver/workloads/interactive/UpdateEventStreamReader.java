@@ -25,7 +25,6 @@ import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate6AddPos
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate7AddComment;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate8AddFriendship;
 
-import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -128,6 +127,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 long dependencyTimeAsMilli = rs.getLong(2);
                 // Skip index 3, evenType
                 long personId = rs.getLong(4);
+                // System.err.println("EventDecoderAddPerson personid: " + Long.toString(personId));
                 String firstName = rs.getString(5);
                 String lastName = rs.getString(6);
                 String gender = rs.getString(7);
@@ -140,34 +140,55 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 long cityId = rs.getLong(12);
                 
                 // Arrays
-                Array languagesResult = rs.getArray(13); 
-                String[] languagesArray = (String[]) languagesResult.getArray();
-                List<String> languages = Arrays.asList(languagesArray);
-
-                Array emailsResult = rs.getArray(14); 
-                String[] emailsArray = (String[]) emailsResult.getArray();
-                List<String> emails = Arrays.asList(emailsArray);
-
-                Array tagIdsResult = rs.getArray(15); 
-                Long[] tagIdsArrays = (Long[]) tagIdsResult.getArray();
-                List<Long> tagIds = Arrays.asList(tagIdsArrays);
-
-                Array studyAtsResult = rs.getArray(16); 
-                String[] studyAtsArray = (String[]) studyAtsResult.getArray();
-                List<String> studyAtsStrings = Arrays.asList(studyAtsArray);
-                List<LdbcUpdate1AddPerson.Organization> studyAts = new ArrayList<>();
-                for (String study : studyAtsStrings) {
-                    String[] studySplit = study.split(",");
-                    studyAts.add(new LdbcUpdate1AddPerson.Organization(Long.parseLong(studySplit[0]), Integer.parseInt(studySplit[1])));
+                List<String> languages;
+                String languagesResult = rs.getString(13);
+                if (languagesResult != null){
+                    String[] languagesArray = languagesResult.split(";");
+                    languages = Arrays.asList(languagesArray);
+                }
+                else{
+                    languages = new ArrayList<>();
                 }
 
-                Array workAtsResult = rs.getArray(17); 
-                String[] workAtsArray = (String[]) workAtsResult.getArray();
-                List<String> workAtsStrings = Arrays.asList(workAtsArray);
+                List<String> emails;
+                String emailsResult = rs.getString(14); 
+                if (emailsResult != null){
+                    String[] emailsArray = emailsResult.split(";");
+                    emails = Arrays.asList(emailsArray);
+                }
+                else{
+                    emails = new ArrayList<>();
+                }
+
+                List<Long> tagIds = new ArrayList<>();
+                String tagIdsResult = rs.getString(15);
+                if (tagIdsResult != null) {
+                    String[] tagIdsArrays = tagIdsResult.split(";");
+                    for (String value : tagIdsArrays) {
+                        tagIds.add(Long.parseLong(value));
+                    }
+                }
+
+                List<LdbcUpdate1AddPerson.Organization> studyAts = new ArrayList<>();
+                String studyAtsResult = rs.getString(16); 
+                if (studyAtsResult != null){
+                    String[] studyAtsArray = studyAtsResult.split(";");
+                    List<String> studyAtsStrings = Arrays.asList(studyAtsArray);
+                    for (String study : studyAtsStrings) {
+                        String[] studySplit = study.split(",");
+                        studyAts.add(new LdbcUpdate1AddPerson.Organization(Long.parseLong(studySplit[0]), Integer.parseInt(studySplit[1])));
+                    }
+                }
+
                 List<LdbcUpdate1AddPerson.Organization> workAts = new ArrayList<>();
-                for (String work : workAtsStrings) {
-                    String[] workSplit = work.split(",");
-                    workAts.add(new LdbcUpdate1AddPerson.Organization(Long.parseLong(workSplit[0]), Integer.parseInt(workSplit[1])));
+                String workAtsResult = rs.getString(17); 
+                if (workAtsResult != null){
+                    String[] workAtsArray =  workAtsResult.split(";");
+                    List<String> workAtsStrings = Arrays.asList(workAtsArray);
+                    for (String work : workAtsStrings) {
+                        String[] workSplit = work.split(",");
+                        workAts.add(new LdbcUpdate1AddPerson.Organization(Long.parseLong(workSplit[0]), Integer.parseInt(workSplit[1])));
+                    }
                 }
 
                 Operation operation = new LdbcUpdate1AddPerson(
@@ -256,9 +277,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 Date creationDate = new Date(creationDateAsMilli);
                 long moderatorPersonId = rs.getLong(7);
 
-                Array tagIdsResult = rs.getArray(8); 
-                Long[] tagIdsArrays = (Long[]) tagIdsResult.getArray();
-                List<Long> tagIds = Arrays.asList(tagIdsArrays);
+                List<Long> tagIds = new ArrayList<>();
+                String tagIdsResult = rs.getString(8); 
+                if (tagIdsResult != null) {
+                    String[] tagIdsArrays = tagIdsResult.split(";");
+                    for (String value : tagIdsArrays) {
+                        tagIds.add(Long.parseLong(value));
+                    }
+                }
 
                 Operation operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
@@ -317,9 +343,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 long forumId = rs.getLong(13);
                 long countryId = rs.getLong(14);
                 
-                Array tagIdsResult = rs.getArray(15); 
-                Long[] tagIdsArrays = (Long[]) tagIdsResult.getArray();
-                List<Long> tagIds = Arrays.asList(tagIdsArrays);
+                List<Long> tagIds = new ArrayList<>();
+                String tagIdsResult = rs.getString(15); 
+                if (tagIdsResult != null) {
+                    String[] tagIdsArrays = tagIdsResult.split(";");
+                    for (String value : tagIdsArrays) {
+                        tagIds.add(Long.parseLong(value));
+                    }
+                }
 
                 Operation operation = new LdbcUpdate6AddPost(
                         postId,
@@ -364,9 +395,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 long replyOfPostId = rs.getLong(12);
                 long replyOfCommentId = rs.getLong(13);
                 
-                Array tagIdsResult = rs.getArray(14); 
-                Long[] tagIdsArrays = (Long[]) tagIdsResult.getArray();
-                List<Long> tagIds = Arrays.asList(tagIdsArrays);
+                List<Long> tagIds = new ArrayList<>();
+                String tagIdsResult = rs.getString(14); 
+                if (tagIdsResult != null) {
+                    String[] tagIdsArrays = tagIdsResult.split(";");
+                    for (String value : tagIdsArrays) {
+                        tagIds.add(Long.parseLong(value));
+                    }
+                }
 
                 Operation operation = new LdbcUpdate7AddComment(
                         commentId,
