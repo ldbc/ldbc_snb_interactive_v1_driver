@@ -101,8 +101,6 @@ public class InteractiveWorkloadPerformanceTest
             Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY, parametersDir );
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, updateStreamsDir );
-            paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_STREAM_PARSER,
-                    LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser.CHAR_SEEKER.name() );
             paramsMap.put( DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG,
                     Long.toString( TimeUnit.MICROSECONDS.toNanos( 100 ) ) );
             paramsMap.put( DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name() );
@@ -268,8 +266,6 @@ public class InteractiveWorkloadPerformanceTest
             Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY, parametersDir );
             paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, updateStreamsDir );
-            paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_STREAM_PARSER,
-                    LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser.CHAR_SEEKER.name() );
             paramsMap.put( DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG,
                     Long.toString( TimeUnit.MICROSECONDS.toNanos( 0 ) ) );
             paramsMap.put( DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name() );

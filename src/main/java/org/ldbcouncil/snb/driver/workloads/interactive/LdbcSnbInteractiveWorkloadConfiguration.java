@@ -70,16 +70,6 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
 
     public final static String SCALE_FACTOR = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "scale_factor";
 
-    // The parser implementation to use when reading update events
-    public enum UpdateStreamParser
-    {
-        REGEX,
-        CHAR_SEEKER,
-        CHAR_SEEKER_THREAD
-    }
-
-    public final static String UPDATE_STREAM_PARSER = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_parser";
-    public final static UpdateStreamParser DEFAULT_UPDATE_STREAM_PARSER = UpdateStreamParser.CHAR_SEEKER;
     public final static String LDBC_INTERACTIVE_PACKAGE_PREFIX =
             removeSuffix( LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName() );
 
@@ -559,21 +549,6 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             { missingPropertyKeys.add( compulsoryKey ); }
         }
         return missingPropertyKeys;
-    }
-
-    static boolean isValidParser( String parserString ) throws WorkloadException
-    {
-        try
-        {
-            UpdateStreamParser parser = UpdateStreamParser.valueOf( parserString );
-            Set<UpdateStreamParser> validParsers = new HashSet<>();
-            validParsers.addAll( Arrays.asList( UpdateStreamParser.values() ) );
-            return validParsers.contains( parser );
-        }
-        catch ( IllegalArgumentException e )
-        {
-            throw new WorkloadException( format( "Unsupported parser value: %s", parserString ), e );
-        }
     }
 
     public static List<File> forumUpdateFilesInDirectory( File directory )
