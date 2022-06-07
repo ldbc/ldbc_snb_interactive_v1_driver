@@ -24,7 +24,6 @@ import org.ldbcouncil.snb.driver.util.MapUtils;
 import org.ldbcouncil.snb.driver.workloads.interactive.UpdateEventStreamReader.*;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,6 +55,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private double shortReadDissipationFactor;
     private OperationMode operationMode;
     private File parametersDir;
+    private int numThreads;
     
     private Set<Class> enabledLongReadOperationTypes;
     private Set<Class> enabledShortReadOperationTypes;
@@ -71,6 +71,14 @@ public class LdbcSnbInteractiveWorkload extends Workload
     public void onInit( Map<String,String> params ) throws WorkloadException
     {
         List<String> compulsoryKeys = Lists.newArrayList();
+
+        if (params.containsKey(ConsoleAndFileDriverConfiguration.THREADS_ARG)){
+            numThreads = Integer.parseInt(params.get(ConsoleAndFileDriverConfiguration.THREADS_ARG));
+        }
+        else
+        {
+            numThreads = Integer.parseInt(params.get(ConsoleAndFileDriverConfiguration.THREADS_DEFAULT_STRING));
+        }
 
         // Check operation mode, default is execute_benchmark
         if (params.containsKey(ConsoleAndFileDriverConfiguration.MODE_ARG)){
@@ -435,33 +443,44 @@ public class LdbcSnbInteractiveWorkload extends Workload
          *  WRITES
          * *******
          * *******/
-
-        // TODO put person/forum update stream pairs into same streams, to half required thread count
-         /*
-         * Create person write operation streams
-         */
-        if ( enabledWriteOperationTypes.contains( LdbcUpdate1AddPerson.class ) )
+        File personUpdateOperationFile = null;
+        if ( enabledWriteOperationTypes.contains( LdbcUpdate1AddPerson.class ) && !personUpdateOperationFiles.isEmpty())
         {
-            workloadStartTimeAsMilli = getPersonUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams, loader, decoders);
+            personUpdateOperationFile = personUpdateOperationFiles.get(0);
         }
 
-        /*
-         * Create forum write operation streams
-         */
-        if ( enabledWriteOperationTypes.contains( LdbcUpdate2AddPostLike.class ) ||
+        File forumUpdateOperationFile = null;
+        if ( !forumUpdateOperationFiles.isEmpty() && (
+             enabledWriteOperationTypes.contains( LdbcUpdate2AddPostLike.class ) ||
              enabledWriteOperationTypes.contains( LdbcUpdate3AddCommentLike.class ) ||
              enabledWriteOperationTypes.contains( LdbcUpdate4AddForum.class ) ||
              enabledWriteOperationTypes.contains( LdbcUpdate5AddForumMembership.class ) ||
              enabledWriteOperationTypes.contains( LdbcUpdate6AddPost.class ) ||
              enabledWriteOperationTypes.contains( LdbcUpdate7AddComment.class ) ||
-             enabledWriteOperationTypes.contains( LdbcUpdate8AddFriendship.class )
+             enabledWriteOperationTypes.contains( LdbcUpdate8AddFriendship.class ))
         )
         {
-            workloadStartTimeAsMilli = getForumUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams, loader, decoders);
+            forumUpdateOperationFile = forumUpdateOperationFiles.get(0);
+        }
+
+        if (personUpdateOperationFile != null || forumUpdateOperationFile != null)
+        {
+            List<Iterator<Operation>> updateOperationStreams = getCombinedUpdateStreamIterators(
+                personUpdateOperationFile,
+                forumUpdateOperationFile,
+                loader, gf, decoders
+            );
+            workloadStartTimeAsMilli = addUpdateOperationStreamsToWorkload(
+                workloadStartTimeAsMilli,
+                updateOperationStreams,
+                ldbcSnbInteractiveWorkloadStreams
+            );
         }
 
         if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
-        { workloadStartTimeAsMilli = 0; }
+        { 
+            workloadStartTimeAsMilli = 0;
+        }
 
         /* *******
          * *******
@@ -553,134 +572,135 @@ public class LdbcSnbInteractiveWorkload extends Workload
         );
     }
 
-    private long getPersonUpdateStreams(
-        GeneratorFactory gf,
-        long workloadStartTimeAsMilli,
-        WorkloadStreams ldbcSnbInteractiveWorkloadStreams,
+
+    /**
+     * Loads the update stream: updateStream_0_0_person.csv for the persons and
+     * updateStream_0_0_forum.csv for the  update events.
+     * @param updateOperationFile The updateStream csv file to load
+     * @param loader The loader to read the csv-file
+     * @param decoders HashMap of decoders for each event type
+     * @return Loaded operation stream (Iterator<Operation>)
+     * @throws WorkloadException When there is an error opening the update stream
+     */
+    private Iterator<Operation> getUpdateStreamIterator(
+        File updateOperationFile,
         CsvLoader loader,
         Map<Integer,UpdateEventDecoder<Operation>> decoders
     ) throws WorkloadException
     {
-        for ( File personUpdateOperationFile : personUpdateOperationFiles )
+        Iterator<Operation> updateOperationsParser;
+        try
         {
-            Iterator<Operation> personUpdateOperationsParser;
-            try
-            {
-                UpdateOperationStream updateOperationStream = new UpdateOperationStream(loader);
-                personUpdateOperationsParser = updateOperationStream.readUpdateStream(personUpdateOperationFile, 10000, new UpdateEventStreamReader.EventDecoder(decoders));
-            }
-            catch ( WorkloadException e )
-            {
-                throw new WorkloadException(
-                        "Unable to open person update stream: " + personUpdateOperationFile.getAbsolutePath(), e );
-            }
-            if ( false == personUpdateOperationsParser.hasNext() )
-            {
-                // Update stream is empty
-                System.out.println(
-                        format( ""
-                                + "***********************************************\n"
-                                + "  !! WARNING !!\n"
-                                + "  Update stream is empty: %s\n"
-                                + "  Check that data generation process completed successfully\n"
-                                + "***********************************************",
-                                personUpdateOperationFile.getAbsolutePath()
-                        )
-                );
-                continue;
-            }
-            PeekingIterator<Operation> unfilteredPersonUpdateOperations =
-                    Iterators.peekingIterator( personUpdateOperationsParser );
-
-            try
-            {
-                if ( unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli() <
-                     workloadStartTimeAsMilli )
-                {
-                    workloadStartTimeAsMilli = unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli();
-                }
-            }
-            catch ( NoSuchElementException e )
-            {
-                // do nothing, exception just means that stream was empty
-            }
-
-            // Filter Write Operations
-            Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>()
-            {
-                @Override
-                public boolean apply( Operation operation )
-                {
-                    return enabledWriteOperationTypes.contains( operation.getClass() );
-                }
-            };
-            Iterator<Operation> filteredPersonUpdateOperations =
-                    Iterators.filter( unfilteredPersonUpdateOperations, enabledWriteOperationsFilter );
-
-            Set<Class<? extends Operation>> dependentPersonUpdateOperationTypes = Sets.newHashSet();
-            Set<Class<? extends Operation>> dependencyPersonUpdateOperationTypes =
-                    Sets.<Class<? extends Operation>>newHashSet(
-                            LdbcUpdate1AddPerson.class
-                    );
-
-            ChildOperationGenerator personUpdateChildOperationGenerator = null;
-
-            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                    dependentPersonUpdateOperationTypes,
-                    dependencyPersonUpdateOperationTypes,
-                    filteredPersonUpdateOperations,
-                    Collections.<Operation>emptyIterator(),
-                    personUpdateChildOperationGenerator
+            UpdateOperationStream updateOperationStream = new UpdateOperationStream(loader);
+            updateOperationsParser = updateOperationStream.readUpdateStream(updateOperationFile, new UpdateEventStreamReader.EventDecoder(decoders));
+        }
+        catch ( WorkloadException e )
+        {
+            throw new WorkloadException(
+                    "Unable to open update stream: " + updateOperationFile.getAbsolutePath(), e );
+        }
+        if ( false == updateOperationsParser.hasNext() )
+        {
+            // Update stream is empty
+            System.out.println(
+                    format( ""
+                            + "***********************************************\n"
+                            + "  !! WARNING !!\n"
+                            + "  Update stream is empty: %s\n"
+                            + "  Check that data generation process completed successfully\n"
+                            + "***********************************************",
+                            updateOperationFile.getAbsolutePath()
+                    )
             );
         }
-        return workloadStartTimeAsMilli;
+        return updateOperationsParser;
     }
 
-    private long getForumUpdateStreams(
-        GeneratorFactory gf,
-        long workloadStartTimeAsMilli,
-        WorkloadStreams ldbcSnbInteractiveWorkloadStreams,
+    /**
+     * Combines the two update streams and split the streams to the number of threads
+     * set by the user.
+     * @param personUpdateOperationFile The person updateStream
+     * @param forumUpdateOperationFile The forum updateStream
+     * @param loader The loader to read the csv-file
+     * @param gf The GeneratorFactory object to use for merge operation streams
+     * @param decoders HashMap of decoders for each event type
+     * @return List of operation streams
+     * @throws WorkloadException When one of the operation streams fails to load
+     */
+    private List<Iterator<Operation>> getCombinedUpdateStreamIterators(
+        File personUpdateOperationFile,
+        File forumUpdateOperationFile,
         CsvLoader loader,
+        GeneratorFactory gf,
         Map<Integer,UpdateEventDecoder<Operation>> decoders
         ) throws WorkloadException
     {
-        for ( File forumUpdateOperationFile : forumUpdateOperationFiles )
+        Iterator<Operation> personUpdateOperationsParser;
+        if (personUpdateOperationFile != null) {
+            personUpdateOperationsParser = getUpdateStreamIterator(personUpdateOperationFile, loader, decoders);
+        }
+        else{
+            personUpdateOperationsParser = Collections.<Operation>emptyIterator();
+        }
+        Iterator<Operation> forumUpdateOperationsParser;
+        if (forumUpdateOperationFile != null) {
+            forumUpdateOperationsParser = getUpdateStreamIterator(forumUpdateOperationFile, loader, decoders);
+        }
+        else {
+            forumUpdateOperationsParser = Collections.<Operation>emptyIterator();
+        }
+
+        // Merge two streams
+        // mergeSortOperationsByScheduledStartTime or mergeSortOperationsByTimeStamp?
+        Iterator<Operation> operationStreams = gf.mergeSortOperationsByScheduledStartTime(personUpdateOperationsParser, forumUpdateOperationsParser);
+        List<Iterator<Operation>> operationIterators = new ArrayList<>();
+        if (numThreads == 1)
         {
-            Iterator<Operation> forumUpdateOperationsParser;
+            operationIterators.add(operationStreams);
+            return operationIterators;
+        }
+        List<ArrayList<Operation>> operationLists = new ArrayList<>();
+        for (int i = 0; i < numThreads; i++) {
+            // Instantiate lists
+            operationLists.add(new ArrayList<Operation>());
+        }
+
+        int index = 0;
+        // Split accros threads
+        while(operationStreams.hasNext())
+        {
+            int listIndex = index % numThreads;
+            Operation operation = operationStreams.next();
+            operationLists.get(listIndex).add(operation);
+        }
+
+        for (ArrayList<Operation> operationList : operationLists) {
+            operationIterators.add(operationList.iterator());
+        }
+        return operationIterators;
+    }
+
+    /**
+     * Add operation streams to workloadstreams and retrieve the workloadStartTimeAsMilli.
+     * @param workloadStartTimeAsMilli The current workloadStartTimeAsMilli
+     * @param operationStreams List of operation streams, where length list is number of threads
+     * @param ldbcSnbInteractiveWorkloadStreams The workload object to add the streams
+     * @return Updated workloadStartTimeAsMilli
+     * @throws WorkloadException
+     */
+    private long addUpdateOperationStreamsToWorkload(
+        long workloadStartTimeAsMilli,
+        List<Iterator<Operation>> operationStreams,
+        WorkloadStreams ldbcSnbInteractiveWorkloadStreams
+    ) throws WorkloadException
+    {
+        for (Iterator<Operation> iterator : operationStreams) {
+            PeekingIterator<Operation> unfilteredUpdateOperations=  Iterators.peekingIterator( iterator );
             try
             {
-
-                UpdateOperationStream updateOperationStream = new UpdateOperationStream(loader);
-                forumUpdateOperationsParser = updateOperationStream.readUpdateStream(forumUpdateOperationFile, 10000, new UpdateEventStreamReader.EventDecoder(decoders));
-            }
-            catch ( WorkloadException e )
-            {
-                throw new WorkloadException(
-                        "Unable to open forum update stream: " + forumUpdateOperationFile.getAbsolutePath(), e );
-            }
-            if ( false == forumUpdateOperationsParser.hasNext() )
-            {
-                // Update stream is empty
-                System.out.println(
-                        format( ""
-                                + "***********************************************\n"
-                                + "  !! WARNING !!\n"
-                                + "  Update stream is empty: %s\n"
-                                + "  Check that data generation process completed successfully\n"
-                                + "***********************************************",
-                                forumUpdateOperationFile.getAbsolutePath()
-                        )
-                );
-                continue;
-            }
-            PeekingIterator<Operation> unfilteredForumUpdateOperations =
-                    Iterators.peekingIterator( forumUpdateOperationsParser );
-
-            try
-            {
-                if ( unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli )
+                if ( unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli )
                 {
-                    workloadStartTimeAsMilli = unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli();
+                    workloadStartTimeAsMilli = unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli();
                 }
             }
             catch ( NoSuchElementException e )
@@ -697,11 +717,13 @@ public class LdbcSnbInteractiveWorkload extends Workload
                     return enabledWriteOperationTypes.contains( operation.getClass() );
                 }
             };
-            Iterator<Operation> filteredForumUpdateOperations =
-                    Iterators.filter( unfilteredForumUpdateOperations, enabledWriteOperationsFilter );
+            Iterator<Operation> filteredUpdateOperations =
+                    Iterators.filter( unfilteredUpdateOperations, enabledWriteOperationsFilter );
 
-            Set<Class<? extends Operation>> dependentForumUpdateOperationTypes =
+            Set<Class<? extends Operation>> dependentUpdateOperationTypes = Sets.newHashSet();
+            Set<Class<? extends Operation>> dependencyUpdateOperationTypes =
                     Sets.<Class<? extends Operation>>newHashSet(
+                LdbcUpdate1AddPerson.class,
                             LdbcUpdate2AddPostLike.class,
                             LdbcUpdate3AddCommentLike.class,
                             LdbcUpdate4AddForum.class,
@@ -710,24 +732,33 @@ public class LdbcSnbInteractiveWorkload extends Workload
                             LdbcUpdate7AddComment.class,
                             LdbcUpdate8AddFriendship.class
                     );
-            Set<Class<? extends Operation>> dependencyForumUpdateOperationTypes = Sets.newHashSet();
 
-            ChildOperationGenerator forumUpdateChildOperationGenerator = null;
+            ChildOperationGenerator updateChildOperationGenerator = null;
 
             ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                    dependentForumUpdateOperationTypes,
-                    dependencyForumUpdateOperationTypes,
+                    dependentUpdateOperationTypes,
+                    dependencyUpdateOperationTypes,
+                    filteredUpdateOperations,
                     Collections.<Operation>emptyIterator(),
-                    filteredForumUpdateOperations,
-                    forumUpdateChildOperationGenerator
+                    updateChildOperationGenerator
             );
-
         }
         return workloadStartTimeAsMilli;
     }
 
-
-    private List<Iterator<?>> getOperationStreams(GeneratorFactory gf, long workloadStartTimeAsMilli, CsvLoader loader) throws WorkloadException
+    /**
+     * Get the operation streams (substitution parameters)
+     * @param gf Generator factory to use 
+     * @param workloadStartTimeAsMilli The workloadStartTimeAsMilli
+     * @param loader Loader to open the csv files
+     * @return List of operation streams
+     * @throws WorkloadException
+     */
+    private List<Iterator<?>> getOperationStreams(
+        GeneratorFactory gf,
+        long workloadStartTimeAsMilli,
+        CsvLoader loader
+    ) throws WorkloadException
     {
         List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
          /*

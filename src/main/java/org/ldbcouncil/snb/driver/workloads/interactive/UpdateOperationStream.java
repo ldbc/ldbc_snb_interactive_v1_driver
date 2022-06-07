@@ -35,7 +35,6 @@ public class UpdateOperationStream {
      */
     public Iterator<Operation> readUpdateStream(
         File updateOperationFile,
-        long batchSize,
         UpdateEventStreamDecoder.UpdateEventDecoder<Operation> decoder
         ) throws WorkloadException
     {
