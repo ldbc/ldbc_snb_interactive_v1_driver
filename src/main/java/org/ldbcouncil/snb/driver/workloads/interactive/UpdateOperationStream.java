@@ -13,7 +13,7 @@ import java.util.Iterator;
 import org.ldbcouncil.snb.driver.csv.CsvLoader;
 
 public class UpdateOperationStream {
-    private final char columnDelimiter = '|';
+    private final String columnDelimiter = "\r\n";
 
     private final CsvLoader loader;
 

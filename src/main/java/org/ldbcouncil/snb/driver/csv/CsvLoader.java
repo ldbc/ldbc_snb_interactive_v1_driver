@@ -82,16 +82,18 @@ public class CsvLoader {
      * @throws WorkloadException When there is an error decoding the operation stream
      * @throws SQLException When an error occurs when fetching results.
      */
-    public Iterator<Operation> loadOperationStream(String path, char delimiter, UpdateEventStreamDecoder.UpdateEventDecoder<Operation> decoder) throws WorkloadException, SQLException
+    public Iterator<Operation> loadOperationStream(String path, String delimiter, UpdateEventStreamDecoder.UpdateEventDecoder<Operation> decoder) throws WorkloadException, SQLException
     {
         Statement stmt = null;
         List<Operation> results = new ArrayList<>();
         try {
             Connection connection = db.getConnection();
             stmt = connection.createStatement();
+            // TODO: Move logic for splitting to a parameter (e.g. "\\|") should be passed instead of hardcoded.
             ResultSet rs = stmt.executeQuery("SELECT * FROM read_csv_auto('" + path +"', delim = '" +delimiter+"', header=True);");
             while (rs.next()) {
-                Operation obj = decoder.decodeEvent(rs);
+                String[] result = rs.getString(1).split("\\|");
+                Operation obj = decoder.decodeEvent(result);
                 results.add(obj);
             }
             rs.close();

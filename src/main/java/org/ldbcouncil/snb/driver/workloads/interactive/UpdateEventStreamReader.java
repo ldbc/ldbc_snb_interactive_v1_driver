@@ -8,7 +8,6 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
  * appropiate decoder.
  */
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.WorkloadException;
 
 import com.google.common.collect.Ordering;
 
@@ -25,8 +24,6 @@ import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate6AddPos
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate7AddComment;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate8AddFriendship;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -94,25 +91,19 @@ public class UpdateEventStreamReader implements Iterator<Operation>
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
-        public Operation decodeEvent( ResultSet rs ) throws WorkloadException
+        public Operation decodeEvent(String[] rowAsArray)
         {
-            try
+            // Fetch entire row
+            int eventType = Integer.parseInt(rowAsArray[2]);
+
+            UpdateEventDecoder<Operation> decoder = decoders[eventType];
+            if ( null == decoder )
             {
-                int eventType = rs.getInt(3);
-
-                UpdateEventDecoder<Operation> decoder = decoders[eventType];
-                if ( null == decoder )
-                {
-                    throw new NoSuchElementException(
-                            format( "No decoder found that matches this column\nDECODER KEY: %s", eventType )
-                    );
-                }
-                return decoder.decodeEvent(rs);
-
+                throw new NoSuchElementException(
+                        format( "No decoder found that matches this column\nDECODER KEY: %s", eventType )
+                );
             }
-            catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
-            }
+            return decoder.decodeEvent(rowAsArray);
         }
     }
 
@@ -121,57 +112,59 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         //Wilhelm35184372097711@gmail.com;Wilhelm35184372097711@gmx.com;Wilhelm35184372097711@hotmail.com;Wilhelm35184372097711@yahoo.com|1419||450,2008
 
         @Override
-        public Operation decodeEvent(ResultSet rs) throws WorkloadException {
-            try {
-                long scheduledStartTimeAsMilli = rs.getLong(1);
-                long dependencyTimeAsMilli = rs.getLong(2);
-                // Skip index 3, evenType
-                long personId = rs.getLong(4);
-                // System.err.println("EventDecoderAddPerson personid: " + Long.toString(personId));
-                String firstName = rs.getString(5);
-                String lastName = rs.getString(6);
-                String gender = rs.getString(7);
-                long birthdayAsMilli = rs.getLong(8);
-                Date birthday = new Date(birthdayAsMilli);
-                long creationDateAsMilli = rs.getLong(9);
-                Date creationDate = new Date(creationDateAsMilli);
-                String locationIp = rs.getString(10);
-                String browserUsed = rs.getString(11);
-                long cityId = rs.getLong(12);
-                
-                // Arrays
-                List<String> languages;
-                String languagesResult = rs.getString(13);
-                if (languagesResult != null){
-                    String[] languagesArray = languagesResult.split(";");
-                    languages = Arrays.asList(languagesArray);
-                }
-                else{
-                    languages = new ArrayList<>();
-                }
+        public Operation decodeEvent(String[] rowAsArray)
+        {
+            long scheduledStartTimeAsMilli = Long.parseLong(rowAsArray[0]);
+            long dependencyTimeAsMilli = Long.parseLong(rowAsArray[1]);
+            // Skip index 3, evenType
+            long personId = Long.parseLong(rowAsArray[3]);
+            String firstName = rowAsArray[4];
+            String lastName = rowAsArray[5];
+            String gender = rowAsArray[6];
+            long birthdayAsMilli = Long.parseLong(rowAsArray[7]);
+            Date birthday = new Date(birthdayAsMilli);
+            long creationDateAsMilli = Long.parseLong(rowAsArray[8]);
+            Date creationDate = new Date(creationDateAsMilli);
+            String locationIp = rowAsArray[9];
+            String browserUsed = rowAsArray[10];
+            long cityId = Long.parseLong(rowAsArray[11]);
+            
+            // Arrays
+            List<String> languages;
+            String languagesResult = rowAsArray[12];
+            if (languagesResult != null && !languagesResult.isEmpty()){
+                String[] languagesArray = languagesResult.split(";");
+                languages = Arrays.asList(languagesArray);
+            }
+            else{
+                languages = new ArrayList<>();
+            }
 
-                List<String> emails;
-                String emailsResult = rs.getString(14); 
-                if (emailsResult != null){
-                    String[] emailsArray = emailsResult.split(";");
-                    emails = Arrays.asList(emailsArray);
-                }
-                else{
-                    emails = new ArrayList<>();
-                }
+            List<String> emails;
+            String emailsResult = rowAsArray[13]; 
+            if (emailsResult != null && !emailsResult.isEmpty()){
+                String[] emailsArray = emailsResult.split(";");
+                emails = Arrays.asList(emailsArray);
+            }
+            else{
+                emails = new ArrayList<>();
+            }
 
-                List<Long> tagIds = new ArrayList<>();
-                String tagIdsResult = rs.getString(15);
-                if (tagIdsResult != null) {
+            List<Long> tagIds = new ArrayList<>();
+            String tagIdsResult = rowAsArray[14];
+            if (rowAsArray.length > 14){
+                if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
                     String[] tagIdsArrays = tagIdsResult.split(";");
                     for (String value : tagIdsArrays) {
                         tagIds.add(Long.parseLong(value));
                     }
                 }
+            }
 
-                List<LdbcUpdate1AddPerson.Organization> studyAts = new ArrayList<>();
-                String studyAtsResult = rs.getString(16); 
-                if (studyAtsResult != null){
+            List<LdbcUpdate1AddPerson.Organization> studyAts = new ArrayList<>();
+            if (rowAsArray.length > 15){
+                String studyAtsResult = rowAsArray[15]; 
+                if (studyAtsResult != null && !studyAtsResult.isEmpty()){
                     String[] studyAtsArray = studyAtsResult.split(";");
                     List<String> studyAtsStrings = Arrays.asList(studyAtsArray);
                     for (String study : studyAtsStrings) {
@@ -179,10 +172,13 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                         studyAts.add(new LdbcUpdate1AddPerson.Organization(Long.parseLong(studySplit[0]), Integer.parseInt(studySplit[1])));
                     }
                 }
+            }
 
-                List<LdbcUpdate1AddPerson.Organization> workAts = new ArrayList<>();
-                String workAtsResult = rs.getString(17); 
-                if (workAtsResult != null){
+            List<LdbcUpdate1AddPerson.Organization> workAts = new ArrayList<>();
+            // Last index omitted if no value is present
+            if (rowAsArray.length > 16){
+                String workAtsResult = rowAsArray[16]; 
+                if (workAtsResult != null && !workAtsResult.isEmpty()){
                     String[] workAtsArray =  workAtsResult.split(";");
                     List<String> workAtsStrings = Arrays.asList(workAtsArray);
                     for (String work : workAtsStrings) {
@@ -190,263 +186,249 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                         workAts.add(new LdbcUpdate1AddPerson.Organization(Long.parseLong(workSplit[0]), Integer.parseInt(workSplit[1])));
                     }
                 }
-
-                Operation operation = new LdbcUpdate1AddPerson(
-                        personId,
-                        firstName,
-                        lastName,
-                        gender,
-                        birthday,
-                        creationDate,
-                        locationIp,
-                        browserUsed,
-                        cityId,
-                        languages,
-                        emails,
-                        tagIds,
-                        studyAts,
-                        workAts);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
-                operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(dependencyTimeAsMilli);
-                return operation;
-            } catch (SQLException e) {
-                throw new WorkloadException("Error parsing add person event", e);
             }
+
+
+            Operation operation = new LdbcUpdate1AddPerson(
+                    personId,
+                    firstName,
+                    lastName,
+                    gender,
+                    birthday,
+                    creationDate,
+                    locationIp,
+                    browserUsed,
+                    cityId,
+                    languages,
+                    emails,
+                    tagIds,
+                    studyAts,
+                    workAts);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setTimeStamp(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeStamp(dependencyTimeAsMilli);
+            return operation;
         }
     }
 
     public static class EventDecoderAddLikePost implements UpdateEventStreamDecoder.UpdateEventDecoder<Operation> {
         // 1347528982194|1329938741248|2|26388279073665|1236953235741|1347528982194
         @Override
-        public Operation decodeEvent(ResultSet rs) throws WorkloadException {
-            try {
-                long scheduledStartTimeAsMilli = rs.getLong(1);
-                long dependencyTimeAsMilli = rs.getLong(2);
-                // Skip index 3, evenType
-                long personId = rs.getLong(4);
-                long postId = rs.getLong(5);
-                long creationDateAsMilli = rs.getLong(6);
-                Date creationDate = new Date(creationDateAsMilli);
+        public Operation decodeEvent(String[] rowAsArray)
+        {
+            long scheduledStartTimeAsMilli = Long.parseLong(rowAsArray[0]);
+            long dependencyTimeAsMilli = Long.parseLong(rowAsArray[1]);
+            // Skip index 3, evenType
+            long personId = Long.parseLong(rowAsArray[3]);
+            long postId = Long.parseLong(rowAsArray[4]);
+            long creationDateAsMilli = Long.parseLong(rowAsArray[5]);
+            Date creationDate = new Date(creationDateAsMilli);
 
-                Operation operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
-                operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(dependencyTimeAsMilli);
-                return operation;
-            } catch (SQLException e) {
-                throw new WorkloadException("Error parsing add post like event", e);
-            }
+            Operation operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setTimeStamp(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeStamp(dependencyTimeAsMilli);
+            return operation;
         }
     }
 
     public static class EventDecoderAddLikeComment implements UpdateEventStreamDecoder.UpdateEventDecoder<Operation> {
         @Override
-        public Operation decodeEvent(ResultSet rs) throws WorkloadException{
-            try {
-                long scheduledStartTimeAsMilli = rs.getLong(1);
-                long dependencyTimeAsMilli = rs.getLong(2);
-                // Skip index 3, evenType
-                long personId = rs.getLong(4);
-                long commentId = rs.getLong(5);
-                long creationDateAsMilli = rs.getLong(6);
-                Date creationDate = new Date(creationDateAsMilli);
+        public Operation decodeEvent(String[] rowAsArray)
+        {
+            long scheduledStartTimeAsMilli = Long.parseLong(rowAsArray[0]);
+            long dependencyTimeAsMilli = Long.parseLong(rowAsArray[1]);
+            // Skip index 3, evenType
+            long personId = Long.parseLong(rowAsArray[3]);
+            long commentId = Long.parseLong(rowAsArray[4]);
+            long creationDateAsMilli = Long.parseLong(rowAsArray[5]);
+            Date creationDate = new Date(creationDateAsMilli);
 
-                Operation operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
-                operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(dependencyTimeAsMilli);
-                return operation;
-            } catch (SQLException e) {
-                throw new WorkloadException("Error parsing add comment like event", e);
-            }
+            Operation operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setTimeStamp(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeStamp(dependencyTimeAsMilli);
+            return operation;
         }
     }
 
     public static class EventDecoderAddForum implements UpdateEventStreamDecoder.UpdateEventDecoder<Operation> {
         // 1356836924126|1291176246893|4|2336462231818|Album 12 of K. Kumar|1356836924126|10995116281872|568
         @Override
-        public Operation decodeEvent(ResultSet rs) throws WorkloadException{
-            try {
-                long scheduledStartTimeAsMilli = rs.getLong(1);
-                long dependencyTimeAsMilli = rs.getLong(2);
-                // Skip index 3, evenType
-                long forumId = rs.getLong(4);
-                String forumTitle = rs.getString(5);
-                long creationDateAsMilli = rs.getLong(6);
-                Date creationDate = new Date(creationDateAsMilli);
-                long moderatorPersonId = rs.getLong(7);
+        public Operation decodeEvent(String[] rowAsArray)
+        {
+            long scheduledStartTimeAsMilli = Long.parseLong(rowAsArray[0]);
+            long dependencyTimeAsMilli = Long.parseLong(rowAsArray[1]);
+            // Skip index 3, evenType
+            long forumId = Long.parseLong(rowAsArray[3]);
+            String forumTitle = rowAsArray[4];
+            long creationDateAsMilli = Long.parseLong(rowAsArray[5]);
+            Date creationDate = new Date(creationDateAsMilli);
+            long moderatorPersonId = Long.parseLong(rowAsArray[6]);
 
-                List<Long> tagIds = new ArrayList<>();
-                String tagIdsResult = rs.getString(8); 
-                if (tagIdsResult != null) {
-                    String[] tagIdsArrays = tagIdsResult.split(";");
-                    for (String value : tagIdsArrays) {
-                        tagIds.add(Long.parseLong(value));
-                    }
+            List<Long> tagIds = new ArrayList<>();
+            if (rowAsArray.length > 7){
+                String tagIdsResult = rowAsArray[7]; 
+            if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
+                String[] tagIdsArrays = tagIdsResult.split(";");
+                for (String value : tagIdsArrays) {
+                    tagIds.add(Long.parseLong(value));
                 }
-
-                Operation operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
-                operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(dependencyTimeAsMilli);
-                return operation;
-            } catch (SQLException e) {
-                throw new WorkloadException("Error parsing add forum event", e);
             }
+        }
+
+            Operation operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setTimeStamp(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeStamp(dependencyTimeAsMilli);
+            return operation;
         }
     }
 
     public static class EventDecoderAddForumMembership  implements UpdateEventStreamDecoder.UpdateEventDecoder<Operation> {
         // 1347953761820|1329795612316|5|962072684758|26388279077503|1347953761820
         @Override
-        public Operation decodeEvent(ResultSet rs) throws WorkloadException{
-            try {
-                long scheduledStartTimeAsMilli = rs.getLong(1);
-                long dependencyTimeAsMilli = rs.getLong(2);
-                // Skip index 3, evenType
-                long forumId = rs.getLong(4);
-                long personId = rs.getLong(5);
-                long creationDateAsMilli = rs.getLong(6);
-                Date creationDate = new Date(creationDateAsMilli);
+        public Operation decodeEvent(String[] rowAsArray)
+        {
+            long scheduledStartTimeAsMilli = Long.parseLong(rowAsArray[0]);
+            long dependencyTimeAsMilli = Long.parseLong(rowAsArray[1]);
+            // Skip index 3, evenType
+            long forumId = Long.parseLong(rowAsArray[3]);
+            long personId = Long.parseLong(rowAsArray[4]);
+            long creationDateAsMilli = Long.parseLong(rowAsArray[5]);
+            Date creationDate = new Date(creationDateAsMilli);
 
-                Operation operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
-                operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(dependencyTimeAsMilli);
-                return operation;
-            } catch (SQLException e) {
-                throw new WorkloadException("Error parsing add forum membership event", e);
-            }
+            Operation operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setTimeStamp(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeStamp(dependencyTimeAsMilli);
+            return operation;
         }
     }
 
     public static class EventDecoderAddPost implements UpdateEventStreamDecoder.UpdateEventDecoder<Operation> {
         // 1355597870966|1350647897496|6|2336464885268||1355597870966|31.192.131.147|Internet Explorer|uz
         // |About James Cook, February 1779) was a British explorer, navigator and cartographer who ultimately rose to |107|35184372098258|1511828536084|56|2012
-        @Override
-        public Operation decodeEvent(ResultSet rs) throws WorkloadException{
-            try {
-                long scheduledStartTimeAsMilli = rs.getLong(1);
-                long dependencyTimeAsMilli = rs.getLong(2);
-                // Skip index 3, evenType
-                long postId = rs.getLong(4);
-                String imageFile = rs.getString(5);
-                long creationDateAsMilli = rs.getLong(6);
-                Date creationDate = new Date(creationDateAsMilli);
-                String locationIp = rs.getString(7);
-                String browserUsed = rs.getString(8);
-                String language = rs.getString(9);
-                String content = rs.getString(10);
-                int length = rs.getInt(11);
-                long authorPersonId = rs.getLong(12);
-                long forumId = rs.getLong(13);
-                long countryId = rs.getLong(14);
-                
-                List<Long> tagIds = new ArrayList<>();
-                String tagIdsResult = rs.getString(15); 
-                if (tagIdsResult != null) {
-                    String[] tagIdsArrays = tagIdsResult.split(";");
-                    for (String value : tagIdsArrays) {
-                        tagIds.add(Long.parseLong(value));
-                    }
-                }
+        // 1295360080961|1265102576564|6|51539660062||1295360080961|41.223.54.192|Firefox|tk|About Thaksin Shinawatra, assets in Thailand, totaling 76 billion baht ($2.2 billion), claiming he had become unusually wealthy while in office. Thaksin and his wife had declared assets totaling 15.1 billion baht when he.|221|425|25769807217|74|1932
 
-                Operation operation = new LdbcUpdate6AddPost(
-                        postId,
-                        imageFile,
-                        creationDate,
-                        locationIp,
-                        browserUsed,
-                        language,
-                        content,
-                        length,
-                        authorPersonId,
-                        forumId,
-                        countryId,
-                        tagIds);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
-                operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(dependencyTimeAsMilli);
-                return operation;
-            } catch (SQLException e) {
-                throw new WorkloadException("Error parsing add post event", e);
+        @Override
+        public Operation decodeEvent(String[] rowAsArray)
+        {
+            long scheduledStartTimeAsMilli = Long.parseLong(rowAsArray[0]);
+            long dependencyTimeAsMilli = Long.parseLong(rowAsArray[1]);
+            // Skip index 3, evenType
+            long postId = Long.parseLong(rowAsArray[3]);
+            String imageFile = rowAsArray[4];
+            long creationDateAsMilli = Long.parseLong(rowAsArray[5]);
+            Date creationDate = new Date(creationDateAsMilli);
+            String locationIp = rowAsArray[6];
+            String browserUsed = rowAsArray[7];
+            String language = rowAsArray[8];
+            String content = rowAsArray[9];
+            int length = Integer.parseInt(rowAsArray[10]);
+            long authorPersonId = Long.parseLong(rowAsArray[11]);
+            long forumId = Long.parseLong(rowAsArray[12]);
+            long countryId = Long.parseLong(rowAsArray[13]);
+            
+            List<Long> tagIds = new ArrayList<>();
+            if (rowAsArray.length > 14){
+                String tagIdsResult = rowAsArray[14]; 
+            if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
+                String[] tagIdsArrays = tagIdsResult.split(";");
+                for (String value : tagIdsArrays) {
+                    tagIds.add(Long.parseLong(value));
+                }
             }
+        }
+
+            Operation operation = new LdbcUpdate6AddPost(
+                    postId,
+                    imageFile,
+                    creationDate,
+                    locationIp,
+                    browserUsed,
+                    language,
+                    content,
+                    length,
+                    authorPersonId,
+                    forumId,
+                    countryId,
+                    tagIds);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setTimeStamp(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeStamp(dependencyTimeAsMilli);
+            return operation;
         }
     }
 
     public static class EventDecoderAddComment implements UpdateEventStreamDecoder.UpdateEventDecoder<Operation> {
         // 1356837312993|1349744035667|7|2336463358542|1356837312993|164.41.63.169|Chrome|good|4|35184372093856|49|2336463358541|-1|
         @Override
-        public Operation decodeEvent(ResultSet rs) throws WorkloadException{
-            try {
-                long scheduledStartTimeAsMilli = rs.getLong(1);
-                long dependencyTimeAsMilli = rs.getLong(2);
-                // Skip index 3, evenType
-                long commentId = rs.getLong(4);
-                long creationDateAsMilli = rs.getLong(5);
-                Date creationDate = new Date(creationDateAsMilli);
-                String locationIp = rs.getString(6);
-                String browserUsed = rs.getString(7);
-                String content = rs.getString(8);
-                int length = rs.getInt(9);
-                long authorPersonId = rs.getLong(10);
-                long countryId = rs.getLong(11);
-                long replyOfPostId = rs.getLong(12);
-                long replyOfCommentId = rs.getLong(13);
-                
-                List<Long> tagIds = new ArrayList<>();
-                String tagIdsResult = rs.getString(14); 
-                if (tagIdsResult != null) {
-                    String[] tagIdsArrays = tagIdsResult.split(";");
-                    for (String value : tagIdsArrays) {
-                        tagIds.add(Long.parseLong(value));
-                    }
+        public Operation decodeEvent(String[] rowAsArray)
+        {
+            long scheduledStartTimeAsMilli = Long.parseLong(rowAsArray[0]);
+            long dependencyTimeAsMilli = Long.parseLong(rowAsArray[1]);
+            // Skip index 3, evenType
+            long commentId = Long.parseLong(rowAsArray[3]);
+            long creationDateAsMilli = Long.parseLong(rowAsArray[4]);
+            Date creationDate = new Date(creationDateAsMilli);
+            String locationIp = rowAsArray[5];
+            String browserUsed = rowAsArray[6];
+            String content = rowAsArray[7];
+            int length = Integer.parseInt(rowAsArray[8]);
+            long authorPersonId = Long.parseLong(rowAsArray[9]);
+            long countryId = Long.parseLong(rowAsArray[10]);
+            long replyOfPostId = Long.parseLong(rowAsArray[11]);
+            long replyOfCommentId = Long.parseLong(rowAsArray[12]);
+            
+            List<Long> tagIds = new ArrayList<>();
+            if (rowAsArray.length > 13){
+                String tagIdsResult = rowAsArray[13]; 
+            if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
+                String[] tagIdsArrays = tagIdsResult.split(";");
+                for (String value : tagIdsArrays) {
+                    tagIds.add(Long.parseLong(value));
                 }
-
-                Operation operation = new LdbcUpdate7AddComment(
-                        commentId,
-                        creationDate,
-                        locationIp,
-                        browserUsed,
-                        content,
-                        length,
-                        authorPersonId,
-                        countryId,
-                        replyOfPostId,
-                        replyOfCommentId,
-                        tagIds);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
-                operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(dependencyTimeAsMilli);
-                return operation;
-            } catch (SQLException e) {
-                throw new WorkloadException("Error parsing add comment event", e);
             }
+        }
+
+            Operation operation = new LdbcUpdate7AddComment(
+                    commentId,
+                    creationDate,
+                    locationIp,
+                    browserUsed,
+                    content,
+                    length,
+                    authorPersonId,
+                    countryId,
+                    replyOfPostId,
+                    replyOfCommentId,
+                    tagIds);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setTimeStamp(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeStamp(dependencyTimeAsMilli);
+            return operation;
         }
     }
 
     public static class EventDecoderAddFriendship implements UpdateEventStreamDecoder.UpdateEventDecoder<Operation> {
         // 1353961176873|1353391211070|8|8796093024336|37383395351049|1353961176873
         @Override
-        public Operation decodeEvent(ResultSet rs) throws WorkloadException{
-            try {
-                long scheduledStartTimeAsMilli = rs.getLong(1);
-                long dependencyTimeAsMilli = rs.getLong(2);
-                // Skip index 3, evenType
-                long person1Id = rs.getLong(4);
-                long person2Id = rs.getLong(5);
-                long creationDateAsMilli = rs.getLong(6);
-                Date creationDate = new Date(creationDateAsMilli);
+        public Operation decodeEvent(String[] rowAsArray)
+        {
+            long scheduledStartTimeAsMilli = Long.parseLong(rowAsArray[0]);
+            long dependencyTimeAsMilli = Long.parseLong(rowAsArray[1]);
+            // Skip index 3, evenType
+            long person1Id = Long.parseLong(rowAsArray[3]);
+            long person2Id = Long.parseLong(rowAsArray[4]);
+            long creationDateAsMilli = Long.parseLong(rowAsArray[5]);
+            Date creationDate = new Date(creationDateAsMilli);
 
-                Operation operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
-                operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(dependencyTimeAsMilli);
-                return operation;
-            } catch (SQLException e) {
-                throw new WorkloadException("Error parsing add friendship event", e);
-            }
+            Operation operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setTimeStamp(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeStamp(dependencyTimeAsMilli);
+            return operation;
         }
     }
 }
