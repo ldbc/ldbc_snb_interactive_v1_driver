@@ -1,6 +1,5 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -15,24 +14,20 @@ import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.OperationMode;
 import org.ldbcouncil.snb.driver.csv.CsvLoader;
 import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
-import org.ldbcouncil.snb.driver.csv.charseeker.BufferedCharSeeker;
-import org.ldbcouncil.snb.driver.csv.charseeker.Extractors;
-import org.ldbcouncil.snb.driver.csv.charseeker.Readables;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
+import org.ldbcouncil.snb.driver.generator.UpdateEventStreamDecoder.UpdateEventDecoder;
 import org.ldbcouncil.snb.driver.util.ClassLoaderHelper;
 import org.ldbcouncil.snb.driver.util.ClassLoadingException;
 import org.ldbcouncil.snb.driver.util.MapUtils;
-import org.ldbcouncil.snb.driver.util.Tuple;
-import org.ldbcouncil.snb.driver.util.Tuple2;
+
+import org.ldbcouncil.snb.driver.workloads.interactive.UpdateEventStreamReader.*;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,9 +46,7 @@ import static java.lang.String.format;
 
 public class LdbcSnbInteractiveWorkload extends Workload
 {
-    private List<Closeable> forumUpdateOperationsFileReaders = new ArrayList<>();
     private List<File> forumUpdateOperationFiles = new ArrayList<>();
-    private List<Closeable> personUpdateOperationsFileReaders = new ArrayList<>();
     private List<File> personUpdateOperationFiles = new ArrayList<>();
 
     private Map<Integer,Long> longReadInterleavesAsMilli;
@@ -405,30 +398,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     @Override
     synchronized protected void onClose() throws IOException
     {
-        for ( Closeable forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders )
-        {
-            forumUpdateOperationsFileReader.close();
-        }
-
-        for ( Closeable personUpdateOperationsFileReader : personUpdateOperationsFileReaders )
-        {
-            personUpdateOperationsFileReader.close();
-        }
-    }
-
-    private Tuple2<Iterator<Operation>,Closeable> fileToWriteStreamParser( File updateOperationsFile) throws IOException, WorkloadException
-    {
-        int bufferSize = 1 * 1024 * 1024;
-
-        BufferedCharSeeker charSeeker = new BufferedCharSeeker(
-                Readables.wrap(
-                        new InputStreamReader( new FileInputStream( updateOperationsFile ), Charsets.UTF_8 )
-                ),
-                bufferSize
-        );
-        Extractors extractors = new Extractors( ';', ',' );
-        return Tuple.<Iterator<Operation>,Closeable>tuple2(
-                WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, '|' ), charSeeker );
+        // TODO: Remove this function from super implementation.
     }
 
     @Override
@@ -440,6 +410,25 @@ public class LdbcSnbInteractiveWorkload extends Workload
         List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
         Set<Class<? extends Operation>> dependentAsynchronousOperationTypes = Sets.newHashSet();
         Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
+
+        CsvLoader loader;
+        try {
+            DuckDbConnectionState db = new DuckDbConnectionState();
+            loader = new CsvLoader(db);
+        }
+        catch (SQLException e){
+            throw new WorkloadException(format("Error creating loader for operation streams %s", e));
+        }
+
+        Map<Integer,UpdateEventDecoder<Operation>> decoders = new HashMap<>();
+            decoders.put(1, new EventDecoderAddPerson());
+            decoders.put(2, new EventDecoderAddLikePost());
+            decoders.put(3, new EventDecoderAddLikeComment());
+            decoders.put(4, new EventDecoderAddForum());
+            decoders.put(5, new EventDecoderAddForumMembership());
+            decoders.put(6, new EventDecoderAddPost());
+            decoders.put(7, new EventDecoderAddComment());
+            decoders.put(8, new EventDecoderAddFriendship());
 
         /* *******
          * *******
@@ -453,7 +442,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
          */
         if ( enabledWriteOperationTypes.contains( LdbcUpdate1AddPerson.class ) )
         {
-            workloadStartTimeAsMilli = getPersonUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams);
+            workloadStartTimeAsMilli = getPersonUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams, loader, decoders);
         }
 
         /*
@@ -468,7 +457,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
              enabledWriteOperationTypes.contains( LdbcUpdate8AddFriendship.class )
         )
         {
-            workloadStartTimeAsMilli = getForumUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams);
+            workloadStartTimeAsMilli = getForumUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams, loader, decoders);
         }
 
         if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
@@ -479,7 +468,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
          *  LONG READS
          * *******
          * *******/
-        asynchronousNonDependencyStreamsList = getOperationStreams(gf, workloadStartTimeAsMilli);
+        asynchronousNonDependencyStreamsList = getOperationStreams(gf, workloadStartTimeAsMilli,loader);
         /*
          * Merge all dependency asynchronous operation streams, ordered by operation start times
          */
@@ -564,19 +553,23 @@ public class LdbcSnbInteractiveWorkload extends Workload
         );
     }
 
-    private long getPersonUpdateStreams(GeneratorFactory gf, long workloadStartTimeAsMilli, WorkloadStreams ldbcSnbInteractiveWorkloadStreams) throws WorkloadException
+    private long getPersonUpdateStreams(
+        GeneratorFactory gf,
+        long workloadStartTimeAsMilli,
+        WorkloadStreams ldbcSnbInteractiveWorkloadStreams,
+        CsvLoader loader,
+        Map<Integer,UpdateEventDecoder<Operation>> decoders
+    ) throws WorkloadException
     {
         for ( File personUpdateOperationFile : personUpdateOperationFiles )
         {
             Iterator<Operation> personUpdateOperationsParser;
             try
             {
-                Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
-                        fileToWriteStreamParser( personUpdateOperationFile );
-                personUpdateOperationsParser = parserAndCloseable._1();
-                personUpdateOperationsFileReaders.add( parserAndCloseable._2() );
+                UpdateOperationStream updateOperationStream = new UpdateOperationStream(loader);
+                personUpdateOperationsParser = updateOperationStream.readUpdateStream(personUpdateOperationFile, 10000, new UpdateEventStreamReader.EventDecoder(decoders));
             }
-            catch ( IOException e )
+            catch ( WorkloadException e )
             {
                 throw new WorkloadException(
                         "Unable to open person update stream: " + personUpdateOperationFile.getAbsolutePath(), e );
@@ -643,19 +636,24 @@ public class LdbcSnbInteractiveWorkload extends Workload
         return workloadStartTimeAsMilli;
     }
 
-    private long getForumUpdateStreams(GeneratorFactory gf, long workloadStartTimeAsMilli, WorkloadStreams ldbcSnbInteractiveWorkloadStreams) throws WorkloadException
+    private long getForumUpdateStreams(
+        GeneratorFactory gf,
+        long workloadStartTimeAsMilli,
+        WorkloadStreams ldbcSnbInteractiveWorkloadStreams,
+        CsvLoader loader,
+        Map<Integer,UpdateEventDecoder<Operation>> decoders
+        ) throws WorkloadException
     {
         for ( File forumUpdateOperationFile : forumUpdateOperationFiles )
         {
             Iterator<Operation> forumUpdateOperationsParser;
             try
             {
-                Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
-                        fileToWriteStreamParser( forumUpdateOperationFile );
-                forumUpdateOperationsParser = parserAndCloseable._1();
-                forumUpdateOperationsFileReaders.add( parserAndCloseable._2() );
+
+                UpdateOperationStream updateOperationStream = new UpdateOperationStream(loader);
+                forumUpdateOperationsParser = updateOperationStream.readUpdateStream(forumUpdateOperationFile, 10000, new UpdateEventStreamReader.EventDecoder(decoders));
             }
-            catch ( IOException e )
+            catch ( WorkloadException e )
             {
                 throw new WorkloadException(
                         "Unable to open forum update stream: " + forumUpdateOperationFile.getAbsolutePath(), e );
@@ -729,20 +727,13 @@ public class LdbcSnbInteractiveWorkload extends Workload
     }
 
 
-    private List<Iterator<?>> getOperationStreams(GeneratorFactory gf, long workloadStartTimeAsMilli) throws WorkloadException
+    private List<Iterator<?>> getOperationStreams(GeneratorFactory gf, long workloadStartTimeAsMilli, CsvLoader loader) throws WorkloadException
     {
         List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
          /*
          * Create read operation streams, with specified interleaves
          */
-        CsvLoader loader;
-        try {
-            DuckDbConnectionState db = new DuckDbConnectionState();
-            loader = new CsvLoader(db);
-        }
-        catch (SQLException e){
-            throw new WorkloadException(format("Error creating loader for operation streams %s", e));
-        }
+
         ReadOperationStream readOperationStream = new ReadOperationStream(gf, workloadStartTimeAsMilli, loader);
         
         if ( enabledLongReadOperationTypes.contains( LdbcQuery1.class ) )
