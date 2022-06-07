@@ -298,7 +298,6 @@ public class WorkloadStreamsTest
                         .size( WorkloadStreams
                                 .mergeSortedByStartTimeExcludingChildOperationGenerators( gf, workloadStreams ) ),
                 is( 100 ) );
-        workload.close();
     }
 
     @Test
@@ -336,7 +335,6 @@ public class WorkloadStreamsTest
                         .size( WorkloadStreams
                                 .mergeSortedByStartTimeExcludingChildOperationGenerators( gf, workloadStreams ) ),
                 is( 100 ) );
-        workload.close();
     }
 
     @Test
@@ -904,11 +902,6 @@ public class WorkloadStreamsTest
         public int enabledValidationOperations()
         {
             return 0;
-        }
-
-        @Override
-        protected void onClose() throws IOException
-        {
         }
 
         @Override

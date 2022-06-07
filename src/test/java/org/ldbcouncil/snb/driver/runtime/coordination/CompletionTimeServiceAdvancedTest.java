@@ -295,7 +295,6 @@ public class CompletionTimeServiceAdvancedTest
         boolean allTasksCompletedInTime = executorService.awaitTermination( 10, TimeUnit.SECONDS );
         assertThat( allTasksCompletedInTime, is( true ) );
         assertThat( errorReporter.toString(), errorReporter.errorEncountered(), is( false ) );
-        workload.close();
         return testDurationAsMilli;
     }
 

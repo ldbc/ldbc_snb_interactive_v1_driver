@@ -154,17 +154,6 @@ public class WorkloadValidator
             }
         }
 
-        try
-        {
-            workloadPass1.close();
-        }
-        catch ( IOException e )
-        {
-            return new WorkloadValidationResult(
-                    ResultType.UNEXPECTED,
-                    "Error during workload cleanup\n" + ConcurrentErrorReporter.stackTraceToString( e ) );
-        }
-
         /*
          * *************************************************************************************************************
          *   SECOND PHASE PERFORM MORE ELABORATE CHECKS
@@ -407,17 +396,6 @@ public class WorkloadValidator
             previousOperationStartTimesAsMilliByOperationType.put( operationType, operationStartTimeAsMilli );
         }
 
-        try
-        {
-            workloadPass2.close();
-        }
-        catch ( IOException e )
-        {
-            return new WorkloadValidationResult(
-                    ResultType.UNEXPECTED,
-                    "Error during workload cleanup\n" + ConcurrentErrorReporter.stackTraceToString( e ) );
-        }
-
         /*
          * *************************************************************************************************************
          *   THIRD PHASE PERFORM DETERMINISM CHECK
@@ -493,19 +471,6 @@ public class WorkloadValidator
                     format( "Unexpected error encountered while checking if workload is deterministic\n%s",
                             ConcurrentErrorReporter.stackTraceToString( e ) ) );
         }
-
-        try
-        {
-            workload1.close();
-            workload2.close();
-        }
-        catch ( IOException e )
-        {
-            return new WorkloadValidationResult(
-                    ResultType.UNEXPECTED,
-                    "Error during workload creation\n" + ConcurrentErrorReporter.stackTraceToString( e ) );
-        }
-
         return new WorkloadValidationResult( ResultType.SUCCESSFUL, null );
     }
 }

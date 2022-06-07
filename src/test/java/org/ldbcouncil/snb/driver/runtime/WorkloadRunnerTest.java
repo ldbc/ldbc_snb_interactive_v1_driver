@@ -240,15 +240,6 @@ public class WorkloadRunnerTest
             }
             try
             {
-                workload.close();
-            }
-            catch ( Throwable e )
-            {
-                System.out.println( format( "Unclean %s shutdown -- but it's OK",
-                        workload.getClass().getSimpleName() ) );
-            }
-            try
-            {
                 metricsService.shutdown();
             }
             catch ( Throwable e )
@@ -482,10 +473,6 @@ public class WorkloadRunnerTest
             {
                 db.close();
             }
-            if ( null != workload )
-            {
-                workload.close();
-            }
             if ( null != metricsService )
             {
                 metricsService.shutdown();
@@ -709,10 +696,6 @@ public class WorkloadRunnerTest
             if ( null != db )
             {
                 db.close();
-            }
-            if ( null != workload )
-            {
-                workload.close();
             }
             if ( null != metricsService )
             {
@@ -966,10 +949,6 @@ public class WorkloadRunnerTest
             if ( null != db )
             {
                 db.close();
-            }
-            if ( null != workload )
-            {
-                workload.close();
             }
             if ( null != metricsService )
             {

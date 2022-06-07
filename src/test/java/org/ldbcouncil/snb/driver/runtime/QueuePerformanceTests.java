@@ -136,7 +136,6 @@ public class QueuePerformanceTests
                 ((double) config.operationCount() / TimeUnit.MILLISECONDS.toNanos( duration )) * 1000000000 );
         System.out.println(
                 format( "%s operations in %s: %s op/sec", config.operationCount(), duration, opsPerSecond ) );
-        workload.close();
     }
 
     private long doOperationQueuePerformanceTest( final Iterator<Operation> operations, final Queue<Operation> queue )

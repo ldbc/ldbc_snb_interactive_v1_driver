@@ -125,29 +125,25 @@ public abstract class WorkloadTest
     @Test
     public void shouldHaveOneToOneMappingBetweenOperationClassesAndOperationTypes() throws Exception
     {
-        try ( Workload workload = workload() )
-        {
-            Map<Integer,Class<? extends Operation>> typeToClassMapping = workload.operationTypeToClassMapping();
-            assertThat(
-                    typeToClassMapping.keySet().size(),
-                    equalTo( Sets.newHashSet( typeToClassMapping.values() ).size() )
-            );
-        }
+        Workload workload = workload();
+        Map<Integer,Class<? extends Operation>> typeToClassMapping = workload.operationTypeToClassMapping();
+        assertThat(
+                typeToClassMapping.keySet().size(),
+                equalTo( Sets.newHashSet( typeToClassMapping.values() ).size() )
+        );
     }
 
     @Test
     public void shouldHaveNonNegativeTypesForAllOperations() throws Exception
     {
-        try ( Workload workload = workload() )
+        Workload workload = workload();
+        for ( Map.Entry<Integer,Class<? extends Operation>> entry :
+                workload.operationTypeToClassMapping().entrySet() )
         {
-            for ( Map.Entry<Integer,Class<? extends Operation>> entry :
-                    workload.operationTypeToClassMapping().entrySet() )
-            {
-                assertTrue(
-                        format( "%s has negative type: %s", entry.getValue().getSimpleName(), entry.getKey() ),
-                        entry.getKey() >= 0
-                );
-            }
+            assertTrue(
+                    format( "%s has negative type: %s", entry.getValue().getSimpleName(), entry.getKey() ),
+                    entry.getKey() >= 0
+            );
         }
         for ( Tuple2<Operation,Object> operation : operationsAndResults() )
         {
@@ -162,31 +158,29 @@ public abstract class WorkloadTest
     public void shouldBeAbleToSerializeAndMarshalAllOperations() throws Exception
     {
         // Given
-        try ( Workload workload = workload() )
+        Workload workload = workload();
+        List<Tuple2<Operation,Object>> operationsAndResults = operationsAndResults();
+
+        // When
+        ObjectMapper mapper = new ObjectMapper();
+
+        // Then
+        for ( int i = 0; i < operationsAndResults.size(); i++ )
         {
-            List<Tuple2<Operation,Object>> operationsAndResults = operationsAndResults();
-
-            // When
-            ObjectMapper mapper = new ObjectMapper();
-
-            // Then
-            for ( int i = 0; i < operationsAndResults.size(); i++ )
-            {
-                String serializedOperation = mapper.writeValueAsString(operationsAndResults.get( i )._1());
-                Object deserializedOperation = mapper.readValue(serializedOperation, Operation.class);
-                
-            assertThat(
-                    format( "original != marshal(serialize(original))\n" +
-                            "Original: %s\n"                             +
-                            "Serialized: %s\n"                           +
-                            "Marshaled: %s",
-                            operationsAndResults.get( i )._1(),
-                            serializedOperation,
-                            deserializedOperation
-                    ),
-                    deserializedOperation,
-                    equalTo( operationsAndResults.get( i )._1() ) );
-            }
+            String serializedOperation = mapper.writeValueAsString(operationsAndResults.get( i )._1());
+            Object deserializedOperation = mapper.readValue(serializedOperation, Operation.class);
+            
+        assertThat(
+                format( "original != marshal(serialize(original))\n" +
+                        "Original: %s\n"                             +
+                        "Serialized: %s\n"                           +
+                        "Marshaled: %s",
+                        operationsAndResults.get( i )._1(),
+                        serializedOperation,
+                        deserializedOperation
+                ),
+                deserializedOperation,
+                equalTo( operationsAndResults.get( i )._1() ) );
         }
     }
 
@@ -226,23 +220,21 @@ public abstract class WorkloadTest
             long operationCount = 1_000_000;
             long timeoutAsMilli = TimeUnit.SECONDS.toMillis( 5 );
 
-            try ( Workload workload = new ClassNameWorkloadFactory( configuration.workloadClassName() )
-                    .createWorkload() )
-            {
-                workload.init( configuration );
-                GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
-                Iterator<Operation> operations = gf.limit(
-                        WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
-                                gf,
-                                workload.streams( gf, true )
-                        ),
-                        operationCount
-                );
-                long timeout = timeSource.nowAsMilli() + timeoutAsMilli;
-                boolean workloadGeneratedOperationsBeforeTimeout =
-                        TestUtils.generateBeforeTimeout( operations, timeout, timeSource, operationCount );
-                assertTrue( workloadGeneratedOperationsBeforeTimeout );
-            }
+            Workload workload = new ClassNameWorkloadFactory( configuration.workloadClassName() )
+                    .createWorkload();
+            workload.init( configuration );
+            GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
+            Iterator<Operation> operations = gf.limit(
+                    WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
+                            gf,
+                            workload.streams( gf, true )
+                    ),
+                    operationCount
+            );
+            long timeout = timeSource.nowAsMilli() + timeoutAsMilli;
+            boolean workloadGeneratedOperationsBeforeTimeout =
+                    TestUtils.generateBeforeTimeout( operations, timeout, timeSource, operationCount );
+            assertTrue( workloadGeneratedOperationsBeforeTimeout );
         }
     }
 
@@ -254,63 +246,61 @@ public abstract class WorkloadTest
             WorkloadFactory workloadFactory = new ClassNameWorkloadFactory( configuration.workloadClassName() );
             GeneratorFactory gf1 = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
             GeneratorFactory gf2 = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
-            try ( Workload workloadA = workloadFactory.createWorkload();
-                  Workload workloadB = workloadFactory.createWorkload() )
+            Workload workloadA = workloadFactory.createWorkload();
+            Workload workloadB = workloadFactory.createWorkload();
+            workloadA.init( configuration );
+            workloadB.init( configuration );
+
+            List<Class> operationsA = ImmutableList.copyOf(
+                    Iterators.transform(
+                            gf1.limit(
+                                    WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
+                                            gf1,
+                                            workloadA.streams( gf1, true )
+                                    ),
+                                    configuration.operationCount()
+                            ),
+                            new Function<Operation,Class>()
+                            {
+                                @Override
+                                public Class apply( Operation operation )
+                                {
+                                    return operation.getClass();
+                                }
+                            }
+                    )
+            );
+
+            List<Class> operationsB = ImmutableList.copyOf(
+                    Iterators.transform(
+                            gf1.limit(
+                                    WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
+                                            gf2,
+                                            workloadB.streams( gf2, true )
+                                    ),
+                                    configuration.operationCount()
+                            ),
+                            new Function<Operation,Class>()
+                            {
+                                @Override
+                                public Class apply( Operation operation )
+                                {
+                                    return operation.getClass();
+                                }
+                            }
+                    )
+            );
+
+            assertThat( operationsA.size(), is( operationsB.size() ) );
+
+            Iterator<Class> operationsAIt = operationsA.iterator();
+            Iterator<Class> operationsBIt = operationsB.iterator();
+
+            while ( operationsAIt.hasNext() )
             {
-                workloadA.init( configuration );
-                workloadB.init( configuration );
-
-                List<Class> operationsA = ImmutableList.copyOf(
-                        Iterators.transform(
-                                gf1.limit(
-                                        WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
-                                                gf1,
-                                                workloadA.streams( gf1, true )
-                                        ),
-                                        configuration.operationCount()
-                                ),
-                                new Function<Operation,Class>()
-                                {
-                                    @Override
-                                    public Class apply( Operation operation )
-                                    {
-                                        return operation.getClass();
-                                    }
-                                }
-                        )
-                );
-
-                List<Class> operationsB = ImmutableList.copyOf(
-                        Iterators.transform(
-                                gf1.limit(
-                                        WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
-                                                gf2,
-                                                workloadB.streams( gf2, true )
-                                        ),
-                                        configuration.operationCount()
-                                ),
-                                new Function<Operation,Class>()
-                                {
-                                    @Override
-                                    public Class apply( Operation operation )
-                                    {
-                                        return operation.getClass();
-                                    }
-                                }
-                        )
-                );
-
-                assertThat( operationsA.size(), is( operationsB.size() ) );
-
-                Iterator<Class> operationsAIt = operationsA.iterator();
-                Iterator<Class> operationsBIt = operationsB.iterator();
-
-                while ( operationsAIt.hasNext() )
-                {
-                    Class a = operationsAIt.next();
-                    Class b = operationsBIt.next();
-                    assertThat( a, equalTo( b ) );
-                }
+                Class a = operationsAIt.next();
+                Class b = operationsBIt.next();
+                assertThat( a, equalTo( b ) );
             }
         }
     }
@@ -397,27 +387,24 @@ public abstract class WorkloadTest
 
         for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )
         {
-            try ( Workload workload =
-                          new ClassNameWorkloadFactory( configuration.workloadClassName() ).createWorkload() )
+            Workload workload = new ClassNameWorkloadFactory( configuration.workloadClassName() ).createWorkload();
+            workload.init( configuration );
+
+            List<Operation> operations = Lists.newArrayList(
+                    gf.limit(
+                            WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
+                                    gf,
+                                    workload.streams( gf, true )
+                            ),
+                            configuration.operationCount()
+                    )
+            );
+
+            long prevOperationScheduledStartTime = operations.get( 0 ).scheduledStartTimeAsMilli() - 1;
+            for ( Operation operation : operations )
             {
-                workload.init( configuration );
-
-                List<Operation> operations = Lists.newArrayList(
-                        gf.limit(
-                                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(
-                                        gf,
-                                        workload.streams( gf, true )
-                                ),
-                                configuration.operationCount()
-                        )
-                );
-
-                long prevOperationScheduledStartTime = operations.get( 0 ).scheduledStartTimeAsMilli() - 1;
-                for ( Operation operation : operations )
-                {
-                    assertTrue( operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTime );
-                    prevOperationScheduledStartTime = operation.scheduledStartTimeAsMilli();
-                }
+                assertTrue( operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTime );
+                prevOperationScheduledStartTime = operation.scheduledStartTimeAsMilli();
             }
         }
     }

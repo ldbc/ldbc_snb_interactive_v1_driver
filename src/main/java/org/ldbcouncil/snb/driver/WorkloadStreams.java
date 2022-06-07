@@ -289,8 +289,6 @@ public class WorkloadStreams
         long[] limitForStream = limitsAndMinimumsForStream._2();
         long minimumTimeStamp = limitsAndMinimumsForStream._3();
 
-        workload.close();
-
         // ================================
         // ====== Create Limited Streams ==
         // ================================

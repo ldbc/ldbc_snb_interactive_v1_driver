@@ -404,12 +404,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
     }
 
     @Override
-    synchronized protected void onClose() throws IOException
-    {
-        // TODO: Remove this function from super implementation.
-    }
-
-    @Override
     protected WorkloadStreams getStreams( GeneratorFactory gf, boolean hasDbConnected ) throws WorkloadException
     {
         long workloadStartTimeAsMilli = Long.MAX_VALUE;

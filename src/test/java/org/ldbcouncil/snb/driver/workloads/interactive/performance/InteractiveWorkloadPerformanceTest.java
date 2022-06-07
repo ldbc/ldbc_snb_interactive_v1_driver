@@ -200,10 +200,6 @@ public class InteractiveWorkloadPerformanceTest
             {
                 db.close();
             }
-            if ( null != workload )
-            {
-                workload.close();
-            }
             if ( null != metricsService )
             {
                 metricsService.shutdown();
@@ -365,10 +361,6 @@ public class InteractiveWorkloadPerformanceTest
             if ( null != db )
             {
                 db.close();
-            }
-            if ( null != workload )
-            {
-                workload.close();
             }
             if ( null != metricsService )
             {

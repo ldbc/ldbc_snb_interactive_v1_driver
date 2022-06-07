@@ -376,7 +376,6 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         {
             ConcurrentErrorReporter errorReporter = workloadRunner.getFuture().get();
             loggingService.info( "Shutting down workload..." );
-            workload.close();
             if ( errorReporter.errorEncountered() )
             {
                 throw new ClientException( "Error running workload\n" + errorReporter.toString() );

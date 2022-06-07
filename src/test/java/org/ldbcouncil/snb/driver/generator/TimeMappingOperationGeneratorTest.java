@@ -421,7 +421,6 @@ public class TimeMappingOperationGeneratorTest
             assertThat( operation.scheduledStartTimeAsMilli() >= prevOffsetOperationScheduledStartTime, is( true ) );
             prevOffsetOperationScheduledStartTime = operation.scheduledStartTimeAsMilli();
         }
-        workload.close();
     }
 
     @Test
