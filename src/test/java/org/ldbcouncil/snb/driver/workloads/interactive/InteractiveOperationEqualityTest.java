@@ -2,27 +2,7 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery1;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery10;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery11;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery12;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery13;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery2;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery3;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery4;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery5;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery6;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery7;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery8;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery9;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate1AddPerson;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate2AddPostLike;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate3AddCommentLike;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate4AddForum;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate5AddForumMembership;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate6AddPost;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate7AddComment;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate8AddFriendship;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.util.Date;
 import java.util.List;
