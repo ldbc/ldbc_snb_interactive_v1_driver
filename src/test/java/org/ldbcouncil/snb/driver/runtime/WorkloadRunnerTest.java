@@ -484,8 +484,6 @@ public class WorkloadRunnerTest
         }
     }
 
-    // TODO: Debug test: hangs during execution
-    @Ignore
     @Test
     public void shouldRunReadWriteLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,

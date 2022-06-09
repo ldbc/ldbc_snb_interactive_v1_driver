@@ -646,7 +646,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         // Merge two streams
         // mergeSortOperationsByScheduledStartTime or mergeSortOperationsByTimeStamp?
-        Iterator<Operation> operationStreams = gf.mergeSortOperationsByScheduledStartTime(personUpdateOperationsParser, forumUpdateOperationsParser);
+        Iterator<Operation> operationStreams = gf.mergeSortOperationsByTimeStamp(personUpdateOperationsParser, forumUpdateOperationsParser);
         List<Iterator<Operation>> operationIterators = new ArrayList<>();
         if (numThreads == 1)
         {
@@ -666,6 +666,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             int listIndex = index % numThreads;
             Operation operation = operationStreams.next();
             operationLists.get(listIndex).add(operation);
+            index++;
         }
 
         for (ArrayList<Operation> operationList : operationLists) {
