@@ -512,8 +512,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         case CHAR_SEEKER:
         {
             int bufferSize = 1 * 1024 * 1024;
-//                BufferedCharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader
-// (updateOperationsFile)), bufferSize);
             BufferedCharSeeker charSeeker = new BufferedCharSeeker(
                     Readables.wrap(
                             new InputStreamReader( new FileInputStream( updateOperationsFile ), Charsets.UTF_8 )
@@ -612,15 +610,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         Iterator<Operation> filteredUpdateOperations =
                 Iterators.filter( unfilteredUpdateOperations, enabledWriteOperationsFilter );
 
-        // ChildOperationGenerator updateChildOperationGenerator = null;
         operationStreamList.add(filteredUpdateOperations);
-        // workloadStream.addBlockingStream(
-        //         Sets.newHashSet(),
-        //         dependencyUpdateOperationTypes,
-        //         filteredUpdateOperations,
-        //         Collections.<Operation>emptyIterator(),
-        //         updateChildOperationGenerator
-        // );
         return workloadStartTimeAsMilli;
     }
 
