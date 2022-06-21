@@ -96,7 +96,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private Set<Class> enabledLongReadOperationTypes;
     private Set<Class> enabledShortReadOperationTypes;
     private Set<Class> enabledWriteOperationTypes;
-    private LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser parser;
 
     @Override
     public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
@@ -469,16 +468,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
             throw new WorkloadException( "Unable to parse one of the read operation interleave values", e );
         }
 
-        String parserString = params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_STREAM_PARSER );
-        if ( null == parserString )
-        {
-            parserString = LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_STREAM_PARSER.name();
-        }
-        if ( false == LdbcSnbInteractiveWorkloadConfiguration.isValidParser( parserString ) )
-        {
-            throw new WorkloadException( "Invalid parser: " + parserString );
-        }
-        this.parser = LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser.valueOf( parserString.trim() );
         this.compressionRatio = Double.parseDouble(
                 params.get( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG ).trim()
         );
@@ -498,20 +487,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
     }
 
-    private Tuple2<Iterator<Operation>,Closeable> fileToWriteStreamParser( File updateOperationsFile,
-            LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser parser ) throws IOException, WorkloadException
+    private Tuple2<Iterator<Operation>,Closeable> fileToWriteStreamParser( File updateOperationsFile ) throws IOException, WorkloadException
     {
-        switch ( parser )
-        {
-        case REGEX:
-        {
-            SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader( updateOperationsFile,
-                    SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
-            return Tuple.<Iterator<Operation>,Closeable>tuple2( WriteEventStreamReaderRegex.create( csvFileReader ),
-                    csvFileReader );
-        }
-        case CHAR_SEEKER:
-        {
             int bufferSize = 1 * 1024 * 1024;
             BufferedCharSeeker charSeeker = new BufferedCharSeeker(
                     Readables.wrap(
@@ -522,28 +499,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
             Extractors extractors = new Extractors( ';', ',' );
             return Tuple.<Iterator<Operation>,Closeable>tuple2(
                     WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, '|' ), charSeeker );
-        }
-        case CHAR_SEEKER_THREAD:
-        {
-            int bufferSize = 1 * 1024 * 1024;
-            BufferedCharSeeker charSeeker = new BufferedCharSeeker(
-                    ThreadAheadReadable.threadAhead(
-                            Readables.wrap(
-                                    new InputStreamReader( new FileInputStream( updateOperationsFile ), Charsets.UTF_8 )
-                            ),
-                            bufferSize
-                    ),
-                    bufferSize
-            );
-            Extractors extractors = new Extractors( ';', ',' );
-            return Tuple.<Iterator<Operation>,Closeable>tuple2(
-                    WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, '|' ), charSeeker );
-        }
-        }
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader( updateOperationsFile,
-                SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
-        return Tuple.<Iterator<Operation>,Closeable>tuple2( WriteEventStreamReaderRegex.create( csvFileReader ),
-                csvFileReader );
     }
 
     private Iterator<Operation> getUpdateOperationStream(File updateOperationStream) throws WorkloadException
@@ -552,7 +507,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         try
         {
             Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
-                    fileToWriteStreamParser( updateOperationStream, parser );
+                    fileToWriteStreamParser( updateOperationStream );
                     updateOperationsParser = parserAndCloseable._1();
             updateOperationsFileReaders.add( parserAndCloseable._2() );
         }
