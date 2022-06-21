@@ -18,6 +18,7 @@ import org.ldbcouncil.snb.driver.workloads.WorkloadTest;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationResultSets;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcNoResult;
 import org.junit.Test;
 
 import java.util.HashMap;

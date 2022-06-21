@@ -8,6 +8,7 @@ import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.DriverConfigurationException;
 import org.ldbcouncil.snb.driver.util.FileUtils;
 import org.ldbcouncil.snb.driver.util.MapUtils;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.io.File;
 import java.io.IOException;

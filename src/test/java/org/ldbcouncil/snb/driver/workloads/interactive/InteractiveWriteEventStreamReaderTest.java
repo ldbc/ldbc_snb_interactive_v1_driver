@@ -8,6 +8,14 @@ import org.ldbcouncil.snb.driver.csv.charseeker.Extractors;
 import org.ldbcouncil.snb.driver.csv.charseeker.Readables;
 import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileReader;
 import org.ldbcouncil.snb.driver.workloads.OperationTest;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate1AddPerson;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate2AddPostLike;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate3AddCommentLike;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate4AddForum;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate5AddForumMembership;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate6AddPost;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate7AddComment;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate8AddFriendship;
 import org.junit.Test;
 
 import java.io.BufferedReader;

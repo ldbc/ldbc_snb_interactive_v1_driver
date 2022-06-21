@@ -28,6 +28,7 @@ import org.ldbcouncil.snb.driver.util.ClassLoadingException;
 import org.ldbcouncil.snb.driver.util.MapUtils;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.io.Closeable;
 import java.io.File;

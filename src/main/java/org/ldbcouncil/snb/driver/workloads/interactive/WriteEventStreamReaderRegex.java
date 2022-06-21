@@ -6,6 +6,14 @@ import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.generator.CsvEventStreamReaderTimedTypedCsvReader;
 import org.ldbcouncil.snb.driver.generator.CsvEventStreamReaderTimedTypedCsvReader.EventDecoder;
 import org.ldbcouncil.snb.driver.util.Function1;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate1AddPerson;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate2AddPostLike;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate3AddCommentLike;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate4AddForum;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate5AddForumMembership;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate6AddPost;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate7AddComment;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcUpdate8AddFriendship;
 
 import java.util.ArrayList;
 import java.util.Date;
