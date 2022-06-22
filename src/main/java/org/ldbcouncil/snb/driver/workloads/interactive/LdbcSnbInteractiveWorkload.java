@@ -56,58 +56,37 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private List<File> personUpdateOperationFiles = new ArrayList<>();
 
     private List<Closeable> readOperationFileReaders = new ArrayList<>();
-    private File readOperation1File;
-    private File readOperation2File;
-    private File readOperation3File;
-    private File readOperation4File;
-    private File readOperation5File;
-    private File readOperation6File;
-    private File readOperation7File;
-    private File readOperation8File;
-    private File readOperation9File;
-    private File readOperation10File;
-    private File readOperation11File;
-    private File readOperation12File;
-    private File readOperation13File;
-    private File readOperation14File;
-
-    private long readOperation1InterleaveAsMilli;
-    private long readOperation2InterleaveAsMilli;
-    private long readOperation3InterleaveAsMilli;
-    private long readOperation4InterleaveAsMilli;
-    private long readOperation5InterleaveAsMilli;
-    private long readOperation6InterleaveAsMilli;
-    private long readOperation7InterleaveAsMilli;
-    private long readOperation8InterleaveAsMilli;
-    private long readOperation9InterleaveAsMilli;
-    private long readOperation10InterleaveAsMilli;
-    private long readOperation11InterleaveAsMilli;
-    private long readOperation12InterleaveAsMilli;
-    private long readOperation13InterleaveAsMilli;
-    private long readOperation14InterleaveAsMilli;
-
+    private Map<Integer,Long> longReadInterleavesAsMilli;
+    private File parametersDir;
     private long updateInterleaveAsMilli;
     private double compressionRatio;
     private double shortReadDissipationFactor;
+    private OperationMode operationMode;
     private int numThreads;
     private Set<Class> enabledLongReadOperationTypes;
     private Set<Class> enabledShortReadOperationTypes;
     private Set<Class> enabledWriteOperationTypes;
 
     @Override
-    public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
+    public Map<Integer, Class<? extends Operation>> operationTypeToClassMapping()
     {
         return LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping();
     }
+
+
 
     @Override
     public void onInit( Map<String,String> params ) throws WorkloadException
     {
         List<String> compulsoryKeys = Lists.newArrayList();
 
+        // Check operation mode, default is execute_benchmark
+        if (params.containsKey(ConsoleAndFileDriverConfiguration.MODE_ARG)){
+            operationMode = OperationMode.valueOf(params.get(ConsoleAndFileDriverConfiguration.MODE_ARG));
+        }
+
         // Validation mode does not require parameter directory
-        if (params.containsKey(ConsoleAndFileDriverConfiguration.MODE_ARG)
-            && OperationMode.valueOf(params.get(ConsoleAndFileDriverConfiguration.MODE_ARG)) != OperationMode.validate_database )
+        if (operationMode != OperationMode.validate_database )
         {
             compulsoryKeys.add( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY );
         }
@@ -126,7 +105,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         Set<String> missingPropertyParameters =
                 LdbcSnbInteractiveWorkloadConfiguration.missingParameters( params, compulsoryKeys );
-        if ( false == missingPropertyParameters.isEmpty() )
+        if ( !missingPropertyParameters.isEmpty() )
         {
             throw new WorkloadException( format( "Workload could not initialize due to missing parameters: %s",
                     missingPropertyParameters.toString() ) );
@@ -137,12 +116,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
             String updatesDirectoryPath =
                     params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY ).trim();
             File updatesDirectory = new File( updatesDirectoryPath );
-            if ( false == updatesDirectory.exists() )
+            if ( !updatesDirectory.exists() )
             {
                 throw new WorkloadException( format( "Updates directory does not exist\nDirectory: %s",
                         updatesDirectory.getAbsolutePath() ) );
             }
-            if ( false == updatesDirectory.isDirectory() )
+            if ( !updatesDirectory.isDirectory() )
             {
                 throw new WorkloadException( format( "Updates directory is not a directory\nDirectory: %s",
                         updatesDirectory.getAbsolutePath() ) );
@@ -157,53 +136,26 @@ public class LdbcSnbInteractiveWorkload extends Workload
             forumUpdateOperationFiles = new ArrayList<>();
             personUpdateOperationFiles = new ArrayList<>();
         }
-
-        File parametersDir =
-                new File( params.get( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY ).trim() );
-        if ( false == parametersDir.exists() )
+        if (operationMode != OperationMode.validate_database)
         {
-            throw new WorkloadException(
-                    format( "Parameters directory does not exist: %s", parametersDir.getAbsolutePath() ) );
-        }
-        for ( String readOperationParamsFilename :
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES )
-        {
-            File readOperationParamsFile = new File( parametersDir, readOperationParamsFilename );
-            if ( false == readOperationParamsFile.exists() )
+            parametersDir = new File( params.get( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY ).trim() );
+            if ( !parametersDir.exists() )
             {
                 throw new WorkloadException(
-                        format( "Read operation parameters file does not exist: %s",
-                                readOperationParamsFile.getAbsolutePath() ) );
+                        format( "Parameters directory does not exist: %s", parametersDir.getAbsolutePath() ) );
+            }
+            for ( String readOperationParamsFilename :
+                    LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES.values() )
+            {
+                File readOperationParamsFile = new File( parametersDir, readOperationParamsFilename );
+                if ( !readOperationParamsFile.exists() )
+                {
+                    throw new WorkloadException(
+                            format( "Read operation parameters file does not exist: %s",
+                                    readOperationParamsFile.getAbsolutePath() ) );
+                }
             }
         }
-        readOperation1File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_PARAMS_FILENAME );
-        readOperation2File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_PARAMS_FILENAME );
-        readOperation3File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_PARAMS_FILENAME );
-        readOperation4File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_PARAMS_FILENAME );
-        readOperation5File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_PARAMS_FILENAME );
-        readOperation7File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_PARAMS_FILENAME );
-        readOperation8File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_PARAMS_FILENAME );
-        readOperation9File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_PARAMS_FILENAME );
-        readOperation6File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_PARAMS_FILENAME );
-        readOperation10File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_PARAMS_FILENAME );
-        readOperation11File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_PARAMS_FILENAME );
-        readOperation12File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_PARAMS_FILENAME );
-        readOperation13File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_PARAMS_FILENAME );
-        readOperation14File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_PARAMS_FILENAME );
 
         enabledLongReadOperationTypes = new HashSet<>();
         for ( String longReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration
@@ -275,9 +227,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 );
             }
         }
-        if ( false == enabledShortReadOperationTypes.isEmpty() )
+        if ( !enabledShortReadOperationTypes.isEmpty() )
         {
-            if ( false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION ) )
+            if ( !params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION ) )
             {
                 throw new WorkloadException( format( "Configuration parameter missing: %s",
                         LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION ) );
@@ -391,7 +343,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 .missingParameters( params, frequencyKeys );
 
         if ( enabledWriteOperationTypes.isEmpty() &&
-             false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
+             !params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
         {
             // if UPDATE_INTERLEAVE is missing and writes are disabled set it to DEFAULT
             params.put(
@@ -399,7 +351,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                     LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE
             );
         }
-        if ( false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
+        if ( !params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
         {
             // if UPDATE_INTERLEAVE is missing but writes are enabled it is an error
             throw new WorkloadException(
@@ -421,7 +373,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                     params,
                     LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_INTERLEAVE_KEYS
             );
-            if ( false == missingInterleaveKeys.isEmpty() )
+            if ( !missingInterleaveKeys.isEmpty() )
             {
                 throw new WorkloadException( format(
                         "Workload could not initialize. One of the following groups of parameters should be set: %s " +
@@ -431,34 +383,22 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
         try
         {
-            readOperation1InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ).trim() );
-            readOperation2InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ).trim() );
-            readOperation3InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ).trim() );
-            readOperation4InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ).trim() );
-            readOperation5InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ).trim() );
-            readOperation6InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ).trim() );
-            readOperation7InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ).trim() );
-            readOperation8InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ).trim() );
-            readOperation9InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ).trim() );
-            readOperation10InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ).trim() );
-            readOperation11InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ).trim() );
-            readOperation12InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ).trim() );
-            readOperation13InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ).trim() );
-            readOperation14InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ).trim() );
+            longReadInterleavesAsMilli = new HashMap<>();
+            longReadInterleavesAsMilli.put( LdbcQuery1.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery2.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery3.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery4.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery5.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery6.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery7.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery8.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery9.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery10.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery11.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery12.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery13.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery14.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ).trim() ) );
+
         }
         catch ( NumberFormatException e )
         {
@@ -574,7 +514,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         long workloadStartTimeAsMilli = Long.MAX_VALUE;
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
         List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
-        List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
+        List<Iterator<?>> asynchronousNonDependencyStreamsList;// = new ArrayList<>();
         Set<Class<? extends Operation>> dependentAsynchronousOperationTypes = Sets.newHashSet();
         Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
 
@@ -692,11 +632,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         { workloadStartTimeAsMilli = 0; }
 
         /* *******
-         * *******
-         * *******
          *  LONG READS
-         * *******
-         * *******
          * *******/
 
          /*
@@ -710,78 +646,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
         catch (SQLException e){
             throw new WorkloadException(format("Error creating loader for operation streams %s", e));
         }
-        ReadOperationStream readOperationStream = new ReadOperationStream(gf, workloadStartTimeAsMilli, loader);
         
-        QueryEventStreamReader.EventDecoder<Operation> decoder1 = new QueryEventStreamReader.Query1Decoder();
-        Iterator<Operation> readOperation1Stream = readOperationStream.readOperationStream(decoder1, readOperation1InterleaveAsMilli, readOperation1File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder2 = new QueryEventStreamReader.Query2Decoder();
-        Iterator<Operation> readOperation2Stream = readOperationStream.readOperationStream(decoder2, readOperation2InterleaveAsMilli, readOperation2File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder3 = new QueryEventStreamReader.Query3Decoder();
-        Iterator<Operation> readOperation3Stream = readOperationStream.readOperationStream(decoder3, readOperation3InterleaveAsMilli, readOperation3File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder4 = new QueryEventStreamReader.Query4Decoder();
-        Iterator<Operation> readOperation4Stream = readOperationStream.readOperationStream(decoder4, readOperation4InterleaveAsMilli, readOperation4File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder5 = new QueryEventStreamReader.Query5Decoder();
-        Iterator<Operation> readOperation5Stream = readOperationStream.readOperationStream(decoder5, readOperation5InterleaveAsMilli, readOperation5File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder6 = new QueryEventStreamReader.Query6Decoder();
-        Iterator<Operation> readOperation6Stream = readOperationStream.readOperationStream(decoder6, readOperation6InterleaveAsMilli, readOperation6File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder7 = new QueryEventStreamReader.Query7Decoder();
-        Iterator<Operation> readOperation7Stream = readOperationStream.readOperationStream(decoder7, readOperation7InterleaveAsMilli, readOperation7File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder8 = new QueryEventStreamReader.Query8Decoder();
-        Iterator<Operation> readOperation8Stream = readOperationStream.readOperationStream(decoder8, readOperation8InterleaveAsMilli, readOperation8File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder9 = new QueryEventStreamReader.Query9Decoder();
-        Iterator<Operation> readOperation9Stream = readOperationStream.readOperationStream(decoder9, readOperation9InterleaveAsMilli, readOperation9File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder10 = new QueryEventStreamReader.Query10Decoder();
-        Iterator<Operation> readOperation10Stream = readOperationStream.readOperationStream(decoder10, readOperation10InterleaveAsMilli, readOperation10File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder11 = new QueryEventStreamReader.Query11Decoder();
-        Iterator<Operation> readOperation11Stream = readOperationStream.readOperationStream(decoder11, readOperation11InterleaveAsMilli, readOperation11File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder12 = new QueryEventStreamReader.Query12Decoder();
-        Iterator<Operation> readOperation12Stream = readOperationStream.readOperationStream(decoder12, readOperation12InterleaveAsMilli, readOperation12File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder13 = new QueryEventStreamReader.Query13Decoder();
-        Iterator<Operation> readOperation13Stream = readOperationStream.readOperationStream(decoder13, readOperation13InterleaveAsMilli, readOperation13File);
-
-        QueryEventStreamReader.EventDecoder<Operation> decoder14 = new QueryEventStreamReader.Query14Decoder();
-        Iterator<Operation> readOperation14Stream = readOperationStream.readOperationStream(decoder14, readOperation14InterleaveAsMilli, readOperation14File);
-
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery1.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation1Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery2.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation2Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery3.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation3Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery4.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation4Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery5.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation5Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery6.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation6Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery7.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation7Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery8.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation8Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery9.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation9Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery10.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation10Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery11.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation11Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery12.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation12Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery13.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation13Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery14.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation14Stream ); }
+        asynchronousNonDependencyStreamsList = getOperationStreams(gf, workloadStartTimeAsMilli, loader);
 
         /*
          * Merge all dependency asynchronous operation streams, ordered by operation start times
@@ -806,22 +672,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         ChildOperationGenerator shortReadsChildGenerator = null;
         if (!enabledShortReadOperationTypes.isEmpty() )
         {
-            Map<Integer,Long> longReadInterleavesAsMilli = new HashMap<>();
-            longReadInterleavesAsMilli.put( LdbcQuery1.TYPE, readOperation1InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery2.TYPE, readOperation2InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery3.TYPE, readOperation3InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery4.TYPE, readOperation4InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery5.TYPE, readOperation5InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery6.TYPE, readOperation6InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery7.TYPE, readOperation7InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery8.TYPE, readOperation8InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery9.TYPE, readOperation9InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery10.TYPE, readOperation10InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery11.TYPE, readOperation11InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery12.TYPE, readOperation12InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery13.TYPE, readOperation13InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery14.TYPE, readOperation14InterleaveAsMilli );
-
             RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( 42l );
             double initialProbability = 1.0;
             Queue<Long> personIdBuffer = (hasDbConnected)
@@ -871,6 +721,41 @@ public class LdbcSnbInteractiveWorkload extends Workload
         );
 
         return ldbcSnbInteractiveWorkloadStreams;
+    }
+
+    /**
+     * Get the operation streams (substitution parameters)
+     * @param gf Generator factory to use 
+     * @param workloadStartTimeAsMilli The workloadStartTimeAsMilli
+     * @param loader Loader to open the csv files
+     * @return List of operation streams
+     * @throws WorkloadException
+     */
+    private List<Iterator<?>> getOperationStreams(
+        GeneratorFactory gf,
+        long workloadStartTimeAsMilli,
+        CsvLoader loader
+    ) throws WorkloadException
+    {
+        List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
+         /*
+         * Create read operation streams, with specified interleaves
+         */
+        
+        ReadOperationStream readOperationStream = new ReadOperationStream(gf, workloadStartTimeAsMilli, loader);
+        Map<Integer, QueryEventStreamReader.EventDecoder<Operation>> decoders = QueryEventStreamReader.getDecoders();
+        Map<Class<? extends Operation>, Integer> classToTypeMap = MapUtils.invertMap(operationTypeToClassMapping());
+        for (Class enabledClass : enabledLongReadOperationTypes) {
+            Integer type = classToTypeMap.get( enabledClass );
+            Iterator<Operation> eventOperationStream = readOperationStream.readOperationStream(
+                decoders.get(type),
+                longReadInterleavesAsMilli.get( type ),
+                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES.get( type ))
+            );
+            asynchronousNonDependencyStreamsList.add( eventOperationStream );
+        }
+
+        return asynchronousNonDependencyStreamsList;
     }
 
     /**
