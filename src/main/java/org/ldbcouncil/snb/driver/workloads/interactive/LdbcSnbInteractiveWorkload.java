@@ -20,6 +20,7 @@ import org.ldbcouncil.snb.driver.csv.charseeker.Extractors;
 import org.ldbcouncil.snb.driver.csv.charseeker.Readables;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
+import org.ldbcouncil.snb.driver.generator.EventStreamReader;
 import org.ldbcouncil.snb.driver.util.ClassLoaderHelper;
 import org.ldbcouncil.snb.driver.util.ClassLoadingException;
 import org.ldbcouncil.snb.driver.util.MapUtils;
@@ -517,19 +518,88 @@ public class LdbcSnbInteractiveWorkload extends Workload
         Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
 
         /* *******
-         * *******
          *  WRITES
          * *******/
 
          /*
          * Create person write operation streams
          */
+        workloadStartTimeAsMilli = setUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams);
 
+        if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
+        {
+            workloadStartTimeAsMilli = 0;
+        }
+
+        /* *******
+         *  LONG READS
+         * *******/
+
+         /*
+         * Create read operation streams, with specified interleaves
+         */
+        CsvLoader loader;
+        try {
+            DuckDbConnectionState db = new DuckDbConnectionState();
+            loader = new CsvLoader(db);
+        }
+        catch (SQLException e){
+            throw new WorkloadException(format("Error creating loader for operation streams %s", e));
+        }
+        
+        asynchronousNonDependencyStreamsList = getOperationStreams(gf, workloadStartTimeAsMilli, loader);
+
+        /*
+         * Merge all dependency asynchronous operation streams, ordered by operation start times
+         */
+        Iterator<Operation> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
+                asynchronousDependencyStreamsList.toArray( new Iterator[asynchronousDependencyStreamsList.size()] )
+        );
+        /*
+         * Merge all non dependency asynchronous operation streams, ordered by operation start times
+         */
+        Iterator<Operation> asynchronousNonDependencyStreams = gf.mergeSortOperationsByTimeStamp(
+                asynchronousNonDependencyStreamsList
+                        .toArray( new Iterator[asynchronousNonDependencyStreamsList.size()] )
+        );
+
+        /* *******
+         *  SHORT READS
+         * *******/
+
+        ChildOperationGenerator shortReadsChildGenerator = null;
+        if ( !enabledShortReadOperationTypes.isEmpty() )
+        {
+            shortReadsChildGenerator = getShortReadGenerator(hasDbConnected);
+        }
+
+        /* **************
+         * **************
+         *  FINAL STREAMS
+         * **************
+         * **************/
+
+        ldbcSnbInteractiveWorkloadStreams.setAsynchronousStream(
+                dependentAsynchronousOperationTypes,
+                dependencyAsynchronousOperationTypes,
+                asynchronousDependencyStreams,
+                asynchronousNonDependencyStreams,
+                shortReadsChildGenerator
+        );
+
+        return ldbcSnbInteractiveWorkloadStreams;
+    }
+
+    private long setUpdateStreams(
+        GeneratorFactory gf,
+        long workloadStartTimeAsMilli,
+        WorkloadStreams ldbcSnbInteractiveWorkloadStreams
+    ) throws WorkloadException
+    {
         ArrayList<Iterator<Operation>> listOfOperationStreams = new ArrayList<>();
 
         Set<Class<? extends Operation>> dependencyUpdateOperationTypes =
         Sets.<Class<? extends Operation>>newHashSet();
-
 
         if ( enabledWriteOperationTypes.contains( LdbcUpdate1AddPerson.class ) )
         {
@@ -625,68 +695,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
         }
 
-        if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
-        { workloadStartTimeAsMilli = 0; }
-
-        /* *******
-         *  LONG READS
-         * *******/
-
-         /*
-         * Create read operation streams, with specified interleaves
-         */
-        CsvLoader loader;
-        try {
-            DuckDbConnectionState db = new DuckDbConnectionState();
-            loader = new CsvLoader(db);
-        }
-        catch (SQLException e){
-            throw new WorkloadException(format("Error creating loader for operation streams %s", e));
-        }
-        
-        asynchronousNonDependencyStreamsList = getOperationStreams(gf, workloadStartTimeAsMilli, loader);
-
-        /*
-         * Merge all dependency asynchronous operation streams, ordered by operation start times
-         */
-        Iterator<Operation> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
-                asynchronousDependencyStreamsList.toArray( new Iterator[asynchronousDependencyStreamsList.size()] )
-        );
-        /*
-         * Merge all non dependency asynchronous operation streams, ordered by operation start times
-         */
-        Iterator<Operation> asynchronousNonDependencyStreams = gf.mergeSortOperationsByTimeStamp(
-                asynchronousNonDependencyStreamsList
-                        .toArray( new Iterator[asynchronousNonDependencyStreamsList.size()] )
-        );
-
-        /* *******
-         * *******
-         *  SHORT READS
-         * *******
-         * *******/
-
-        ChildOperationGenerator shortReadsChildGenerator = null;
-        if ( !enabledShortReadOperationTypes.isEmpty() )
-        {
-            shortReadsChildGenerator = getShortReadGenerator(hasDbConnected);
-        }
-
-        /* **************
-         * **************
-         *  FINAL STREAMS
-         * **************
-         * **************/
-
-        ldbcSnbInteractiveWorkloadStreams.setAsynchronousStream(
-                dependentAsynchronousOperationTypes,
-                dependencyAsynchronousOperationTypes,
-                asynchronousDependencyStreams,
-                asynchronousNonDependencyStreams,
-                shortReadsChildGenerator
-        );
-
-        return ldbcSnbInteractiveWorkloadStreams;
+        return workloadStartTimeAsMilli;
     }
 
     /**
@@ -751,7 +760,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
          * Create read operation streams, with specified interleaves
          */
         ReadOperationStream readOperationStream = new ReadOperationStream(gf, workloadStartTimeAsMilli, loader);
-        Map<Integer, QueryEventStreamReader.EventDecoder<Operation>> decoders = QueryEventStreamReader.getDecoders();
+        Map<Integer, EventStreamReader.EventDecoder<Operation>> decoders = QueryEventStreamReader.getDecoders();
         Map<Class<? extends Operation>, Integer> classToTypeMap = MapUtils.invertMap(operationTypeToClassMapping());
         for (Class enabledClass : enabledLongReadOperationTypes) {
             Integer type = classToTypeMap.get( enabledClass );

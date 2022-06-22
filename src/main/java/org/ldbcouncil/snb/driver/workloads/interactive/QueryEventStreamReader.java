@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.ldbcouncil.snb.driver.Operation;
+import org.ldbcouncil.snb.driver.generator.EventStreamReader.EventDecoder;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
@@ -200,7 +201,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         }
     }
 
-    public static class Query6Decoder implements QueryEventStreamReader.EventDecoder<Operation>
+    public static class Query6Decoder implements EventDecoder<Operation>
     {
         /**
          * @param rs: Resultset object containing the row to decode
@@ -226,7 +227,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         }
     }
 
-    public static class Query7Decoder implements QueryEventStreamReader.EventDecoder<Operation>
+    public static class Query7Decoder implements EventDecoder<Operation>
     {
         /**
          * @param rs: Resultset object containing the row to decode
@@ -428,11 +429,5 @@ public class QueryEventStreamReader implements Iterator<Operation>{
                 throw new WorkloadException(format("Error while decoding ResultSet for Query14Event: %s", e));
             }
         }
-    }
-
-    public interface EventDecoder<BASE_EVENT_TYPE>
-    {
-        BASE_EVENT_TYPE decodeEvent( ResultSet rs )
-                throws WorkloadException;
     }
 }
