@@ -15,29 +15,24 @@ import static java.lang.String.format;
 
 public class Query4EventStreamReader implements Iterator<Operation>
 {
-    private final Iterator<Object[]> csvRows;
+    private final Iterator<Operation> objectArray;
 
-    public Query4EventStreamReader( Iterator<Object[]> csvRows )
+    public Query4EventStreamReader( Iterator<Operation> objectArray )
     {
-        this.csvRows = csvRows;
+        this.objectArray = objectArray;
     }
 
     @Override
     public boolean hasNext()
     {
-        return csvRows.hasNext();
+        return objectArray.hasNext();
     }
 
     @Override
     public Operation next()
     {
-        Object[] rowAsObjects = csvRows.next();
-        Operation operation = new LdbcQuery4(
-                (long) rowAsObjects[0],
-                (Date) rowAsObjects[1],
-                (int) rowAsObjects[2],
-                LdbcQuery4.DEFAULT_LIMIT
-        );
+        LdbcQuery4 query = (LdbcQuery4) objectArray.next();
+        Operation operation = new LdbcQuery4(query);
         operation.setDependencyTimeStamp( 0 );
         return operation;
     }
@@ -47,7 +42,8 @@ public class Query4EventStreamReader implements Iterator<Operation>
     {
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
-    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Object[]>
+
+    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Operation>
     {
     //     personId|startDate|durationDays
     //     15393164964332|1349049600|34
@@ -57,14 +53,19 @@ public class Query4EventStreamReader implements Iterator<Operation>
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
-        public Object[] decodeEvent( ResultSet rs ) throws WorkloadException
+        public Operation decodeEvent( ResultSet rs ) throws WorkloadException
         {
             try
             {
                 long personId = rs.getLong(1);
                 Date startDate = new Date(rs.getLong(2));
                 int durationDays = rs.getInt(3);
-                return new Object[]{personId, startDate, durationDays};
+                return new LdbcQuery4(
+                    personId,
+                    startDate,
+                    durationDays,
+                    LdbcQuery4.DEFAULT_LIMIT
+            );
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));

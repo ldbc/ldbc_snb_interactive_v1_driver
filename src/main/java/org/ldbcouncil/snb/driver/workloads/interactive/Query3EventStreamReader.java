@@ -15,31 +15,24 @@ import static java.lang.String.format;
 
 public class Query3EventStreamReader implements Iterator<Operation>
 {
-    private final Iterator<Object[]> csvRows;
+    private final Iterator<Operation> objectArray;
 
-    public Query3EventStreamReader( Iterator<Object[]> csvRows )
+    public Query3EventStreamReader( Iterator<Operation> objectArray )
     {
-        this.csvRows = csvRows;
+        this.objectArray = objectArray;
     }
 
     @Override
     public boolean hasNext()
     {
-        return csvRows.hasNext();
+        return objectArray.hasNext();
     }
 
     @Override
     public Operation next()
     {
-        Object[] rowAsObjects = csvRows.next();
-        Operation operation = new LdbcQuery3(
-                (long) rowAsObjects[0],
-                (String) rowAsObjects[3],
-                (String) rowAsObjects[4],
-                (Date) rowAsObjects[1],
-                (int) rowAsObjects[2],
-                LdbcQuery3.DEFAULT_LIMIT
-        );
+        LdbcQuery3 query = (LdbcQuery3) objectArray.next();
+        Operation operation = new LdbcQuery3(query);
         operation.setDependencyTimeStamp( 0 );
         return operation;
     }
@@ -50,10 +43,11 @@ public class Query3EventStreamReader implements Iterator<Operation>
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
 
+
     /**
      * Inner class used for decoding Resultset data for query 3 parameters.
      */
-    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Object[]>
+    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Operation>
     {
     //     personId|startDate|durationDays|countryXName|countryYName
     //     7696581543848|1293840000|28|Egypt|Sri_Lanka
@@ -64,7 +58,7 @@ public class Query3EventStreamReader implements Iterator<Operation>
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
-        public Object[] decodeEvent( ResultSet rs ) throws WorkloadException
+        public Operation decodeEvent( ResultSet rs ) throws WorkloadException
         {
             try
             {
@@ -73,7 +67,14 @@ public class Query3EventStreamReader implements Iterator<Operation>
                 int durationDays = rs.getInt(3);
                 String countryXName = rs.getString(4);
                 String countryYName = rs.getString(5);
-                return new Object[]{personId, maxDate, durationDays, countryXName, countryYName};
+                return new LdbcQuery3(
+                    personId,
+                    countryXName,
+                    countryYName,
+                    maxDate,
+                    durationDays,
+                    LdbcQuery3.DEFAULT_LIMIT
+            );
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));

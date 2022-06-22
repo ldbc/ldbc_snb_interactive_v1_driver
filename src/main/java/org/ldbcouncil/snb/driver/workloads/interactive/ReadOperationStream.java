@@ -34,12 +34,12 @@ public class ReadOperationStream {
 
     public Iterator<Operation> readOperationStream(
         Class evenStreamReaderClass,
-        QueryEventStreamReader.EventDecoder<Object[]> decoder,
+        QueryEventStreamReader.EventDecoder<Operation> decoder,
         long readOperationInterleaveAsMilli,
         File readOperationFile
     ) throws WorkloadException
     {
-        Iterator<Object[]> opStream;
+        Iterator<Operation> opStream;
 
         try {
             opStream = loader.loadOperationStream(readOperationFile.getAbsolutePath(), columnDelimiter, decoder);

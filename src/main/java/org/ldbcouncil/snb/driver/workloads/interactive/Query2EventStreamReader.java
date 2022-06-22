@@ -14,28 +14,24 @@ import static java.lang.String.format;
 
 public class Query2EventStreamReader implements Iterator<Operation>
 {
-    private final Iterator<Object[]> eventArray;
+    private final Iterator<Operation> objectArray;
 
-    public Query2EventStreamReader( Iterator<Object[]> eventArray )
+    public Query2EventStreamReader( Iterator<Operation> objectArray )
     {
-        this.eventArray = eventArray;
+        this.objectArray = objectArray;
     }
 
     @Override
     public boolean hasNext()
     {
-        return eventArray.hasNext();
+        return objectArray.hasNext();
     }
 
     @Override
     public Operation next()
     {
-        Object[] rowAsObjects = eventArray.next();
-        Operation operation = new LdbcQuery2(
-                (long) rowAsObjects[0],
-                (Date) rowAsObjects[1],
-                LdbcQuery2.DEFAULT_LIMIT
-        );
+        LdbcQuery2 query = (LdbcQuery2) objectArray.next();
+        Operation operation = new LdbcQuery2(query);
         operation.setDependencyTimeStamp( 0 );
         return operation;
     }
@@ -45,10 +41,11 @@ public class Query2EventStreamReader implements Iterator<Operation>
     {
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
+
    /**
      * Inner class used for decoding Resultset data for query 2 parameters.
      */
-    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Object[]>
+    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Operation>
     {
         // personId|maxDate
         // 1236219|1335225600
@@ -59,13 +56,17 @@ public class Query2EventStreamReader implements Iterator<Operation>
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
-        public Object[] decodeEvent( ResultSet rs ) throws WorkloadException
+        public Operation decodeEvent( ResultSet rs ) throws WorkloadException
         {
             try {
                 long personId = rs.getLong(1);
                 // Dates are stored as long in the operation streams.
                 Date maxDate = new Date(rs.getLong(2));
-                return new Object[]{personId, maxDate};
+                return new LdbcQuery2(
+                    personId,
+                    maxDate,
+                    LdbcQuery2.DEFAULT_LIMIT
+            );
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query2Event: %s", e));

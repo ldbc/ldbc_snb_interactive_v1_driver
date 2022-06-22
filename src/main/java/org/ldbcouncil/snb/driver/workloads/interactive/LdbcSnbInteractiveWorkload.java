@@ -583,13 +583,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         /* *******
          * *******
-         * *******
          *  WRITES
-         * *******
-         * *******
          * *******/
 
-        // TODO put person/forum update stream pairs into same streams, to half required thread count
          /*
          * Create person write operation streams
          */
@@ -624,7 +620,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
              enabledWriteOperationTypes.contains( LdbcUpdate6AddPost.class ) ||
              enabledWriteOperationTypes.contains( LdbcUpdate7AddComment.class ) ||
              enabledWriteOperationTypes.contains( LdbcUpdate8AddFriendship.class )
-                )
+        )
         {
             for ( File forumUpdateOperationFile : forumUpdateOperationFiles )
             {
@@ -719,46 +715,46 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
         ReadOperationStream readOperationStream = new ReadOperationStream(gf, workloadStartTimeAsMilli, loader);
         
-        QueryEventStreamReader.EventDecoder<Object[]> decoder1 = new Query1EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder1 = new Query1EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation1Stream = readOperationStream.readOperationStream(Query1EventStreamReader.class, decoder1, readOperation1InterleaveAsMilli, readOperation1File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder2 = new Query2EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder2 = new Query2EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation2Stream = readOperationStream.readOperationStream(Query2EventStreamReader.class, decoder2, readOperation2InterleaveAsMilli, readOperation2File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder3 = new Query3EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder3 = new Query3EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation3Stream = readOperationStream.readOperationStream(Query3EventStreamReader.class, decoder3, readOperation3InterleaveAsMilli, readOperation3File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder4 = new Query4EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder4 = new Query4EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation4Stream = readOperationStream.readOperationStream(Query4EventStreamReader.class, decoder4, readOperation4InterleaveAsMilli, readOperation4File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder5 = new Query5EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder5 = new Query5EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation5Stream = readOperationStream.readOperationStream(Query5EventStreamReader.class, decoder5, readOperation5InterleaveAsMilli, readOperation5File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder6 = new Query6EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder6 = new Query6EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation6Stream = readOperationStream.readOperationStream(Query6EventStreamReader.class, decoder6, readOperation6InterleaveAsMilli, readOperation6File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder7 = new Query7EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder7 = new Query7EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation7Stream = readOperationStream.readOperationStream(Query7EventStreamReader.class, decoder7, readOperation7InterleaveAsMilli, readOperation7File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder8 = new Query8EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder8 = new Query8EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation8Stream = readOperationStream.readOperationStream(Query8EventStreamReader.class, decoder8, readOperation8InterleaveAsMilli, readOperation8File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder9 = new Query9EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder9 = new Query9EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation9Stream = readOperationStream.readOperationStream(Query9EventStreamReader.class, decoder9, readOperation9InterleaveAsMilli, readOperation9File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder10 = new Query10EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder10 = new Query10EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation10Stream = readOperationStream.readOperationStream(Query10EventStreamReader.class, decoder10, readOperation10InterleaveAsMilli, readOperation10File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder11 = new Query11EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder11 = new Query11EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation11Stream = readOperationStream.readOperationStream(Query11EventStreamReader.class, decoder11, readOperation11InterleaveAsMilli, readOperation11File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder12 = new Query12EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder12 = new Query12EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation12Stream = readOperationStream.readOperationStream(Query12EventStreamReader.class, decoder12, readOperation12InterleaveAsMilli, readOperation12File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder13 = new Query13EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder13 = new Query13EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation13Stream = readOperationStream.readOperationStream(Query13EventStreamReader.class, decoder13, readOperation13InterleaveAsMilli, readOperation13File);
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder14 = new Query14EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder14 = new Query14EventStreamReader.QueryDecoder();
         Iterator<Operation> readOperation14Stream = readOperationStream.readOperationStream(Query14EventStreamReader.class, decoder14, readOperation14InterleaveAsMilli, readOperation14File);
 
         if ( enabledLongReadOperationTypes.contains( LdbcQuery1.class ) )
@@ -811,7 +807,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
          * *******/
 
         ChildOperationGenerator shortReadsChildGenerator = null;
-        if ( false == enabledShortReadOperationTypes.isEmpty() )
+        if (!enabledShortReadOperationTypes.isEmpty() )
         {
             Map<Integer,Long> longReadInterleavesAsMilli = new HashMap<>();
             longReadInterleavesAsMilli.put( LdbcQuery1.TYPE, readOperation1InterleaveAsMilli );

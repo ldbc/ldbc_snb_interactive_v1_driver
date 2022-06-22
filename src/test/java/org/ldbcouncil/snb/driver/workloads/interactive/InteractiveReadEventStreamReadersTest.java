@@ -75,9 +75,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(14293651244033l)
             .thenReturn(6597070008725l)
             .thenReturn(2199023331001l);
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query1EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query1EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
 
         // Act
         Iterator<Operation> reader = new Query1EventStreamReader(
@@ -122,9 +122,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(DATE_FORMAT.parse( "2013-01-28" ).getTime())
             .thenReturn(DATE_FORMAT.parse( "2013-02-2" ).getTime())
             .thenReturn(DATE_FORMAT.parse( "2013-10-16" ).getTime());
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query2EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query2EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -177,9 +177,9 @@ public class InteractiveReadEventStreamReadersTest
         when(rs.getInt(3)).thenReturn(53).thenReturn(64).thenReturn(58).thenReturn(53);
         when(rs.getString(4)).thenReturn("Taiwan").thenReturn("Nicaragua").thenReturn("Colombia").thenReturn("Lithuania");
         when(rs.getString(5)).thenReturn("Bulgaria").thenReturn("Afghanistan").thenReturn("Lithuania").thenReturn("Afghanistan");
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query3EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query3EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         // Act
@@ -247,9 +247,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(36)
             .thenReturn(57)
             .thenReturn(81);
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query4EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query4EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         // Act
@@ -306,9 +306,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(DATE_FORMAT.parse( "2012-12-14" ).getTime())
             .thenReturn(DATE_FORMAT.parse( "2012-12-12" ).getTime());
 
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query5EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query5EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -363,9 +363,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(979201l)
             .thenReturn(129891l)
             .thenReturn(13194140498760l);
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query6EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query6EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
 
         // Act
         Iterator<Operation> reader = new Query6EventStreamReader(
@@ -405,9 +405,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(14293651330072l)
             .thenReturn(4398047140913l)
             .thenReturn(13194140823804l);
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query7EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query7EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         // Act
         Iterator<Operation> reader = new Query7EventStreamReader(
             opStream
@@ -442,9 +442,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(15393163594341l)
             .thenReturn(7696582593995l)
             .thenReturn(15393162809578l);
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query8EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query8EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         // Act
         Iterator<Operation> reader = new Query8EventStreamReader(
             opStream
@@ -483,9 +483,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(DATE_FORMAT.parse( "2011-11-19" ).getTime())
             .thenReturn(DATE_FORMAT.parse( "2011-11-20" ).getTime())
             .thenReturn(DATE_FORMAT.parse( "2011-12-1" ).getTime());
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query9EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query9EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         // Act
@@ -538,9 +538,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(979201l)
             .thenReturn(129891l)
             .thenReturn(13194140498760l);
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query10EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query10EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
 
         // Act
         Iterator<Operation> reader = new Query10EventStreamReader(
@@ -591,9 +591,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(979201l)
             .thenReturn(129891l)
             .thenReturn(13194140498760l);
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query11EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query11EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
 
         // Act
         Iterator<Operation> reader = new Query11EventStreamReader(
@@ -642,9 +642,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(9895606011404l)
             .thenReturn(14293651244033l)
             .thenReturn(13194139602632l);
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query12EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query12EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
 
         // Act
         Iterator<Operation> reader = new Query12EventStreamReader(
@@ -689,9 +689,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(95384l)
             .thenReturn(9895606000517l)
             .thenReturn(7696582276748l);
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query13EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query13EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         // Act
         Iterator<Operation> reader = new Query13EventStreamReader(
             opStream
@@ -735,9 +735,9 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(1277748l)
             .thenReturn(6597069967720l)
             .thenReturn(3298534975254l);
-        QueryEventStreamReader.EventDecoder<Object[]> decoder = new Query14EventStreamReader.QueryDecoder();
+        QueryEventStreamReader.EventDecoder<Operation> decoder = new Query14EventStreamReader.QueryDecoder();
         CsvLoader loader = new CsvLoader(db);
-        Iterator<Object[]> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
 
         // Act
         Iterator<Operation> reader = new Query14EventStreamReader(

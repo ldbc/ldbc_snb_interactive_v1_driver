@@ -14,9 +14,9 @@ import static java.lang.String.format;
 
 public class Query1EventStreamReader implements Iterator<Operation>
 {
-    private final Iterator<Object[]> objectArray;
+    private final Iterator<Operation> objectArray;
 
-    public Query1EventStreamReader( Iterator<Object[]> objectArray )
+    public Query1EventStreamReader( Iterator<Operation> objectArray )
     {
         this.objectArray = objectArray;
     }
@@ -30,12 +30,8 @@ public class Query1EventStreamReader implements Iterator<Operation>
     @Override
     public Operation next()
     {
-        Object[] rowAsObjects = objectArray.next();
-        Operation operation = new LdbcQuery1(
-                (long) rowAsObjects[0],
-                (String) rowAsObjects[1],
-                LdbcQuery1.DEFAULT_LIMIT
-        );
+        LdbcQuery1 query = (LdbcQuery1) objectArray.next();
+        Operation operation = new LdbcQuery1(query);
         operation.setDependencyTimeStamp( 0 );
         return operation;
     }
@@ -49,7 +45,7 @@ public class Query1EventStreamReader implements Iterator<Operation>
     /**
      * Inner class used for decoding Resultset data for query 1 parameters.
      */
-    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Object[]>
+    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Operation>
     {
         // personId|firstName
         // 2199032251700|Andrea
@@ -60,13 +56,17 @@ public class Query1EventStreamReader implements Iterator<Operation>
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
-        public Object[] decodeEvent( ResultSet rs ) throws WorkloadException
+        public Operation decodeEvent( ResultSet rs ) throws WorkloadException
         {
             try
             {
                 long personId = rs.getLong(1);
                 String personName = rs.getString(2);
-                return new Object[]{personId, personName};
+                return new LdbcQuery1(
+                    personId,
+                    personName,
+                        LdbcQuery1.DEFAULT_LIMIT
+                );
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));

@@ -14,29 +14,24 @@ import static java.lang.String.format;
 
 public class Query11EventStreamReader implements Iterator<Operation>
 {
-    private final Iterator<Object[]> csvRows;
+    private final Iterator<Operation> objectArray;
 
-    public Query11EventStreamReader( Iterator<Object[]> csvRows )
+    public Query11EventStreamReader( Iterator<Operation> objectArray )
     {
-        this.csvRows = csvRows;
+        this.objectArray = objectArray;
     }
 
     @Override
     public boolean hasNext()
     {
-        return csvRows.hasNext();
+        return objectArray.hasNext();
     }
 
     @Override
     public Operation next()
     {
-        Object[] rowAsObjects = csvRows.next();
-        Operation operation = new LdbcQuery11(
-                (long) rowAsObjects[0],
-                (String) rowAsObjects[1],
-                (int) rowAsObjects[2],
-                LdbcQuery11.DEFAULT_LIMIT
-        );
+        LdbcQuery11 query = (LdbcQuery11) objectArray.next();
+        Operation operation = new LdbcQuery11(query);
         operation.setDependencyTimeStamp( 0 );
         return operation;
     }
@@ -47,7 +42,8 @@ public class Query11EventStreamReader implements Iterator<Operation>
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
 
-    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Object[]>
+
+    public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Operation>
     {
         /**
          * @param rs: Resultset object containing the row to decode
@@ -55,14 +51,19 @@ public class Query11EventStreamReader implements Iterator<Operation>
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
-        public Object[] decodeEvent( ResultSet rs ) throws WorkloadException
+        public Operation decodeEvent( ResultSet rs ) throws WorkloadException
         {
             try
             {
                 long personId = rs.getLong(1);
                 String countryName = rs.getString(2);
                 int workFromYear = rs.getInt(3);
-                return new Object[]{personId, countryName, workFromYear};
+                return new LdbcQuery11(
+                    personId,
+                    countryName,
+                    workFromYear,
+                    LdbcQuery11.DEFAULT_LIMIT
+            );
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));

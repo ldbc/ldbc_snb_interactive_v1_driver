@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.generator.QueryEventStreamReader;
 
@@ -26,16 +27,16 @@ public class CsvLoader {
         this.db = db;
     }
 
-    public Iterator<Object[]> loadOperationStream(String path, char delimiter, QueryEventStreamReader.EventDecoder<Object[]> decoder) throws WorkloadException, SQLException
+    public Iterator<Operation> loadOperationStream(String path, char delimiter, QueryEventStreamReader.EventDecoder<Operation> decoder) throws WorkloadException, SQLException
     {
         Statement stmt = null;
-        List<Object[]> results = new ArrayList<>();
+        List<Operation> results = new ArrayList<>();
         try {
             Connection connection = db.getConnection();
             stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM read_csv_auto('" + path +"', delim = '" +delimiter+"', header=True);");
             while (rs.next()) {
-                Object[] obj = decoder.decodeEvent(rs);
+                Operation obj = decoder.decodeEvent(rs);
                 results.add(obj);
             }
             rs.close();
