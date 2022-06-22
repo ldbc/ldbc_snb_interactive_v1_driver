@@ -3,7 +3,9 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
@@ -39,6 +41,25 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     public void remove()
     {
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
+    }
+
+    public static Map<Integer, EventDecoder<Operation>> getDecoders(){
+        Map<Integer, EventDecoder<Operation>> decoders = new HashMap<>();
+        decoders.put(LdbcQuery1.TYPE, new Query1Decoder());
+        decoders.put(LdbcQuery2.TYPE, new Query2Decoder());
+        decoders.put(LdbcQuery3.TYPE, new Query3Decoder());
+        decoders.put(LdbcQuery4.TYPE, new Query4Decoder());
+        decoders.put(LdbcQuery5.TYPE, new Query5Decoder());
+        decoders.put(LdbcQuery6.TYPE, new Query6Decoder());
+        decoders.put(LdbcQuery7.TYPE, new Query7Decoder());
+        decoders.put(LdbcQuery8.TYPE, new Query8Decoder());
+        decoders.put(LdbcQuery9.TYPE, new Query9Decoder());
+        decoders.put(LdbcQuery10.TYPE, new Query10Decoder());
+        decoders.put(LdbcQuery11.TYPE, new Query11Decoder());
+        decoders.put(LdbcQuery12.TYPE, new Query12Decoder());
+        decoders.put(LdbcQuery13.TYPE, new Query13Decoder());
+        decoders.put(LdbcQuery14.TYPE, new Query14Decoder());
+        return decoders;
     }
 
     public static class Query1Decoder implements EventDecoder<Operation>
