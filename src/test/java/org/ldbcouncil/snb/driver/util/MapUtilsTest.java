@@ -357,7 +357,7 @@ public class MapUtilsTest
         expectedMap.put( 20l, 2 );
 
         // When
-        Map<Long,Integer> computedMap = MapUtils.UNSAFE_switchKeysAndValues( originalMap );
+        Map<Long,Integer> computedMap = MapUtils.invertMap( originalMap );
 
         // Then
         assertThat( computedMap, equalTo( expectedMap ) );
