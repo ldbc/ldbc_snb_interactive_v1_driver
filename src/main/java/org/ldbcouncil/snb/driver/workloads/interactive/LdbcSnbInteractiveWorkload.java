@@ -73,8 +73,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         return LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping();
     }
 
-
-
     @Override
     public void onInit( Map<String,String> params ) throws WorkloadException
     {
@@ -626,7 +624,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 );
             }
         }
-        
 
         if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
         { workloadStartTimeAsMilli = 0; }
@@ -670,40 +667,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
          * *******/
 
         ChildOperationGenerator shortReadsChildGenerator = null;
-        if (!enabledShortReadOperationTypes.isEmpty() )
+        if ( !enabledShortReadOperationTypes.isEmpty() )
         {
-            RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( 42l );
-            double initialProbability = 1.0;
-            Queue<Long> personIdBuffer = (hasDbConnected)
-                                         ? LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 )
-                                         : LdbcSnbShortReadGenerator.constantBuffer( 1 );
-            Queue<Long> messageIdBuffer = (hasDbConnected)
-                                          ? LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 )
-                                          : LdbcSnbShortReadGenerator.constantBuffer( 1 );
-            LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY scheduledStartTimePolicy = (hasDbConnected)
-                                                                                             ?
-                                                                                             LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_ACTUAL_FINISH_TIME
-                                                                                             :
-                                                                                             LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_SCHEDULED_START_TIME;
-            LdbcSnbShortReadGenerator.BufferReplenishFun bufferReplenishFun = (hasDbConnected)
-                                                                              ? new LdbcSnbShortReadGenerator
-                    .ResultBufferReplenishFun(
-                    personIdBuffer, messageIdBuffer )
-                                                                              : new LdbcSnbShortReadGenerator
-                                                                                      .NoOpBufferReplenishFun();
-            shortReadsChildGenerator = new LdbcSnbShortReadGenerator(
-                    initialProbability,
-                    shortReadDissipationFactor,
-                    updateInterleaveAsMilli,
-                    enabledShortReadOperationTypes,
-                    compressionRatio,
-                    personIdBuffer,
-                    messageIdBuffer,
-                    randomFactory,
-                    longReadInterleavesAsMilli,
-                    scheduledStartTimePolicy,
-                    bufferReplenishFun
-            );
+            shortReadsChildGenerator = getShortReadGenerator(hasDbConnected);
         }
 
         /* **************
@@ -724,6 +690,49 @@ public class LdbcSnbInteractiveWorkload extends Workload
     }
 
     /**
+     * Create Short read operations
+     * @param hasDbConnected
+     * @return
+     */
+    private LdbcSnbShortReadGenerator getShortReadGenerator(boolean hasDbConnected)
+    {
+        RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( 42l );
+        double initialProbability = 1.0;
+
+        Queue<Long> personIdBuffer;
+        Queue<Long> messageIdBuffer;
+        LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY scheduledStartTimePolicy;
+        LdbcSnbShortReadGenerator.BufferReplenishFun bufferReplenishFun;
+        if (hasDbConnected)
+        {
+            personIdBuffer = LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 );
+            messageIdBuffer = LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 );
+            scheduledStartTimePolicy = LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_ACTUAL_FINISH_TIME;
+            bufferReplenishFun = new LdbcSnbShortReadGenerator.ResultBufferReplenishFun(personIdBuffer, messageIdBuffer );
+        }
+        else
+        {
+            personIdBuffer = LdbcSnbShortReadGenerator.constantBuffer( 1 );
+            messageIdBuffer = LdbcSnbShortReadGenerator.constantBuffer( 1 );
+            scheduledStartTimePolicy = LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_SCHEDULED_START_TIME;
+            bufferReplenishFun = new LdbcSnbShortReadGenerator.NoOpBufferReplenishFun();
+        }
+        return new LdbcSnbShortReadGenerator(
+                initialProbability,
+                shortReadDissipationFactor,
+                updateInterleaveAsMilli,
+                enabledShortReadOperationTypes,
+                compressionRatio,
+                personIdBuffer,
+                messageIdBuffer,
+                randomFactory,
+                longReadInterleavesAsMilli,
+                scheduledStartTimePolicy,
+                bufferReplenishFun
+        );
+    }
+
+    /**
      * Get the operation streams (substitution parameters)
      * @param gf Generator factory to use 
      * @param workloadStartTimeAsMilli The workloadStartTimeAsMilli
@@ -738,10 +747,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
     ) throws WorkloadException
     {
         List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
-         /*
+        /*
          * Create read operation streams, with specified interleaves
          */
-        
         ReadOperationStream readOperationStream = new ReadOperationStream(gf, workloadStartTimeAsMilli, loader);
         Map<Integer, QueryEventStreamReader.EventDecoder<Operation>> decoders = QueryEventStreamReader.getDecoders();
         Map<Class<? extends Operation>, Integer> classToTypeMap = MapUtils.invertMap(operationTypeToClassMapping());
@@ -754,7 +762,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
             );
             asynchronousNonDependencyStreamsList.add( eventOperationStream );
         }
-
         return asynchronousNonDependencyStreamsList;
     }
 
