@@ -1,5 +1,4 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
-import static java.lang.String.format;
 
 /**
  * ReadOperationStream.java
@@ -7,7 +6,6 @@ import static java.lang.String.format;
  * Class to read the operation stream txt files (substitution parameters)
  */
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.sql.SQLException;
 import java.util.Iterator;
 
@@ -15,7 +13,6 @@ import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.csv.CsvLoader;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
-import org.ldbcouncil.snb.driver.generator.QueryEventStreamReader;
 
 public class ReadOperationStream {
     
@@ -33,7 +30,6 @@ public class ReadOperationStream {
     }
 
     public Iterator<Operation> readOperationStream(
-        Class evenStreamReaderClass,
         QueryEventStreamReader.EventDecoder<Operation> decoder,
         long readOperationInterleaveAsMilli,
         File readOperationFile
@@ -47,24 +43,18 @@ public class ReadOperationStream {
         catch (SQLException  e){
             throw new WorkloadException("Error creating txt loader");
         }
-        try {
-            Constructor<Iterator<Operation>> ctor = evenStreamReaderClass.getConstructor(Iterator.class);
-            Iterator<Operation> operationStreamWithoutTimes = ctor.newInstance(
-                gf.repeating( opStream )
-            );
+        
+        Iterator<Operation> operationStreamWithoutTimes = new QueryEventStreamReader(
+            gf.repeating( opStream )
+        );
 
-            Iterator<Long> operationStartTimes =
-                gf.incrementing( workloadStartTimeAsMilli + readOperationInterleaveAsMilli,
-                        readOperationInterleaveAsMilli );
+        Iterator<Long> operationStartTimes =
+            gf.incrementing( workloadStartTimeAsMilli + readOperationInterleaveAsMilli,
+                    readOperationInterleaveAsMilli );
 
-            return gf.assignStartTimes(
-                operationStartTimes,
-                operationStreamWithoutTimes
-            );
-        }
-        catch(Exception e)
-        {
-            throw new WorkloadException(format("Unable to instantiate event stream reader of class: %s", evenStreamReaderClass), e);
-        }
+        return gf.assignStartTimes(
+            operationStartTimes,
+            operationStreamWithoutTimes
+        );
     }
 }

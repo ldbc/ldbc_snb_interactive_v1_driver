@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
-import org.ldbcouncil.snb.driver.generator.QueryEventStreamReader;
+import org.ldbcouncil.snb.driver.workloads.interactive.QueryEventStreamReader;
 
 import static java.lang.String.format;
 
