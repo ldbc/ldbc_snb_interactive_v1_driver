@@ -54,6 +54,12 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>>
         this.person2IdQ14EndNode = person2IdQ14EndNode;
     }
 
+    public LdbcQuery14( LdbcQuery14 query )
+    {
+        this.person1IdQ14StartNode = query.getPerson1IdQ14StartNode();
+        this.person2IdQ14EndNode = query.getPerson2IdQ14EndNode();
+    }
+
     public long getPerson1IdQ14StartNode()
     {
         return person1IdQ14StartNode;

@@ -51,6 +51,13 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery12( LdbcQuery12 query )
+    {
+        this.personIdQ12 = query.getPersonIdQ12();
+        this.tagClassName = query.getTagClassName();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ12()
     {
         return personIdQ12;

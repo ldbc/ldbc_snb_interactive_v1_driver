@@ -47,6 +47,14 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery2( LdbcQuery2 query )
+    {
+        super();
+        this.personIdQ2 = query.getPersonIdQ2();
+        this.maxDate = query.getMaxDate();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ2()
     {
         return personIdQ2;

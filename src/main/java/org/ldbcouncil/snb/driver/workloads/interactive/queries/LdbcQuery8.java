@@ -44,6 +44,13 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery8( LdbcQuery8 query )
+    {
+        super();
+        this.personIdQ8 = query.getPersonIdQ8();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ8()
     {
         return personIdQ8;

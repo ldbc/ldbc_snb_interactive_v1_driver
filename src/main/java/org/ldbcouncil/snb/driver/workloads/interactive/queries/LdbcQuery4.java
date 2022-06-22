@@ -53,6 +53,14 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery4( LdbcQuery4 query )
+    {
+        this.personIdQ4 = query.getPersonIdQ4();
+        this.startDate = query.getStartDate();
+        this.durationDays = query.getDurationDays();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ4()
     {
         return personIdQ4;

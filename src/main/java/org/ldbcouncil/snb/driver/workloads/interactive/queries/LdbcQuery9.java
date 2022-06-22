@@ -47,6 +47,13 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery9( LdbcQuery9 query )
+    {
+        this.personIdQ9 = query.getPersonIdQ9();
+        this.maxDate = query.getMaxDate();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ9()
     {
         return personIdQ9;

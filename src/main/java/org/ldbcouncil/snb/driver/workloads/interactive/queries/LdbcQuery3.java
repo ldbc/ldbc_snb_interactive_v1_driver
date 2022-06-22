@@ -61,6 +61,16 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery3( LdbcQuery3 query )
+    {
+        this.personIdQ3 = query.getPersonIdQ3();
+        this.countryXName = query.getCountryXName();
+        this.countryYName = query.getCountryYName();
+        this.startDate = query.getStartDate();
+        this.durationDays = query.getDurationDays();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ3()
     {
         return personIdQ3;

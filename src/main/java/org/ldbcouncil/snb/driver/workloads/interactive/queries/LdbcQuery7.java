@@ -49,6 +49,13 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery7( LdbcQuery7 query )
+    {
+        super();
+        this.personIdQ7 = query.getPersonIdQ7();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ7()
     {
         return personIdQ7;

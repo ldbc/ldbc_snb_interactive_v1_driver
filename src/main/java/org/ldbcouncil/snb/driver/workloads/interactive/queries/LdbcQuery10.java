@@ -53,6 +53,13 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery10( LdbcQuery10 query )
+    {
+        this.personIdQ10 = query.getPersonIdQ10();
+        this.month = query.getMonth();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ10()
     {
         return personIdQ10;

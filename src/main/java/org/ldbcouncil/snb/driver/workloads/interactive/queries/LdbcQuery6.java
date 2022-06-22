@@ -49,6 +49,13 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery6( LdbcQuery6 query )
+    {
+        this.personIdQ6 = query.getPersonIdQ6();
+        this.tagName = query.getTagName();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ6()
     {
         return personIdQ6;

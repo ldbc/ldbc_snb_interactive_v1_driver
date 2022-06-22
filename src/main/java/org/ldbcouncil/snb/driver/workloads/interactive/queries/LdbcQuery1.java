@@ -47,6 +47,13 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery1( LdbcQuery1 query )
+    {
+        this.personIdQ1 = query.getPersonIdQ1();
+        this.firstName = query.getFirstName();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ1()
     {
         return personIdQ1;

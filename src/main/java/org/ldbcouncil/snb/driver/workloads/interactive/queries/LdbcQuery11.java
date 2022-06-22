@@ -50,6 +50,14 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery11( LdbcQuery11 query )
+    {
+        this.personIdQ11 = query.getPersonIdQ11();
+        this.countryName = query.getCountryName();
+        this.workFromYear = query.getWorkFromYear();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ11()
     {
         return personIdQ11;

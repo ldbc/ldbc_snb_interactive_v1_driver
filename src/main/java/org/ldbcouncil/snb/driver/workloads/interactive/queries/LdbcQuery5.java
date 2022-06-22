@@ -50,6 +50,14 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>>
         this.limit = limit;
     }
 
+    public LdbcQuery5( LdbcQuery5 query )
+    {
+        super();
+        this.personIdQ5 = query.getPersonIdQ5();
+        this.minDate = query.getMinDate();
+        this.limit = query.getLimit();
+    }
+
     public long getPersonIdQ5()
     {
         return personIdQ5;

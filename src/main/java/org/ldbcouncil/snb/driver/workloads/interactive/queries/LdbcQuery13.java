@@ -41,6 +41,12 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
         this.person2IdQ13EndNode = person2IdQ13EndNode;
     }
 
+    public LdbcQuery13( LdbcQuery13 query )
+    {
+        this.person1IdQ13StartNode = query.getPerson1IdQ13StartNode();
+        this.person2IdQ13EndNode = query.getPerson2IdQ13EndNode();
+    }
+
     public long getPerson1IdQ13StartNode()
     {
         return person1IdQ13StartNode;
