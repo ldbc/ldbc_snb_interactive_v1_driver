@@ -43,18 +43,11 @@ public class Query3EventStreamReader implements Iterator<Operation>
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
 
-
-    /**
-     * Inner class used for decoding Resultset data for query 3 parameters.
-     */
     public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Operation>
     {
-    //     personId|startDate|durationDays|countryXName|countryYName
-    //     7696581543848|1293840000|28|Egypt|Sri_Lanka
-
         /**
          * @param rs: Resultset object containing the row to decode
-        * @return Object array
+         * @return Object array
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override

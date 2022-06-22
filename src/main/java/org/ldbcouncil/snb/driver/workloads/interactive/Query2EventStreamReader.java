@@ -42,17 +42,11 @@ public class Query2EventStreamReader implements Iterator<Operation>
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
 
-   /**
-     * Inner class used for decoding Resultset data for query 2 parameters.
-     */
     public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Operation>
     {
-        // personId|maxDate
-        // 1236219|1335225600
-
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array (TODO: change Object[] to LdbcQuery2)
+         * @return Object array 
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override

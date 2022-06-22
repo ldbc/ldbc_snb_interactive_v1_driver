@@ -42,7 +42,6 @@ public class Query11EventStreamReader implements Iterator<Operation>
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
 
-
     public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Operation>
     {
         /**

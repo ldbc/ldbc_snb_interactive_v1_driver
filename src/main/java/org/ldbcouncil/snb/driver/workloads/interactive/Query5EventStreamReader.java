@@ -45,11 +45,8 @@ public class Query5EventStreamReader implements Iterator<Operation>
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
 
-
     public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Operation>
     {
-        // personId|minDate
-        // 1236219|1335225600
         /**
          * @param rs: Resultset object containing the row to decode
          * @return Object array 

@@ -45,8 +45,6 @@ public class Query4EventStreamReader implements Iterator<Operation>
 
     public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Operation>
     {
-    //     personId|startDate|durationDays
-    //     15393164964332|1349049600|34
         /**
          * @param rs: Resultset object containing the row to decode
          * @return Object array 

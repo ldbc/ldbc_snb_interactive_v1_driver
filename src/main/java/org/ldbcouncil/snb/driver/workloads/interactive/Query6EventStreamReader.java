@@ -42,14 +42,11 @@ public class Query6EventStreamReader implements Iterator<Operation>
         throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
     }
 
-
     public static class QueryDecoder implements QueryEventStreamReader.EventDecoder<Operation>
     {
-        // personId|firstName
-        // 2199032251700|Andrea
         /**
          * @param rs: Resultset object containing the row to decode
-        * @return Object array
+         * @return Object array
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override

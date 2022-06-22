@@ -46,7 +46,7 @@ public class Query13EventStreamReader implements Iterator<Operation>
     {
         /**
          * @param rs: Resultset object containing the row to decode
-        * @return Object array
+         * @return Object array
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
