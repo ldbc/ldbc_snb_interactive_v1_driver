@@ -120,7 +120,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query3Event: %s", e));
             }
         }
     }
@@ -148,7 +148,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query4Event: %s", e));
             }
         }
     }
@@ -174,7 +174,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query2Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query5Event: %s", e));
             }
         }
     }
@@ -200,7 +200,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query6Event: %s", e));
             }
         }
     }
@@ -224,7 +224,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query7Event: %s", e));
             }
         }
     }
@@ -248,7 +248,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query8Event: %s", e));
             }
         }
     }
@@ -274,7 +274,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query2Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query9Event: %s", e));
             }
         }
     }
@@ -300,7 +300,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query10Event: %s", e));
             }
         }
     }
@@ -328,7 +328,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query11Event: %s", e));
             }
         }
     }
@@ -354,7 +354,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query12Event: %s", e));
             }
         }
     }
@@ -379,7 +379,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query13Event: %s", e));
             }
         }
     }
@@ -404,7 +404,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
                 );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query14Event: %s", e));
             }
         }
     }
