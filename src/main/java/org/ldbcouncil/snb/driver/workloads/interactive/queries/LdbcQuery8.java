@@ -61,6 +61,10 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>>
         return limit;
     }
 
+    @Override
+    public LdbcQuery8 newInstance(){
+        return new LdbcQuery8(this);
+    }
 
     @Override
     public Map<String, Object> parameterMap() {

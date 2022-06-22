@@ -113,6 +113,10 @@ public abstract class Operation<RESULT_TYPE>
      */
     public abstract Map<String, Object> parameterMap();
 
+    public Operation newInstance(){
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Deserializes a list of result objects
      * @param serializedOperationResult The serialized result object in a list

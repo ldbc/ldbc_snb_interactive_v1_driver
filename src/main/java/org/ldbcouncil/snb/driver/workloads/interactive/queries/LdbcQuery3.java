@@ -102,6 +102,11 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
     }
 
     @Override
+    public LdbcQuery3 newInstance(){
+        return new LdbcQuery3(this);
+    }
+
+    @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
             .put(PERSON_ID, personIdQ3)

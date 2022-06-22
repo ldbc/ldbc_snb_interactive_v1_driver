@@ -58,6 +58,11 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result>
     }
 
     @Override
+    public LdbcQuery13 newInstance(){
+        return new LdbcQuery13(this);
+    }
+
+    @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
                 .put(PERSON1_ID, person1IdQ13StartNode)

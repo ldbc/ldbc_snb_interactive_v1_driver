@@ -67,6 +67,11 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
     }
 
     @Override
+    public LdbcQuery7 newInstance(){
+        return new LdbcQuery7(this);
+    }
+
+    @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
                 .put(PERSON_ID, personIdQ7)
