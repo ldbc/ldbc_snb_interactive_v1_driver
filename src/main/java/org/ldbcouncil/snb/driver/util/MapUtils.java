@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Properties;
 import java.util.Set;
 
@@ -249,13 +250,18 @@ public class MapUtils
         return newMap;
     }
 
-    public static <K, V> Map<V,K> UNSAFE_switchKeysAndValues( Map<K,V> originalMap )
-    {
-        Map<V,K> newMap = new HashMap<>();
-        for ( Entry<K,V> entry : originalMap.entrySet() )
-        {
-            newMap.put( entry.getValue(), entry.getKey() );
-        }
-        return newMap;
+    /**
+     * Inverts the keys and values in a map.
+     * NOTE: This method is unsafe as it assumes no duplicate values
+     * @param <V>
+     * @param <K>
+     * @param map The map to invert
+     * @return Inverted map
+     */
+    public static <V, K> Map<V, K> invertMap(Map<K, V> map) {
+        Map<V, K> inversedMap = map.entrySet()
+            .stream()
+            .collect(Collectors.toMap(Entry::getValue, Entry::getKey));
+        return inversedMap;
     }
 }

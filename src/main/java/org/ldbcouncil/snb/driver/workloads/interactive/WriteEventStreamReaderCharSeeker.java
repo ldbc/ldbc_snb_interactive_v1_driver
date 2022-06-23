@@ -7,6 +7,7 @@ import org.ldbcouncil.snb.driver.csv.charseeker.Extractors;
 import org.ldbcouncil.snb.driver.csv.charseeker.Mark;
 import org.ldbcouncil.snb.driver.generator.CsvEventStreamReaderTimedTypedCharSeeker;
 import org.ldbcouncil.snb.driver.generator.CsvEventStreamReaderTimedTypedCharSeeker.EventDecoder;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 import org.ldbcouncil.snb.driver.generator.GeneratorException;
 
 import java.io.IOException;

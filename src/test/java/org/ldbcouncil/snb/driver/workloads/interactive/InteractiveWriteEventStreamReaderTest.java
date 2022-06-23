@@ -6,11 +6,9 @@ import org.ldbcouncil.snb.driver.csv.charseeker.BufferedCharSeeker;
 import org.ldbcouncil.snb.driver.csv.charseeker.CharSeeker;
 import org.ldbcouncil.snb.driver.csv.charseeker.Extractors;
 import org.ldbcouncil.snb.driver.csv.charseeker.Readables;
-import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileReader;
-import org.ldbcouncil.snb.driver.workloads.OperationTest;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 import org.junit.Test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
@@ -24,17 +22,6 @@ import static org.junit.Assert.assertThat;
 
 public class InteractiveWriteEventStreamReaderTest
 {
-
-    @Test
-    public void shouldParseAllEventTypesWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.ROWS_FOR_ALL_EVENT_TYPES;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseAllEventTypes(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
     @Test
     public void shouldParseAllEventTypesWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = InteractiveWriteEventStreamReaderTestData.ROWS_FOR_ALL_EVENT_TYPES;
@@ -198,16 +185,6 @@ public class InteractiveWriteEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate1AddPerson(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
-    @Test
     public void shouldParseUpdate1AddPersonWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW;
@@ -249,16 +226,6 @@ public class InteractiveWriteEventStreamReaderTest
                 new LdbcUpdate1AddPerson.Organization(1539L, 1971)
         )));
         assertThat(writeEventStreamReader.hasNext(), is(false));
-    }
-
-    @Test
-    public void shouldParseUpdate1AddPersonWithOneLanguageWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_ONE_LANGUAGE;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate1AddPersonWithOneLanguage(writeEventStreamReader);
-        csvFileReader.close();
     }
 
     @Test
@@ -306,16 +273,6 @@ public class InteractiveWriteEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoLanguagesWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_LANGUAGES;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate1AddPersonWithNoLanguages(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
-    @Test
     public void shouldParseUpdate1AddPersonWithNoLanguagesWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_LANGUAGES;
@@ -360,16 +317,6 @@ public class InteractiveWriteEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithOneCompanyWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_ONE_COMPANY;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate1AddPersonWithOneCompany(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
-    @Test
     public void shouldParseUpdate1AddPersonWithOneCompanyWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_ONE_COMPANY;
@@ -411,16 +358,6 @@ public class InteractiveWriteEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoCompaniesWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_COMPANIES;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate1AddPersonWithNoCompanies(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
-    @Test
     public void shouldParseUpdate1AddPersonWithNoCompaniesWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_COMPANIES;
@@ -457,16 +394,6 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addPerson.getStudyAt(), equalTo((List) Lists.newArrayList(new LdbcUpdate1AddPerson.Organization(97L, 1))));
         assertThat(addPerson.getWorkAt(), equalTo((List) Lists.newArrayList()));
         assertThat(writeEventStreamReader.hasNext(), is(false));
-    }
-
-    @Test
-    public void shouldParseUpdate1AddPersonWithNoUnisWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_UNIS;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate1AddPersonWithNoUnis(writeEventStreamReader);
-        csvFileReader.close();
     }
 
     @Test
@@ -514,16 +441,6 @@ public class InteractiveWriteEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoEmailsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_EMAILS;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate1AddPersonWithNoEmails(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
-    @Test
     public void shouldParseUpdate1AddPersonWithNoEmailsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_EMAILS;
@@ -565,16 +482,6 @@ public class InteractiveWriteEventStreamReaderTest
                 new LdbcUpdate1AddPerson.Organization(1539L, 1971)
         )));
         assertThat(writeEventStreamReader.hasNext(), is(false));
-    }
-
-    @Test
-    public void shouldParseUpdate1AddPersonWithNoTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_TAGS;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate1AddPersonWithNoTags(writeEventStreamReader);
-        csvFileReader.close();
     }
 
     @Test
@@ -622,16 +529,6 @@ public class InteractiveWriteEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseUpdate2AddLikePostWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_2_ADD_LIKE_POST_ROW;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate2AddLikePost(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
-    @Test
     public void shouldParseUpdate2AddLikePostWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = InteractiveWriteEventStreamReaderTestData.UPDATE_2_ADD_LIKE_POST_ROW;
@@ -659,16 +556,6 @@ public class InteractiveWriteEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseUpdate3AddLikeCommentWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_3_ADD_LIKE_COMMENT;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate3AddLikeComment(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
-    @Test
     public void shouldParseUpdate3AddLikeCommentWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = InteractiveWriteEventStreamReaderTestData.UPDATE_3_ADD_LIKE_COMMENT;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
@@ -692,16 +579,6 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addCommentLike.getCommentId(), is(120426L));
         assertThat(addCommentLike.getCreationDate(), equalTo(creationDate));
         assertThat(writeEventStreamReader.hasNext(), is(false));
-    }
-
-    @Test
-    public void shouldParseUpdate4AddForumWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_4_ADD_FORUM;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate4AddForum(writeEventStreamReader);
-        csvFileReader.close();
     }
 
     @Test
@@ -733,16 +610,6 @@ public class InteractiveWriteEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseUpdate5AddForumMembershipWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_5_ADD_FORUM_MEMBERSHIP;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        shouldParseUpdate5AddForumMembership(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
-    @Test
     public void shouldParseUpdate5AddForumMembershipWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = InteractiveWriteEventStreamReaderTestData.UPDATE_5_ADD_FORUM_MEMBERSHIP;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
@@ -766,16 +633,6 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addForumMembership.getPersonId(), is(372L));
         assertThat(addForumMembership.getJoinDate(), equalTo(creationDate));
         assertThat(writeEventStreamReader.hasNext(), is(false));
-    }
-
-    @Test
-    public void shouldParseUpdate6AddPostWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_6_ADD_POST;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate6AddPost(writeEventStreamReader);
-        csvFileReader.close();
     }
 
     @Test
@@ -814,16 +671,6 @@ public class InteractiveWriteEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseUpdate6AddPostWithManyTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_6_ADD_POST_MANY_TAGS;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate6AddPostWithManyTags(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
-    @Test
     public void shouldParseUpdate6AddPostWithManyTagsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = InteractiveWriteEventStreamReaderTestData.UPDATE_6_ADD_POST_MANY_TAGS;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
@@ -856,16 +703,6 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addPost.getCountryId(), is(9L));
         assertThat(addPost.getTagIds(), equalTo((List) Lists.newArrayList(1437l, 167l, 182l)));
         assertThat(writeEventStreamReader.hasNext(), is(false));
-    }
-
-    @Test
-    public void shouldParseUpdate6AddPostWithEmptyTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_6_ADD_POST_NO_TAGS;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate6AddPostWithEmptyTags(writeEventStreamReader);
-        csvFileReader.close();
     }
 
     @Test
@@ -904,16 +741,6 @@ public class InteractiveWriteEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseUpdate7AddCommentWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate7AddComment(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
-    @Test
     public void shouldParseUpdate7AddCommentWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = InteractiveWriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
@@ -948,16 +775,6 @@ public class InteractiveWriteEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseUpdate7AddCommentWithEmptyTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT_NO_TAGS;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate7AddCommentWithEmptyTags(writeEventStreamReader);
-        csvFileReader.close();
-    }
-
-    @Test
     public void shouldParseUpdate7AddCommentWithEmptyTagsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = InteractiveWriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT_NO_TAGS;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
@@ -989,16 +806,6 @@ public class InteractiveWriteEventStreamReaderTest
         assertThat(addComment.getReplyToCommentId(), is(4034289L));
         assertThat(addComment.getTagIds(), equalTo((List) Lists.newArrayList()));
         assertThat(writeEventStreamReader.hasNext(), is(false));
-    }
-
-    @Test
-    public void shouldParseUpdate8AddFriendshipWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
-        String data = InteractiveWriteEventStreamReaderTestData.UPDATE_8_ADD_FRIENDSHIP;
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
-        doShouldParseUpdate8AddFriendship(writeEventStreamReader);
-        csvFileReader.close();
     }
 
     @Test

@@ -2,6 +2,7 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.util.Arrays;
 

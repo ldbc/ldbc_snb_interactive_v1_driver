@@ -1,44 +1,77 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.csv.charseeker.*;
-import org.ldbcouncil.snb.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import org.ldbcouncil.snb.driver.WorkloadException;
+import org.ldbcouncil.snb.driver.csv.CsvLoader;
+import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
+import org.ldbcouncil.snb.driver.generator.EventStreamReader;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.sql.SQLException;
 import java.util.*;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 
 public class InteractiveReadEventStreamReadersTest
 {
+    private DuckDbConnectionState db;
+    private Statement stmt;
+    public SimpleDateFormat DATE_FORMAT;
+
+    /**
+     * Initialize mock objects used in all the tests
+     * @throws SQLException
+     */
+    @Before
+    public void init() throws SQLException {
+        Connection connection = mock(Connection.class);
+        db = mock(DuckDbConnectionState.class);
+        when(db.getConnection()).thenReturn(connection);
+        stmt = mock(Statement.class);
+        when(connection.createStatement()).thenReturn(stmt);
+        DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd" );
+        DATE_FORMAT.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
+    }
+
     @Test
-    public void shouldParseAllQuery1Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_1_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query1EventStreamReader.Query1Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query1EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
+    public void shouldParseAllQuery1Events() throws WorkloadException, SQLException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getString(2))
+            .thenReturn("John")
+            .thenReturn("Yang")
+            .thenReturn("A.")
+            .thenReturn("Chen");
+        when(rs.getLong(1))
+            .thenReturn(10995117334833l)
+            .thenReturn(14293651244033l)
+            .thenReturn(6597070008725l)
+            .thenReturn(2199023331001l);
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query1Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
         );
 
-        // When
-
-        // Then
+        // Assert
         LdbcQuery1 operation;
 
         operation = (LdbcQuery1) reader.next();
@@ -57,37 +90,38 @@ public class InteractiveReadEventStreamReadersTest
         assertThat(operation.getPersonIdQ1(), is(2199023331001L));
         assertThat(operation.getFirstName(), equalTo("Chen"));
 
-
         assertThat(reader.hasNext(), is(false));
     }
 
     @Test
-    public void shouldParseAllQuery2Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_2_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query2EventStreamReader.Query2Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query2EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
-        );
-
-        // When
-
-        // Then
+    public void shouldParseAllQuery2Events() throws WorkloadException, SQLException, ParseException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getLong(1))
+            .thenReturn(12094628092905l)
+            .thenReturn(9895606011404l)
+            .thenReturn(14293651244033l)
+            .thenReturn(13194139602632l);
+        when(rs.getLong(2))
+            .thenReturn(DATE_FORMAT.parse( "2013-01-28" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2013-01-28" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2013-02-2" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2013-10-16" ).getTime());
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query2Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        LdbcQuery2 operation;
 
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
+        );
+
+        LdbcQuery2 operation;
+        // Assert
         operation = (LdbcQuery2) reader.next();
         assertThat(operation.getPersonIdQ2(), is(12094628092905L));
         calendar.clear();
@@ -116,32 +150,31 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery3Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_3_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query3EventStreamReader.Query3Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query3EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
-        );
-
-        // When
-
-        // Then
+    public void shouldParseAllQuery3Events() throws WorkloadException, SQLException, ParseException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getLong(1)).thenReturn(9895605643992l).thenReturn(979201l).thenReturn(129891l).thenReturn(13194140498760l);
+        when(rs.getLong(2))
+            .thenReturn(DATE_FORMAT.parse( "2011-12-1" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2012-4-1" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2011-05-1" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2010-12-1" ).getTime());
+        when(rs.getInt(3)).thenReturn(53).thenReturn(64).thenReturn(58).thenReturn(53);
+        when(rs.getString(4)).thenReturn("Taiwan").thenReturn("Nicaragua").thenReturn("Colombia").thenReturn("Lithuania");
+        when(rs.getString(5)).thenReturn("Bulgaria").thenReturn("Afghanistan").thenReturn("Lithuania").thenReturn("Afghanistan");
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query3Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
+        );
         LdbcQuery3 operation;
-
+        // Assert
         operation = (LdbcQuery3) reader.next();
         assertThat(operation.getPersonIdQ3(), is(9895605643992L));
         assertThat(operation.getCountryXName(), is("Taiwan"));
@@ -181,32 +214,37 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery4Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_4_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query4EventStreamReader.Query4Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query4EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
-        );
-
-        // When
-
-        // Then
+    public void shouldParseAllQuery4Events() throws WorkloadException, SQLException, ParseException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getLong(1))
+            .thenReturn(12094628092905l)
+            .thenReturn(9895606011404l)
+            .thenReturn(14293651244033l)
+            .thenReturn(13194139602632l);
+        when(rs.getLong(2))
+            .thenReturn(DATE_FORMAT.parse( "2011-4-1" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2012-1-1" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2011-7-1" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2011-7-1" ).getTime());
+        when(rs.getInt(3))
+            .thenReturn(43)
+            .thenReturn(36)
+            .thenReturn(57)
+            .thenReturn(81);
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query4Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
+        );
         LdbcQuery4 operation;
-
+        // Assert
         operation = (LdbcQuery4) reader.next();
         assertThat(operation.getPersonIdQ4(), is(12094628092905L));
         assertThat(operation.getDurationDays(), is(43));
@@ -239,30 +277,34 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery5Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_5_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query5EventStreamReader.Query5Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query5EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
-        );
+    public void shouldParseAllQuery5Events() throws WorkloadException, SQLException, ParseException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getLong(1))
+            .thenReturn(9895605643992l)
+            .thenReturn(979201l)
+            .thenReturn(129891l)
+            .thenReturn(13194140498760l);
+        when(rs.getLong(2))
+            .thenReturn(DATE_FORMAT.parse( "2012-12-15" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2012-12-16" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2012-12-14" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2012-12-12" ).getTime());
 
-        // When
-
-        // Then
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query5Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
+        );
+
+        // Assert
         LdbcQuery5 operation;
 
         operation = (LdbcQuery5) reader.next();
@@ -293,28 +335,31 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery6Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_6_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query6EventStreamReader.Query6Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query6EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
+    public void shouldParseAllQuery6Events() throws WorkloadException, SQLException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getString(2))
+            .thenReturn("Jiang_Zemin")
+            .thenReturn("Nino_Rota")
+            .thenReturn("John_VI_of_Portugal")
+            .thenReturn("Nikolai_Gogol");
+        when(rs.getLong(1))
+            .thenReturn(9895605643992l)
+            .thenReturn(979201l)
+            .thenReturn(129891l)
+            .thenReturn(13194140498760l);
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query6Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
         );
 
-        // When
-
-        // Then
+        // Assert
         LdbcQuery6 operation;
 
         operation = (LdbcQuery6) reader.next();
@@ -337,28 +382,25 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery7Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_7_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query7EventStreamReader.Query7Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query7EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
+    public void shouldParseAllQuery7Events() throws WorkloadException, SQLException{
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getLong(1))
+            .thenReturn(16492675436774l)
+            .thenReturn(14293651330072l)
+            .thenReturn(4398047140913l)
+            .thenReturn(13194140823804l);
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query7Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
         );
 
-        // When
-
-        // Then
+        // Assert
         LdbcQuery7 operation;
 
         operation = (LdbcQuery7) reader.next();
@@ -377,28 +419,24 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery8Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_8_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query8EventStreamReader.Query8Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query8EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
+    public void shouldParseAllQuery8Events() throws WorkloadException, SQLException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getLong(1))
+            .thenReturn(15393164184077l)
+            .thenReturn(15393163594341l)
+            .thenReturn(7696582593995l)
+            .thenReturn(15393162809578l);
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query8Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
         );
-
-        // When
-
-        // Then
+        // Assert
         LdbcQuery8 operation;
 
         operation = (LdbcQuery8) reader.next();
@@ -417,30 +455,31 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery9Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_9_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query9EventStreamReader.Query9Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query9EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
-        );
-
-        // When
-
-        // Then
+    public void shouldParseAllQuery9Events() throws WorkloadException, SQLException, ParseException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getLong(1))
+            .thenReturn(9895605643992l)
+            .thenReturn(979201l)
+            .thenReturn(129891l)
+            .thenReturn(13194140498760l);
+        when(rs.getLong(2))
+            .thenReturn(DATE_FORMAT.parse( "2011-12-22" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2011-11-19" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2011-11-20" ).getTime())
+            .thenReturn(DATE_FORMAT.parse( "2011-12-1" ).getTime());
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query9Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
+        );
+        // Assert
         LdbcQuery9 operation;
 
         operation = (LdbcQuery9) reader.next();
@@ -471,28 +510,31 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery10Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_10_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query10EventStreamReader.Query10Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query10EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
+    public void shouldParseAllQuery10Events() throws WorkloadException, SQLException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getInt(2))
+            .thenReturn(2)
+            .thenReturn(4)
+            .thenReturn(2)
+            .thenReturn(3);
+        when(rs.getLong(1))
+            .thenReturn(9895605643992l)
+            .thenReturn(979201l)
+            .thenReturn(129891l)
+            .thenReturn(13194140498760l);
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query10Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
         );
 
-        // When
-
-        // Then
+        // Assert
         LdbcQuery10 operation;
 
         operation = (LdbcQuery10) reader.next();
@@ -516,28 +558,36 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery11Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_11_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query11EventStreamReader.Query11Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query11EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
+    public void shouldParseAllQuery11Events() throws WorkloadException, SQLException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getInt(3))
+            .thenReturn(2013)
+            .thenReturn(1998)
+            .thenReturn(1974)
+            .thenReturn(1984);
+        when(rs.getString(2))
+            .thenReturn("Taiwan")
+            .thenReturn("Nicaragua")
+            .thenReturn("Colombia")
+            .thenReturn("Lithuania");
+        when(rs.getLong(1))
+            .thenReturn(9895605643992l)
+            .thenReturn(979201l)
+            .thenReturn(129891l)
+            .thenReturn(13194140498760l);
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query11Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
         );
 
-        // When
-
-        // Then
+        // Assert
         LdbcQuery11 operation;
 
         operation = (LdbcQuery11) reader.next();
@@ -564,28 +614,31 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery12Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_12_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query12EventStreamReader.Query12Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query12EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
+    public void shouldParseAllQuery12Events() throws WorkloadException, SQLException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getString(2))
+            .thenReturn("SoccerManager")
+            .thenReturn("Chancellor")
+            .thenReturn("EurovisionSongContestEntry")
+            .thenReturn("GolfPlayer");
+        when(rs.getLong(1))
+            .thenReturn(12094628092905l)
+            .thenReturn(9895606011404l)
+            .thenReturn(14293651244033l)
+            .thenReturn(13194139602632l);
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query12Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
         );
 
-        // When
-
-        // Then
+        // Assert
         LdbcQuery12 operation;
 
         operation = (LdbcQuery12) reader.next();
@@ -608,28 +661,30 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery13Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_13_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query13EventStreamReader.Query13Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query13EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
+    public void shouldParseAllQuery13Events() throws WorkloadException, SQLException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getLong(1))
+            .thenReturn(9895605643992l)
+            .thenReturn(979201l)
+            .thenReturn(129891l)
+            .thenReturn(13194140498760l);
+        when(rs.getLong(2))
+            .thenReturn(1099512323797l)
+            .thenReturn(95384l)
+            .thenReturn(9895606000517l)
+            .thenReturn(7696582276748l);
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query13Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
         );
 
-        // When
-
-        // Then
+        // Assert
         LdbcQuery13 operation;
 
         operation = (LdbcQuery13) reader.next();
@@ -652,28 +707,31 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery14Events() throws IOException, ParseException {
-        // Given
-        String data = InteractiveReadEventStreamReadersTestData.QUERY_14_CSV_ROWS();
-        System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
-        int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';', ',');
-        CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query14EventStreamReader.Query14Decoder();
-        Mark mark = new Mark();
-        Iterator<Operation> reader = new Query14EventStreamReader(
-                new CsvEventStreamReaderBasicCharSeeker<>(
-                        charSeeker,
-                        extractors,
-                        mark,
-                        decoder,
-                        columnDelimiter
-                )
+    public void shouldParseAllQuery14Events() throws WorkloadException, SQLException {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.getLong(1))
+            .thenReturn(9895605643992l)
+            .thenReturn(979201l)
+            .thenReturn(129891l)
+            .thenReturn(13194140498760l);
+        when(rs.getLong(2))
+            .thenReturn(4398046737628l)
+            .thenReturn(1277748l)
+            .thenReturn(6597069967720l)
+            .thenReturn(3298534975254l);
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query14Decoder();
+        CsvLoader loader = new CsvLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+
+        // Act
+        Iterator<Operation> reader = new QueryEventStreamReader(
+            opStream
         );
 
-        // When
-
-        // Then
+        // Assert
         LdbcQuery14 operation;
 
         operation = (LdbcQuery14) reader.next();

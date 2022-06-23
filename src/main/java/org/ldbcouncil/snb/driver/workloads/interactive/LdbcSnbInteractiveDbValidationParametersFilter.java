@@ -4,6 +4,7 @@ import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.Workload.DbValidationParametersFilter;
 import org.ldbcouncil.snb.driver.Workload.DbValidationParametersFilterAcceptance;
 import org.ldbcouncil.snb.driver.Workload.DbValidationParametersFilterResult;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.util.ArrayList;
 import java.util.List;

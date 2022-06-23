@@ -13,29 +13,28 @@ import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.WorkloadStreams;
 import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.OperationMode;
+import org.ldbcouncil.snb.driver.csv.CsvLoader;
+import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
 import org.ldbcouncil.snb.driver.csv.charseeker.BufferedCharSeeker;
-import org.ldbcouncil.snb.driver.csv.charseeker.CharSeeker;
 import org.ldbcouncil.snb.driver.csv.charseeker.Extractors;
-import org.ldbcouncil.snb.driver.csv.charseeker.Mark;
 import org.ldbcouncil.snb.driver.csv.charseeker.Readables;
-import org.ldbcouncil.snb.driver.csv.charseeker.ThreadAheadReadable;
-import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileReader;
-import org.ldbcouncil.snb.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
+import org.ldbcouncil.snb.driver.generator.EventStreamReader;
 import org.ldbcouncil.snb.driver.util.ClassLoaderHelper;
 import org.ldbcouncil.snb.driver.util.ClassLoadingException;
 import org.ldbcouncil.snb.driver.util.MapUtils;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,47 +57,19 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private List<File> personUpdateOperationFiles = new ArrayList<>();
 
     private List<Closeable> readOperationFileReaders = new ArrayList<>();
-    private File readOperation1File;
-    private File readOperation2File;
-    private File readOperation3File;
-    private File readOperation4File;
-    private File readOperation5File;
-    private File readOperation6File;
-    private File readOperation7File;
-    private File readOperation8File;
-    private File readOperation9File;
-    private File readOperation10File;
-    private File readOperation11File;
-    private File readOperation12File;
-    private File readOperation13File;
-    private File readOperation14File;
-
-    private long readOperation1InterleaveAsMilli;
-    private long readOperation2InterleaveAsMilli;
-    private long readOperation3InterleaveAsMilli;
-    private long readOperation4InterleaveAsMilli;
-    private long readOperation5InterleaveAsMilli;
-    private long readOperation6InterleaveAsMilli;
-    private long readOperation7InterleaveAsMilli;
-    private long readOperation8InterleaveAsMilli;
-    private long readOperation9InterleaveAsMilli;
-    private long readOperation10InterleaveAsMilli;
-    private long readOperation11InterleaveAsMilli;
-    private long readOperation12InterleaveAsMilli;
-    private long readOperation13InterleaveAsMilli;
-    private long readOperation14InterleaveAsMilli;
-
+    private Map<Integer,Long> longReadInterleavesAsMilli;
+    private File parametersDir;
     private long updateInterleaveAsMilli;
     private double compressionRatio;
     private double shortReadDissipationFactor;
+    private OperationMode operationMode;
     private int numThreads;
     private Set<Class> enabledLongReadOperationTypes;
     private Set<Class> enabledShortReadOperationTypes;
     private Set<Class> enabledWriteOperationTypes;
-    private LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser parser;
 
     @Override
-    public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
+    public Map<Integer, Class<? extends Operation>> operationTypeToClassMapping()
     {
         return LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping();
     }
@@ -108,9 +79,13 @@ public class LdbcSnbInteractiveWorkload extends Workload
     {
         List<String> compulsoryKeys = Lists.newArrayList();
 
+        // Check operation mode, default is execute_benchmark
+        if (params.containsKey(ConsoleAndFileDriverConfiguration.MODE_ARG)){
+            operationMode = OperationMode.valueOf(params.get(ConsoleAndFileDriverConfiguration.MODE_ARG));
+        }
+
         // Validation mode does not require parameter directory
-        if (params.containsKey(ConsoleAndFileDriverConfiguration.MODE_ARG)
-            && OperationMode.valueOf(params.get(ConsoleAndFileDriverConfiguration.MODE_ARG)) != OperationMode.validate_database )
+        if (operationMode != OperationMode.validate_database )
         {
             compulsoryKeys.add( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY );
         }
@@ -129,7 +104,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         Set<String> missingPropertyParameters =
                 LdbcSnbInteractiveWorkloadConfiguration.missingParameters( params, compulsoryKeys );
-        if ( false == missingPropertyParameters.isEmpty() )
+        if ( !missingPropertyParameters.isEmpty() )
         {
             throw new WorkloadException( format( "Workload could not initialize due to missing parameters: %s",
                     missingPropertyParameters.toString() ) );
@@ -140,12 +115,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
             String updatesDirectoryPath =
                     params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY ).trim();
             File updatesDirectory = new File( updatesDirectoryPath );
-            if ( false == updatesDirectory.exists() )
+            if ( !updatesDirectory.exists() )
             {
                 throw new WorkloadException( format( "Updates directory does not exist\nDirectory: %s",
                         updatesDirectory.getAbsolutePath() ) );
             }
-            if ( false == updatesDirectory.isDirectory() )
+            if ( !updatesDirectory.isDirectory() )
             {
                 throw new WorkloadException( format( "Updates directory is not a directory\nDirectory: %s",
                         updatesDirectory.getAbsolutePath() ) );
@@ -160,53 +135,26 @@ public class LdbcSnbInteractiveWorkload extends Workload
             forumUpdateOperationFiles = new ArrayList<>();
             personUpdateOperationFiles = new ArrayList<>();
         }
-
-        File parametersDir =
-                new File( params.get( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY ).trim() );
-        if ( false == parametersDir.exists() )
+        if (operationMode != OperationMode.validate_database)
         {
-            throw new WorkloadException(
-                    format( "Parameters directory does not exist: %s", parametersDir.getAbsolutePath() ) );
-        }
-        for ( String readOperationParamsFilename :
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES )
-        {
-            File readOperationParamsFile = new File( parametersDir, readOperationParamsFilename );
-            if ( false == readOperationParamsFile.exists() )
+            parametersDir = new File( params.get( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY ).trim() );
+            if ( !parametersDir.exists() )
             {
                 throw new WorkloadException(
-                        format( "Read operation parameters file does not exist: %s",
-                                readOperationParamsFile.getAbsolutePath() ) );
+                        format( "Parameters directory does not exist: %s", parametersDir.getAbsolutePath() ) );
+            }
+            for ( String readOperationParamsFilename :
+                    LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES.values() )
+            {
+                File readOperationParamsFile = new File( parametersDir, readOperationParamsFilename );
+                if ( !readOperationParamsFile.exists() )
+                {
+                    throw new WorkloadException(
+                            format( "Read operation parameters file does not exist: %s",
+                                    readOperationParamsFile.getAbsolutePath() ) );
+                }
             }
         }
-        readOperation1File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_PARAMS_FILENAME );
-        readOperation2File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_PARAMS_FILENAME );
-        readOperation3File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_PARAMS_FILENAME );
-        readOperation4File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_PARAMS_FILENAME );
-        readOperation5File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_PARAMS_FILENAME );
-        readOperation7File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_PARAMS_FILENAME );
-        readOperation8File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_PARAMS_FILENAME );
-        readOperation9File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_PARAMS_FILENAME );
-        readOperation6File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_PARAMS_FILENAME );
-        readOperation10File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_PARAMS_FILENAME );
-        readOperation11File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_PARAMS_FILENAME );
-        readOperation12File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_PARAMS_FILENAME );
-        readOperation13File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_PARAMS_FILENAME );
-        readOperation14File =
-                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_PARAMS_FILENAME );
 
         enabledLongReadOperationTypes = new HashSet<>();
         for ( String longReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration
@@ -278,9 +226,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 );
             }
         }
-        if ( false == enabledShortReadOperationTypes.isEmpty() )
+        if ( !enabledShortReadOperationTypes.isEmpty() )
         {
-            if ( false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION ) )
+            if ( !params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION ) )
             {
                 throw new WorkloadException( format( "Configuration parameter missing: %s",
                         LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION ) );
@@ -394,7 +342,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 .missingParameters( params, frequencyKeys );
 
         if ( enabledWriteOperationTypes.isEmpty() &&
-             false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
+             !params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
         {
             // if UPDATE_INTERLEAVE is missing and writes are disabled set it to DEFAULT
             params.put(
@@ -402,7 +350,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                     LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE
             );
         }
-        if ( false == params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
+        if ( !params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
         {
             // if UPDATE_INTERLEAVE is missing but writes are enabled it is an error
             throw new WorkloadException(
@@ -424,7 +372,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
                     params,
                     LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_INTERLEAVE_KEYS
             );
-            if ( false == missingInterleaveKeys.isEmpty() )
+            if ( !missingInterleaveKeys.isEmpty() )
             {
                 throw new WorkloadException( format(
                         "Workload could not initialize. One of the following groups of parameters should be set: %s " +
@@ -434,50 +382,28 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
         try
         {
-            readOperation1InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ).trim() );
-            readOperation2InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ).trim() );
-            readOperation3InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ).trim() );
-            readOperation4InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ).trim() );
-            readOperation5InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ).trim() );
-            readOperation6InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ).trim() );
-            readOperation7InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ).trim() );
-            readOperation8InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ).trim() );
-            readOperation9InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ).trim() );
-            readOperation10InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ).trim() );
-            readOperation11InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ).trim() );
-            readOperation12InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ).trim() );
-            readOperation13InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ).trim() );
-            readOperation14InterleaveAsMilli = Long.parseLong(
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ).trim() );
+            longReadInterleavesAsMilli = new HashMap<>();
+            longReadInterleavesAsMilli.put( LdbcQuery1.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery2.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery3.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery4.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery5.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery6.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery7.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery8.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery9.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery10.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery11.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery12.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery13.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery14.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ).trim() ) );
+
         }
         catch ( NumberFormatException e )
         {
             throw new WorkloadException( "Unable to parse one of the read operation interleave values", e );
         }
 
-        String parserString = params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_STREAM_PARSER );
-        if ( null == parserString )
-        {
-            parserString = LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_STREAM_PARSER.name();
-        }
-        if ( false == LdbcSnbInteractiveWorkloadConfiguration.isValidParser( parserString ) )
-        {
-            throw new WorkloadException( "Invalid parser: " + parserString );
-        }
-        this.parser = LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser.valueOf( parserString.trim() );
         this.compressionRatio = Double.parseDouble(
                 params.get( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG ).trim()
         );
@@ -497,20 +423,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
     }
 
-    private Tuple2<Iterator<Operation>,Closeable> fileToWriteStreamParser( File updateOperationsFile,
-            LdbcSnbInteractiveWorkloadConfiguration.UpdateStreamParser parser ) throws IOException, WorkloadException
+    private Tuple2<Iterator<Operation>,Closeable> fileToWriteStreamParser( File updateOperationsFile ) throws IOException, WorkloadException
     {
-        switch ( parser )
-        {
-        case REGEX:
-        {
-            SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader( updateOperationsFile,
-                    SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
-            return Tuple.<Iterator<Operation>,Closeable>tuple2( WriteEventStreamReaderRegex.create( csvFileReader ),
-                    csvFileReader );
-        }
-        case CHAR_SEEKER:
-        {
             int bufferSize = 1 * 1024 * 1024;
             BufferedCharSeeker charSeeker = new BufferedCharSeeker(
                     Readables.wrap(
@@ -521,28 +435,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
             Extractors extractors = new Extractors( ';', ',' );
             return Tuple.<Iterator<Operation>,Closeable>tuple2(
                     WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, '|' ), charSeeker );
-        }
-        case CHAR_SEEKER_THREAD:
-        {
-            int bufferSize = 1 * 1024 * 1024;
-            BufferedCharSeeker charSeeker = new BufferedCharSeeker(
-                    ThreadAheadReadable.threadAhead(
-                            Readables.wrap(
-                                    new InputStreamReader( new FileInputStream( updateOperationsFile ), Charsets.UTF_8 )
-                            ),
-                            bufferSize
-                    ),
-                    bufferSize
-            );
-            Extractors extractors = new Extractors( ';', ',' );
-            return Tuple.<Iterator<Operation>,Closeable>tuple2(
-                    WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, '|' ), charSeeker );
-        }
-        }
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader( updateOperationsFile,
-                SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
-        return Tuple.<Iterator<Operation>,Closeable>tuple2( WriteEventStreamReaderRegex.create( csvFileReader ),
-                csvFileReader );
     }
 
     private Iterator<Operation> getUpdateOperationStream(File updateOperationStream) throws WorkloadException
@@ -551,7 +443,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         try
         {
             Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
-                    fileToWriteStreamParser( updateOperationStream, parser );
+                    fileToWriteStreamParser( updateOperationStream );
                     updateOperationsParser = parserAndCloseable._1();
             updateOperationsFileReaders.add( parserAndCloseable._2() );
         }
@@ -621,28 +513,93 @@ public class LdbcSnbInteractiveWorkload extends Workload
         long workloadStartTimeAsMilli = Long.MAX_VALUE;
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
         List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
-        List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
+        List<Iterator<?>> asynchronousNonDependencyStreamsList;// = new ArrayList<>();
         Set<Class<? extends Operation>> dependentAsynchronousOperationTypes = Sets.newHashSet();
         Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
 
         /* *******
-         * *******
-         * *******
          *  WRITES
-         * *******
-         * *******
          * *******/
 
-        // TODO put person/forum update stream pairs into same streams, to half required thread count
          /*
          * Create person write operation streams
          */
+        workloadStartTimeAsMilli = setUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams);
 
+        if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
+        {
+            workloadStartTimeAsMilli = 0;
+        }
+
+        /* *******
+         *  LONG READS
+         * *******/
+
+         /*
+         * Create read operation streams, with specified interleaves
+         */
+        CsvLoader loader;
+        try {
+            DuckDbConnectionState db = new DuckDbConnectionState();
+            loader = new CsvLoader(db);
+        }
+        catch (SQLException e){
+            throw new WorkloadException(format("Error creating loader for operation streams %s", e));
+        }
+        
+        asynchronousNonDependencyStreamsList = getOperationStreams(gf, workloadStartTimeAsMilli, loader);
+
+        /*
+         * Merge all dependency asynchronous operation streams, ordered by operation start times
+         */
+        Iterator<Operation> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
+                asynchronousDependencyStreamsList.toArray( new Iterator[asynchronousDependencyStreamsList.size()] )
+        );
+        /*
+         * Merge all non dependency asynchronous operation streams, ordered by operation start times
+         */
+        Iterator<Operation> asynchronousNonDependencyStreams = gf.mergeSortOperationsByTimeStamp(
+                asynchronousNonDependencyStreamsList
+                        .toArray( new Iterator[asynchronousNonDependencyStreamsList.size()] )
+        );
+
+        /* *******
+         *  SHORT READS
+         * *******/
+
+        ChildOperationGenerator shortReadsChildGenerator = null;
+        if ( !enabledShortReadOperationTypes.isEmpty() )
+        {
+            shortReadsChildGenerator = getShortReadGenerator(hasDbConnected);
+        }
+
+        /* **************
+         * **************
+         *  FINAL STREAMS
+         * **************
+         * **************/
+
+        ldbcSnbInteractiveWorkloadStreams.setAsynchronousStream(
+                dependentAsynchronousOperationTypes,
+                dependencyAsynchronousOperationTypes,
+                asynchronousDependencyStreams,
+                asynchronousNonDependencyStreams,
+                shortReadsChildGenerator
+        );
+
+        return ldbcSnbInteractiveWorkloadStreams;
+    }
+
+    private long setUpdateStreams(
+        GeneratorFactory gf,
+        long workloadStartTimeAsMilli,
+        WorkloadStreams ldbcSnbInteractiveWorkloadStreams
+    ) throws WorkloadException
+    {
         ArrayList<Iterator<Operation>> listOfOperationStreams = new ArrayList<>();
 
         Set<Class<? extends Operation>> dependencyUpdateOperationTypes =
         Sets.<Class<? extends Operation>>newHashSet();
-
 
         if ( enabledWriteOperationTypes.contains( LdbcUpdate1AddPerson.class ) )
         {
@@ -668,7 +625,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
              enabledWriteOperationTypes.contains( LdbcUpdate6AddPost.class ) ||
              enabledWriteOperationTypes.contains( LdbcUpdate7AddComment.class ) ||
              enabledWriteOperationTypes.contains( LdbcUpdate8AddFriendship.class )
-                )
+        )
         {
             for ( File forumUpdateOperationFile : forumUpdateOperationFiles )
             {
@@ -737,963 +694,84 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 );
             }
         }
-        
 
-        if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
-        { workloadStartTimeAsMilli = 0; }
+        return workloadStartTimeAsMilli;
+    }
 
-        /* *******
-         * *******
-         * *******
-         *  LONG READS
-         * *******
-         * *******
-         * *******/
+    /**
+     * Create Short read operations
+     * @param hasDbConnected
+     * @return
+     */
+    private LdbcSnbShortReadGenerator getShortReadGenerator(boolean hasDbConnected)
+    {
+        RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( 42l );
+        double initialProbability = 1.0;
 
+        Queue<Long> personIdBuffer;
+        Queue<Long> messageIdBuffer;
+        LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY scheduledStartTimePolicy;
+        LdbcSnbShortReadGenerator.BufferReplenishFun bufferReplenishFun;
+        if (hasDbConnected)
+        {
+            personIdBuffer = LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 );
+            messageIdBuffer = LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 );
+            scheduledStartTimePolicy = LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_ACTUAL_FINISH_TIME;
+            bufferReplenishFun = new LdbcSnbShortReadGenerator.ResultBufferReplenishFun(personIdBuffer, messageIdBuffer );
+        }
+        else
+        {
+            personIdBuffer = LdbcSnbShortReadGenerator.constantBuffer( 1 );
+            messageIdBuffer = LdbcSnbShortReadGenerator.constantBuffer( 1 );
+            scheduledStartTimePolicy = LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_SCHEDULED_START_TIME;
+            bufferReplenishFun = new LdbcSnbShortReadGenerator.NoOpBufferReplenishFun();
+        }
+        return new LdbcSnbShortReadGenerator(
+                initialProbability,
+                shortReadDissipationFactor,
+                updateInterleaveAsMilli,
+                enabledShortReadOperationTypes,
+                compressionRatio,
+                personIdBuffer,
+                messageIdBuffer,
+                randomFactory,
+                longReadInterleavesAsMilli,
+                scheduledStartTimePolicy,
+                bufferReplenishFun
+        );
+    }
+
+    /**
+     * Get the operation streams (substitution parameters)
+     * @param gf Generator factory to use 
+     * @param workloadStartTimeAsMilli The workloadStartTimeAsMilli
+     * @param loader Loader to open the csv files
+     * @return List of operation streams
+     * @throws WorkloadException
+     */
+    private List<Iterator<?>> getOperationStreams(
+        GeneratorFactory gf,
+        long workloadStartTimeAsMilli,
+        CsvLoader loader
+    ) throws WorkloadException
+    {
+        List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
         /*
          * Create read operation streams, with specified interleaves
          */
-        int bufferSize = 1 * 1024 * 1024;
-        char columnDelimiter = '|';
-        char arrayDelimiter = ';';
-        char tupleDelimiter = ',';
-
-        Iterator<Operation> readOperation1Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query1EventStreamReader.Query1Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation1File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation1File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation1File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation1StreamWithoutTimes = new Query1EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
+        ReadOperationStream readOperationStream = new ReadOperationStream(gf, workloadStartTimeAsMilli, loader);
+        Map<Integer, EventStreamReader.EventDecoder<Operation>> decoders = QueryEventStreamReader.getDecoders();
+        Map<Class<? extends Operation>, Integer> classToTypeMap = MapUtils.invertMap(operationTypeToClassMapping());
+        for (Class enabledClass : enabledLongReadOperationTypes) {
+            Integer type = classToTypeMap.get( enabledClass );
+            Iterator<Operation> eventOperationStream = readOperationStream.readOperationStream(
+                decoders.get(type),
+                longReadInterleavesAsMilli.get( type ),
+                new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES.get( type ))
             );
-
-            Iterator<Long> operation1StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation1InterleaveAsMilli,
-                            readOperation1InterleaveAsMilli );
-
-            readOperation1Stream = gf.assignStartTimes(
-                    operation1StartTimes,
-                    operation1StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
+            asynchronousNonDependencyStreamsList.add( eventOperationStream );
         }
-
-        Iterator<Operation> readOperation2Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query2EventStreamReader.Query2Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation2File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation2File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation2File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation2StreamWithoutTimes = new Query2EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation2StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation2InterleaveAsMilli,
-                            readOperation2InterleaveAsMilli );
-
-            readOperation2Stream = gf.assignStartTimes(
-                    operation2StartTimes,
-                    operation2StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation3Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query3EventStreamReader.Query3Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation3File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation3File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation3File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation3StreamWithoutTimes = new Query3EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation3StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation3InterleaveAsMilli,
-                            readOperation3InterleaveAsMilli );
-
-            readOperation3Stream = gf.assignStartTimes(
-                    operation3StartTimes,
-                    operation3StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation4Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query4EventStreamReader.Query4Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation4File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation4File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation4File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation4StreamWithoutTimes = new Query4EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation4StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation4InterleaveAsMilli,
-                            readOperation4InterleaveAsMilli );
-
-            readOperation4Stream = gf.assignStartTimes(
-                    operation4StartTimes,
-                    operation4StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation5Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query5EventStreamReader.Query5Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation5File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation5File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation5File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation5StreamWithoutTimes = new Query5EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation5StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation5InterleaveAsMilli,
-                            readOperation5InterleaveAsMilli );
-
-            readOperation5Stream = gf.assignStartTimes(
-                    operation5StartTimes,
-                    operation5StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation6Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query6EventStreamReader.Query6Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation6File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation6File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation6File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation6StreamWithoutTimes = new Query6EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation6StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation6InterleaveAsMilli,
-                            readOperation6InterleaveAsMilli );
-
-            readOperation6Stream = gf.assignStartTimes(
-                    operation6StartTimes,
-                    operation6StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation7Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query7EventStreamReader.Query7Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation7File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation7File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation7File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation7StreamWithoutTimes = new Query7EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation7StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation7InterleaveAsMilli,
-                            readOperation7InterleaveAsMilli );
-
-            readOperation7Stream = gf.assignStartTimes(
-                    operation7StartTimes,
-                    operation7StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation8Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query8EventStreamReader.Query8Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation8File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation8File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation8File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation8StreamWithoutTimes = new Query8EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation8StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation8InterleaveAsMilli,
-                            readOperation8InterleaveAsMilli );
-
-            readOperation8Stream = gf.assignStartTimes(
-                    operation8StartTimes,
-                    operation8StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation9Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query9EventStreamReader.Query9Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation9File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation9File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation9File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation9StreamWithoutTimes = new Query9EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation9StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation9InterleaveAsMilli,
-                            readOperation9InterleaveAsMilli );
-
-            readOperation9Stream = gf.assignStartTimes(
-                    operation9StartTimes,
-                    operation9StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation10Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query10EventStreamReader.Query10Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation10File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation10File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation10File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation10StreamWithoutTimes = new Query10EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation10StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation10InterleaveAsMilli,
-                            readOperation10InterleaveAsMilli );
-
-            readOperation10Stream = gf.assignStartTimes(
-                    operation10StartTimes,
-                    operation10StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation11Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query11EventStreamReader.Query11Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation11File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation11File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation11File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation11StreamWithoutTimes = new Query11EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation11StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation11InterleaveAsMilli,
-                            readOperation11InterleaveAsMilli );
-
-            readOperation11Stream = gf.assignStartTimes(
-                    operation11StartTimes,
-                    operation11StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation12Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query12EventStreamReader.Query12Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation12File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation12File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation12File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation12StreamWithoutTimes = new Query12EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation12StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation12InterleaveAsMilli,
-                            readOperation12InterleaveAsMilli );
-
-            readOperation12Stream = gf.assignStartTimes(
-                    operation12StartTimes,
-                    operation12StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation13Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query13EventStreamReader.Query13Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation13File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation13File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation13File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation13StreamWithoutTimes = new Query13EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation13StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation13InterleaveAsMilli,
-                            readOperation13InterleaveAsMilli );
-
-            readOperation13Stream = gf.assignStartTimes(
-                    operation13StartTimes,
-                    operation13StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        Iterator<Operation> readOperation14Stream;
-        {
-            CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query14EventStreamReader.Query14Decoder();
-            Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
-            CharSeeker charSeeker;
-            try
-            {
-                charSeeker = new BufferedCharSeeker(
-                        Readables.wrap(
-                                new InputStreamReader( new FileInputStream( readOperation14File ), Charsets.UTF_8 )
-                        ),
-                        bufferSize
-                );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new WorkloadException(
-                        format( "Unable to open parameters file: %s", readOperation14File.getAbsolutePath() ),
-                        e );
-            }
-            Mark mark = new Mark();
-            // skip headers
-            try
-            {
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-                charSeeker.seek( mark, new int[]{columnDelimiter} );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( format( "Unable to advance parameters file beyond headers: %s",
-                        readOperation14File.getAbsolutePath() ), e );
-            }
-
-            Iterator<Operation> operation14StreamWithoutTimes = new Query14EventStreamReader(
-                    gf.repeating(
-                            new CsvEventStreamReaderBasicCharSeeker<>(
-                                    charSeeker,
-                                    extractors,
-                                    mark,
-                                    decoder,
-                                    columnDelimiter
-                            )
-                    )
-            );
-
-            Iterator<Long> operation14StartTimes =
-                    gf.incrementing( workloadStartTimeAsMilli + readOperation14InterleaveAsMilli,
-                            readOperation14InterleaveAsMilli );
-
-            readOperation14Stream = gf.assignStartTimes(
-                    operation14StartTimes,
-                    operation14StreamWithoutTimes
-            );
-
-            readOperationFileReaders.add( charSeeker );
-        }
-
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery1.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation1Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery2.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation2Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery3.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation3Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery4.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation4Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery5.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation5Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery6.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation6Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery7.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation7Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery8.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation8Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery9.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation9Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery10.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation10Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery11.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation11Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery12.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation12Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery13.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation13Stream ); }
-        if ( enabledLongReadOperationTypes.contains( LdbcQuery14.class ) )
-        { asynchronousNonDependencyStreamsList.add( readOperation14Stream ); }
-
-        /*
-         * Merge all dependency asynchronous operation streams, ordered by operation start times
-         */
-        Iterator<Operation> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
-                asynchronousDependencyStreamsList.toArray( new Iterator[asynchronousDependencyStreamsList.size()] )
-        );
-        /*
-         * Merge all non dependency asynchronous operation streams, ordered by operation start times
-         */
-        Iterator<Operation> asynchronousNonDependencyStreams = gf.mergeSortOperationsByTimeStamp(
-                asynchronousNonDependencyStreamsList
-                        .toArray( new Iterator[asynchronousNonDependencyStreamsList.size()] )
-        );
-
-        /* *******
-         * *******
-         * *******
-         *  SHORT READS
-         * *******
-         * *******
-         * *******/
-
-        ChildOperationGenerator shortReadsChildGenerator = null;
-        if ( false == enabledShortReadOperationTypes.isEmpty() )
-        {
-            Map<Integer,Long> longReadInterleavesAsMilli = new HashMap<>();
-            longReadInterleavesAsMilli.put( LdbcQuery1.TYPE, readOperation1InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery2.TYPE, readOperation2InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery3.TYPE, readOperation3InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery4.TYPE, readOperation4InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery5.TYPE, readOperation5InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery6.TYPE, readOperation6InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery7.TYPE, readOperation7InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery8.TYPE, readOperation8InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery9.TYPE, readOperation9InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery10.TYPE, readOperation10InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery11.TYPE, readOperation11InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery12.TYPE, readOperation12InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery13.TYPE, readOperation13InterleaveAsMilli );
-            longReadInterleavesAsMilli.put( LdbcQuery14.TYPE, readOperation14InterleaveAsMilli );
-
-            RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( 42l );
-            double initialProbability = 1.0;
-            Queue<Long> personIdBuffer = (hasDbConnected)
-                                         ? LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 )
-                                         : LdbcSnbShortReadGenerator.constantBuffer( 1 );
-            Queue<Long> messageIdBuffer = (hasDbConnected)
-                                          ? LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer( 1024 )
-                                          : LdbcSnbShortReadGenerator.constantBuffer( 1 );
-            LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY scheduledStartTimePolicy = (hasDbConnected)
-                                                                                             ?
-                                                                                             LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_ACTUAL_FINISH_TIME
-                                                                                             :
-                                                                                             LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_SCHEDULED_START_TIME;
-            LdbcSnbShortReadGenerator.BufferReplenishFun bufferReplenishFun = (hasDbConnected)
-                                                                              ? new LdbcSnbShortReadGenerator
-                    .ResultBufferReplenishFun(
-                    personIdBuffer, messageIdBuffer )
-                                                                              : new LdbcSnbShortReadGenerator
-                                                                                      .NoOpBufferReplenishFun();
-            shortReadsChildGenerator = new LdbcSnbShortReadGenerator(
-                    initialProbability,
-                    shortReadDissipationFactor,
-                    updateInterleaveAsMilli,
-                    enabledShortReadOperationTypes,
-                    compressionRatio,
-                    personIdBuffer,
-                    messageIdBuffer,
-                    randomFactory,
-                    longReadInterleavesAsMilli,
-                    scheduledStartTimePolicy,
-                    bufferReplenishFun
-            );
-        }
-
-        /* **************
-         * **************
-         * **************
-         *  FINAL STREAMS
-         * **************
-         * **************
-         * **************/
-
-        ldbcSnbInteractiveWorkloadStreams.setAsynchronousStream(
-                dependentAsynchronousOperationTypes,
-                dependencyAsynchronousOperationTypes,
-                asynchronousDependencyStreams,
-                asynchronousNonDependencyStreams,
-                shortReadsChildGenerator
-        );
-
-        return ldbcSnbInteractiveWorkloadStreams;
+        return asynchronousNonDependencyStreamsList;
     }
 
     /**

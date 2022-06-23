@@ -1,7 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive.db;
 
 import com.google.common.collect.Lists;
-import org.ldbcouncil.snb.driver.workloads.interactive.*;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.util.Date;
 

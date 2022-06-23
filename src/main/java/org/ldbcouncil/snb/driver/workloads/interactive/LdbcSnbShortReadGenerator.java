@@ -9,6 +9,7 @@ import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.util.Arrays;

@@ -6,9 +6,9 @@ import com.google.common.collect.Sets;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
-import org.ldbcouncil.snb.driver.workloads.OperationTest;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 import org.junit.Test;
 
 import java.util.HashMap;
