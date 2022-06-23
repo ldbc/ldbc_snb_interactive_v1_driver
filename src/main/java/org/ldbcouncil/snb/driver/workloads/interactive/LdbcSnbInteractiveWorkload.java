@@ -437,6 +437,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
                     WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, '|' ), charSeeker );
     }
 
+    /**
+     * Read the operation stream from the updatestream file.
+     * @param updateOperationStream File containing the update stream
+     * @return 
+     * @throws WorkloadException
+     */
     private Iterator<Operation> getUpdateOperationStream(File updateOperationStream) throws WorkloadException
     {
         Iterator<Operation> updateOperationsParser;
@@ -469,14 +475,37 @@ public class LdbcSnbInteractiveWorkload extends Workload
         return updateOperationsParser;
     } 
 
-    private long filterStreamAndGetStartTime(
+    /**
+     * Filters update streams on enabled update operations
+     * @param updateStream: The operation stream to filter
+     * @return Filtered operation stream
+     */
+    private Iterator<Operation> filterUpdateStreams(Iterator<Operation> unfilteredUpdateOperations)
+    {
+        Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>()
+        {
+            @Override
+            public boolean apply( Operation operation )
+            {
+                return enabledWriteOperationTypes.contains( operation.getClass() );
+            }
+        };
+        return Iterators.filter( unfilteredUpdateOperations, enabledWriteOperationsFilter );
+    }
+
+    /**
+     * Peek the first operation and fetch the operation start time.
+     * @param updateStream The Iterator with update operations
+     * @param workloadStartTimeAsMilli The initial start time as milli
+     * @return New workload start time as milli
+     * @throws WorkloadException
+     */
+    private long getOperationStreamStartTime(
         Iterator<Operation> updateStream,
-        ArrayList<Iterator<Operation>> operationStreamList,
         long workloadStartTimeAsMilli
     ) throws WorkloadException
     {
         PeekingIterator<Operation> unfilteredUpdateOperations = Iterators.peekingIterator( updateStream );
-
         try
         {
             if ( unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli() <
@@ -489,24 +518,16 @@ public class LdbcSnbInteractiveWorkload extends Workload
         {
             // do nothing, exception just means that stream was empty
         }
-
-        // Filter Write Operations
-        Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>()
-        {
-            @Override
-            public boolean apply( Operation operation )
-            {
-                return enabledWriteOperationTypes.contains( operation.getClass() );
-            }
-        };
-        Iterator<Operation> filteredUpdateOperations =
-                Iterators.filter( unfilteredUpdateOperations, enabledWriteOperationsFilter );
-
-        operationStreamList.add(filteredUpdateOperations);
         return workloadStartTimeAsMilli;
     }
 
-
+    /**
+     * Initializes the workloadstreams
+     * @param gf: Generator factory with generator functions to merge iterators, create looping iterators
+     * @param hasDbConnected: Whether there is a dabatase connected (used for shortreads)
+     * @return Initiliazed WorkloadStreams
+     * @throws WorkloadException
+     */
     @Override
     protected WorkloadStreams getStreams( GeneratorFactory gf, boolean hasDbConnected ) throws WorkloadException
     {
@@ -517,12 +538,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
         Set<Class<? extends Operation>> dependentAsynchronousOperationTypes = Sets.newHashSet();
         Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
 
-        /* *******
-         *  WRITES
-         * *******/
-
-         /*
-         * Create person write operation streams
+        /* 
+         * WRITES
          */
         workloadStartTimeAsMilli = setUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams);
 
@@ -531,12 +548,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
             workloadStartTimeAsMilli = 0;
         }
 
-        /* *******
-         *  LONG READS
-         * *******/
-
-         /*
-         * Create read operation streams, with specified interleaves
+        /* 
+         * LONG READS
          */
         CsvLoader loader;
         try {
@@ -546,7 +559,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         catch (SQLException e){
             throw new WorkloadException(format("Error creating loader for operation streams %s", e));
         }
-        
+
         asynchronousNonDependencyStreamsList = getOperationStreams(gf, workloadStartTimeAsMilli, loader);
 
         /*
@@ -563,22 +576,18 @@ public class LdbcSnbInteractiveWorkload extends Workload
                         .toArray( new Iterator[asynchronousNonDependencyStreamsList.size()] )
         );
 
-        /* *******
-         *  SHORT READS
-         * *******/
-
+        /* 
+         * SHORT READS
+         */
         ChildOperationGenerator shortReadsChildGenerator = null;
         if ( !enabledShortReadOperationTypes.isEmpty() )
         {
             shortReadsChildGenerator = getShortReadGenerator(hasDbConnected);
         }
 
-        /* **************
-         * **************
-         *  FINAL STREAMS
-         * **************
-         * **************/
-
+        /* 
+         * FINAL STREAMS
+         */
         ldbcSnbInteractiveWorkloadStreams.setAsynchronousStream(
                 dependentAsynchronousOperationTypes,
                 dependencyAsynchronousOperationTypes,
@@ -590,6 +599,14 @@ public class LdbcSnbInteractiveWorkload extends Workload
         return ldbcSnbInteractiveWorkloadStreams;
     }
 
+    /**
+     * Set the update streams in the given WorkloadStreams
+     * @param gf: Generator factory with generator functions to merge iterators
+     * @param workloadStartTimeAsMilli: The initial workload start time as milli
+     * @param ldbcSnbInteractiveWorkloadStreams: The workloadstreams where the update streams are set
+     * @return Updated workload start time as milli.
+     * @throws WorkloadException
+     */
     private long setUpdateStreams(
         GeneratorFactory gf,
         long workloadStartTimeAsMilli,
@@ -606,12 +623,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
             for ( File personUpdateOperationFile : personUpdateOperationFiles )
             {
                 dependencyUpdateOperationTypes.add(LdbcUpdate1AddPerson.class);
-                Iterator<Operation> personUpdateOperationsParser= getUpdateOperationStream(personUpdateOperationFile);
-                workloadStartTimeAsMilli = filterStreamAndGetStartTime(
-                    personUpdateOperationsParser,
-                    listOfOperationStreams,
-                    workloadStartTimeAsMilli
-                );
+                Iterator<Operation> personUpdateOperationStream = getUpdateOperationStream(personUpdateOperationFile);
+                listOfOperationStreams.add(personUpdateOperationStream);
             }
         }
 
@@ -641,12 +654,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
                     );
                     dependencyUpdateOperationTypes.addAll(dependentForumUpdateOperationTypes);
 
-                Iterator<Operation> forumUpdateOperationsParser = getUpdateOperationStream(forumUpdateOperationFile);
-                workloadStartTimeAsMilli = filterStreamAndGetStartTime(
-                    forumUpdateOperationsParser,
-                    listOfOperationStreams,
-                    workloadStartTimeAsMilli
-                );
+                Iterator<Operation> forumUpdateOperationsStream = getUpdateOperationStream(forumUpdateOperationFile);
+                listOfOperationStreams.add(forumUpdateOperationsStream);
             }
         }
         Iterator<Operation> mergedUpdateStreams = Collections.<Operation>emptyIterator();
@@ -654,18 +663,23 @@ public class LdbcSnbInteractiveWorkload extends Workload
             mergedUpdateStreams = gf.mergeSortOperationsByTimeStamp(mergedUpdateStreams,  updateStream);
         }
 
+        workloadStartTimeAsMilli = getOperationStreamStartTime(mergedUpdateStreams, workloadStartTimeAsMilli);
+
+        Iterator<Operation> filteredUpdateOperations = filterUpdateStreams(mergedUpdateStreams);
+
         if (numThreads == 1)
         {
             ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
                 Sets.newHashSet(),
                 dependencyUpdateOperationTypes,
-                mergedUpdateStreams,
+                filteredUpdateOperations,
                 Collections.<Operation>emptyIterator(),
                 null
             );
         }
-        else{
-        // Split across numThreads
+        else
+        {
+            // Split across numThreads
             List<ArrayList<Operation>> operationLists = new ArrayList<>();
             for (int i = 0; i < numThreads; i++) {
                 // Instantiate lists
@@ -674,10 +688,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
             int index = 0;
             // Split accros threads
-            while(mergedUpdateStreams.hasNext())
+            while(filteredUpdateOperations.hasNext())
             {
                 int listIndex = index % numThreads;
-                Operation operation = mergedUpdateStreams.next();
+                Operation operation = filteredUpdateOperations.next();
                 operationLists.get(listIndex).add(operation);
                 index++;
             }
@@ -694,13 +708,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 );
             }
         }
-
         return workloadStartTimeAsMilli;
     }
 
     /**
      * Create Short read operations
-     * @param hasDbConnected
+     * @param hasDbConnected: Whether a database is connected
      * @return
      */
     private LdbcSnbShortReadGenerator getShortReadGenerator(boolean hasDbConnected)
