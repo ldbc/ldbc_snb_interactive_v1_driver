@@ -51,6 +51,14 @@ import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.DEDUCTION;
     @JsonSubTypes.Type(LdbcUpdate6AddPost.class),
     @JsonSubTypes.Type(LdbcUpdate7AddComment.class),
     @JsonSubTypes.Type(LdbcUpdate8AddFriendship.class),
+    @JsonSubTypes.Type(LdbcDelete1RemovePerson.class),
+    @JsonSubTypes.Type(LdbcDelete2RemovePostLike.class),
+    @JsonSubTypes.Type(LdbcDelete3RemoveCommentLike.class),
+    @JsonSubTypes.Type(LdbcDelete4RemoveForum.class),
+    @JsonSubTypes.Type(LdbcDelete5RemoveForumMembership.class),
+    @JsonSubTypes.Type(LdbcDelete6RemovePostThread.class),
+    @JsonSubTypes.Type(LdbcDelete7RemoveCommentSubthread.class),
+    @JsonSubTypes.Type(LdbcDelete8RemoveFriendship.class)
 })
 public abstract class Operation<RESULT_TYPE>
 {
