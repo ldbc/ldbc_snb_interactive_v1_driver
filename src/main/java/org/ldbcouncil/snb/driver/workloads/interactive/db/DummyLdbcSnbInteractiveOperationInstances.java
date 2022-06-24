@@ -137,4 +137,38 @@ public class DummyLdbcSnbInteractiveOperationInstances {
     public static LdbcUpdate8AddFriendship write8() {
         return new LdbcUpdate8AddFriendship(1, 2, new Date(3));
     }
+
+    /* DELETES
+     */ 
+    public static LdbcDelete1RemovePerson delete1() {
+        return new LdbcDelete1RemovePerson(1);
+    }
+
+    public static LdbcDelete2RemovePostLike delete2() {
+        return new LdbcDelete2RemovePostLike(1, 2);
+    }
+
+    public static LdbcDelete3RemoveCommentLike delete3() {
+        return new LdbcDelete3RemoveCommentLike(1, 2);
+    }
+
+    public static LdbcDelete4RemoveForum delete4() {
+        return new LdbcDelete4RemoveForum(1);
+    }
+
+    public static LdbcDelete5RemoveForumMembership delete5() {
+        return new LdbcDelete5RemoveForumMembership(1, 2);
+    }
+
+    public static LdbcDelete6RemovePostThread delete6() {
+        return new LdbcDelete6RemovePostThread(1);
+    }
+
+    public static LdbcDelete7RemoveCommentSubthread delete7() {
+        return new LdbcDelete7RemoveCommentSubthread(1);
+    }
+
+    public static LdbcDelete8RemoveFriendship delete8() {
+        return new LdbcDelete8RemoveFriendship(1, 2);
+    }
 }

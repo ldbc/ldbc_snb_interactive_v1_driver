@@ -205,6 +205,16 @@ public class DummyLdbcSnbInteractiveDb extends Db
         registerOperationHandler( LdbcUpdate6AddPost.class, LdbcUpdate6AddPostHandler.class );
         registerOperationHandler( LdbcUpdate7AddComment.class, LdbcUpdate7AddCommentHandler.class );
         registerOperationHandler( LdbcUpdate8AddFriendship.class, LdbcUpdate8AddFriendshipHandler.class );
+
+                // Deletes
+        registerOperationHandler( LdbcDelete1RemovePerson.class, LdbcDelete1RemovePersonHandler.class );
+        registerOperationHandler( LdbcDelete2RemovePostLike.class, LdbcDelete2RemovePostLikeHandler.class );
+        registerOperationHandler( LdbcDelete3RemoveCommentLike.class, LdbcDelete3RemoveCommentLikeHandler.class );
+        registerOperationHandler( LdbcDelete4RemoveForum.class, LdbcDelete4RemoveForumHandler.class );
+        registerOperationHandler( LdbcDelete5RemoveForumMembership.class, LdbcDelete5RemoveForumMembershipHandler.class );
+        registerOperationHandler( LdbcDelete6RemovePostThread.class, LdbcDelete6RemovePostThreadHandler.class );
+        registerOperationHandler( LdbcDelete7RemoveCommentSubthread.class, LdbcDelete7RemoveCommentSubthreadHandler.class );
+        registerOperationHandler( LdbcDelete8RemoveFriendship.class, LdbcDelete8RemoveFriendshipHandler.class );
     }
 
     @Override
@@ -624,6 +634,102 @@ public class DummyLdbcSnbInteractiveDb extends Db
     {
         @Override
         public void executeOperation( LdbcUpdate8AddFriendship operation, DummyDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
+        {
+            sleep( operation, sleepDurationAsNano );
+            resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
+        }
+    }
+
+    public static class LdbcDelete1RemovePersonHandler
+        implements OperationHandler<LdbcDelete1RemovePerson,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcDelete1RemovePerson operation, DummyDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
+        {
+            sleep( operation, sleepDurationAsNano );
+            resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
+        }
+    }
+
+    public static class LdbcDelete2RemovePostLikeHandler
+        implements OperationHandler<LdbcDelete2RemovePostLike,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcDelete2RemovePostLike operation, DummyDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
+        {
+            sleep( operation, sleepDurationAsNano );
+            resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
+        }
+    }
+
+    public static class LdbcDelete3RemoveCommentLikeHandler
+        implements OperationHandler<LdbcDelete3RemoveCommentLike,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcDelete3RemoveCommentLike operation, DummyDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
+        {
+            sleep( operation, sleepDurationAsNano );
+            resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
+        }
+    }
+
+    public static class LdbcDelete4RemoveForumHandler
+        implements OperationHandler<LdbcDelete4RemoveForum,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcDelete4RemoveForum operation, DummyDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
+        {
+            sleep( operation, sleepDurationAsNano );
+            resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
+        }
+    }
+
+    public static class LdbcDelete5RemoveForumMembershipHandler
+        implements OperationHandler<LdbcDelete5RemoveForumMembership,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcDelete5RemoveForumMembership operation, DummyDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
+        {
+            sleep( operation, sleepDurationAsNano );
+            resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
+        }
+    }
+
+    public static class LdbcDelete6RemovePostThreadHandler
+        implements OperationHandler<LdbcDelete6RemovePostThread,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcDelete6RemovePostThread operation, DummyDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
+        {
+            sleep( operation, sleepDurationAsNano );
+            resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
+        }
+    }
+
+    public static class LdbcDelete7RemoveCommentSubthreadHandler
+        implements OperationHandler<LdbcDelete7RemoveCommentSubthread,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcDelete7RemoveCommentSubthread operation, DummyDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
+        {
+            sleep( operation, sleepDurationAsNano );
+            resultReporter.report( 0, LdbcNoResult.INSTANCE, operation );
+        }
+    }
+
+    public static class LdbcDelete8RemoveFriendshipHandler
+        implements OperationHandler<LdbcDelete8RemoveFriendship,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcDelete8RemoveFriendship operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );
