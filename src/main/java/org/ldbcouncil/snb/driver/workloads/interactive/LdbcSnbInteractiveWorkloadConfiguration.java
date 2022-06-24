@@ -549,6 +549,14 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         operationTypeToClassMapping.put( LdbcUpdate6AddPost.TYPE, LdbcUpdate6AddPost.class );
         operationTypeToClassMapping.put( LdbcUpdate7AddComment.TYPE, LdbcUpdate7AddComment.class );
         operationTypeToClassMapping.put( LdbcUpdate8AddFriendship.TYPE, LdbcUpdate8AddFriendship.class );
+        operationTypeToClassMapping.put( LdbcDelete1RemovePerson.TYPE, LdbcDelete1RemovePerson.class );
+        operationTypeToClassMapping.put( LdbcDelete2RemovePostLike.TYPE, LdbcDelete2RemovePostLike.class );
+        operationTypeToClassMapping.put( LdbcDelete3RemoveCommentLike.TYPE, LdbcDelete3RemoveCommentLike.class );
+        operationTypeToClassMapping.put( LdbcDelete4RemoveForum.TYPE, LdbcDelete4RemoveForum.class );
+        operationTypeToClassMapping.put( LdbcDelete5RemoveForumMembership.TYPE, LdbcDelete5RemoveForumMembership.class );
+        operationTypeToClassMapping.put( LdbcDelete6RemovePostThread.TYPE, LdbcDelete6RemovePostThread.class );
+        operationTypeToClassMapping.put( LdbcDelete7RemoveCommentSubthread.TYPE, LdbcDelete7RemoveCommentSubthread.class );
+        operationTypeToClassMapping.put( LdbcDelete8RemoveFriendship.TYPE, LdbcDelete8RemoveFriendship.class );
         return operationTypeToClassMapping;
     }
 
