@@ -50,6 +50,9 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         CHAR_SEEKER_THREAD
     }
 
+    public static final String INSERTS_DIRECTORY = "inserts";
+    public static final String DELETES_DIRECTORY = "deletes";
+
     public static final String UPDATE_STREAM_PARSER = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_parser";
     public static final UpdateStreamParser DEFAULT_UPDATE_STREAM_PARSER = UpdateStreamParser.CHAR_SEEKER;
     public static final String LDBC_INTERACTIVE_PACKAGE_PREFIX =
@@ -227,6 +230,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             SHORT_READ_OPERATION_6_ENABLE_KEY,
             SHORT_READ_OPERATION_7_ENABLE_KEY
     );
+
     public static final String WRITE_OPERATION_1_ENABLE_KEY = asEnableKey( LdbcUpdate1AddPerson.class );
     public static final String WRITE_OPERATION_2_ENABLE_KEY = asEnableKey( LdbcUpdate2AddPostLike.class );
     public static final String WRITE_OPERATION_3_ENABLE_KEY = asEnableKey( LdbcUpdate3AddCommentLike.class );
@@ -235,15 +239,31 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     public static final String WRITE_OPERATION_6_ENABLE_KEY = asEnableKey( LdbcUpdate6AddPost.class );
     public static final String WRITE_OPERATION_7_ENABLE_KEY = asEnableKey( LdbcUpdate7AddComment.class );
     public static final String WRITE_OPERATION_8_ENABLE_KEY = asEnableKey( LdbcUpdate8AddFriendship.class );
+    public static final String WRITE_OPERATION_9_ENABLE_KEY = asEnableKey( LdbcDelete1RemovePerson.class );
+    public static final String WRITE_OPERATION_10_ENABLE_KEY = asEnableKey( LdbcDelete2RemovePostLike.class );
+    public static final String WRITE_OPERATION_11_ENABLE_KEY = asEnableKey( LdbcDelete3RemoveCommentLike.class );
+    public static final String WRITE_OPERATION_12_ENABLE_KEY = asEnableKey( LdbcDelete4RemoveForum.class );
+    public static final String WRITE_OPERATION_13_ENABLE_KEY = asEnableKey( LdbcDelete5RemoveForumMembership.class );
+    public static final String WRITE_OPERATION_14_ENABLE_KEY = asEnableKey( LdbcDelete6RemovePostThread.class );
+    public static final String WRITE_OPERATION_15_ENABLE_KEY = asEnableKey( LdbcDelete7RemoveCommentSubthread.class );
+    public static final String WRITE_OPERATION_16_ENABLE_KEY = asEnableKey( LdbcDelete8RemoveFriendship.class );
     public static final List<String> WRITE_OPERATION_ENABLE_KEYS = Lists.newArrayList(
-            WRITE_OPERATION_1_ENABLE_KEY,
+            WRITE_OPERATION_1_ENABLE_KEY, 
             WRITE_OPERATION_2_ENABLE_KEY,
             WRITE_OPERATION_3_ENABLE_KEY,
             WRITE_OPERATION_4_ENABLE_KEY,
             WRITE_OPERATION_5_ENABLE_KEY,
             WRITE_OPERATION_6_ENABLE_KEY,
             WRITE_OPERATION_7_ENABLE_KEY,
-            WRITE_OPERATION_8_ENABLE_KEY
+            WRITE_OPERATION_8_ENABLE_KEY,
+            WRITE_OPERATION_9_ENABLE_KEY,
+            WRITE_OPERATION_10_ENABLE_KEY,
+            WRITE_OPERATION_11_ENABLE_KEY,
+            WRITE_OPERATION_12_ENABLE_KEY,
+            WRITE_OPERATION_13_ENABLE_KEY,
+            WRITE_OPERATION_14_ENABLE_KEY,
+            WRITE_OPERATION_15_ENABLE_KEY,
+            WRITE_OPERATION_16_ENABLE_KEY
     );
 
     private static String asEnableKey( Class<? extends Operation> operation )
@@ -552,6 +572,34 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         {
             throw new WorkloadException( format( "Unsupported parser value: %s", parserString ), e );
         }
+    }
+
+    /**
+     * Get mapping of update/delete operation and filename containing the events
+     */
+    public static Map<Class<? extends Operation>, String> getUpdateStreamClassToPathMapping( )
+    {
+        Map<Class<? extends Operation>, String> classToFileNameMapping = new HashMap<>();
+        // Inserts
+        classToFileNameMapping.put( LdbcUpdate1AddPerson.class, INSERTS_DIRECTORY + "Person.csv" );
+        classToFileNameMapping.put( LdbcUpdate2AddPostLike.class, INSERTS_DIRECTORY + "Person_likes_Post.csv" );
+        classToFileNameMapping.put( LdbcUpdate3AddCommentLike.class, INSERTS_DIRECTORY + "Person_likes_Comment.csv" );
+        classToFileNameMapping.put( LdbcUpdate4AddForum.class, INSERTS_DIRECTORY + "Forum.csv" );
+        classToFileNameMapping.put( LdbcUpdate5AddForumMembership.class, INSERTS_DIRECTORY + "Forum_hasMember_Person.csv" );
+        classToFileNameMapping.put( LdbcUpdate6AddPost.class, INSERTS_DIRECTORY + "Post.csv" );
+        classToFileNameMapping.put( LdbcUpdate7AddComment.class, INSERTS_DIRECTORY + "Comment.csv" );
+        classToFileNameMapping.put( LdbcUpdate8AddFriendship.class, INSERTS_DIRECTORY + "Person_knows_Person.csv" );
+
+        // Deletes
+        classToFileNameMapping.put( LdbcDelete1RemovePerson.class, DELETES_DIRECTORY + "Person.csv" );
+        classToFileNameMapping.put( LdbcDelete2RemovePostLike.class, DELETES_DIRECTORY + "Person_likes_Post.csv" );
+        classToFileNameMapping.put( LdbcDelete3RemoveCommentLike.class, DELETES_DIRECTORY + "Person_likes_Comment.csv" );
+        classToFileNameMapping.put( LdbcDelete4RemoveForum.class, DELETES_DIRECTORY + "Forum.csv" );
+        classToFileNameMapping.put( LdbcDelete5RemoveForumMembership.class, DELETES_DIRECTORY + "Forum_hasMember_Person.csv" );
+        classToFileNameMapping.put( LdbcDelete6RemovePostThread.class, DELETES_DIRECTORY + "Post.csv" );
+        classToFileNameMapping.put( LdbcDelete7RemoveCommentSubthread.class, DELETES_DIRECTORY + "Comment.csv" );
+        classToFileNameMapping.put( LdbcDelete8RemoveFriendship.class, DELETES_DIRECTORY + "Person_knows_Person.csv" );
+        return classToFileNameMapping;
     }
 
     public static List<File> forumUpdateFilesInDirectory( File directory )
