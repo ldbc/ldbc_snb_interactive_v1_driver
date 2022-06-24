@@ -52,11 +52,6 @@ import static java.lang.String.format;
 
 public class LdbcSnbInteractiveWorkload extends Workload
 {
-    private List<File> forumUpdateOperationFiles = new ArrayList<>();
-    private List<Closeable> updateOperationsFileReaders = new ArrayList<>();
-    private List<File> personUpdateOperationFiles = new ArrayList<>();
-
-    private List<Closeable> readOperationFileReaders = new ArrayList<>();
     private Map<Integer,Long> longReadInterleavesAsMilli;
     private File parametersDir;
     private long updateInterleaveAsMilli;
@@ -125,16 +120,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 throw new WorkloadException( format( "Updates directory is not a directory\nDirectory: %s",
                         updatesDirectory.getAbsolutePath() ) );
             }
-            forumUpdateOperationFiles = LdbcSnbInteractiveWorkloadConfiguration
-                    .forumUpdateFilesInDirectory( updatesDirectory );
-            personUpdateOperationFiles =
-                    LdbcSnbInteractiveWorkloadConfiguration.personUpdateFilesInDirectory( updatesDirectory );
         }
-        else
-        {
-            forumUpdateOperationFiles = new ArrayList<>();
-            personUpdateOperationFiles = new ArrayList<>();
-        }
+
         if (operationMode != OperationMode.validate_database)
         {
             parametersDir = new File( params.get( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY ).trim() );
@@ -412,85 +399,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     @Override
     synchronized protected void onClose() throws IOException
     {
-        for ( Closeable updateOperationsFileReader : updateOperationsFileReaders )
-        {
-            updateOperationsFileReader.close();
-        }
 
-        for ( Closeable readOperationFileReader : readOperationFileReaders )
-        {
-            readOperationFileReader.close();
-        }
-    }
-
-    private Tuple2<Iterator<Operation>,Closeable> fileToWriteStreamParser( File updateOperationsFile ) throws IOException, WorkloadException
-    {
-            int bufferSize = 1 * 1024 * 1024;
-            BufferedCharSeeker charSeeker = new BufferedCharSeeker(
-                    Readables.wrap(
-                            new InputStreamReader( new FileInputStream( updateOperationsFile ), Charsets.UTF_8 )
-                    ),
-                    bufferSize
-            );
-            Extractors extractors = new Extractors( ';', ',' );
-            return Tuple.<Iterator<Operation>,Closeable>tuple2(
-                    WriteEventStreamReaderCharSeeker.create( charSeeker, extractors, '|' ), charSeeker );
-    }
-
-    /**
-     * Read the operation stream from the updatestream file.
-     * @param updateOperationStream File containing the update stream
-     * @return 
-     * @throws WorkloadException
-     */
-    private Iterator<Operation> getUpdateOperationStream(File updateOperationStream) throws WorkloadException
-    {
-        Iterator<Operation> updateOperationsParser;
-        try
-        {
-            Tuple2<Iterator<Operation>,Closeable> parserAndCloseable =
-                    fileToWriteStreamParser( updateOperationStream );
-                    updateOperationsParser = parserAndCloseable._1();
-            updateOperationsFileReaders.add( parserAndCloseable._2() );
-        }
-        catch ( IOException e )
-        {
-            throw new WorkloadException(
-                    "Unable to open person update stream: " + updateOperationStream.getAbsolutePath(), e );
-        }
-        if ( !updateOperationsParser.hasNext() )
-        {
-            // Update stream is empty
-            throw new WorkloadException(
-                    format( ""
-                            + "***********************************************\n"
-                            + "  !! ERROR !!\n"
-                            + "  Update stream is empty: %s\n"
-                            + "  Check that data generation process completed successfully\n"
-                            + "***********************************************",
-                            updateOperationStream.getAbsolutePath()
-                    )
-            );
-        }
-        return updateOperationsParser;
-    } 
-
-    /**
-     * Filters update streams on enabled update operations
-     * @param updateStream: The operation stream to filter
-     * @return Filtered operation stream
-     */
-    private Iterator<Operation> filterUpdateStreams(Iterator<Operation> unfilteredUpdateOperations)
-    {
-        Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>()
-        {
-            @Override
-            public boolean apply( Operation operation )
-            {
-                return enabledWriteOperationTypes.contains( operation.getClass() );
-            }
-        };
-        return Iterators.filter( unfilteredUpdateOperations, enabledWriteOperationsFilter );
     }
 
     /**
@@ -538,19 +447,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         Set<Class<? extends Operation>> dependentAsynchronousOperationTypes = Sets.newHashSet();
         Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
 
-        /* 
-         * WRITES
-         */
-        workloadStartTimeAsMilli = setUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams);
-
-        if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
-        {
-            workloadStartTimeAsMilli = 0;
-        }
-
-        /* 
-         * LONG READS
-         */
         CsvLoader loader;
         try {
             DuckDbConnectionState db = new DuckDbConnectionState();
@@ -560,6 +456,22 @@ public class LdbcSnbInteractiveWorkload extends Workload
             throw new WorkloadException(format("Error creating loader for operation streams %s", e));
         }
 
+        /* 
+         * WRITES
+         */
+        if (!enabledWriteOperationTypes.isEmpty())
+        {
+            workloadStartTimeAsMilli = setUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams, loader);
+        }
+
+        if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
+        {
+            workloadStartTimeAsMilli = 0;
+        }
+
+        /* 
+         * LONG READS
+         */
         asynchronousNonDependencyStreamsList = getOperationStreams(gf, workloadStartTimeAsMilli, loader);
 
         /*
@@ -568,6 +480,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         Iterator<Operation> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
                 asynchronousDependencyStreamsList.toArray( new Iterator[asynchronousDependencyStreamsList.size()] )
         );
+
         /*
          * Merge all non dependency asynchronous operation streams, ordered by operation start times
          */
@@ -610,54 +523,32 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private long setUpdateStreams(
         GeneratorFactory gf,
         long workloadStartTimeAsMilli,
-        WorkloadStreams ldbcSnbInteractiveWorkloadStreams
+        WorkloadStreams ldbcSnbInteractiveWorkloadStreams,
+        CsvLoader loader
     ) throws WorkloadException
     {
+        // Store the operation streams in this list
         ArrayList<Iterator<Operation>> listOfOperationStreams = new ArrayList<>();
 
         Set<Class<? extends Operation>> dependencyUpdateOperationTypes =
         Sets.<Class<? extends Operation>>newHashSet();
 
-        if ( enabledWriteOperationTypes.contains( LdbcUpdate1AddPerson.class ) )
-        {
-            for ( File personUpdateOperationFile : personUpdateOperationFiles )
-            {
-                dependencyUpdateOperationTypes.add(LdbcUpdate1AddPerson.class);
-                Iterator<Operation> personUpdateOperationStream = getUpdateOperationStream(personUpdateOperationFile);
-                listOfOperationStreams.add(personUpdateOperationStream);
-            }
+        Map<Class<? extends Operation>, String> classToPathMap = LdbcSnbInteractiveWorkloadConfiguration.getUpdateStreamClassToPathMapping();
+
+        // Get all enabled update and delete events
+        UpdateOperationStream updateOperationStream = new UpdateOperationStream(loader);
+        Map<Class<? extends Operation>, EventStreamReader.EventDecoder<Operation>> decoders = UpdateEventStreamReader.getDecoders();
+        for (Class enabledClass : enabledWriteOperationTypes) {
+            dependencyUpdateOperationTypes.add(enabledClass);
+            String filename = classToPathMap.get(enabledClass);
+            Iterator<Operation> operationStream = updateOperationStream.readUpdateStream(
+                new File( parametersDir, filename), 
+                decoders.get(enabledClass)
+            );
+            listOfOperationStreams.add(operationStream);
         }
 
-        /*
-         * Create forum write operation streams
-         */
-        if ( enabledWriteOperationTypes.contains( LdbcUpdate2AddPostLike.class ) ||
-             enabledWriteOperationTypes.contains( LdbcUpdate3AddCommentLike.class ) ||
-             enabledWriteOperationTypes.contains( LdbcUpdate4AddForum.class ) ||
-             enabledWriteOperationTypes.contains( LdbcUpdate5AddForumMembership.class ) ||
-             enabledWriteOperationTypes.contains( LdbcUpdate6AddPost.class ) ||
-             enabledWriteOperationTypes.contains( LdbcUpdate7AddComment.class ) ||
-             enabledWriteOperationTypes.contains( LdbcUpdate8AddFriendship.class )
-        )
-        {
-            for ( File forumUpdateOperationFile : forumUpdateOperationFiles )
-            {
-                Set<Class<? extends Operation>> dependentForumUpdateOperationTypes =
-                    Sets.<Class<? extends Operation>>newHashSet(
-                            LdbcUpdate2AddPostLike.class,
-                            LdbcUpdate3AddCommentLike.class,
-                            LdbcUpdate4AddForum.class,
-                            LdbcUpdate5AddForumMembership.class,
-                            LdbcUpdate6AddPost.class,
-                            LdbcUpdate7AddComment.class,
-                            LdbcUpdate8AddFriendship.class
-                    );
-                    dependencyUpdateOperationTypes.addAll(dependentForumUpdateOperationTypes);
-
-                Iterator<Operation> forumUpdateOperationsStream = getUpdateOperationStream(forumUpdateOperationFile);
-                listOfOperationStreams.add(forumUpdateOperationsStream);
-            }
-        }
+        // Merge the operation streams and sort them by timestamp
         Iterator<Operation> mergedUpdateStreams = Collections.<Operation>emptyIterator();
         for (Iterator<Operation> updateStream : listOfOperationStreams) {
             mergedUpdateStreams = gf.mergeSortOperationsByTimeStamp(mergedUpdateStreams,  updateStream);
@@ -665,14 +556,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         workloadStartTimeAsMilli = getOperationStreamStartTime(mergedUpdateStreams, workloadStartTimeAsMilli);
 
-        Iterator<Operation> filteredUpdateOperations = filterUpdateStreams(mergedUpdateStreams);
-
         if (numThreads == 1)
         {
             ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
                 Sets.newHashSet(),
                 dependencyUpdateOperationTypes,
-                filteredUpdateOperations,
+                mergedUpdateStreams,
                 Collections.<Operation>emptyIterator(),
                 null
             );
@@ -688,10 +577,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
             int index = 0;
             // Split accros threads
-            while(filteredUpdateOperations.hasNext())
+            while(mergedUpdateStreams.hasNext())
             {
                 int listIndex = index % numThreads;
-                Operation operation = filteredUpdateOperations.next();
+                Operation operation = mergedUpdateStreams.next();
                 operationLists.get(listIndex).add(operation);
                 index++;
             }
