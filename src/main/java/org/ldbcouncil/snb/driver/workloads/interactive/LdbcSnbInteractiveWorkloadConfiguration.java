@@ -6,11 +6,9 @@ import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.DriverConfigurationException;
-import org.ldbcouncil.snb.driver.util.FileUtils;
 import org.ldbcouncil.snb.driver.util.MapUtils;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -435,7 +433,16 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
                 WRITE_OPERATION_5_ENABLE_KEY,
                 WRITE_OPERATION_6_ENABLE_KEY,
                 WRITE_OPERATION_7_ENABLE_KEY,
-                WRITE_OPERATION_8_ENABLE_KEY ).stream().anyMatch( key -> isSet( params, key ) );
+                WRITE_OPERATION_8_ENABLE_KEY,
+                WRITE_OPERATION_9_ENABLE_KEY,
+                WRITE_OPERATION_10_ENABLE_KEY,
+                WRITE_OPERATION_11_ENABLE_KEY,
+                WRITE_OPERATION_12_ENABLE_KEY,
+                WRITE_OPERATION_13_ENABLE_KEY,
+                WRITE_OPERATION_14_ENABLE_KEY,
+                WRITE_OPERATION_15_ENABLE_KEY,
+                WRITE_OPERATION_16_ENABLE_KEY
+                ).stream().anyMatch( key -> isSet( params, key ) );
     }
 
     private static boolean isSet( Map<String,String> params, String key )
@@ -471,6 +478,14 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         params.put( WRITE_OPERATION_6_ENABLE_KEY, "false" );
         params.put( WRITE_OPERATION_7_ENABLE_KEY, "false" );
         params.put( WRITE_OPERATION_8_ENABLE_KEY, "false" );
+        params.put( WRITE_OPERATION_9_ENABLE_KEY, "false" );
+        params.put( WRITE_OPERATION_10_ENABLE_KEY, "false" );
+        params.put( WRITE_OPERATION_11_ENABLE_KEY, "false" );
+        params.put( WRITE_OPERATION_12_ENABLE_KEY, "false" );
+        params.put( WRITE_OPERATION_13_ENABLE_KEY, "false" );
+        params.put( WRITE_OPERATION_14_ENABLE_KEY, "false" );
+        params.put( WRITE_OPERATION_15_ENABLE_KEY, "false" );
+        params.put( WRITE_OPERATION_16_ENABLE_KEY, "false" );
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( params );
     }
 
@@ -581,34 +596,24 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     {
         Map<Class<? extends Operation>, String> classToFileNameMapping = new HashMap<>();
         // Inserts
-        classToFileNameMapping.put( LdbcUpdate1AddPerson.class, INSERTS_DIRECTORY + "Person.csv" );
-        classToFileNameMapping.put( LdbcUpdate2AddPostLike.class, INSERTS_DIRECTORY + "Person_likes_Post.csv" );
-        classToFileNameMapping.put( LdbcUpdate3AddCommentLike.class, INSERTS_DIRECTORY + "Person_likes_Comment.csv" );
-        classToFileNameMapping.put( LdbcUpdate4AddForum.class, INSERTS_DIRECTORY + "Forum.csv" );
-        classToFileNameMapping.put( LdbcUpdate5AddForumMembership.class, INSERTS_DIRECTORY + "Forum_hasMember_Person.csv" );
-        classToFileNameMapping.put( LdbcUpdate6AddPost.class, INSERTS_DIRECTORY + "Post.csv" );
-        classToFileNameMapping.put( LdbcUpdate7AddComment.class, INSERTS_DIRECTORY + "Comment.csv" );
-        classToFileNameMapping.put( LdbcUpdate8AddFriendship.class, INSERTS_DIRECTORY + "Person_knows_Person.csv" );
+        classToFileNameMapping.put( LdbcUpdate1AddPerson.class, INSERTS_DIRECTORY + "/Person.csv" );
+        classToFileNameMapping.put( LdbcUpdate2AddPostLike.class, INSERTS_DIRECTORY + "/Person_likes_Post.csv" );
+        classToFileNameMapping.put( LdbcUpdate3AddCommentLike.class, INSERTS_DIRECTORY + "/Person_likes_Comment.csv" );
+        classToFileNameMapping.put( LdbcUpdate4AddForum.class, INSERTS_DIRECTORY + "/Forum.csv" );
+        classToFileNameMapping.put( LdbcUpdate5AddForumMembership.class, INSERTS_DIRECTORY + "/Forum_hasMember_Person.csv" );
+        classToFileNameMapping.put( LdbcUpdate6AddPost.class, INSERTS_DIRECTORY + "/Post.csv" );
+        classToFileNameMapping.put( LdbcUpdate7AddComment.class, INSERTS_DIRECTORY + "/Comment.csv" );
+        classToFileNameMapping.put( LdbcUpdate8AddFriendship.class, INSERTS_DIRECTORY + "/Person_knows_Person.csv" );
 
         // Deletes
-        classToFileNameMapping.put( LdbcDelete1RemovePerson.class, DELETES_DIRECTORY + "Person.csv" );
-        classToFileNameMapping.put( LdbcDelete2RemovePostLike.class, DELETES_DIRECTORY + "Person_likes_Post.csv" );
-        classToFileNameMapping.put( LdbcDelete3RemoveCommentLike.class, DELETES_DIRECTORY + "Person_likes_Comment.csv" );
-        classToFileNameMapping.put( LdbcDelete4RemoveForum.class, DELETES_DIRECTORY + "Forum.csv" );
-        classToFileNameMapping.put( LdbcDelete5RemoveForumMembership.class, DELETES_DIRECTORY + "Forum_hasMember_Person.csv" );
-        classToFileNameMapping.put( LdbcDelete6RemovePostThread.class, DELETES_DIRECTORY + "Post.csv" );
-        classToFileNameMapping.put( LdbcDelete7RemoveCommentSubthread.class, DELETES_DIRECTORY + "Comment.csv" );
-        classToFileNameMapping.put( LdbcDelete8RemoveFriendship.class, DELETES_DIRECTORY + "Person_knows_Person.csv" );
+        classToFileNameMapping.put( LdbcDelete1RemovePerson.class, DELETES_DIRECTORY + "/Person.csv" );
+        classToFileNameMapping.put( LdbcDelete2RemovePostLike.class, DELETES_DIRECTORY + "/Person_likes_Post.csv" );
+        classToFileNameMapping.put( LdbcDelete3RemoveCommentLike.class, DELETES_DIRECTORY + "/Person_likes_Comment.csv" );
+        classToFileNameMapping.put( LdbcDelete4RemoveForum.class, DELETES_DIRECTORY + "/Forum.csv" );
+        classToFileNameMapping.put( LdbcDelete5RemoveForumMembership.class, DELETES_DIRECTORY + "/Forum_hasMember_Person.csv" );
+        classToFileNameMapping.put( LdbcDelete6RemovePostThread.class, DELETES_DIRECTORY + "/Post.csv" );
+        classToFileNameMapping.put( LdbcDelete7RemoveCommentSubthread.class, DELETES_DIRECTORY + "/Comment.csv" );
+        classToFileNameMapping.put( LdbcDelete8RemoveFriendship.class, DELETES_DIRECTORY + "/Person_knows_Person.csv" );
         return classToFileNameMapping;
-    }
-
-    public static List<File> forumUpdateFilesInDirectory( File directory )
-    {
-        return FileUtils.filesWithSuffixInDirectory( directory, "_forum.csv" );
-    }
-
-    public static List<File> personUpdateFilesInDirectory( File directory )
-    {
-        return FileUtils.filesWithSuffixInDirectory( directory, "_person.csv" );
     }
 }
