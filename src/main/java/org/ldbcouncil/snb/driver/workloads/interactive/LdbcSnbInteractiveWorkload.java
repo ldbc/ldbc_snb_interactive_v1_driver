@@ -1,7 +1,5 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.PeekingIterator;
@@ -15,25 +13,17 @@ import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.OperationMode;
 import org.ldbcouncil.snb.driver.csv.CsvLoader;
 import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
-import org.ldbcouncil.snb.driver.csv.charseeker.BufferedCharSeeker;
-import org.ldbcouncil.snb.driver.csv.charseeker.Extractors;
-import org.ldbcouncil.snb.driver.csv.charseeker.Readables;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
 import org.ldbcouncil.snb.driver.generator.EventStreamReader;
 import org.ldbcouncil.snb.driver.util.ClassLoaderHelper;
 import org.ldbcouncil.snb.driver.util.ClassLoadingException;
 import org.ldbcouncil.snb.driver.util.MapUtils;
-import org.ldbcouncil.snb.driver.util.Tuple;
-import org.ldbcouncil.snb.driver.util.Tuple2;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
-import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
