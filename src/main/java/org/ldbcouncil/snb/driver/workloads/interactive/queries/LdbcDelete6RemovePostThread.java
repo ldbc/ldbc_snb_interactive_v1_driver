@@ -10,26 +10,26 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete6RemovePostThread extends Operation<LdbcNoResult> {
     public static final int TYPE = 1014;
-    public static final String POST_ID = "postId"; 
+    public static final String POST_ID = "removePostIdD6"; 
 
-    private final long postId;
+    private final long removePostIdD6;
 
     public LdbcDelete6RemovePostThread(
-        @JsonProperty("postId")    long postId
+        @JsonProperty("removePostIdD6")    long removePostIdD6
     )
     {
-        this.postId = postId;
+        this.removePostIdD6 = removePostIdD6;
     }
 
-    public long getpostId()
+    public long getremovePostIdD6()
     {
-        return postId;
+        return removePostIdD6;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(POST_ID, postId)
+                .put(POST_ID, removePostIdD6)
                 .build();
     }
 
@@ -43,7 +43,7 @@ public class LdbcDelete6RemovePostThread extends Operation<LdbcNoResult> {
 
         LdbcDelete6RemovePostThread that = (LdbcDelete6RemovePostThread) o;
 
-        if ( postId != that.postId )
+        if ( removePostIdD6 != that.removePostIdD6 )
         { return false; }
 
         return true;
@@ -52,14 +52,14 @@ public class LdbcDelete6RemovePostThread extends Operation<LdbcNoResult> {
     @Override
     public int hashCode()
     {
-        return (int) (postId ^ (postId >>> 32));
+        return (int) (removePostIdD6 ^ (removePostIdD6 >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcDelete6RemovePostThread{" +
-               "postId=" + postId +
+               "removePostIdD6=" + removePostIdD6 +
                '}';
     }
 

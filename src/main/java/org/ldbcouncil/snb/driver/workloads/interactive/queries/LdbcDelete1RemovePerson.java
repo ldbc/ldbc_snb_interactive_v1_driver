@@ -10,26 +10,26 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete1RemovePerson extends Operation<LdbcNoResult>{
     public static final int TYPE = 1009;
-    public static final String PERSON_ID = "personId";
+    public static final String PERSON_ID = "removePersonIdD1";
 
-    private final long personId;
+    private final long removePersonIdD1;
 
     public LdbcDelete1RemovePerson(
-        @JsonProperty("personId")    long personId
+        @JsonProperty("removePersonIdD1")    long removePersonIdD1
     )
     {
-        this.personId = personId;
+        this.removePersonIdD1 = removePersonIdD1;
     }
 
-    public long getpersonId()
+    public long getremovePersonIdD1()
     {
-        return personId;
+        return removePersonIdD1;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON_ID, personId)
+                .put(PERSON_ID, removePersonIdD1)
                 .build();
     }
 
@@ -43,7 +43,7 @@ public class LdbcDelete1RemovePerson extends Operation<LdbcNoResult>{
 
         LdbcDelete1RemovePerson that = (LdbcDelete1RemovePerson) o;
 
-        if ( personId != that.personId )
+        if ( removePersonIdD1 != that.removePersonIdD1 )
         { return false; }
 
         return true;
@@ -52,14 +52,14 @@ public class LdbcDelete1RemovePerson extends Operation<LdbcNoResult>{
     @Override
     public int hashCode()
     {
-        return (int) (personId ^ (personId >>> 32));
+        return (int) (removePersonIdD1 ^ (removePersonIdD1 >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcDelete1RemovePerson{" +
-               "personId=" + personId +
+               "removePersonIdD1=" + removePersonIdD1 +
                '}';
     }
 

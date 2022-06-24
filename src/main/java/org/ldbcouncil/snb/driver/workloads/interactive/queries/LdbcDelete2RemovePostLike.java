@@ -10,36 +10,36 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete2RemovePostLike extends Operation<LdbcNoResult> {
     public static final int TYPE = 1010;
-    public static final String PERSON_ID = "personId";
-    public static final String POST_ID = "postId";
+    public static final String PERSON_ID = "removePersonIdD2";
+    public static final String POST_ID = "removePostIdD2";
 
-    private final long postId;
-    private final long personId;
+    private final long removePostIdD2;
+    private final long removePersonIdD2;
 
     public LdbcDelete2RemovePostLike(
-        @JsonProperty("personId")    long personId,
-        @JsonProperty("postId")    long postId
+        @JsonProperty("removePersonIdD2")    long removePersonIdD2,
+        @JsonProperty("removePostIdD2")    long removePostIdD2
     )
     {
-        this.postId = postId;
-        this.personId = personId;
+        this.removePostIdD2 = removePostIdD2;
+        this.removePersonIdD2 = removePersonIdD2;
     }
 
-    public long getpostId()
+    public long getremovePostIdD2()
     {
-        return postId;
+        return removePostIdD2;
     }
 
-    public long getpersonId()
+    public long getremovePersonIdD2()
     {
-        return personId;
+        return removePersonIdD2;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(POST_ID, postId)
-                .put(PERSON_ID, personId)
+                .put(POST_ID, removePostIdD2)
+                .put(PERSON_ID, removePersonIdD2)
                 .build();
     }
 
@@ -53,9 +53,9 @@ public class LdbcDelete2RemovePostLike extends Operation<LdbcNoResult> {
 
         LdbcDelete2RemovePostLike that = (LdbcDelete2RemovePostLike) o;
 
-        if ( postId != that.postId )
+        if ( removePostIdD2 != that.removePostIdD2 )
         { return false; }
-        if ( personId != that.personId )
+        if ( removePersonIdD2 != that.removePersonIdD2 )
         { return false; }
 
         return true;
@@ -64,8 +64,8 @@ public class LdbcDelete2RemovePostLike extends Operation<LdbcNoResult> {
     @Override
     public int hashCode()
     {
-        int result = (int) (postId ^ (postId >>> 32));
-        result = 31 * result + (int) (personId ^ (personId >>> 32));
+        int result = (int) (removePostIdD2 ^ (removePostIdD2 >>> 32));
+        result = 31 * result + (int) (removePersonIdD2 ^ (removePersonIdD2 >>> 32));
         return result;
     }
 
@@ -73,8 +73,8 @@ public class LdbcDelete2RemovePostLike extends Operation<LdbcNoResult> {
     public String toString()
     {
         return "LdbcDelete2RemovePostLike{" +
-               "postId=" + postId +
-               ", personId=" + personId +
+               "removePostIdD2=" + removePostIdD2 +
+               ", removePersonIdD2=" + removePersonIdD2 +
                '}';
     }
 

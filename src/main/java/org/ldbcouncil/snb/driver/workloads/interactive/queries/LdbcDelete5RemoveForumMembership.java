@@ -10,36 +10,36 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete5RemoveForumMembership extends Operation<LdbcNoResult> {
     public static final int TYPE = 1013;
-    public static final String FORUM_ID = "forumId"; 
-    public static final String PERSON_ID = "personId"; 
+    public static final String FORUM_ID = "removeForumIdD5"; 
+    public static final String PERSON_ID = "removePersonIdD5"; 
 
-    private final long forumId;
-    private final long personId;
+    private final long removeForumIdD5;
+    private final long removePersonIdD5;
 
     public LdbcDelete5RemoveForumMembership(
-        @JsonProperty("forumId")    long forumId,
-        @JsonProperty("personId")    long personId
+        @JsonProperty("removeForumIdD5")    long removeForumIdD5,
+        @JsonProperty("removePersonIdD5")    long removePersonIdD5
     )
     {
-        this.forumId = forumId;
-        this.personId = personId;
+        this.removeForumIdD5 = removeForumIdD5;
+        this.removePersonIdD5 = removePersonIdD5;
     }
 
-    public long getforumId()
+    public long getremoveForumIdD5()
     {
-        return forumId;
+        return removeForumIdD5;
     }
 
-    public long getpersonId()
+    public long getremovePersonIdD5()
     {
-        return personId;
+        return removePersonIdD5;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(FORUM_ID, forumId)
-                .put(PERSON_ID, personId)
+                .put(FORUM_ID, removeForumIdD5)
+                .put(PERSON_ID, removePersonIdD5)
                 .build();
     }
 
@@ -53,9 +53,9 @@ public class LdbcDelete5RemoveForumMembership extends Operation<LdbcNoResult> {
 
         LdbcDelete5RemoveForumMembership that = (LdbcDelete5RemoveForumMembership) o;
 
-        if ( forumId != that.forumId )
+        if ( removeForumIdD5 != that.removeForumIdD5 )
         { return false; }
-        if ( personId != that.personId )
+        if ( removePersonIdD5 != that.removePersonIdD5 )
         { return false; }
 
         return true;
@@ -64,8 +64,8 @@ public class LdbcDelete5RemoveForumMembership extends Operation<LdbcNoResult> {
     @Override
     public int hashCode()
     {
-        int result = (int) (forumId ^ (forumId >>> 32));
-        result = 31 * result + (int) (personId ^ (personId >>> 32));
+        int result = (int) (removeForumIdD5 ^ (removeForumIdD5 >>> 32));
+        result = 31 * result + (int) (removePersonIdD5 ^ (removePersonIdD5 >>> 32));
         return result;
     }
 
@@ -73,8 +73,8 @@ public class LdbcDelete5RemoveForumMembership extends Operation<LdbcNoResult> {
     public String toString()
     {
         return "LdbcDelete5RemoveForumMembership{" +
-               "forumId=" + forumId +
-               ", personId=" + personId +
+               "removeForumIdD5=" + removeForumIdD5 +
+               ", removePersonIdD5=" + removePersonIdD5 +
                '}';
     }
 

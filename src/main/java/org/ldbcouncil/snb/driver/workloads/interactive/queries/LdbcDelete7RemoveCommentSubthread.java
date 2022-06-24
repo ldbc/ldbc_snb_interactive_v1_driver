@@ -10,26 +10,26 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete7RemoveCommentSubthread extends Operation<LdbcNoResult> {
     public static final int TYPE = 1015;
-    public static final String COMMENT_ID = "commentId"; 
+    public static final String COMMENT_ID = "removeCommentIdD7"; 
 
-    private final long commentId;
+    private final long removeCommentIdD7;
 
     public LdbcDelete7RemoveCommentSubthread(
-        @JsonProperty("commentId")    long commentId
+        @JsonProperty("removeCommentIdD7")    long removeCommentIdD7
     )
     {
-        this.commentId = commentId;
+        this.removeCommentIdD7 = removeCommentIdD7;
     }
 
-    public long getCommentId()
+    public long getremoveCommentIdD7()
     {
-        return commentId;
+        return removeCommentIdD7;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(COMMENT_ID, commentId)
+                .put(COMMENT_ID, removeCommentIdD7)
                 .build();
     }
 
@@ -43,7 +43,7 @@ public class LdbcDelete7RemoveCommentSubthread extends Operation<LdbcNoResult> {
 
         LdbcDelete7RemoveCommentSubthread that = (LdbcDelete7RemoveCommentSubthread) o;
 
-        if ( commentId != that.commentId )
+        if ( removeCommentIdD7 != that.removeCommentIdD7 )
         { return false; }
 
         return true;
@@ -52,14 +52,14 @@ public class LdbcDelete7RemoveCommentSubthread extends Operation<LdbcNoResult> {
     @Override
     public int hashCode()
     {
-        return (int) (commentId ^ (commentId >>> 32));
+        return (int) (removeCommentIdD7 ^ (removeCommentIdD7 >>> 32));
     }
 
     @Override
     public String toString()
     {
         return "LdbcDelete7RemoveCommentSubthread{" +
-               "commentId=" + commentId +
+               "removeCommentIdD7=" + removeCommentIdD7 +
                '}';
     }
 

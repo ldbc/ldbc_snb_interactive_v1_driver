@@ -9,36 +9,36 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete8RemoveFriendship extends Operation<LdbcNoResult> {
     public static final int TYPE = 1016;
-    public static final String PERSON1_ID = "person1Id";
-    public static final String PERSON2_ID = "person2Id";
+    public static final String PERSON1_ID = "removePerson1Id";
+    public static final String PERSON2_ID = "removePerson2Id";
 
-    private final long person1Id;
-    private final long person2Id;
+    private final long removePerson1Id;
+    private final long removePerson2Id;
 
     public LdbcDelete8RemoveFriendship(
-        @JsonProperty("person1Id")    long person1Id,
-        @JsonProperty("person2Id")    long person2Id
+        @JsonProperty("removePerson1Id")    long removePerson1Id,
+        @JsonProperty("removePerson2Id")    long removePerson2Id
     )
     {
-        this.person1Id = person1Id;
-        this.person2Id = person2Id;
+        this.removePerson1Id = removePerson1Id;
+        this.removePerson2Id = removePerson2Id;
     }
 
-    public long getPerson1Id()
+    public long getremovePerson1Id()
     {
-        return person1Id;
+        return removePerson1Id;
     }
 
-    public long getPerson2Id()
+    public long getremovePerson2Id()
     {
-        return person2Id;
+        return removePerson2Id;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(PERSON1_ID, person1Id)
-                .put(PERSON2_ID, person2Id)
+                .put(PERSON1_ID, removePerson1Id)
+                .put(PERSON2_ID, removePerson2Id)
                 .build();
     }
 
@@ -52,9 +52,9 @@ public class LdbcDelete8RemoveFriendship extends Operation<LdbcNoResult> {
 
         LdbcDelete8RemoveFriendship that = (LdbcDelete8RemoveFriendship) o;
 
-        if ( person1Id != that.person1Id )
+        if ( removePerson1Id != that.removePerson1Id )
         { return false; }
-        if ( person2Id != that.person2Id )
+        if ( removePerson2Id != that.removePerson2Id )
         { return false; }
 
         return true;
@@ -63,8 +63,8 @@ public class LdbcDelete8RemoveFriendship extends Operation<LdbcNoResult> {
     @Override
     public int hashCode()
     {
-        int result = (int) (person1Id ^ (person1Id >>> 32));
-        result = 31 * result + (int) (person2Id ^ (person2Id >>> 32));
+        int result = (int) (removePerson1Id ^ (removePerson1Id >>> 32));
+        result = 31 * result + (int) (removePerson2Id ^ (removePerson2Id >>> 32));
         return result;
     }
 
@@ -72,8 +72,8 @@ public class LdbcDelete8RemoveFriendship extends Operation<LdbcNoResult> {
     public String toString()
     {
         return "LdbcDelete8RemoveFriendship{" +
-               "person1Id=" + person1Id +
-               ", person2Id=" + person2Id +
+               "removePerson1Id=" + removePerson1Id +
+               ", removePerson2Id=" + removePerson2Id +
                '}';
     }
 

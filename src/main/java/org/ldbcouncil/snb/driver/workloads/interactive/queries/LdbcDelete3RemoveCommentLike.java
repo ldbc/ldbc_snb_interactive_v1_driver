@@ -10,36 +10,36 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete3RemoveCommentLike extends Operation<LdbcNoResult> {
     public static final int TYPE = 1011;
-    public static final String PERSON_ID = "personId";
-    public static final String COMMENT_ID = "commentId";
+    public static final String PERSON_ID = "removePersonIdD3";
+    public static final String COMMENT_ID = "removeCommentIdD3";
 
-    private final long commentId;
-    private final long personId;
+    private final long removeCommentIdD3;
+    private final long removePersonIdD3;
 
     public LdbcDelete3RemoveCommentLike(
-        @JsonProperty("personId")    long personId,
-        @JsonProperty("commentId")    long commentId
+        @JsonProperty("removePersonIdD3")    long removePersonIdD3,
+        @JsonProperty("removeCommentIdD3")    long removeCommentIdD3
     )
     {
-        this.commentId = commentId;
-        this.personId = personId;
+        this.removeCommentIdD3 = removeCommentIdD3;
+        this.removePersonIdD3 = removePersonIdD3;
     }
 
-    public long getcommentId()
+    public long getremoveCommentIdD3()
     {
-        return commentId;
+        return removeCommentIdD3;
     }
 
-    public long getpersonId()
+    public long getremovePersonIdD3()
     {
-        return personId;
+        return removePersonIdD3;
     }
 
     @Override
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
-                .put(COMMENT_ID, commentId)
-                .put(PERSON_ID, personId)
+                .put(COMMENT_ID, removeCommentIdD3)
+                .put(PERSON_ID, removePersonIdD3)
                 .build();
     }
 
@@ -53,9 +53,9 @@ public class LdbcDelete3RemoveCommentLike extends Operation<LdbcNoResult> {
 
         LdbcDelete3RemoveCommentLike that = (LdbcDelete3RemoveCommentLike) o;
 
-        if ( commentId != that.commentId )
+        if ( removeCommentIdD3 != that.removeCommentIdD3 )
         { return false; }
-        if ( personId != that.personId )
+        if ( removePersonIdD3 != that.removePersonIdD3 )
         { return false; }
 
         return true;
@@ -64,8 +64,8 @@ public class LdbcDelete3RemoveCommentLike extends Operation<LdbcNoResult> {
     @Override
     public int hashCode()
     {
-        int result = (int) (commentId ^ (commentId >>> 32));
-        result = 31 * result + (int) (personId ^ (personId >>> 32));
+        int result = (int) (removeCommentIdD3 ^ (removeCommentIdD3 >>> 32));
+        result = 31 * result + (int) (removePersonIdD3 ^ (removePersonIdD3 >>> 32));
         return result;
     }
 
@@ -73,8 +73,8 @@ public class LdbcDelete3RemoveCommentLike extends Operation<LdbcNoResult> {
     public String toString()
     {
         return "LdbcDelete3RemoveCommentLike{" +
-               "commentId=" + commentId +
-               ", personId=" + personId +
+               "removeCommentIdD3=" + removeCommentIdD3 +
+               ", removePersonIdD3=" + removePersonIdD3 +
                '}';
     }
 
