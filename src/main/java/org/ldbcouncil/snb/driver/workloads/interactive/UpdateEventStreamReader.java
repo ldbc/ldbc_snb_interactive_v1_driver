@@ -127,18 +127,17 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                     emails = new ArrayList<>();
                 }
 
-                // TODO: Include tags when dataset is updated
                 List<Long> tagIds = new ArrayList<>();
-                // String tagIdsResult = rs.getString(12);
-                // if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
-                //     String[] tagIdsArrays = tagIdsResult.split(";");
-                //     for (String value : tagIdsArrays) {
-                //         tagIds.add(Long.parseLong(value));
-                //     }
-                // }
+                String tagIdsResult = rs.getString(12);
+                if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
+                    String[] tagIdsArrays = tagIdsResult.split(";");
+                    for (String value : tagIdsArrays) {
+                        tagIds.add(Long.parseLong(value));
+                    }
+                }
     
                 List<LdbcUpdate1AddPerson.Organization> studyAts = new ArrayList<>();
-                String studyAtsResult = rs.getString(12); 
+                String studyAtsResult = rs.getString(13); 
                 if (studyAtsResult != null && !studyAtsResult.isEmpty()) {
                     String[] studyAtsArray = studyAtsResult.split(";");
                     List<String> studyAtsStrings = Arrays.asList(studyAtsArray);
@@ -149,7 +148,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 }
     
                 List<LdbcUpdate1AddPerson.Organization> workAts = new ArrayList<>();
-                String workAtsResult = rs.getString(13); 
+                String workAtsResult = rs.getString(14); 
                 if (workAtsResult != null && !workAtsResult.isEmpty()) {
                     String[] workAtsArray =  workAtsResult.split(";");
                     List<String> workAtsStrings = Arrays.asList(workAtsArray);
