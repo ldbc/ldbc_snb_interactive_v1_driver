@@ -44,9 +44,10 @@ tools/run.py \
     --output-dir out-sf${SF}/
 ```
 
-Run the converter in this directory:
+Set `${DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data e.g. '/data/out-sf1', then run the converter as follows:
 
 ```bash
-mkdir out-sf${SF}-test
-python convert.py --input_dir ../out-sf${SF} --output_dir out-sf${SF}-test
+export DATA_ROOT_DIRECTORY=...
+mkdir inserts
+python convert.py --input_dir ${DATA_ROOT_DIRECTORY} --output_dir inserts
 ```
