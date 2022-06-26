@@ -128,10 +128,10 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             try
             {
                 long personId = rs.getLong(1);
-                Date maxDate = new Date(rs.getLong(2));
-                int durationDays = rs.getInt(3);
-                String countryXName = rs.getString(4);
-                String countryYName = rs.getString(5);
+                String countryXName = rs.getString(2);
+                String countryYName = rs.getString(3);
+                Date maxDate = new Date(rs.getLong(4));
+                int durationDays = rs.getInt(5);
                 return new LdbcQuery3(
                     personId,
                     countryXName,
