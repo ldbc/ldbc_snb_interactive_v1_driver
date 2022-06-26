@@ -1,0 +1,10 @@
+personId:ID|countryXName:STRING|countryYName:STRING|startDate:DATE|durationDays:INT
+21990232555880|Kenya|Cuba|2010-05-25|6
+30786325579297|Ethiopia|Argentina|2010-10-14|6
+15393162789718|Kenya|Ethiopia|2010-05-18|2
+32985348834789|Algeria|Egypt|2010-09-25|2
+8796093023802|Algeria|Ethiopia|2010-10-14|2
+35184372089895|Algeria|Zambia|2010-09-25|6
+2199023255672|Afghanistan|Hungary|2011-01-31|4
+35184372089895|Ethiopia|Argentina|2010-04-19|5
+2199023256304|Kazakhstan|Argentina|2011-01-31|2
