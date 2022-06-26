@@ -41,8 +41,8 @@ public class ReadOperationStream {
         try {
             opStream = loader.loadOperationStream(readOperationFile.getAbsolutePath(), columnDelimiter, decoder);
         }
-        catch (SQLException  e){
-            throw new WorkloadException("Error creating txt loader");
+        catch (SQLException e){
+            throw new WorkloadException("Error loading substitution parameters");
         }
         
         Iterator<Operation> operationStreamWithoutTimes = new QueryEventStreamReader(

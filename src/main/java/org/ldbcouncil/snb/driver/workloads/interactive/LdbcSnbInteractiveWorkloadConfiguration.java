@@ -272,20 +272,20 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     /*
      * Read Operation Parameters
      */
-    public static final String READ_OPERATION_1_PARAMS_FILENAME = "interactive_1_param.txt";
-    public static final String READ_OPERATION_2_PARAMS_FILENAME = "interactive_2_param.txt";
-    public static final String READ_OPERATION_3_PARAMS_FILENAME = "interactive_3_param.txt";
-    public static final String READ_OPERATION_4_PARAMS_FILENAME = "interactive_4_param.txt";
-    public static final String READ_OPERATION_5_PARAMS_FILENAME = "interactive_5_param.txt";
-    public static final String READ_OPERATION_6_PARAMS_FILENAME = "interactive_6_param.txt";
-    public static final String READ_OPERATION_7_PARAMS_FILENAME = "interactive_7_param.txt";
-    public static final String READ_OPERATION_8_PARAMS_FILENAME = "interactive_8_param.txt";
-    public static final String READ_OPERATION_9_PARAMS_FILENAME = "interactive_9_param.txt";
-    public static final String READ_OPERATION_10_PARAMS_FILENAME = "interactive_10_param.txt";
-    public static final String READ_OPERATION_11_PARAMS_FILENAME = "interactive_11_param.txt";
-    public static final String READ_OPERATION_12_PARAMS_FILENAME = "interactive_12_param.txt";
-    public static final String READ_OPERATION_13_PARAMS_FILENAME = "interactive_13_param.txt";
-    public static final String READ_OPERATION_14_PARAMS_FILENAME = "interactive_14_param.txt";
+    public static final String READ_OPERATION_1_PARAMS_FILENAME = "interactive-1.csv";
+    public static final String READ_OPERATION_2_PARAMS_FILENAME = "interactive-2.csv";
+    public static final String READ_OPERATION_3_PARAMS_FILENAME = "interactive-3.csv";
+    public static final String READ_OPERATION_4_PARAMS_FILENAME = "interactive-4.csv";
+    public static final String READ_OPERATION_5_PARAMS_FILENAME = "interactive-5.csv";
+    public static final String READ_OPERATION_6_PARAMS_FILENAME = "interactive-6.csv";
+    public static final String READ_OPERATION_7_PARAMS_FILENAME = "interactive-7.csv";
+    public static final String READ_OPERATION_8_PARAMS_FILENAME = "interactive-8.csv";
+    public static final String READ_OPERATION_9_PARAMS_FILENAME = "interactive-9.csv";
+    public static final String READ_OPERATION_10_PARAMS_FILENAME = "interactive-10.csv";
+    public static final String READ_OPERATION_11_PARAMS_FILENAME = "interactive-11.csv";
+    public static final String READ_OPERATION_12_PARAMS_FILENAME = "interactive-12.csv";
+    public static final String READ_OPERATION_13_PARAMS_FILENAME = "interactive-13.csv";
+    public static final String READ_OPERATION_14_PARAMS_FILENAME = "interactive-14.csv";
 
     private static Map<Integer,String> typeToOperationParameterFilename()
     {
