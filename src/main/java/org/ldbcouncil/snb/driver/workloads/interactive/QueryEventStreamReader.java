@@ -104,7 +104,6 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         {
             try {
                 long personId = rs.getLong(1);
-                // Dates are stored as long in the operation streams.
                 Date maxDate = convertStringToDate(rs.getString(2));
                 return new LdbcQuery2(
                     personId,
