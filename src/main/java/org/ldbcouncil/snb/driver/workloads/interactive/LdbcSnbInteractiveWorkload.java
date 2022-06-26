@@ -526,14 +526,14 @@ public class LdbcSnbInteractiveWorkload extends Workload
         Map<Class<? extends Operation>, String> classToPathMap = LdbcSnbInteractiveWorkloadConfiguration.getUpdateStreamClassToPathMapping();
 
         // Get all enabled update and delete events
-        UpdateOperationStream updateOperationStream = new UpdateOperationStream(loader);
+        OperationStreamReader updateOperationStream = new OperationStreamReader(loader);
         Map<Class<? extends Operation>, EventStreamReader.EventDecoder<Operation>> decoders = UpdateEventStreamReader.getDecoders();
         for (Class enabledClass : enabledWriteOperationTypes) {
             dependencyUpdateOperationTypes.add(enabledClass);
             String filename = classToPathMap.get(enabledClass);
-            Iterator<Operation> operationStream = updateOperationStream.readUpdateStream(
-                new File( parametersDir, filename), 
-                decoders.get(enabledClass)
+            Iterator<Operation> operationStream = updateOperationStream.readOperationStream(
+                decoders.get(enabledClass),
+                new File( parametersDir, filename)
             );
             listOfOperationStreams.add(operationStream);
         }
@@ -651,17 +651,25 @@ public class LdbcSnbInteractiveWorkload extends Workload
         /*
          * Create read operation streams, with specified interleaves
          */
-        ReadOperationStream readOperationStream = new ReadOperationStream(gf, workloadStartTimeAsMilli, loader);
+        OperationStreamReader readOperationStream = new OperationStreamReader(loader);
         Map<Integer, EventStreamReader.EventDecoder<Operation>> decoders = QueryEventStreamReader.getDecoders();
         Map<Class<? extends Operation>, Integer> classToTypeMap = MapUtils.invertMap(operationTypeToClassMapping());
         for (Class enabledClass : enabledLongReadOperationTypes) {
             Integer type = classToTypeMap.get( enabledClass );
             Iterator<Operation> eventOperationStream = readOperationStream.readOperationStream(
                 decoders.get(type),
-                longReadInterleavesAsMilli.get( type ),
                 new File( parametersDir, LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_PARAMS_FILENAMES.get( type ))
             );
-            asynchronousNonDependencyStreamsList.add( eventOperationStream );
+            long readOperationInterleaveAsMilli = longReadInterleavesAsMilli.get( type );
+            Iterator<Long> operationStartTimes =
+            gf.incrementing( workloadStartTimeAsMilli + readOperationInterleaveAsMilli,
+                    readOperationInterleaveAsMilli );
+
+            Iterator<Operation> operationStream = gf.assignStartTimes(
+                operationStartTimes,
+                new QueryEventStreamReader(gf.repeating( eventOperationStream ))
+            );
+            asynchronousNonDependencyStreamsList.add( operationStream );
         }
         return asynchronousNonDependencyStreamsList;
     }

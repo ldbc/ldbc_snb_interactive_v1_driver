@@ -41,23 +41,23 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             .appendFraction(ChronoField.NANO_OF_SECOND, 1, 3, true)
             .toFormatter().withZone(ZoneId.of("Etc/GMT"));
             
-    private final Iterator<Operation> objectArray;
+    private final Iterator<Operation> operationStream;
 
-    public UpdateEventStreamReader( Iterator<Operation> objectArray )
+    public UpdateEventStreamReader( Iterator<Operation> operationStream )
     {
-        this.objectArray = objectArray;
+        this.operationStream = operationStream;
     }
 
     @Override
     public boolean hasNext()
     {
-        return objectArray.hasNext();
+        return operationStream.hasNext();
     }
 
     @Override
     public Operation next()
     {
-        return objectArray.next();
+        return operationStream.next();
     }
 
     @Override

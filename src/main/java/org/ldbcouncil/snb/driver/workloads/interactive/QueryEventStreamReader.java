@@ -19,23 +19,23 @@ import static java.lang.String.format;
 
 public class QueryEventStreamReader implements Iterator<Operation>{
     
-    private final Iterator<Operation> objectArray;
+    private final Iterator<Operation> operationStream;
 
-    public QueryEventStreamReader( Iterator<Operation> objectArray )
+    public QueryEventStreamReader( Iterator<Operation> operationStream )
     {
-        this.objectArray = objectArray;
+        this.operationStream = operationStream;
     }
 
     @Override
     public boolean hasNext()
     {
-        return objectArray.hasNext();
+        return operationStream.hasNext();
     }
 
     @Override
     public Operation next()
     {
-        Operation query = objectArray.next();
+        Operation query = operationStream.next();
         Operation operation = query.newInstance();
         operation.setDependencyTimeStamp( 0 );
         return operation;
