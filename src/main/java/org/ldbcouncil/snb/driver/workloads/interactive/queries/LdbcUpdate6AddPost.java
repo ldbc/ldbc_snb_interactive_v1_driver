@@ -15,6 +15,7 @@ import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.util.ListUtils;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -138,20 +139,21 @@ public class LdbcUpdate6AddPost extends Operation<LdbcNoResult>
 
     @Override
     public Map<String, Object> parameterMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put(POST_ID, postId)
-                .put(IMAGE_FILE, imageFile)
-                .put(CREATION_DATE, creationDate)
-                .put(LOCATION_IP, locationIp)
-                .put(BROWSER_USED, browserUsed)
-                .put(LANGUAGE, language)
-                .put(CONTENT, content)
-                .put(LENGTH, length)
-                .put(AUTHOR_PERSON_ID, authorPersonId)
-                .put(FORUM_ID, forumId)
-                .put(COUNTRY_ID, countryId)
-                .put(TAG_IDS, tagIds)
-                .build();
+        // use vanilla HashMap to allow null values
+        final HashMap<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put(POST_ID, postId);
+        parameterMap.put(IMAGE_FILE, imageFile); // can be null
+        parameterMap.put(CREATION_DATE, creationDate);
+        parameterMap.put(LOCATION_IP, locationIp);
+        parameterMap.put(BROWSER_USED, browserUsed);
+        parameterMap.put(LANGUAGE, language);
+        parameterMap.put(CONTENT, content);
+        parameterMap.put(LENGTH, length);
+        parameterMap.put(AUTHOR_PERSON_ID, authorPersonId);
+        parameterMap.put(FORUM_ID, forumId);
+        parameterMap.put(COUNTRY_ID, countryId);
+        parameterMap.put(TAG_IDS, tagIds);
+        return parameterMap;
     }
 
     @Override
