@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete7RemoveCommentSubthread extends Operation<LdbcNoResult> {
     public static final int TYPE = 1015;
-    public static final String COMMENT_ID = "removeCommentIdD7"; 
+    public static final String COMMENT_ID = "commentId";
 
     private final long removeCommentIdD7;
 

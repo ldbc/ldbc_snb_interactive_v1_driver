@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete6RemovePostThread extends Operation<LdbcNoResult> {
     public static final int TYPE = 1014;
-    public static final String POST_ID = "removePostIdD6"; 
+    public static final String POST_ID = "postId";
 
     private final long removePostIdD6;
 

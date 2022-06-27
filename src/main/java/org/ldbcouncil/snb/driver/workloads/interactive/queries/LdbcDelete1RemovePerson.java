@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete1RemovePerson extends Operation<LdbcNoResult>{
     public static final int TYPE = 1009;
-    public static final String PERSON_ID = "removePersonIdD1";
+    public static final String PERSON_ID = "personId";
 
     private final long removePersonIdD1;
 

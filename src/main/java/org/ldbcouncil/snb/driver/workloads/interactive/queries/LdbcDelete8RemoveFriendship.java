@@ -9,8 +9,8 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete8RemoveFriendship extends Operation<LdbcNoResult> {
     public static final int TYPE = 1016;
-    public static final String PERSON1_ID = "removePerson1Id";
-    public static final String PERSON2_ID = "removePerson2Id";
+    public static final String PERSON1_ID = "person1Id";
+    public static final String PERSON2_ID = "person2Id";
 
     private final long removePerson1Id;
     private final long removePerson2Id;

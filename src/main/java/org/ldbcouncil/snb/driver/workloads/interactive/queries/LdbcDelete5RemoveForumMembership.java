@@ -10,8 +10,8 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdbcDelete5RemoveForumMembership extends Operation<LdbcNoResult> {
     public static final int TYPE = 1013;
-    public static final String FORUM_ID = "removeForumIdD5"; 
-    public static final String PERSON_ID = "removePersonIdD5"; 
+    public static final String FORUM_ID = "forumId";
+    public static final String PERSON_ID = "personId";
 
     private final long removeForumIdD5;
     private final long removePersonIdD5;
