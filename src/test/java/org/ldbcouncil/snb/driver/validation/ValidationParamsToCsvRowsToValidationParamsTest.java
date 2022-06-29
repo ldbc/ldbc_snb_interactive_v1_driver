@@ -272,6 +272,30 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
         LdbcUpdate8AddFriendship write8 = DummyLdbcSnbInteractiveOperationInstances.write8();
         ValidationParam validationParamWrite8 = ValidationParam.createTyped( write8, LdbcNoResult.INSTANCE );
 
+        LdbcDelete1RemovePerson delete1 = DummyLdbcSnbInteractiveOperationInstances.delete1();
+        ValidationParam validationParamDelete1 = ValidationParam.createTyped( delete1, LdbcNoResult.INSTANCE );
+
+        LdbcDelete2RemovePostLike delete2 = DummyLdbcSnbInteractiveOperationInstances.delete2();
+        ValidationParam validationParamDelete2 = ValidationParam.createTyped( delete2, LdbcNoResult.INSTANCE );
+
+        LdbcDelete3RemoveCommentLike delete3 = DummyLdbcSnbInteractiveOperationInstances.delete3();
+        ValidationParam validationParamDelete3 = ValidationParam.createTyped( delete3, LdbcNoResult.INSTANCE );
+
+        LdbcDelete4RemoveForum delete4 = DummyLdbcSnbInteractiveOperationInstances.delete4();
+        ValidationParam validationParamDelete4 = ValidationParam.createTyped( delete4, LdbcNoResult.INSTANCE );
+
+        LdbcDelete5RemoveForumMembership delete5 = DummyLdbcSnbInteractiveOperationInstances.delete5();
+        ValidationParam validationParamDelete5 = ValidationParam.createTyped( delete5, LdbcNoResult.INSTANCE );
+
+        LdbcDelete6RemovePostThread delete6 = DummyLdbcSnbInteractiveOperationInstances.delete6();
+        ValidationParam validationParamDelete6 = ValidationParam.createTyped( delete6, LdbcNoResult.INSTANCE );
+
+        LdbcDelete7RemoveCommentSubthread delete7 = DummyLdbcSnbInteractiveOperationInstances.delete7();
+        ValidationParam validationParamDelete7 = ValidationParam.createTyped( delete7, LdbcNoResult.INSTANCE );
+
+        LdbcDelete8RemoveFriendship delete8 = DummyLdbcSnbInteractiveOperationInstances.delete8();
+        ValidationParam validationParamDelete8 = ValidationParam.createTyped( delete8, LdbcNoResult.INSTANCE );
+
         return Lists.newArrayList(
                 // Long Reads
                 validationParamRead1,
@@ -304,7 +328,16 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
                 validationParamWrite5,
                 validationParamWrite6,
                 validationParamWrite7,
-                validationParamWrite8
+                validationParamWrite8,
+                // Deletes
+                validationParamDelete1,
+                validationParamDelete2,
+                validationParamDelete3,
+                validationParamDelete4,
+                validationParamDelete5,
+                validationParamDelete6,
+                validationParamDelete7,
+                validationParamDelete8
         );
     }
 }
