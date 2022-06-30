@@ -5,12 +5,34 @@ These scripts merge daily batches into a single file, sort by `creationDate` and
 
 Currently, the inserts are handled using DuckDB and the deletes are handled using pandas.
 
-## Deletes
+## Data generation
 
-Run:
+Set the desired scale factor and cleanup, e.g.:
 
 ```bash
-python convert_spark_deletes_to_interactive.py
+export SF=0.1
+rm -rf out-sf${SF}/graphs/parquet/raw
+```
+
+Generate the data set:
+
+```bash
+tools/run.py \
+    --cores 4 \
+    --memory 8G \
+    ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar \
+    -- \
+    --format csv \
+    --scale-factor ${SF} \
+    --mode bi \
+    --output-dir out-sf${SF}/
+```
+## Deletes
+
+Set `${DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data e.g. '/data/out-sf1', then run the converter as follows:
+
+```bash
+python convert_spark_deletes_to_interactive.py ${DATA_ROOT_DIRECTORY} 
 ```
 
 ## Inserts
@@ -21,27 +43,6 @@ Install DuckDB:
 
 ```bash
 pip3 install --user duckdb==0.3.4
-```
-
-### Usage
-
-Generate the data set:
-
-```bash
-export SF=0.1
-```
-
-```bash
-tools/run.py \
-    --cores 4 \
-    --memory 8G \
-    ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar \
-    -- \
-    --format csv \
-    --scale-factor ${SF} \
-    --explode-edges \
-    --mode bi \
-    --output-dir out-sf${SF}/
 ```
 
 Set `${DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data e.g. '/data/out-sf1', then run the converter as follows:
