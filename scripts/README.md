@@ -10,7 +10,7 @@ Currently, the inserts are handled using DuckDB and the deletes are handled usin
 Install DuckDB:
 
 ```bash
-pip3 install --user duckdb==0.3.4
+pip3 install --user duckdb pandas
 ```
 
 ## Data generation
