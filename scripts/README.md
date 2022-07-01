@@ -5,31 +5,24 @@ These scripts merge daily batches into a single file, sort by `creationDate` and
 
 Currently, the inserts are handled using DuckDB and the deletes are handled using pandas.
 
-## Deletes
-
-Run:
-
-```bash
-python convert_spark_deletes_to_interactive.py
-```
-
-## Inserts
-
-### Prerequisites
+## Prerequisites
 
 Install DuckDB:
 
 ```bash
-pip3 install --user duckdb==0.3.4
+pip3 install --user duckdb pandas
 ```
 
-### Usage
+## Data generation
 
-Generate the data set:
+Set the desired scale factor and cleanup, e.g.:
 
 ```bash
 export SF=0.1
+rm -rf out-sf${SF}/graphs/parquet/raw
 ```
+
+Generate the data set:
 
 ```bash
 tools/run.py \
@@ -39,14 +32,13 @@ tools/run.py \
     -- \
     --format csv \
     --scale-factor ${SF} \
-    --explode-edges \
     --mode bi \
     --output-dir out-sf${SF}/
 ```
 
-Run the converter in this directory:
+Set `${DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data e.g. '/data/out-sf1' and run the script:
 
 ```bash
-mkdir out-sf${SF}-test
-python convert.py --input_dir ../out-sf${SF} --output_dir out-sf${SF}-test
+export DATA_ROOT_DIRECTORY=...
+./convert.sh
 ```

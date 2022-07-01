@@ -1,3 +1,17 @@
+INSERT INTO Forum_Update
+    SELECT
+        Forum.creationDate,
+        Forum.id,
+        Forum.title,
+        Forum.ModeratorPersonId,
+        string_agg(DISTINCT Forum_hasTag_Tag.TagId, ';') AS tagIds
+    FROM Forum
+    LEFT JOIN Forum_hasTag_Tag
+           ON Forum_hasTag_Tag.ForumId = Forum.id
+    GROUP BY ALL
+    ORDER BY Forum.creationDate
+;
+
 INSERT INTO Comment_Update
     SELECT
         Comment.creationDate,
@@ -12,8 +26,8 @@ INSERT INTO Comment_Update
         Comment.ParentCommentId,
         string_agg(DISTINCT Comment_hasTag_Tag.TagId, ';') AS tagIds
     FROM Comment
-    JOIN Comment_hasTag_Tag
-      ON Comment_hasTag_Tag.CommentId = Comment.id
+    LEFT JOIN Comment_hasTag_Tag
+           ON Comment_hasTag_Tag.CommentId = Comment.id
     GROUP BY ALL
     ORDER BY Comment.creationDate
 ;
@@ -33,8 +47,8 @@ INSERT INTO Post_Update
         Post.LocationCountryId,
         string_agg(DISTINCT Post_hasTag_Tag.TagId, ';') AS tagIds
     FROM Post
-    JOIN Post_hasTag_Tag
-      ON Post_hasTag_Tag.PostId = Post.id
+    LEFT JOIN Post_hasTag_Tag
+           ON Post_hasTag_Tag.PostId = Post.id
     GROUP BY ALL
     ORDER BY Post.creationDate
 ;
@@ -56,12 +70,12 @@ INSERT INTO Person_Update
         string_agg(DISTINCT Person_studyAt_University.UniversityId || ',' || Person_studyAt_University.classYear, ';') AS studyAt,
         string_agg(DISTINCT Person_workAt_Company.CompanyId || ',' || Person_workAt_Company.workFrom, ';') AS workAt
     FROM Person
-    JOIN Person_studyAt_University
-      ON Person_studyAt_University.PersonId = Person.id
-    JOIN Person_workAt_Company
-      ON Person_workAt_Company.PersonId = Person.id
-    JOIN Person_hasInterest_Tag
-      ON Person_hasInterest_Tag.PersonId = Person.id
+    LEFT JOIN Person_studyAt_University
+           ON Person_studyAt_University.PersonId = Person.id
+    LEFT JOIN Person_workAt_Company
+           ON Person_workAt_Company.PersonId = Person.id
+    LEFT JOIN Person_hasInterest_Tag
+           ON Person_hasInterest_Tag.PersonId = Person.id
     GROUP BY ALL
     ORDER BY Person.creationDate
 ;

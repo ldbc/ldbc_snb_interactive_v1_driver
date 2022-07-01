@@ -109,7 +109,7 @@
 //         assertThat(addForumMembership.dependencyTimeStamp(), is(666l));
 //         assertThat(addForumMembership.getForumId(), is(2153L));
 //         assertThat(addForumMembership.getPersonId(), is(372L));
-//         assertThat(addForumMembership.getJoinDate(), equalTo(creationDate));
+//         assertThat(addForumMembership.getCreationDate(), equalTo(creationDate));
 //         // OperationTest.assertCorrectParameterMap(addForumMembership);
 
 //         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) writeEventStreamReader.next();
@@ -631,7 +631,7 @@
 //         assertThat(addForumMembership.dependencyTimeStamp(), is(666l));
 //         assertThat(addForumMembership.getForumId(), is(2153L));
 //         assertThat(addForumMembership.getPersonId(), is(372L));
-//         assertThat(addForumMembership.getJoinDate(), equalTo(creationDate));
+//         assertThat(addForumMembership.getCreationDate(), equalTo(creationDate));
 //         assertThat(writeEventStreamReader.hasNext(), is(false));
 //     }
 

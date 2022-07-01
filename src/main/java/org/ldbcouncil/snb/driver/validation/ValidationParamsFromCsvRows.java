@@ -1,7 +1,6 @@
 package org.ldbcouncil.snb.driver.validation;
 
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.generator.GeneratorException;
 
@@ -16,13 +15,13 @@ import java.io.IOException;
 public class ValidationParamsFromCsvRows implements Iterator<ValidationParam>
 {
     private final Iterator<String[]> csvRows;
-    private final Workload workload;
+    private final Class<? extends Operation> operationClass;
     ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public ValidationParamsFromCsvRows( Iterator<String[]> csvRows, Workload workload )
     {
         this.csvRows = csvRows;
-        this.workload = workload;
+        this.operationClass = workload.getOperationClass();
     }
 
     @Override
@@ -41,7 +40,7 @@ public class ValidationParamsFromCsvRows implements Iterator<ValidationParam>
         Operation operation;
         try
         {
-            operation = OBJECT_MAPPER.readValue(serializedOperation, Operation.class);
+            operation = OBJECT_MAPPER.readValue(serializedOperation, this.operationClass);
         }
         catch ( IOException e )
         {

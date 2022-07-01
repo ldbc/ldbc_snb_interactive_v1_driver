@@ -74,7 +74,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "root_folder",
-        help="root_folder of the unpacked SF directory containing the data e.g. '/data/out-sf1'",
+        help="root_folder of the directory containing the data e.g. '/data/out-sf1'",
         type=str)
     args = parser.parse_args()
     main(args.root_folder)

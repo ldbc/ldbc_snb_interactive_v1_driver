@@ -1,8 +1,7 @@
+#!/usr/bin/env python3
+
 import argparse
-import sys
 import os
-import re
-import time
 import duckdb
 
 
@@ -33,7 +32,7 @@ for entity in ["Comment", "Comment_hasTag_Tag", "Forum", "Forum_hasMember_Person
             print(csv_path)
             con.execute(f"COPY {entity} FROM '{csv_path}' (DELIMITER '|', HEADER, TIMESTAMPFORMAT '%Y-%m-%dT%H:%M:%S.%g+00:00');")
 
-with open("convert.sql") as f:
+with open("convert_spark_inserts_to_interactive.sql") as f:
     convert_script = f.read()
     con.execute(convert_script)
 

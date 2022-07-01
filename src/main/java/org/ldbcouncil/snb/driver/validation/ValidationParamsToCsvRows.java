@@ -1,7 +1,6 @@
 package org.ldbcouncil.snb.driver.validation;
 
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.SerializingMarshallingException;
 import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.generator.GeneratorException;
 
@@ -9,7 +8,6 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import static java.lang.String.format;
 

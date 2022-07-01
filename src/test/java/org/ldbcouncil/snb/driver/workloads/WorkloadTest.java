@@ -172,7 +172,7 @@ public abstract class WorkloadTest
             for ( int i = 0; i < operationsAndResults.size(); i++ )
             {
                 String serializedOperation = mapper.writeValueAsString(operationsAndResults.get( i )._1());
-                Object deserializedOperation = mapper.readValue(serializedOperation, Operation.class);
+                Object deserializedOperation = mapper.readValue(serializedOperation, workload.getOperationClass());
                 
             assertThat(
                     format( "original != marshal(serialize(original))\n" +

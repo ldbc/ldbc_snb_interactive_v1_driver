@@ -10,14 +10,14 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
-import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.util.ListUtils;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult>
+public class LdbcUpdate1AddPerson extends LdbcOperation<LdbcNoResult>
 {
     public static final int TYPE = 1001;
     public static final String PERSON_ID = "personId";

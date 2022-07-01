@@ -2,16 +2,15 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 
 import java.util.Map;
 
-import org.ldbcouncil.snb.driver.Operation;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
-
-public class LdbcDelete2RemovePostLike extends Operation<LdbcNoResult> {
+public class LdbcDelete2RemovePostLike extends LdbcOperation<LdbcNoResult> {
     public static final int TYPE = 1010;
-    public static final String PERSON_ID = "removePersonIdD2";
-    public static final String POST_ID = "removePostIdD2";
+    public static final String PERSON_ID = "personId";
+    public static final String POST_ID = "postId";
 
     private final long removePostIdD2;
     private final long removePersonIdD2;

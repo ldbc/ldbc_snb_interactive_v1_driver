@@ -10,31 +10,31 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
-import org.ldbcouncil.snb.driver.Operation;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 
 import java.util.Date;
 import java.util.Map;
 
-public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
+public class LdbcUpdate5AddForumMembership extends LdbcOperation<LdbcNoResult>
 {
     public static final int TYPE = 1005;
     public static final String FORUM_ID = "forumId";
     public static final String PERSON_ID = "personId";
-    public static final String JOIN_DATE = "joinDate";
+    public static final String CREATION_DATE = "creationDate";
 
     private final long forumId;
     private final long personId;
-    private final Date joinDate;
+    private final Date creationDate;
 
     public LdbcUpdate5AddForumMembership(
         @JsonProperty("forumId")  long forumId,
         @JsonProperty("personId") long personId,
-        @JsonProperty("joinDate") Date joinDate
+        @JsonProperty("creationDate") Date creationDate
     )
     {
         this.forumId = forumId;
         this.personId = personId;
-        this.joinDate = joinDate;
+        this.creationDate = creationDate;
     }
 
     public long getForumId()
@@ -47,9 +47,9 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
         return personId;
     }
 
-    public Date getJoinDate()
+    public Date getCreationDate()
     {
-        return joinDate;
+        return creationDate;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
         return ImmutableMap.<String, Object>builder()
                 .put(FORUM_ID, forumId)
                 .put(PERSON_ID, personId)
-                .put(JOIN_DATE, joinDate)
+                .put(CREATION_DATE, creationDate)
                 .build();
     }
 
@@ -75,7 +75,7 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
         { return false; }
         if ( personId != that.personId )
         { return false; }
-        if ( joinDate != null ? !joinDate.equals( that.joinDate ) : that.joinDate != null )
+        if ( creationDate != null ? !creationDate.equals( that.creationDate ) : that.creationDate != null )
         { return false; }
 
         return true;
@@ -86,7 +86,7 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
     {
         int result = (int) (forumId ^ (forumId >>> 32));
         result = 31 * result + (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (joinDate != null ? joinDate.hashCode() : 0);
+        result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);
         return result;
     }
 
@@ -96,7 +96,7 @@ public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
         return "LdbcUpdate5AddForumMembership{" +
                "forumId=" + forumId +
                ", personId=" + personId +
-               ", joinDate=" + joinDate +
+               ", creationDate=" + creationDate +
                '}';
     }
 
