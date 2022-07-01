@@ -27,9 +27,14 @@ tools/run.py \
     --mode bi \
     --output-dir out-sf${SF}/
 ```
-## Deletes
 
-Set `${DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data e.g. '/data/out-sf1', then run the converter as follows:
+Set `${DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data e.g. '/data/out-sf1':
+
+```bash
+export DATA_ROOT_DIRECTORY=...
+```
+
+## Deletes
 
 ```bash
 python convert_spark_deletes_to_interactive.py ${DATA_ROOT_DIRECTORY} 
@@ -45,10 +50,9 @@ Install DuckDB:
 pip3 install --user duckdb==0.3.4
 ```
 
-Set `${DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data e.g. '/data/out-sf1', then run the converter as follows:
+### Running the conversion
 
 ```bash
-export DATA_ROOT_DIRECTORY=...
 mkdir inserts
 python convert.py --input_dir ${DATA_ROOT_DIRECTORY} --output_dir inserts
 ```
