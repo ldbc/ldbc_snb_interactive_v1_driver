@@ -10,12 +10,12 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
-import org.ldbcouncil.snb.driver.Operation;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 
 import java.util.Date;
 import java.util.Map;
 
-public class LdbcUpdate5AddForumMembership extends Operation<LdbcNoResult>
+public class LdbcUpdate5AddForumMembership extends LdbcOperation<LdbcNoResult>
 {
     public static final int TYPE = 1005;
     public static final String FORUM_ID = "forumId";

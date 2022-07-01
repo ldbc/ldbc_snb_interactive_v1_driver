@@ -10,12 +10,12 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
-import org.ldbcouncil.snb.driver.Operation;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 
 import java.util.Date;
 import java.util.Map;
 
-public class LdbcUpdate8AddFriendship extends Operation<LdbcNoResult>
+public class LdbcUpdate8AddFriendship extends LdbcOperation<LdbcNoResult>
 {
     public static final int TYPE = 1008;
     public static final String PERSON1_ID = "person1Id";

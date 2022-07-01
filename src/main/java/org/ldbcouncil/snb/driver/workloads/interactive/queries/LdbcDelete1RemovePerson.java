@@ -2,13 +2,12 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 
 import java.util.Map;
 
-import org.ldbcouncil.snb.driver.Operation;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 import com.google.common.collect.ImmutableMap;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class LdbcDelete1RemovePerson extends Operation<LdbcNoResult>{
+public class LdbcDelete1RemovePerson extends LdbcOperation<LdbcNoResult>{
     public static final int TYPE = 1009;
     public static final String PERSON_ID = "personId";
 

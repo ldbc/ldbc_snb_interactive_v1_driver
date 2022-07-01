@@ -912,6 +912,12 @@ public class WorkloadStreamsTest
         }
 
         @Override
+        public Class<? extends Operation> getOperationClass()
+        {
+            return Operation.class;
+        }
+
+        @Override
         protected WorkloadStreams getStreams( GeneratorFactory generators, boolean hasDbConnected )
                 throws WorkloadException
         {

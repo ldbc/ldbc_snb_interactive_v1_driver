@@ -56,6 +56,11 @@ public abstract class Workload implements Closeable
 
     public abstract void onInit( Map<String,String> params ) throws WorkloadException;
 
+    /**
+     * Gets the operation class object used for serialization.
+     * @return
+     */
+    public abstract Class<? extends Operation> getOperationClass();
 
     public final void close() throws IOException
     {
@@ -71,7 +76,7 @@ public abstract class Workload implements Closeable
 
     public final WorkloadStreams streams( GeneratorFactory gf, boolean hasDbConnected ) throws WorkloadException
     {
-        if ( false == isInitialized )
+        if (!isInitialized )
         { throw new WorkloadException( "Workload has not been initialized" ); }
         return getStreams( gf, hasDbConnected );
     }
