@@ -5,6 +5,14 @@ These scripts merge daily batches into a single file, sort by `creationDate` and
 
 Currently, the inserts are handled using DuckDB and the deletes are handled using pandas.
 
+## Prerequisites
+
+Install DuckDB:
+
+```bash
+pip3 install --user duckdb==0.3.4
+```
+
 ## Data generation
 
 Set the desired scale factor and cleanup, e.g.:
@@ -28,31 +36,9 @@ tools/run.py \
     --output-dir out-sf${SF}/
 ```
 
-Set `${DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data e.g. '/data/out-sf1':
+Set `${DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data e.g. '/data/out-sf1' and run the script:
 
 ```bash
 export DATA_ROOT_DIRECTORY=...
-```
-
-## Deletes
-
-```bash
-python convert_spark_deletes_to_interactive.py ${DATA_ROOT_DIRECTORY} 
-```
-
-## Inserts
-
-### Prerequisites
-
-Install DuckDB:
-
-```bash
-pip3 install --user duckdb==0.3.4
-```
-
-### Running the conversion
-
-```bash
-mkdir inserts
-python convert.py --input_dir ${DATA_ROOT_DIRECTORY} --output_dir inserts
+./convert.sh
 ```
