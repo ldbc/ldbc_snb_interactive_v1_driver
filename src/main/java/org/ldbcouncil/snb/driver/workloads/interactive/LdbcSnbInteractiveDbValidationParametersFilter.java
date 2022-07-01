@@ -15,14 +15,12 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     private final Map<Class, Long> remainingRequiredResultsPerWriteType;
     private final Map<Class, Long> remainingRequiredResultsPerLongReadType;
     private final Set<Class> enabledShortReadOperationTypes;
-    private long writeAddPersonOperationCount;
     private int uncompletedShortReads;
 
-    LdbcSnbInteractiveDbValidationParametersFilter(long writeAddPersonOperationCount,
+    LdbcSnbInteractiveDbValidationParametersFilter(
                                                    Map<Class, Long> remainingRequiredResultsPerWriteType,
                                                    Map<Class, Long> remainingRequiredResultsPerLongReadType,
                                                    Set<Class> enabledShortReadOperationTypes) {
-        this.writeAddPersonOperationCount = writeAddPersonOperationCount;
         this.remainingRequiredResultsPerWriteType = remainingRequiredResultsPerWriteType;
         this.remainingRequiredResultsPerLongReadType = remainingRequiredResultsPerLongReadType;
         this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
@@ -35,8 +33,6 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
 
         if (enabledShortReadOperationTypes.contains(operationType)) {
             return true;
-        } else if (operationType.equals(LdbcUpdate1AddPerson.class)) {
-            return writeAddPersonOperationCount > 0;
         } else if (remainingRequiredResultsPerWriteType.containsKey(operationType)) {
             return false == haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType);
         } else if (remainingRequiredResultsPerLongReadType.containsKey(operationType)) {
@@ -56,10 +52,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
         injectedOperations.addAll(generateOperationsToInject(operation));
         uncompletedShortReads += injectedOperations.size();
 
-        if (operationType.equals(LdbcUpdate1AddPerson.class)) {
-            // writes do not return anything, but they should be executed and some default result needs to be stored in the validation parameters
-            writeAddPersonOperationCount--;
-        } else if (enabledShortReadOperationTypes.contains(operationType)) {
+        if (enabledShortReadOperationTypes.contains(operationType)) {
             // keep track of how many injected operations have completed (only short reads are injected)
             uncompletedShortReads--;
         } else if (remainingRequiredResultsPerWriteType.containsKey(operationType)) {
@@ -86,10 +79,6 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
         }
         // check that all long reads have completed
         if (false == haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerLongReadType)) {
-            return false;
-        }
-        // check that all Add Person writes have completed
-        if (writeAddPersonOperationCount > 0) {
             return false;
         }
         // check that all short reads have completed

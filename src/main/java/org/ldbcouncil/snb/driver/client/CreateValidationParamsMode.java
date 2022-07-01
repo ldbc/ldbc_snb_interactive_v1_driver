@@ -146,7 +146,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
                     db,
                     w.dbValidationParametersFilter( validationSetSize ),
                     timeMappedOperations,
-                    controlService.configuration().validationParametersSize() );
+                    validationSetSize );
 
             Iterator<String[]> csvRows = new ValidationParamsToCsvRows(
                     validationParamsGenerator,

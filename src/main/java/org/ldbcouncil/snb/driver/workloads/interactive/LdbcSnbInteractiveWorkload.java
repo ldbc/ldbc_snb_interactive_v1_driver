@@ -690,17 +690,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
                         requiredValidationParameterCount.doubleValue() / operationTypeCount.doubleValue() ) )
         );
 
-        long writeAddPersonOperationCount = 0;
-        if (enabledWriteOperationTypes.contains( LdbcUpdate1AddPerson.class ))
-        {
-            writeAddPersonOperationCount = minimumResultCountPerOperationType;
-        }
-
         final Map<Class,Long> remainingRequiredResultsPerUpdateType = new HashMap<>();
         for ( Class updateOperationType : enabledWriteOperationTypes )
         {
-            if ( updateOperationType.equals( LdbcUpdate1AddPerson.class ) )
-            { continue; }
             remainingRequiredResultsPerUpdateType.put( updateOperationType, minimumResultCountPerOperationType );
         }
 
@@ -711,7 +703,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
 
         return new LdbcSnbInteractiveDbValidationParametersFilter(
-                writeAddPersonOperationCount,
                 remainingRequiredResultsPerUpdateType,
                 remainingRequiredResultsPerLongReadType,
                 enabledShortReadOperationTypes
