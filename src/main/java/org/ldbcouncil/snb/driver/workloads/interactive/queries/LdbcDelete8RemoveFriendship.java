@@ -2,12 +2,12 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 
 import java.util.Map;
 
-import org.ldbcouncil.snb.driver.Operation;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
-public class LdbcDelete8RemoveFriendship extends Operation<LdbcNoResult> {
+public class LdbcDelete8RemoveFriendship extends LdbcOperation<LdbcNoResult> {
     public static final int TYPE = 1016;
     public static final String PERSON1_ID = "person1Id";
     public static final String PERSON2_ID = "person2Id";

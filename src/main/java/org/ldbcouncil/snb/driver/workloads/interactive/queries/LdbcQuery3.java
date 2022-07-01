@@ -15,7 +15,7 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import org.ldbcouncil.snb.driver.Operation;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
+public class LdbcQuery3 extends LdbcOperation<List<LdbcQuery3Result>>
 {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 

@@ -2,13 +2,12 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 
 import java.util.Map;
 
-import org.ldbcouncil.snb.driver.Operation;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
-
-public class LdbcDelete7RemoveCommentSubthread extends Operation<LdbcNoResult> {
+public class LdbcDelete7RemoveCommentSubthread extends LdbcOperation<LdbcNoResult> {
     public static final int TYPE = 1015;
     public static final String COMMENT_ID = "commentId";
 

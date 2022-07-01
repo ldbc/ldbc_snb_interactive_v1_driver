@@ -42,6 +42,12 @@ public class DummyWorkload extends Workload
     }
 
     @Override
+    public Class<? extends Operation> getOperationClass()
+    {
+        return Operation.class;
+    }
+
+    @Override
     public Map<Integer,Class<? extends Operation>> operationTypeToClassMapping()
     {
         return OPERATION_TYPE_CLASS_MAPPING;

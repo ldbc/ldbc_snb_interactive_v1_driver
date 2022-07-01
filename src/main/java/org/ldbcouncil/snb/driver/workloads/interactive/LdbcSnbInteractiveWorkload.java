@@ -718,6 +718,16 @@ public class LdbcSnbInteractiveWorkload extends Workload
         );
     }
 
+    /**
+     * Gets the operation class object used for serialization.
+     * @return LdbcOperation
+     */
+    @Override
+    public Class<? extends Operation> getOperationClass()
+    {
+        return LdbcOperation.class;
+    }
+
     @Override
     public int enabledValidationOperations()
     {

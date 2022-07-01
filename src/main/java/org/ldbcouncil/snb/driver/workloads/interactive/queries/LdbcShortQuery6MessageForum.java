@@ -14,12 +14,12 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import org.ldbcouncil.snb.driver.Operation;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6MessageForumResult>
+public class LdbcShortQuery6MessageForum extends LdbcOperation<LdbcShortQuery6MessageForumResult>
 {
     public static final int TYPE = 106;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

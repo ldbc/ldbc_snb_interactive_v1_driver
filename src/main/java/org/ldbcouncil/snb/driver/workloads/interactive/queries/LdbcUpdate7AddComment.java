@@ -11,14 +11,14 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
-import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.util.ListUtils;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class LdbcUpdate7AddComment extends Operation<LdbcNoResult>
+public class LdbcUpdate7AddComment extends LdbcOperation<LdbcNoResult>
 {
     public static final int TYPE = 1007;
     public static final String COMMENT_ID = "commentId";
