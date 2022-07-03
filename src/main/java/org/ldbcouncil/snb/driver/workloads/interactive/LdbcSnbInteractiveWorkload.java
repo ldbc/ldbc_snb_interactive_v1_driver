@@ -44,6 +44,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
 {
     private Map<Integer,Long> longReadInterleavesAsMilli;
     private File parametersDir;
+    private File updatesDir;
     private long updateInterleaveAsMilli;
     private double compressionRatio;
     private double shortReadDissipationFactor;
@@ -97,18 +98,16 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         if ( params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY ) )
         {
-            String updatesDirectoryPath =
-                    params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY ).trim();
-            File updatesDirectory = new File( updatesDirectoryPath );
-            if ( !updatesDirectory.exists() )
+            updatesDir = new File( params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY ).trim() );
+            if ( !updatesDir.exists() )
             {
                 throw new WorkloadException( format( "Updates directory does not exist\nDirectory: %s",
-                        updatesDirectory.getAbsolutePath() ) );
+                updatesDir.getAbsolutePath() ) );
             }
-            if ( !updatesDirectory.isDirectory() )
+            if ( !updatesDir.isDirectory() )
             {
                 throw new WorkloadException( format( "Updates directory is not a directory\nDirectory: %s",
-                        updatesDirectory.getAbsolutePath() ) );
+                updatesDir.getAbsolutePath() ) );
             }
         }
 
@@ -533,7 +532,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             String filename = classToPathMap.get(enabledClass);
             Iterator<Operation> operationStream = updateOperationStream.readOperationStream(
                 decoders.get(enabledClass),
-                new File( parametersDir, filename)
+                new File( updatesDir, filename)
             );
             listOfOperationStreams.add(operationStream);
         }
