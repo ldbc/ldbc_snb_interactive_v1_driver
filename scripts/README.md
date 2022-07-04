@@ -13,6 +13,14 @@ Install DuckDB:
 pip3 install --user duckdb pandas
 ```
 
+## Script usage
+
+To use the data conversion script `convert_spark_dataset_to_interactive.py`, use the command like the following:
+
+```bash
+python3 convert_spark_dataset_to_interactive.py --input_dir '/data/out-sf1' --output_dir '/data/out-sf1/graphs/csv/bi/composite-merged-fk'
+```
+
 ## Data generation
 
 Set the desired scale factor and cleanup, e.g.:
