@@ -5,8 +5,6 @@ import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.DriverConfigurationException;
-import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileReader;
-import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileWriter;
 import org.ldbcouncil.snb.driver.testutils.TestUtils;
 import org.ldbcouncil.snb.driver.util.MapUtils;
 import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkload;
@@ -59,58 +57,18 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
         List<ValidationParam> validationParamsBeforeSerializing =
                 buildParams( workload.dbValidationParametersFilter( 0 ) );
 
-        // (2) original->csv_rows
-        List<String[]> serializedValidationParamsAsCsvRows = Lists.newArrayList(
-                new ValidationParamsToCsvRows( validationParamsBeforeSerializing.iterator(), workload, true )
-        );
+        // (2) original->JSON
+        File jsonFile1 = temporaryFolder.newFile();
+        ValidationParamsToJson validationParamsAsJson = 
+            new ValidationParamsToJson( validationParamsBeforeSerializing, workload, true );
+        validationParamsAsJson.serializeValidationParameters(jsonFile1);
 
-        // (3) csv_rows->csv_file
-        File csvFile1 = temporaryFolder.newFile();
-        SimpleCsvFileWriter simpleCsvFileWriter1 =
-                new SimpleCsvFileWriter( csvFile1, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, configuration.flushLog() );
-        simpleCsvFileWriter1.writeRows( serializedValidationParamsAsCsvRows.iterator() );
-        simpleCsvFileWriter1.close();
-
-        // (4) csv_file->csv_rows
-        List<String[]> csvFile1Rows = Lists.newArrayList(
-                new SimpleCsvFileReader( csvFile1, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING )
-        );
-
-        // (5) csv_rows->params
-        List<ValidationParam> validationParamsAfterSerializingAndMarshalling = Lists.newArrayList(
-                new ValidationParamsFromCsvRows( csvFile1Rows.iterator(), workload )
-        );
-
-        // (6) params->csv_rows
-        List<String[]> serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling = Lists.newArrayList(
-                new ValidationParamsToCsvRows( validationParamsAfterSerializingAndMarshalling.iterator(), workload,
-                        true )
-        );
-
-        // (7) csv_rows->csv_file
-        File csvFile2 = temporaryFolder.newFile();
-        SimpleCsvFileWriter simpleCsvFileWriter2 =
-                new SimpleCsvFileWriter( csvFile2, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, configuration.flushLog() );
-        simpleCsvFileWriter2.writeRows( serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling.iterator() );
-        simpleCsvFileWriter2.close();
-
-        // (8) csv_file->csv_rows
-        List<String[]> csvFile2Rows = Lists.newArrayList(
-                new SimpleCsvFileReader( csvFile2, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING )
-        );
-
-        // (8) csv_rows->params
-        List<ValidationParam> validationParamsAfterSerializingAndMarshallingAndSerializingAndMarshalling =
-                Lists.newArrayList(
-                        new ValidationParamsFromCsvRows( csvFile2Rows.iterator(), workload )
-                );
-
+        // (3) JSON->params
+        ValidationParamsFromJson validationParamsFromJson = new ValidationParamsFromJson(jsonFile1, workload);
+        List<ValidationParam> validationParamsAfterDeserializing = validationParamsFromJson.deserialize();
+      
         // Then
-        assertThat( validationParamsBeforeSerializing, equalTo( validationParamsAfterSerializingAndMarshalling ) );
-        assertThat( validationParamsBeforeSerializing,
-                equalTo( validationParamsAfterSerializingAndMarshallingAndSerializingAndMarshalling ) );
-        assertThat( validationParamsAfterSerializingAndMarshalling,
-                equalTo( validationParamsAfterSerializingAndMarshallingAndSerializingAndMarshalling ) );
+        assertThat( validationParamsBeforeSerializing, equalTo( validationParamsAfterDeserializing ) );
     }
 
     List<ValidationParam> buildParams( Workload.DbValidationParametersFilter dbValidationParametersFilter )

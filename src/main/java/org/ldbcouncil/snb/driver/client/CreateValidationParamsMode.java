@@ -13,18 +13,19 @@ import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.WorkloadStreams;
 import org.ldbcouncil.snb.driver.control.ControlService;
 import org.ldbcouncil.snb.driver.control.LoggingService;
-import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileWriter;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
 import org.ldbcouncil.snb.driver.util.ClassLoaderHelper;
 import org.ldbcouncil.snb.driver.util.Tuple3;
 import org.ldbcouncil.snb.driver.validation.ValidationParam;
 import org.ldbcouncil.snb.driver.validation.ValidationParamsGenerator;
-import org.ldbcouncil.snb.driver.validation.ValidationParamsToCsvRows;
+import org.ldbcouncil.snb.driver.validation.ValidationParamsToJson;
+
+import com.google.common.collect.ImmutableList;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.Iterator;
+import java.util.List;
 
 import static java.lang.String.format;
 
@@ -147,46 +148,13 @@ public class CreateValidationParamsMode implements ClientMode<Object>
                     w.dbValidationParametersFilter( validationSetSize ),
                     timeMappedOperations,
                     validationSetSize );
-
-            Iterator<String[]> csvRows = new ValidationParamsToCsvRows(
-                    validationParamsGenerator,
-                    w,
-                    performSerializationMarshallingChecks );
-
-            int rowsWrittenSoFar = 0;
-            try ( SimpleCsvFileWriter simpleCsvFileWriter = new SimpleCsvFileWriter(
-                    validationFileToGenerate,
-                    SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR,
-                    controlService.configuration().flushLog() ) )
-            {
-                DecimalFormat decimalFormat = new DecimalFormat( "###,###,##0" );
-                while ( csvRows.hasNext() )
-                {
-                    String[] csvRow = csvRows.next();
-                    simpleCsvFileWriter.writeRow( csvRow );
-                    rowsWrittenSoFar++;
-                    if ( rowsWrittenSoFar % 10 == 0 )
-                    {
-                        loggingService.info(
-                                format(
-                                        "%s / %s Validation Parameters Created\r",
-                                        decimalFormat.format( rowsWrittenSoFar ),
-                                        decimalFormat.format( validationSetSize )
-                                )
-                        );
-                    }
-                }
-            }
-            catch ( Exception e )
-            {
-                throw new ClientException( "Error trying to write validation parameters to CSV file writer", e );
-            }
-
-            int validationParametersGenerated =
-                    ((ValidationParamsGenerator) validationParamsGenerator).entriesWrittenSoFar();
+            List<ValidationParam> validationParams = ImmutableList.copyOf(validationParamsGenerator);
+            ValidationParamsToJson validationParamsAsJson = 
+                new ValidationParamsToJson( validationParams, workload, performSerializationMarshallingChecks );
+            validationParamsAsJson.serializeValidationParameters(validationFileToGenerate );
 
             loggingService.info( format( "Successfully generated %s database validation parameters",
-                    validationParametersGenerated ) );
+                    validationParams.size() ) );
         }
         catch ( Exception e )
         {

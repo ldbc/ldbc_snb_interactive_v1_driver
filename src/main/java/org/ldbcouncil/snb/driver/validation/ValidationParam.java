@@ -2,6 +2,11 @@ package org.ldbcouncil.snb.driver.validation;
 
 import org.ldbcouncil.snb.driver.Operation;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+@JsonSerialize(using = ValidationParamSerializer.class)
+@JsonDeserialize(using = ValidationParamDeserializer.class)
 public class ValidationParam {
     private final Operation operation;
     private final Object operationResult;
