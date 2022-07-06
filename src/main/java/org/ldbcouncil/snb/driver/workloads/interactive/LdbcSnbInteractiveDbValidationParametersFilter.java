@@ -19,19 +19,25 @@ import java.util.Set;
 class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationParametersFilter {
     private final Map<Class, Long> remainingRequiredResultsPerWriteType;
     private final Map<Class, Long> remainingRequiredResultsPerLongReadType;
+    private final Set<Class> enabledUpdateInsertOperationTypes;
     private final Set<Class> enabledShortReadOperationTypes;
     private int uncompletedShortReads;
 
     LdbcSnbInteractiveDbValidationParametersFilter(
         Map<Class, Long> remainingRequiredResultsPerWriteType,
         Map<Class, Long> remainingRequiredResultsPerLongReadType,
+        Set<Class> enabledUpdateInsertOperationTypes,
         Set<Class> enabledShortReadOperationTypes) {
         this.remainingRequiredResultsPerWriteType = remainingRequiredResultsPerWriteType;
         this.remainingRequiredResultsPerLongReadType = remainingRequiredResultsPerLongReadType;
+        this.enabledUpdateInsertOperationTypes = enabledUpdateInsertOperationTypes;
         this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
         this.uncompletedShortReads = 0;
     }
 
+    /**
+     * Check if the given operation is enabled or disabled.
+     */
     @Override
     public boolean useOperation(Operation operation) {
         Class operationType = operation.getClass();
@@ -154,6 +160,12 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
         return operationsToInject;
     }
 
+    /**
+     * Inject all types of short operations given the personId and messageId
+     * @param operationsToInject
+     * @param personId: person id to use
+     * @param messageId: message id to use
+     */
     private void injectAllShorts(List<Operation> operationsToInject, long personId, long messageId)
     {
         injectShort1(operationsToInject, personId);

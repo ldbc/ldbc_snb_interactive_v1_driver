@@ -253,7 +253,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             WRITE_OPERATION_5_ENABLE_KEY,
             WRITE_OPERATION_6_ENABLE_KEY,
             WRITE_OPERATION_7_ENABLE_KEY,
-            WRITE_OPERATION_8_ENABLE_KEY,
+            WRITE_OPERATION_8_ENABLE_KEY
+    );
+
+    public static final List<String> DELETE_OPERATION_ENABLE_KEYS = Lists.newArrayList(
             WRITE_OPERATION_9_ENABLE_KEY,
             WRITE_OPERATION_10_ENABLE_KEY,
             WRITE_OPERATION_11_ENABLE_KEY,
@@ -263,7 +266,7 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             WRITE_OPERATION_15_ENABLE_KEY,
             WRITE_OPERATION_16_ENABLE_KEY
     );
-
+    
     private static String asEnableKey( Class<? extends Operation> operation )
     {
         return LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + operation.getSimpleName() + ENABLE_SUFFIX;

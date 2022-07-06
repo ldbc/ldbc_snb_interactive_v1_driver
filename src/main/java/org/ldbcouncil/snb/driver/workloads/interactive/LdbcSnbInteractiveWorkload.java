@@ -86,6 +86,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_ENABLE_KEYS );
         compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS );
+        compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.DELETE_OPERATION_ENABLE_KEYS );
         compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_ENABLE_KEYS );
 
         Set<String> missingPropertyParameters =
@@ -132,76 +133,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
         }
 
-        enabledLongReadOperationTypes = new HashSet<>();
-        for ( String longReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration
-                .LONG_READ_OPERATION_ENABLE_KEYS )
-        {
-            String longReadOperationEnabledString = params.get( longReadOperationEnableKey ).trim();
-            Boolean longReadOperationEnabled = Boolean.parseBoolean( longReadOperationEnabledString );
-            String longReadOperationClassName =
-                    LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
-                    LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
-                            LdbcSnbInteractiveWorkloadConfiguration.removeSuffix(
-                                    longReadOperationEnableKey,
-                                    LdbcSnbInteractiveWorkloadConfiguration.ENABLE_SUFFIX
-                            ),
-                            LdbcSnbInteractiveWorkloadConfiguration
-                                    .LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
-                    );
-            try
-            {
-                Class longReadOperationClass = ClassLoaderHelper.loadClass( longReadOperationClassName );
-                if ( longReadOperationEnabled )
-                { 
-                    enabledLongReadOperationTypes.add( longReadOperationClass );
-                }
-            }
-            catch ( ClassLoadingException e )
-            {
-                throw new WorkloadException(
-                        format(
-                                "Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
-                                longReadOperationEnableKey, longReadOperationClassName ),
-                        e
-                );
-            }
-        }
-
-        enabledShortReadOperationTypes = new HashSet<>();
-        for ( String shortReadOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration
-                .SHORT_READ_OPERATION_ENABLE_KEYS )
-        {
-            String shortReadOperationEnabledString = params.get( shortReadOperationEnableKey ).trim();
-            Boolean shortReadOperationEnabled = Boolean.parseBoolean( shortReadOperationEnabledString );
-            String shortReadOperationClassName =
-                    LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
-                    LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
-                            LdbcSnbInteractiveWorkloadConfiguration.removeSuffix(
-                                    shortReadOperationEnableKey,
-                                    LdbcSnbInteractiveWorkloadConfiguration.ENABLE_SUFFIX
-                            ),
-                            LdbcSnbInteractiveWorkloadConfiguration
-                                    .LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
-                    );
-            try
-            {
-                Class shortReadOperationClass = ClassLoaderHelper.loadClass( shortReadOperationClassName );
-                if ( shortReadOperationEnabled )
-                { 
-                    enabledShortReadOperationTypes.add( shortReadOperationClass ); 
-                }
-
-            }
-            catch ( ClassLoadingException e )
-            {
-                throw new WorkloadException(
-                        format(
-                                "Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
-                                shortReadOperationEnableKey, shortReadOperationClassName ),
-                        e
-                );
-            }
-        }
+        enabledLongReadOperationTypes = getEnabledOperationsHashset(LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_ENABLE_KEYS, params);
+        enabledShortReadOperationTypes = getEnabledOperationsHashset(LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_ENABLE_KEYS, params);
         if ( !enabledShortReadOperationTypes.isEmpty() )
         {
             if ( !params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION ) )
@@ -220,39 +153,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             }
         }
 
-        enabledWriteOperationTypes = new HashSet<>();
-        for ( String writeOperationEnableKey : LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS )
-        {
-            String writeOperationEnabledString = params.get( writeOperationEnableKey ).trim();
-            Boolean writeOperationEnabled = Boolean.parseBoolean( writeOperationEnabledString );
-            String writeOperationClassName = LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
-                                             LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
-                                                     LdbcSnbInteractiveWorkloadConfiguration.removeSuffix(
-                                                             writeOperationEnableKey,
-                                                             LdbcSnbInteractiveWorkloadConfiguration.ENABLE_SUFFIX
-                                                     ),
-                                                     LdbcSnbInteractiveWorkloadConfiguration
-                                                             .LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
-                                             );
-            try
-            {
-                Class writeOperationClass = ClassLoaderHelper.loadClass( writeOperationClassName );
-                if ( writeOperationEnabled )
-                { 
-                    enabledWriteOperationTypes.add( writeOperationClass ); 
-                }
-
-            }
-            catch ( ClassLoadingException e )
-            {
-                throw new WorkloadException(
-                        format(
-                                "Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
-                                writeOperationEnableKey, writeOperationClassName ),
-                        e
-                );
-            }
-        }
+        enabledWriteOperationTypes = getEnabledOperationsHashset(LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS, params);
 
         // First load the scale factor from the provided properties file, then load the frequency keys from resources
         if (!params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR))
@@ -289,20 +190,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
             Map<String, String> freqs = new HashMap<String, String>();
             String updateInterleave = tmp.get(LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE);
             freqs.put(LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE, updateInterleave);
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY, "1");
-            freqs.put(LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY, "1");
+            for (String operationFrequencyKey : LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_FREQUENCY_KEYS) {
+                freqs.put(operationFrequencyKey, "1");
+            }
             freqs.keySet().removeAll(params.keySet());
             params.putAll(freqs);
         }
@@ -384,6 +274,52 @@ public class LdbcSnbInteractiveWorkload extends Workload
                 params.get( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG ).trim()
         );
     }
+
+    /**
+     * Create set with enabled operation keys
+     * @param enabledOperationKeys
+     * @param params
+     * @return
+     */
+    private Set<Class> getEnabledOperationsHashset(List<String> enabledOperationKeys, Map<String,String> params) throws WorkloadException
+    {
+        Set<Class> enabledOperationTypes = new HashSet<>();
+        for ( String operationEnableKey : enabledOperationKeys )
+        {
+            String operationEnabledString = params.get( operationEnableKey ).trim();
+            Boolean operationEnabled = Boolean.parseBoolean( operationEnabledString );
+            String operationClassName =
+                    LdbcSnbInteractiveWorkloadConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
+                    LdbcSnbInteractiveWorkloadConfiguration.removePrefix(
+                            LdbcSnbInteractiveWorkloadConfiguration.removeSuffix(
+                                operationEnableKey,
+                                    LdbcSnbInteractiveWorkloadConfiguration.ENABLE_SUFFIX
+                            ),
+                            LdbcSnbInteractiveWorkloadConfiguration
+                                    .LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
+                    );
+            try
+            {
+                Class operationClass = ClassLoaderHelper.loadClass( operationClassName );
+                if ( operationEnabled )
+                { 
+                    enabledOperationTypes.add( operationClass ); 
+                }
+
+            }
+            catch ( ClassLoadingException e )
+            {
+                throw new WorkloadException(
+                        format(
+                                "Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
+                                operationEnableKey, operationClassName ),
+                        e
+                );
+            }
+        }
+        return enabledOperationTypes;
+    }
+
 
     @Override
     synchronized protected void onClose() throws IOException
@@ -704,6 +640,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         return new LdbcSnbInteractiveDbValidationParametersFilter(
                 remainingRequiredResultsPerUpdateType,
                 remainingRequiredResultsPerLongReadType,
+                enabledWriteOperationTypes,
                 enabledShortReadOperationTypes
         );
     }
