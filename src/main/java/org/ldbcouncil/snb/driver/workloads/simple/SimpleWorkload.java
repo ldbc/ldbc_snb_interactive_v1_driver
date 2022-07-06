@@ -221,9 +221,4 @@ public class SimpleWorkload extends Workload
         );
         return workloadStreams;
     }
-
-    @Override
-    protected void onClose() throws IOException
-    {
-    }
 }

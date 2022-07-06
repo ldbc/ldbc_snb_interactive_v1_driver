@@ -325,13 +325,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         return enabledOperationTypes;
     }
 
-
-    @Override
-    synchronized protected void onClose() throws IOException
-    {
-
-    }
-
     /**
      * Peek the first operation and fetch the operation start time.
      * @param updateStream The Iterator with update operations

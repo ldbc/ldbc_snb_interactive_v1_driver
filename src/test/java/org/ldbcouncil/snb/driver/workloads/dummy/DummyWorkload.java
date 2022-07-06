@@ -59,11 +59,6 @@ public class DummyWorkload extends Workload
     }
 
     @Override
-    protected void onClose() throws IOException
-    {
-    }
-
-    @Override
     protected WorkloadStreams getStreams( GeneratorFactory generators, boolean hasDbConnected ) throws WorkloadException
     {
         return newCopyOfWorkloadStreams();

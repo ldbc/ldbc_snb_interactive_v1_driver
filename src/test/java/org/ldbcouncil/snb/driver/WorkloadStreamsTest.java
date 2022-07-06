@@ -907,11 +907,6 @@ public class WorkloadStreamsTest
         }
 
         @Override
-        protected void onClose() throws IOException
-        {
-        }
-
-        @Override
         public Class<? extends Operation> getOperationClass()
         {
             return Operation.class;

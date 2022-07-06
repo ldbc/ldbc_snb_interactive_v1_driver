@@ -93,11 +93,6 @@ public class CreateValidationParamsMode implements ClientMode<Object>
                 format( "Retrieving operation stream for workload: %s", workload.getClass().getSimpleName() ) );
         try
         {
-            /**
-             * Create the workloadstreams which are used to create the validation parameters.
-             * TODO: Change operation count dependency so enough operations in the workloadstream
-             * are generated to satisfy validation parameters count.
-             */
             boolean returnStreamsWithDbConnector = false;
             Tuple3<WorkloadStreams,Workload,Long> streamsAndWorkload =
                 WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
@@ -128,17 +123,13 @@ public class CreateValidationParamsMode implements ClientMode<Object>
     @Override
     public Object startExecutionAndAwaitCompletion() throws ClientException
     {
-        try ( Workload w = workload; Db db = database )
+        try ( Db db = database )
         {
+            Workload w = workload;
             File validationFileToGenerate =
                     new File( controlService.configuration().databaseValidationFilePath() );
                 
-            int validationSetSize = controlService
-                    .configuration()
-                    .validationParametersSize();
-
-            boolean performSerializationMarshallingChecks =
-                controlService.configuration().validationSerializationCheck();
+            int validationSetSize = controlService.configuration().validationParametersSize();
 
             loggingService.info(
                     format( "Generating database validation file: %s", validationFileToGenerate.getAbsolutePath() ) );
@@ -147,10 +138,14 @@ public class CreateValidationParamsMode implements ClientMode<Object>
                     db,
                     w.dbValidationParametersFilter( validationSetSize ),
                     timeMappedOperations,
-                    validationSetSize );
+                    validationSetSize
+            );
             List<ValidationParam> validationParams = ImmutableList.copyOf(validationParamsGenerator);
-            ValidationParamsToJson validationParamsAsJson = 
-                new ValidationParamsToJson( validationParams, workload, performSerializationMarshallingChecks );
+            ValidationParamsToJson validationParamsAsJson = new ValidationParamsToJson(
+                validationParams,
+                workload,
+                controlService.configuration().validationSerializationCheck()
+            );
             validationParamsAsJson.serializeValidationParameters(validationFileToGenerate );
 
             loggingService.info( format( "Successfully generated %s database validation parameters",
