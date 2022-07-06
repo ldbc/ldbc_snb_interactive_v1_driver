@@ -53,6 +53,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private Set<Class> enabledLongReadOperationTypes;
     private Set<Class> enabledShortReadOperationTypes;
     private Set<Class> enabledWriteOperationTypes;
+    private Set<Class> enabledDeleteOperationTypes;
+    private Set<Class> enabledUpdateOperationTypes;
 
     @Override
     public Map<Integer, Class<? extends Operation>> operationTypeToClassMapping()
@@ -154,6 +156,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
 
         enabledWriteOperationTypes = getEnabledOperationsHashset(LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS, params);
+        enabledDeleteOperationTypes = getEnabledOperationsHashset(LdbcSnbInteractiveWorkloadConfiguration.DELETE_OPERATION_ENABLE_KEYS, params);
+        enabledUpdateOperationTypes = new HashSet<Class>(enabledWriteOperationTypes);
+        enabledUpdateOperationTypes.addAll(enabledDeleteOperationTypes);
 
         // First load the scale factor from the provided properties file, then load the frequency keys from resources
         if (!params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR))
@@ -207,7 +212,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         Set<String> missingFrequencyKeys = LdbcSnbInteractiveWorkloadConfiguration
                 .missingParameters( params, frequencyKeys );
 
-        if ( enabledWriteOperationTypes.isEmpty() &&
+        if ( enabledUpdateOperationTypes.isEmpty() &&
              !params.containsKey( LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE ) )
         {
             // if UPDATE_INTERLEAVE is missing and writes are disabled set it to DEFAULT
@@ -384,7 +389,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         /* 
          * WRITES
          */
-        if (!enabledWriteOperationTypes.isEmpty())
+        if (!enabledUpdateOperationTypes.isEmpty())
         {
             workloadStartTimeAsMilli = setUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams, loader);
         }
@@ -463,7 +468,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         // Get all enabled update and delete events
         OperationStreamReader updateOperationStream = new OperationStreamReader(loader);
         Map<Class<? extends Operation>, EventStreamReader.EventDecoder<Operation>> decoders = UpdateEventStreamReader.getDecoders();
-        for (Class enabledClass : enabledWriteOperationTypes) {
+        for (Class enabledClass : enabledUpdateOperationTypes) {
             dependencyUpdateOperationTypes.add(enabledClass);
             String filename = classToPathMap.get(enabledClass);
             Iterator<Operation> operationStream = updateOperationStream.readOperationStream(
@@ -616,7 +621,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     @Override
     public DbValidationParametersFilter dbValidationParametersFilter( Integer requiredValidationParameterCount )
     {
-        Integer operationTypeCount = enabledLongReadOperationTypes.size() + enabledWriteOperationTypes.size();
+        Integer operationTypeCount = enabledLongReadOperationTypes.size() + enabledUpdateOperationTypes.size();
 
         // Calculate amount of validation operations to create
         long minimumResultCountPerOperationType = Math.max(
@@ -626,7 +631,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         );
 
         final Map<Class,Long> remainingRequiredResultsPerUpdateType = new HashMap<>();
-        for ( Class updateOperationType : enabledWriteOperationTypes )
+        for ( Class updateOperationType : enabledUpdateOperationTypes )
         {
             remainingRequiredResultsPerUpdateType.put( updateOperationType, minimumResultCountPerOperationType );
         }
@@ -640,6 +645,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         return new LdbcSnbInteractiveDbValidationParametersFilter(
                 remainingRequiredResultsPerUpdateType,
                 remainingRequiredResultsPerLongReadType,
+                // Writes are required to determine short reads operations to inject
                 enabledWriteOperationTypes,
                 enabledShortReadOperationTypes
         );
@@ -658,7 +664,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     @Override
     public int enabledValidationOperations()
     {
-        return enabledLongReadOperationTypes.size() + enabledWriteOperationTypes.size();
+        return enabledLongReadOperationTypes.size() + enabledUpdateOperationTypes.size() + enabledShortReadOperationTypes.size();
     }
 
     @Override
