@@ -34,6 +34,6 @@ public class ValidationParamDeserializer extends StdDeserializer<ValidationParam
         // TODO: Remove dependency on LdbcOperation valueType. This should be passed or set in a generic way
         Operation operation = OBJECT_MAPPER.readValue( operationNode.toPrettyString(), LdbcOperation.class);
         Object operationResult = operation.deserializeResult( resultNode.toPrettyString() );
-        return ValidationParam.createTyped(operation, operationResult);
+        return ValidationParam.createUntyped(operation, operationResult);
     }
 }
