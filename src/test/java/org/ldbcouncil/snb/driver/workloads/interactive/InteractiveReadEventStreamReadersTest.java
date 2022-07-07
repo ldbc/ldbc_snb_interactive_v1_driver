@@ -12,7 +12,6 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.ParseException;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -90,7 +89,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery2Events() throws WorkloadException, SQLException, ParseException {
+    public void shouldParseAllQuery2Events() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -146,7 +145,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery3Events() throws WorkloadException, SQLException, ParseException {
+    public void shouldParseAllQuery3Events() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -210,7 +209,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery4Events() throws WorkloadException, SQLException, ParseException {
+    public void shouldParseAllQuery4Events() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -273,7 +272,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery5Events() throws WorkloadException, SQLException, ParseException {
+    public void shouldParseAllQuery5Events() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -451,7 +450,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery9Events() throws WorkloadException, SQLException, ParseException {
+    public void shouldParseAllQuery9Events() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
