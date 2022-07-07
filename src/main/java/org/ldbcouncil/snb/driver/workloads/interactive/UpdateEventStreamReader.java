@@ -33,12 +33,16 @@ import static java.lang.String.format;
 
 public class UpdateEventStreamReader implements Iterator<Operation>
 {
-    // Temporary fix
+    // TODO Date time formats should be given to the CsvLoader
+    // instead of specified here.
     static final DateTimeFormatter DATE_TIME_FORMATTER = 
         new DateTimeFormatterBuilder().append(DateTimeFormatter.ISO_LOCAL_DATE)
             .appendLiteral(' ')
             .appendPattern("HH:mm:ss")
             .appendFraction(ChronoField.NANO_OF_SECOND, 1, 3, true)
+            // This fix enables support for +00:00 format if present
+            // Current loader does not load this offset while present in the data
+            .appendOptional(new DateTimeFormatterBuilder().appendOffsetId().toFormatter())
             .toFormatter().withZone(ZoneId.of("Etc/GMT"));
             
     private final Iterator<Operation> operationStream;
