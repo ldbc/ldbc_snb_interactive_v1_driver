@@ -11,7 +11,7 @@ import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.WorkloadStreams;
 import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.OperationMode;
-import org.ldbcouncil.snb.driver.csv.CsvLoader;
+import org.ldbcouncil.snb.driver.csv.ParquetLoader;
 import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
@@ -370,10 +370,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
         Set<Class<? extends Operation>> dependentAsynchronousOperationTypes = Sets.newHashSet();
         Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
 
-        CsvLoader loader;
+        ParquetLoader loader;
         try {
             DuckDbConnectionState db = new DuckDbConnectionState();
-            loader = new CsvLoader(db);
+            loader = new ParquetLoader(db);
         }
         catch (SQLException e){
             throw new WorkloadException(format("Error creating loader for operation streams %s", e));
@@ -447,7 +447,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         GeneratorFactory gf,
         long workloadStartTimeAsMilli,
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams,
-        CsvLoader loader
+        ParquetLoader loader
     ) throws WorkloadException
     {
         // Store the operation streams in this list
@@ -577,7 +577,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private List<Iterator<?>> getOperationStreams(
         GeneratorFactory gf,
         long workloadStartTimeAsMilli,
-        CsvLoader loader
+        ParquetLoader loader
     ) throws WorkloadException
     {
         List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();

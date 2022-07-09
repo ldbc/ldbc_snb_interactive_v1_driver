@@ -275,20 +275,20 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     /*
      * Read Operation Parameters
      */
-    public static final String READ_OPERATION_1_PARAMS_FILENAME = "interactive-1.csv";
-    public static final String READ_OPERATION_2_PARAMS_FILENAME = "interactive-2.csv";
-    public static final String READ_OPERATION_3_PARAMS_FILENAME = "interactive-3.csv";
-    public static final String READ_OPERATION_4_PARAMS_FILENAME = "interactive-4.csv";
-    public static final String READ_OPERATION_5_PARAMS_FILENAME = "interactive-5.csv";
-    public static final String READ_OPERATION_6_PARAMS_FILENAME = "interactive-6.csv";
-    public static final String READ_OPERATION_7_PARAMS_FILENAME = "interactive-7.csv";
-    public static final String READ_OPERATION_8_PARAMS_FILENAME = "interactive-8.csv";
-    public static final String READ_OPERATION_9_PARAMS_FILENAME = "interactive-9.csv";
-    public static final String READ_OPERATION_10_PARAMS_FILENAME = "interactive-10.csv";
-    public static final String READ_OPERATION_11_PARAMS_FILENAME = "interactive-11.csv";
-    public static final String READ_OPERATION_12_PARAMS_FILENAME = "interactive-12.csv";
-    public static final String READ_OPERATION_13_PARAMS_FILENAME = "interactive-13.csv";
-    public static final String READ_OPERATION_14_PARAMS_FILENAME = "interactive-14.csv";
+    public static final String READ_OPERATION_1_PARAMS_FILENAME = "interactive-1.parquet";
+    public static final String READ_OPERATION_2_PARAMS_FILENAME = "interactive-2.parquet";
+    public static final String READ_OPERATION_3_PARAMS_FILENAME = "interactive-3.parquet";
+    public static final String READ_OPERATION_4_PARAMS_FILENAME = "interactive-4.parquet";
+    public static final String READ_OPERATION_5_PARAMS_FILENAME = "interactive-5.parquet";
+    public static final String READ_OPERATION_6_PARAMS_FILENAME = "interactive-6.parquet";
+    public static final String READ_OPERATION_7_PARAMS_FILENAME = "interactive-7.parquet";
+    public static final String READ_OPERATION_8_PARAMS_FILENAME = "interactive-8.parquet";
+    public static final String READ_OPERATION_9_PARAMS_FILENAME = "interactive-9.parquet";
+    public static final String READ_OPERATION_10_PARAMS_FILENAME = "interactive-10.parquet";
+    public static final String READ_OPERATION_11_PARAMS_FILENAME = "interactive-11.parquet";
+    public static final String READ_OPERATION_12_PARAMS_FILENAME = "interactive-12.parquet";
+    public static final String READ_OPERATION_13_PARAMS_FILENAME = "interactive-13.parquet";
+    public static final String READ_OPERATION_14_PARAMS_FILENAME = "interactive-14.parquet";
 
     private static Map<Integer,String> typeToOperationParameterFilename()
     {
@@ -607,24 +607,24 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     {
         Map<Class<? extends Operation>, String> classToFileNameMapping = new HashMap<>();
         // Inserts
-        classToFileNameMapping.put( LdbcUpdate1AddPerson.class, INSERTS_DIRECTORY + "/Person.csv" );
-        classToFileNameMapping.put( LdbcUpdate2AddPostLike.class, INSERTS_DIRECTORY + "/Person_likes_Post.csv" );
-        classToFileNameMapping.put( LdbcUpdate3AddCommentLike.class, INSERTS_DIRECTORY + "/Person_likes_Comment.csv" );
-        classToFileNameMapping.put( LdbcUpdate4AddForum.class, INSERTS_DIRECTORY + "/Forum.csv" );
-        classToFileNameMapping.put( LdbcUpdate5AddForumMembership.class, INSERTS_DIRECTORY + "/Forum_hasMember_Person.csv" );
-        classToFileNameMapping.put( LdbcUpdate6AddPost.class, INSERTS_DIRECTORY + "/Post.csv" );
-        classToFileNameMapping.put( LdbcUpdate7AddComment.class, INSERTS_DIRECTORY + "/Comment.csv" );
-        classToFileNameMapping.put( LdbcUpdate8AddFriendship.class, INSERTS_DIRECTORY + "/Person_knows_Person.csv" );
+        classToFileNameMapping.put( LdbcUpdate1AddPerson.class, INSERTS_DIRECTORY + "/Person.parquet" );
+        classToFileNameMapping.put( LdbcUpdate2AddPostLike.class, INSERTS_DIRECTORY + "/Person_likes_Post.parquet" );
+        classToFileNameMapping.put( LdbcUpdate3AddCommentLike.class, INSERTS_DIRECTORY + "/Person_likes_Comment.parquet" );
+        classToFileNameMapping.put( LdbcUpdate4AddForum.class, INSERTS_DIRECTORY + "/Forum.parquet" );
+        classToFileNameMapping.put( LdbcUpdate5AddForumMembership.class, INSERTS_DIRECTORY + "/Forum_hasMember_Person.parquet" );
+        classToFileNameMapping.put( LdbcUpdate6AddPost.class, INSERTS_DIRECTORY + "/Post.parquet" );
+        classToFileNameMapping.put( LdbcUpdate7AddComment.class, INSERTS_DIRECTORY + "/Comment.parquet" );
+        classToFileNameMapping.put( LdbcUpdate8AddFriendship.class, INSERTS_DIRECTORY + "/Person_knows_Person.parquet" );
 
         // Deletes
-        classToFileNameMapping.put( LdbcDelete1RemovePerson.class, DELETES_DIRECTORY + "/Person.csv" );
-        classToFileNameMapping.put( LdbcDelete2RemovePostLike.class, DELETES_DIRECTORY + "/Person_likes_Post.csv" );
-        classToFileNameMapping.put( LdbcDelete3RemoveCommentLike.class, DELETES_DIRECTORY + "/Person_likes_Comment.csv" );
-        classToFileNameMapping.put( LdbcDelete4RemoveForum.class, DELETES_DIRECTORY + "/Forum.csv" );
-        classToFileNameMapping.put( LdbcDelete5RemoveForumMembership.class, DELETES_DIRECTORY + "/Forum_hasMember_Person.csv" );
-        classToFileNameMapping.put( LdbcDelete6RemovePostThread.class, DELETES_DIRECTORY + "/Post.csv" );
-        classToFileNameMapping.put( LdbcDelete7RemoveCommentSubthread.class, DELETES_DIRECTORY + "/Comment.csv" );
-        classToFileNameMapping.put( LdbcDelete8RemoveFriendship.class, DELETES_DIRECTORY + "/Person_knows_Person.csv" );
+        classToFileNameMapping.put( LdbcDelete1RemovePerson.class, DELETES_DIRECTORY + "/Person.parquet" );
+        classToFileNameMapping.put( LdbcDelete2RemovePostLike.class, DELETES_DIRECTORY + "/Person_likes_Post.parquet" );
+        classToFileNameMapping.put( LdbcDelete3RemoveCommentLike.class, DELETES_DIRECTORY + "/Person_likes_Comment.parquet" );
+        classToFileNameMapping.put( LdbcDelete4RemoveForum.class, DELETES_DIRECTORY + "/Forum.parquet" );
+        classToFileNameMapping.put( LdbcDelete5RemoveForumMembership.class, DELETES_DIRECTORY + "/Forum_hasMember_Person.parquet" );
+        classToFileNameMapping.put( LdbcDelete6RemovePostThread.class, DELETES_DIRECTORY + "/Post.parquet" );
+        classToFileNameMapping.put( LdbcDelete7RemoveCommentSubthread.class, DELETES_DIRECTORY + "/Comment.parquet" );
+        classToFileNameMapping.put( LdbcDelete8RemoveFriendship.class, DELETES_DIRECTORY + "/Person_knows_Person.parquet" );
         return classToFileNameMapping;
     }
 }

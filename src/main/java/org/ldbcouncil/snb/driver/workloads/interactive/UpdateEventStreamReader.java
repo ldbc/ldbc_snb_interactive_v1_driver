@@ -33,25 +33,11 @@ import static java.lang.String.format;
 
 public class UpdateEventStreamReader implements Iterator<Operation>
 {
-    // TODO Date time formats should be given to the CsvLoader
-    // instead of specified here.
-    static final DateTimeFormatter DATE_TIME_FORMATTER =
-            new DateTimeFormatterBuilder().append(DateTimeFormatter.ISO_LOCAL_DATE)
-                    .appendLiteral(' ')
-                    .appendPattern("HH:mm:ss")
-                    .appendFraction(ChronoField.NANO_OF_SECOND, 1, 3, true)
-                    // This fix enables support for +00:00 format if present
-                    // Current loader does not load this offset while present in the data
-                    .appendOptional(new DateTimeFormatterBuilder().appendOffsetId().toFormatter())
-                    .toFormatter().withZone(ZoneId.of("Etc/GMT"));
-
     /**
-     * Convert the first attribute of the ResultSet rs to an epoch timestamp.
+     * Get the first attribute of the ResultSet rs representing an operation's date.
      */
     static long getOperationDate(ResultSet rs) throws SQLException {
-        String scheduledStartTimeAsMilliString = rs.getString(1);
-        ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-        return time.toInstant().toEpochMilli();
+        return rs.getLong(1);
     }
 
     private final Iterator<Operation> operationStream;

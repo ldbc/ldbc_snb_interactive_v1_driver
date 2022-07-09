@@ -13,16 +13,14 @@ import java.util.Iterator;
 
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
-import org.ldbcouncil.snb.driver.csv.CsvLoader;
+import org.ldbcouncil.snb.driver.csv.ParquetLoader;
 import org.ldbcouncil.snb.driver.generator.EventStreamReader;
 
 public class OperationStreamReader {
-    
-    private final char columnDelimiter = '|';
 
-    private final CsvLoader loader;
+    private final ParquetLoader loader;
 
-    public OperationStreamReader(CsvLoader loader)
+    public OperationStreamReader(ParquetLoader loader)
     {
         this.loader = loader;
     }
@@ -36,7 +34,7 @@ public class OperationStreamReader {
 
         try
         {
-            opStream = loader.loadOperationStream(readOperationFile.getAbsolutePath(), columnDelimiter, decoder);
+            opStream = loader.loadOperationStream(readOperationFile.getAbsolutePath(), decoder);
         }
         catch (SQLException e){
             throw new WorkloadException("Error loading operation stream with path: " + readOperationFile.getAbsolutePath());
