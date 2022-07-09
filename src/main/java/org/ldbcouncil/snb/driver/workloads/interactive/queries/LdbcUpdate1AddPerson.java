@@ -39,8 +39,8 @@ public class LdbcUpdate1AddPerson extends LdbcOperation<LdbcNoResult>
     private final String personFirstName;
     private final String personLastName;
     private final String gender;
-    private final Date birthday; // input format "1984-03-22"
-    private final Date creationDate; // input format "2004-03-22"
+    private final Date birthday;
+    private final Date creationDate;
     private final String locationIp;
     private final String browserUsed;
     private final long cityId;
