@@ -15,7 +15,6 @@ DESC: This file concatenates the insert and deletes streams from the Spark Datag
       - Post.csv
 """
 import argparse
-import pandas as pd
 import glob
 import os
 import duckdb
@@ -31,26 +30,12 @@ entities = [
     "Post"                    # INS6
 ]
 
-def merge_csvs_of_event(csv_path) -> pd.DataFrame:
+def convert_inserts(input_dir, output_dir):
     """
     Args:
-        - csv_path (str): Path to the root folder with csv.gz files to combine
-                          Point this to e.g. Person_likes_Post.
-    Returns:
-        pd.DataFrame containing concatenated CSV-data.
+        - input_dir  (str): The root input dir (e.g. '/data/out-sf1')
+        - output_dir (str): The output directory where the 'inserts' directory will be created
     """
-    list_of_dfs = []
-    for csv_file in glob.glob(f'{csv_path}/**/*.csv', recursive=True):
-        print(csv_file)
-        df = pd.read_csv(csv_file, delimiter='|')
-        list_of_dfs.append(df)
-
-    df = pd.concat(list_of_dfs)
-    df = df.sort_values('deletionDate')
-    df = df.reset_index(drop=True)
-    return df
-
-def convert_inserts(input_dir, output_dir):
     con = duckdb.connect(database='snb.duckdb')
 
     with open("schema.sql") as f:
@@ -87,14 +72,13 @@ def convert_inserts(input_dir, output_dir):
         con.execute(convert_script)
 
     output_path = os.path.join(output_dir, "inserts")
-
     os.makedirs(output_path, exist_ok=True)
 
     for entity in entities:
         filename = os.path.join(output_path, entity + ".csv")
         con.execute(f"""
             COPY
-                (SELECT strftime(creationDate::timestamp, '%Y-%m-%dT%H:%M:%S.%g+00:00') AS creationDate, * EXCLUDE creationDate FROM {entity}_Update)
+                (SELECT strftime(creationDate::timestamp, '%Y-%m-%dT%H:%M:%S.%g+00:00') AS creationDate, * EXCLUDE creationDate FROM {entity}_Insert_Converted)
                 TO '{filename}'
                 (DELIMITER '|', HEADER)
             """)
@@ -102,20 +86,45 @@ def convert_inserts(input_dir, output_dir):
 def convert_deletes(input_dir, output_dir):
     """
     Args:
-        - input_dir  (str): The root input dir (e.g. '/data/out-sf1') 
-        - output_dir (str): 
+        - input_dir  (str): The root input dir (e.g. '/data/out-sf1')
+        - output_dir (str): The output directory where the 'deletes' directory will be created
     """
-    update_path = os.path.join(input_dir, "graphs/csv/bi/composite-merged-fk/deletes/dynamic")
+    con = duckdb.connect(database='snb.duckdb')
+
+    with open("schema.sql") as f:
+        schema_def = f.read()
+        con.execute(schema_def)
+
+    data_path = os.path.join(input_dir, "graphs/csv/bi/composite-merged-fk/deletes/dynamic")
+
+    for entity in [
+        "Comment",
+        "Forum",
+        "Forum_hasMember_Person",
+        "Person",
+        "Person_knows_Person",
+        "Person_likes_Comment",
+        "Person_likes_Post",
+        "Post",
+    ]:
+        print(f"===== {entity} =====")
+        entity_dir = os.path.join(data_path, entity)
+        print(f"--> {entity_dir}")
+        for csv_path in glob.glob(f'{entity_dir}/**/*.csv', recursive=True):
+            print(csv_path)
+            con.execute(f"COPY {entity}_Delete FROM '{csv_path}' (DELIMITER '|', HEADER, TIMESTAMPFORMAT '%Y-%m-%dT%H:%M:%S.%g+00:00');")
+
     output_path = os.path.join(output_dir, "deletes")
-
     os.makedirs(output_path, exist_ok=True)
-    # The entity name is the folder name, also used for the final csv filename
-    for folder_name in entities:
-        print(f"Process folder: {folder_name}")
-        df = merge_csvs_of_event(os.path.join(update_path, folder_name))
-        output_file = os.path.join(output_dir, "deletes", folder_name +".csv")
-        df.to_csv(f"{output_file}", sep='|', index=False);
 
+    for entity in entities:
+        filename = os.path.join(output_path, entity + ".csv")
+        con.execute(f"""
+            COPY
+                (SELECT strftime(deletionDate::timestamp, '%Y-%m-%dT%H:%M:%S.%g+00:00') AS deletionDate, * EXCLUDE deletionDate FROM {entity}_Delete)
+                TO '{filename}'
+                (DELIMITER '|', HEADER)
+            """)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

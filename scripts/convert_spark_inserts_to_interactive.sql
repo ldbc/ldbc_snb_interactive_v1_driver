@@ -1,4 +1,4 @@
-INSERT INTO Forum_Update
+INSERT INTO Forum_Insert_Converted
     SELECT
         Forum.creationDate,
         Forum.id,
@@ -12,7 +12,7 @@ INSERT INTO Forum_Update
     ORDER BY Forum.creationDate
 ;
 
-INSERT INTO Comment_Update
+INSERT INTO Comment_Insert_Converted
     SELECT
         Comment.creationDate,
         Comment.id,
@@ -32,7 +32,7 @@ INSERT INTO Comment_Update
     ORDER BY Comment.creationDate
 ;
 
-INSERT INTO Post_Update
+INSERT INTO Post_Insert_Converted
     SELECT
         Post.creationDate,
         Post.id,
@@ -53,7 +53,7 @@ INSERT INTO Post_Update
     ORDER BY Post.creationDate
 ;
 
-INSERT INTO Person_Update
+INSERT INTO Person_Insert_Converted
     SELECT
         Person.creationDate,
         Person.id,
@@ -80,25 +80,25 @@ INSERT INTO Person_Update
     ORDER BY Person.creationDate
 ;
 
-INSERT INTO Person_knows_Person_Update
+INSERT INTO Person_knows_Person_Insert_Converted
     SELECT *
     FROM Person_knows_Person
     ORDER BY creationDate
 ;
 
-INSERT INTO Person_likes_Comment_Update
+INSERT INTO Person_likes_Comment_Insert_Converted
     SELECT *
     FROM Person_likes_Comment
     ORDER BY creationDate
 ;
 
-INSERT INTO Person_likes_Post_Update
+INSERT INTO Person_likes_Post_Insert_Converted
     SELECT *
     FROM Person_likes_Post
     ORDER BY creationDate
 ;
 
-INSERT INTO Forum_hasMember_Person_Update
+INSERT INTO Forum_hasMember_Person_Insert_Converted
     SELECT *
     FROM Forum_hasMember_Person
     ORDER BY creationDate

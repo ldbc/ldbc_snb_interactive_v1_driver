@@ -1,3 +1,6 @@
+---- drop tables
+
+-- vanilla inserts
 DROP TABLE IF EXISTS Comment;
 DROP TABLE IF EXISTS Comment_hasTag_Tag;
 DROP TABLE IF EXISTS Forum;
@@ -13,15 +16,29 @@ DROP TABLE IF EXISTS Person_workAt_Company;
 DROP TABLE IF EXISTS Post;
 DROP TABLE IF EXISTS Post_hasTag_Tag;
 
--- merged
-DROP TABLE IF EXISTS Comment_Update;
-DROP TABLE IF EXISTS Forum_Update;
-DROP TABLE IF EXISTS Forum_hasMember_Person_Update;
-DROP TABLE IF EXISTS Person_Update;
-DROP TABLE IF EXISTS Person_knows_Person_Update;
-DROP TABLE IF EXISTS Person_likes_Comment_Update;
-DROP TABLE IF EXISTS Person_likes_Post_Update;
-DROP TABLE IF EXISTS Post_Update;
+-- processed inserts
+DROP TABLE IF EXISTS Comment_Insert_Converted;
+DROP TABLE IF EXISTS Forum_Insert_Converted;
+DROP TABLE IF EXISTS Forum_hasMember_Person_Insert_Converted;
+DROP TABLE IF EXISTS Person_Insert_Converted;
+DROP TABLE IF EXISTS Person_knows_Person_Insert_Converted;
+DROP TABLE IF EXISTS Person_likes_Comment_Insert_Converted;
+DROP TABLE IF EXISTS Person_likes_Post_Insert_Converted;
+DROP TABLE IF EXISTS Post_Insert_Converted;
+
+-- deletes
+DROP TABLE IF EXISTS Comment_Delete;
+DROP TABLE IF EXISTS Forum_Delete;
+DROP TABLE IF EXISTS Person_Delete;
+DROP TABLE IF EXISTS Post_Delete;
+DROP TABLE IF EXISTS Forum_hasMember_Person_Delete;
+DROP TABLE IF EXISTS Person_knows_Person_Delete;
+DROP TABLE IF EXISTS Person_likes_Comment_Delete;
+DROP TABLE IF EXISTS Person_likes_Post_Delete;
+
+---- create tables
+
+-- vanilla inserts
 
 CREATE TABLE Comment (
     creationDate timestamp with time zone NOT NULL,
@@ -71,7 +88,6 @@ CREATE TABLE Person (
     email varchar(8192) NOT NULL
 );
 
--- edges
 CREATE TABLE Comment_hasTag_Tag (
     creationDate timestamp with time zone NOT NULL,
     CommentId bigint NOT NULL,
@@ -134,10 +150,10 @@ CREATE TABLE Person_knows_Person (
     Person2id bigint NOT NULL
 );
 
--- Updates
+---- processed inserts
 
--- INS7
-CREATE TABLE Comment_Update (
+-- INS 7
+CREATE TABLE Comment_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
     id bigint PRIMARY KEY,
     locationIP varchar(40) NOT NULL,
@@ -151,8 +167,8 @@ CREATE TABLE Comment_Update (
     TagIds string
 );
 
--- INS4
-CREATE TABLE Forum_Update (
+-- INS 4
+CREATE TABLE Forum_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
     id bigint PRIMARY KEY,
     title varchar(256) NOT NULL,
@@ -160,8 +176,8 @@ CREATE TABLE Forum_Update (
     TagIds string
 );
 
--- INS6
-CREATE TABLE Post_Update (
+-- INS 6
+CREATE TABLE Post_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
     id bigint PRIMARY KEY,
     imageFile varchar(40),
@@ -176,8 +192,8 @@ CREATE TABLE Post_Update (
     TagIds string
 );
 
--- INS1
-CREATE TABLE Person_Update (
+-- INS 1
+CREATE TABLE Person_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
     id bigint PRIMARY KEY,
     firstName varchar(40) NOT NULL,
@@ -194,30 +210,84 @@ CREATE TABLE Person_Update (
     workAt string
 );
 
--- INS5
-CREATE TABLE Forum_hasMember_Person_Update (
+-- INS 5
+CREATE TABLE Forum_hasMember_Person_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
     ForumId bigint NOT NULL,
     PersonId bigint NOT NULL
 );
 
--- INS3
-CREATE TABLE Person_likes_Comment_Update (
+-- INS 3
+CREATE TABLE Person_likes_Comment_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
     PersonId bigint NOT NULL,
     CommentId bigint NOT NULL
 );
 
--- INS2
-CREATE TABLE Person_likes_Post_Update (
+-- INS 2
+CREATE TABLE Person_likes_Post_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
     PersonId bigint NOT NULL,
     PostId bigint NOT NULL
 );
 
--- INS8
-CREATE TABLE Person_knows_Person_Update (
+-- INS 8
+CREATE TABLE Person_knows_Person_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
+    Person1id bigint NOT NULL,
+    Person2id bigint NOT NULL
+);
+
+---- deletes
+
+-- DEL 7
+CREATE TABLE Comment_Delete (
+    deletionDate timestamp with time zone NOT NULL,
+    id bigint PRIMARY KEY
+);
+
+-- DEL 4
+CREATE TABLE Forum_Delete (
+    deletionDate timestamp with time zone NOT NULL,
+    id bigint PRIMARY KEY,
+);
+
+-- DEL 6
+CREATE TABLE Post_Delete (
+    deletionDate timestamp with time zone NOT NULL,
+    id bigint PRIMARY KEY
+);
+
+-- DEL 1
+CREATE TABLE Person_Delete (
+    deletionDate timestamp with time zone NOT NULL,
+    id bigint PRIMARY KEY
+);
+
+-- DEL 5
+CREATE TABLE Forum_hasMember_Person_Delete (
+    deletionDate timestamp with time zone NOT NULL,
+    ForumId bigint NOT NULL,
+    PersonId bigint NOT NULL
+);
+
+-- DEL 3
+CREATE TABLE Person_likes_Comment_Delete (
+    deletionDate timestamp with time zone NOT NULL,
+    PersonId bigint NOT NULL,
+    CommentId bigint NOT NULL
+);
+
+-- DEL 2
+CREATE TABLE Person_likes_Post_Delete (
+    deletionDate timestamp with time zone NOT NULL,
+    PersonId bigint NOT NULL,
+    PostId bigint NOT NULL
+);
+
+-- DEL 8
+CREATE TABLE Person_knows_Person_Delete (
+    deletionDate timestamp with time zone NOT NULL,
     Person1id bigint NOT NULL,
     Person2id bigint NOT NULL
 );
