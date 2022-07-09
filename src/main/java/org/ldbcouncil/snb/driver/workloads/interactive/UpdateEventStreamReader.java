@@ -595,5 +595,3 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         }
     }
 }
-//2012-11-29T03:49:11.758+00:00
-//2012-12-03T00:29:34.653+00:00
