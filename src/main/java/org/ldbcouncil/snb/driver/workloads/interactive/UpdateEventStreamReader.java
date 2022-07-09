@@ -1,10 +1,10 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 /**
  * UpdateEventStreamReader.java
- * 
+ *
  * Decoder for the update events. There are 8 insert events and 8 delete events.
  * Each event has a separate decoder that decodes a java.sql.Resultset
- * 
+ *
  */
 
 import org.ldbcouncil.snb.driver.generator.EventStreamReader;
@@ -35,16 +35,25 @@ public class UpdateEventStreamReader implements Iterator<Operation>
 {
     // TODO Date time formats should be given to the CsvLoader
     // instead of specified here.
-    static final DateTimeFormatter DATE_TIME_FORMATTER = 
-        new DateTimeFormatterBuilder().append(DateTimeFormatter.ISO_LOCAL_DATE)
-            .appendLiteral(' ')
-            .appendPattern("HH:mm:ss")
-            .appendFraction(ChronoField.NANO_OF_SECOND, 1, 3, true)
-            // This fix enables support for +00:00 format if present
-            // Current loader does not load this offset while present in the data
-            .appendOptional(new DateTimeFormatterBuilder().appendOffsetId().toFormatter())
-            .toFormatter().withZone(ZoneId.of("Etc/GMT"));
-            
+    static final DateTimeFormatter DATE_TIME_FORMATTER =
+            new DateTimeFormatterBuilder().append(DateTimeFormatter.ISO_LOCAL_DATE)
+                    .appendLiteral(' ')
+                    .appendPattern("HH:mm:ss")
+                    .appendFraction(ChronoField.NANO_OF_SECOND, 1, 3, true)
+                    // This fix enables support for +00:00 format if present
+                    // Current loader does not load this offset while present in the data
+                    .appendOptional(new DateTimeFormatterBuilder().appendOffsetId().toFormatter())
+                    .toFormatter().withZone(ZoneId.of("Etc/GMT"));
+
+    /**
+     * Convert the first attribute of the ResultSet rs to an epoch timestamp.
+     */
+    static long getOperationDate(ResultSet rs) throws SQLException {
+        String scheduledStartTimeAsMilliString = rs.getString(1);
+        ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
+        return time.toInstant().toEpochMilli();
+    }
+
     private final Iterator<Operation> operationStream;
 
     public UpdateEventStreamReader( Iterator<Operation> operationStream )
@@ -97,9 +106,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long personId = rs.getLong(2);
                 String firstName = rs.getString(3);
                 String lastName = rs.getString(4);
@@ -110,7 +117,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 String locationIp = rs.getString(7);
                 String browserUsed = rs.getString(8);
                 long cityId = rs.getLong(9);
-                
+
                 List<String> languages;
                 String languagesResult = rs.getString(10);
                 if (languagesResult != null && !languagesResult.isEmpty()) {
@@ -120,9 +127,9 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 else {
                     languages = new ArrayList<>();
                 }
-    
+
                 List<String> emails;
-                String emailsResult = rs.getString(11); 
+                String emailsResult = rs.getString(11);
                 if (emailsResult != null && !emailsResult.isEmpty()) {
                     String[] emailsArray = emailsResult.split(";");
                     emails = Arrays.asList(emailsArray);
@@ -139,9 +146,9 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                         tagIds.add(Long.parseLong(value));
                     }
                 }
-    
+
                 List<LdbcUpdate1AddPerson.Organization> studyAts = new ArrayList<>();
-                String studyAtsResult = rs.getString(13); 
+                String studyAtsResult = rs.getString(13);
                 if (studyAtsResult != null && !studyAtsResult.isEmpty()) {
                     String[] studyAtsArray = studyAtsResult.split(";");
                     List<String> studyAtsStrings = Arrays.asList(studyAtsArray);
@@ -150,9 +157,9 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                         studyAts.add(new LdbcUpdate1AddPerson.Organization(Long.parseLong(studySplit[0]), Integer.parseInt(studySplit[1])));
                     }
                 }
-    
+
                 List<LdbcUpdate1AddPerson.Organization> workAts = new ArrayList<>();
-                String workAtsResult = rs.getString(14); 
+                String workAtsResult = rs.getString(14);
                 if (workAtsResult != null && !workAtsResult.isEmpty()) {
                     String[] workAtsArray =  workAtsResult.split(";");
                     List<String> workAtsStrings = Arrays.asList(workAtsArray);
@@ -161,7 +168,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                         workAts.add(new LdbcUpdate1AddPerson.Organization(Long.parseLong(workSplit[0]), Integer.parseInt(workSplit[1])));
                     }
                 }
-    
+
                 Operation operation = new LdbcUpdate1AddPerson(
                         personId,
                         firstName,
@@ -194,13 +201,11 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long personId = rs.getLong(2);
                 long postId = rs.getLong(3);
                 Date creationDate = new Date(scheduledStartTimeAsMilli); // Same as scheduled time
-    
+
                 Operation operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
@@ -219,9 +224,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long personId = rs.getLong(2);
                 long commentId = rs.getLong(3);
                 Date creationDate = new Date(scheduledStartTimeAsMilli);
@@ -244,16 +247,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long forumId = rs.getLong(2);
                 String forumTitle = rs.getString(3);
                 Date creationDate = new Date(scheduledStartTimeAsMilli); // Same as scheduled time
                 long moderatorPersonId = rs.getLong(4);
 
                 List<Long> tagIds = new ArrayList<>();
-                String tagIdsResult = rs.getString(5); 
+                String tagIdsResult = rs.getString(5);
                 if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
                     String[] tagIdsArrays = tagIdsResult.split(";");
                     for (String value : tagIdsArrays) {
@@ -279,9 +280,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long forumId = rs.getLong(2);
                 long personId = rs.getLong(3);
                 Date creationDate = new Date(scheduledStartTimeAsMilli);
@@ -304,9 +303,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long postId = rs.getLong(2);
                 String imageFile = rs.getString(3);
                 Date creationDate = new Date(scheduledStartTimeAsMilli); // Same as scheduled
@@ -318,9 +315,9 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 long authorPersonId = rs.getLong(9);
                 long forumId = rs.getLong(10);
                 long countryId = rs.getLong(11);
-                
+
                 List<Long> tagIds = new ArrayList<>();
-                String tagIdsResult = rs.getString(12); 
+                String tagIdsResult = rs.getString(12);
                 if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
                     String[] tagIdsArrays = tagIdsResult.split(";");
                     for (String value : tagIdsArrays) {
@@ -358,9 +355,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long commentId = rs.getLong(2);
                 Date creationDate = new Date(scheduledStartTimeAsMilli); // Same as scheduled time
                 String locationIp = rs.getString(3);
@@ -371,9 +366,9 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 long countryId = rs.getLong(8);
                 long replyOfPostId = rs.getLong(9);
                 long replyOfCommentId = rs.getLong(10);
-                
+
                 List<Long> tagIds = new ArrayList<>();
-                String tagIdsResult = rs.getString(11); 
+                String tagIdsResult = rs.getString(11);
                 if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
                     String[] tagIdsArrays = tagIdsResult.split(";");
                     for (String value : tagIdsArrays) {
@@ -410,9 +405,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long person1Id = rs.getLong(2);
                 long person2Id = rs.getLong(3);
                 Date creationDate = new Date(scheduledStartTimeAsMilli);
@@ -436,9 +429,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long personId = rs.getLong(2);
 
                 Operation operation = new LdbcDelete1RemovePerson(personId);
@@ -459,9 +450,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long personId = rs.getLong(2);
                 long postId = rs.getLong(3);
 
@@ -483,9 +472,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long personId = rs.getLong(2);
                 long commentId = rs.getLong(3);
 
@@ -507,9 +494,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long forumId = rs.getLong(2);
 
                 Operation operation = new LdbcDelete4RemoveForum(forumId);
@@ -530,9 +515,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long forumId = rs.getLong(2);
                 long personId = rs.getLong(3);
 
@@ -554,9 +537,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long postId = rs.getLong(2);
 
                 Operation operation = new LdbcDelete6RemovePostThread(postId);
@@ -577,9 +558,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long commentId = rs.getLong(2);
 
                 Operation operation = new LdbcDelete7RemoveCommentSubthread(commentId);
@@ -600,9 +579,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
         {
             try
             {
-                String scheduledStartTimeAsMilliString = rs.getString(1);
-                ZonedDateTime time = ZonedDateTime.parse(scheduledStartTimeAsMilliString, DATE_TIME_FORMATTER);
-                long scheduledStartTimeAsMilli = time.toInstant().toEpochMilli();
+                long scheduledStartTimeAsMilli = getOperationDate(rs);
                 long person1Id = rs.getLong(2);
                 long person2Id = rs.getLong(3);
 
