@@ -17,87 +17,59 @@ import java.util.Map;
 import java.util.Set;
 
 class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationParametersFilter {
-    private final Map<Class, Long> remainingRequiredResultsPerWriteType;
-    private final Map<Class, Long> remainingRequiredResultsPerLongReadType;
+    private final Map<Class, Long> remainingRequiredResultsPerType;
     private final Set<Class> enabledUpdateInsertOperationTypes;
     private final Set<Class> enabledShortReadOperationTypes;
     private int uncompletedShortReads;
 
     LdbcSnbInteractiveDbValidationParametersFilter(
-        Map<Class, Long> remainingRequiredResultsPerWriteType,
-        Map<Class, Long> remainingRequiredResultsPerLongReadType,
+        Map<Class, Long> remainingRequiredResultsPerType,
         Set<Class> enabledUpdateInsertOperationTypes,
         Set<Class> enabledShortReadOperationTypes) {
-        this.remainingRequiredResultsPerWriteType = remainingRequiredResultsPerWriteType;
-        this.remainingRequiredResultsPerLongReadType = remainingRequiredResultsPerLongReadType;
+        this.remainingRequiredResultsPerType = remainingRequiredResultsPerType;
         this.enabledUpdateInsertOperationTypes = enabledUpdateInsertOperationTypes;
         this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
         this.uncompletedShortReads = 0;
     }
 
     /**
-     * Check if the given operation is enabled or disabled.
+     * Check if the given operation is enabled or disabled
+     * or that extra params needs to be generated.
+     * @param operation: The operation to evaluate
      */
     @Override
     public boolean useOperation(Operation operation) {
         Class operationType = operation.getClass();
-
-        if (enabledShortReadOperationTypes.contains(operationType)) {
-            return true;
-        } else if (remainingRequiredResultsPerWriteType.containsKey(operationType)) {
-            return !haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType);
-        } else if (remainingRequiredResultsPerLongReadType.containsKey(operationType)) {
-            return remainingRequiredResultsPerLongReadType.get(operationType) > 0;
+        if (remainingRequiredResultsPerType.containsKey(operationType)) {
+            return remainingRequiredResultsPerType.get(operationType) > 0;
         } else {
-            // disabled operation
             return false;
         }
     }
 
     @Override
-    public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation operation,
-                                                                                 Object operationResult) {
+    public DbValidationParametersFilterResult useOperationAndResultForValidation(
+        Operation operation,
+        Object operationResult
+    ) {
         Class operationType = operation.getClass();
         List<Operation> injectedOperations = new ArrayList<>();
 
         injectedOperations.addAll(generateOperationsToInject(operation));
         uncompletedShortReads += injectedOperations.size();
 
-        if (enabledShortReadOperationTypes.contains(operationType)) {
-            // keep track of how many injected operations have completed (only short reads are injected)
-            uncompletedShortReads--;
-        } else if (remainingRequiredResultsPerWriteType.containsKey(operationType)) {
+        if (remainingRequiredResultsPerType.containsKey(operationType)) {
             // decrement count for write operation type
-            remainingRequiredResultsPerWriteType.put(operationType, Math.max(0, remainingRequiredResultsPerWriteType.get(operationType) - 1));
-        } else if (remainingRequiredResultsPerLongReadType.containsKey(operationType)) {
-            // decrement count for long read operation type
-            remainingRequiredResultsPerLongReadType.put(operationType, remainingRequiredResultsPerLongReadType.get(operationType) - 1);
+            remainingRequiredResultsPerType.put(operationType, Math.max(0, remainingRequiredResultsPerType.get(operationType) - 1));
         } else {
             throw new RuntimeException("Unexpected operation type: " + operationType.getSimpleName());
         }
 
-        if (validationParameterGenerationFinished()) {
+        if (haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerType)) {
             return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.ACCEPT_AND_FINISH, injectedOperations);
         } else {
             return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.ACCEPT_AND_CONTINUE, injectedOperations);
         }
-    }
-
-    private boolean validationParameterGenerationFinished() {
-        // check that all writes have completed
-        if (!haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType)) {
-            return false;
-        }
-        // check that all long reads have completed
-        if (!haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerLongReadType)) {
-            return false;
-        }
-        // check that all short reads have completed
-        if (uncompletedShortReads > 0) {
-            return false;
-        }
-        // we're done
-        return true;
     }
 
     private boolean haveCompletedAllRequiredResultsPerOperationType(Map<Class, Long> requiredResultsPerOperationType) {
