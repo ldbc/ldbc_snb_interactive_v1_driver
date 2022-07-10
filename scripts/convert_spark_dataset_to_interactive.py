@@ -36,6 +36,8 @@ def convert_inserts(input_dir, output_dir):
         - input_dir  (str): The root input dir (e.g. '/data/out-sf1')
         - output_dir (str): The output directory where the 'inserts' directory will be created
     """
+    print(f"===== Inserts =====")
+
     con = duckdb.connect(database='snb.duckdb')
 
     with open("schema.sql") as f:
@@ -60,11 +62,9 @@ def convert_inserts(input_dir, output_dir):
         "Post",
         "Post_hasTag_Tag"
     ]:
-        print(f"===== {entity} =====")
+        print(f"-> {entity}")
         entity_dir = os.path.join(data_path, entity)
-        print(f"--> {entity_dir}")
         for csv_path in glob.glob(f'{entity_dir}/**/*.csv', recursive=True):
-            print(csv_path)
             con.execute(f"COPY {entity} FROM '{csv_path}' (DELIMITER '|', HEADER, TIMESTAMPFORMAT '%Y-%m-%dT%H:%M:%S.%g+00:00');")
 
     with open("convert_spark_inserts_to_interactive.sql") as f:
@@ -75,13 +75,8 @@ def convert_inserts(input_dir, output_dir):
     os.makedirs(output_path, exist_ok=True)
 
     for entity in entities:
-        filename = os.path.join(output_path, entity + ".csv")
-        con.execute(f"""
-            COPY
-                (SELECT strftime(creationDate::timestamp, '%Y-%m-%dT%H:%M:%S.%g+00:00') AS creationDate, * EXCLUDE creationDate FROM {entity}_Insert_Converted)
-                TO '{filename}'
-                (DELIMITER '|', HEADER)
-            """)
+        filename = os.path.join(output_path, entity + ".parquet")
+        con.execute(f"COPY (SELECT date_part('epoch', creationDate)*1000+date_part('milliseconds', creationDate)%1000, * EXCLUDE creationDate FROM {entity}_Insert_Converted) TO '{filename}' (FORMAT 'parquet')")
 
 def convert_deletes(input_dir, output_dir):
     """
@@ -89,6 +84,8 @@ def convert_deletes(input_dir, output_dir):
         - input_dir  (str): The root input dir (e.g. '/data/out-sf1')
         - output_dir (str): The output directory where the 'deletes' directory will be created
     """
+    print(f"===== Deletes =====")
+
     con = duckdb.connect(database='snb.duckdb')
 
     with open("schema.sql") as f:
@@ -107,24 +104,17 @@ def convert_deletes(input_dir, output_dir):
         "Person_likes_Post",
         "Post",
     ]:
-        print(f"===== {entity} =====")
+        print(f"-> {entity}")
         entity_dir = os.path.join(data_path, entity)
-        print(f"--> {entity_dir}")
         for csv_path in glob.glob(f'{entity_dir}/**/*.csv', recursive=True):
-            print(csv_path)
             con.execute(f"COPY {entity}_Delete FROM '{csv_path}' (DELIMITER '|', HEADER, TIMESTAMPFORMAT '%Y-%m-%dT%H:%M:%S.%g+00:00');")
 
     output_path = os.path.join(output_dir, "deletes")
     os.makedirs(output_path, exist_ok=True)
 
     for entity in entities:
-        filename = os.path.join(output_path, entity + ".csv")
-        con.execute(f"""
-            COPY
-                (SELECT strftime(deletionDate::timestamp, '%Y-%m-%dT%H:%M:%S.%g+00:00') AS deletionDate, * EXCLUDE deletionDate FROM {entity}_Delete)
-                TO '{filename}'
-                (DELIMITER '|', HEADER)
-            """)
+        filename = os.path.join(output_path, entity + ".parquet")
+        con.execute(f"COPY (SELECT date_part('epoch', deletionDate)*1000+date_part('milliseconds', deletionDate)%1000 AS deletionDate, * EXCLUDE deletionDate FROM {entity}_Delete) TO '{filename}' (FORMAT 'parquet')")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -144,4 +134,4 @@ if __name__ == "__main__":
 
     convert_inserts(args.input_dir, args.output_dir)
     convert_deletes(args.input_dir, args.output_dir)
-    print("Files combined")
+    print("Files combined & processed.")

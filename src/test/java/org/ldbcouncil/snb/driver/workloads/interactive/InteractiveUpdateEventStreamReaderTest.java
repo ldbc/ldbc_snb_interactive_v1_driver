@@ -2,7 +2,7 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
-import org.ldbcouncil.snb.driver.csv.CsvLoader;
+import org.ldbcouncil.snb.driver.csv.ParquetLoader;
 import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
 import org.ldbcouncil.snb.driver.generator.EventStreamReader;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
@@ -47,11 +47,11 @@ public class InteractiveUpdateEventStreamReaderTest
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 03:06:43.640+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 04:55:52.506+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354158403640L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354164952506L);
         when(rs.getLong(2)) // PersonId
             .thenReturn(2336462220352l)
             .thenReturn(2336462274764l)
@@ -114,8 +114,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn("")
             .thenReturn("100,4587");
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderAddPerson();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -174,11 +174,11 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 03:06:43.640+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 04:55:52.506+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354158403640L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354164952506L);
         when(rs.getLong(2))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
@@ -190,8 +190,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(2336462285980l)
             .thenReturn(2336465315493l);
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderAddLikePost();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -234,11 +234,11 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 03:06:43.640+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 04:55:52.506+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354158403640L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354164952506L);
         when(rs.getLong(2))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
@@ -250,8 +250,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(2336462285980l)
             .thenReturn(2336465315493l);
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderAddLikeComment();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -294,11 +294,11 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 02:56:12.178+00:00")
-            .thenReturn("2012-11-29 03:01:41.157+00:00")
-            .thenReturn("2012-11-29 03:18:21.925+00:00")
-            .thenReturn("2012-11-29 03:25:37.443+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354157772178L)
+            .thenReturn(1354158101157L)
+            .thenReturn(1354159101925L)
+            .thenReturn(1354159537443L);
         when(rs.getLong(2))
             .thenReturn(2336462220352l)
             .thenReturn(2336462274764l)
@@ -320,8 +320,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn("2999;125")
             .thenReturn("1;2;3");
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderAddForum();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -392,11 +392,11 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 03:06:43.640+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 04:55:52.506+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354158403640L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354164952506L);
         when(rs.getLong(2))
             .thenReturn(2336468703973l)
             .thenReturn(2336467057324l)
@@ -408,8 +408,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(8796093026612l)
             .thenReturn(26388279069478l);
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderAddForumMembership();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -452,11 +452,11 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 02:56:12.178+00:00")
-            .thenReturn("2012-11-29 03:01:41.157+00:00")
-            .thenReturn("2012-11-29 03:18:21.925+00:00")
-            .thenReturn("2012-11-29 03:25:37.443+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354157772178L)
+            .thenReturn(1354158101157L)
+            .thenReturn(1354159101925L)
+            .thenReturn(1354159537443L);
         when(rs.getLong(2)) // PostId
             .thenReturn(2336462220352l)
             .thenReturn(2336462274764l)
@@ -514,8 +514,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn("1;2;3");
 
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderAddPost();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -614,11 +614,11 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 02:56:12.178+00:00")
-            .thenReturn("2012-11-29 03:01:41.157+00:00")
-            .thenReturn("2012-11-29 03:18:21.925+00:00")
-            .thenReturn("2012-11-29 03:25:37.443+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354157772178L)
+            .thenReturn(1354158101157L)
+            .thenReturn(1354159101925L)
+            .thenReturn(1354159537443L);
         when(rs.getLong(2)) //CommentId
             .thenReturn(2336462220352l)
             .thenReturn(2336462274764l)
@@ -671,8 +671,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn("1;2;3");
 
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderAddComment();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -767,11 +767,11 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 03:06:43.640+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 04:55:52.506+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354158403640L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354164952506L);
         when(rs.getLong(2))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
@@ -784,8 +784,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(2336465315493l);
 
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderAddFriendship();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -828,19 +828,19 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 05:15:19.784+00:00")
-            .thenReturn("2012-11-29 08:02:14.565+00:00")
-            .thenReturn("2012-11-29 21:14:20.406+00:00")
-            .thenReturn("2012-12-01 06:34:34.368+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354166119784l)
+            .thenReturn(1354176134565l)
+            .thenReturn(1354223660406l)
+            .thenReturn(1354343674368l);
         when(rs.getLong(2))
             .thenReturn(28587302326532l)
             .thenReturn(28587302325029l)
             .thenReturn(8796093027322l)
             .thenReturn(4398046517253l);
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderDeletePerson();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -875,11 +875,11 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 03:06:43.640+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 04:55:52.506+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354158403640L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354164952506L);
         when(rs.getLong(2))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
@@ -891,8 +891,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(2336462285980l)
             .thenReturn(2336465315493l);
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderDeletePostLike();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -931,11 +931,11 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 03:06:43.640+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 04:55:52.506+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354158403640L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354164952506L);
         when(rs.getLong(2))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
@@ -947,8 +947,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(2336462285980l)
             .thenReturn(2336465315493l);
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderDeleteCommentLike();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -987,19 +987,19 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 05:15:19.784+00:00")
-            .thenReturn("2012-11-29 08:02:14.565+00:00")
-            .thenReturn("2012-11-29 21:14:20.406+00:00")
-            .thenReturn("2012-12-01 06:34:34.368+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354166119784l)
+            .thenReturn(1354176134565l)
+            .thenReturn(1354223660406l)
+            .thenReturn(1354343674368l);
         when(rs.getLong(2))
             .thenReturn(28587302326532l)
             .thenReturn(28587302325029l)
             .thenReturn(8796093027322l)
             .thenReturn(4398046517253l);
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderDeleteForum();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -1034,11 +1034,11 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 03:06:43.640+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 04:55:52.506+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354158403640L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354164952506L);
         when(rs.getLong(2))
             .thenReturn(2336468703973l)
             .thenReturn(2336467057324l)
@@ -1050,8 +1050,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(8796093026612l)
             .thenReturn(26388279069478l);
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderDeleteForumMembership();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -1090,19 +1090,19 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 05:15:19.784+00:00")
-            .thenReturn("2012-11-29 08:02:14.565+00:00")
-            .thenReturn("2012-11-29 21:14:20.406+00:00")
-            .thenReturn("2012-12-01 06:34:34.368+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354166119784l)
+            .thenReturn(1354176134565l)
+            .thenReturn(1354223660406l)
+            .thenReturn(1354343674368l);
         when(rs.getLong(2))
             .thenReturn(28587302326532l)
             .thenReturn(28587302325029l)
             .thenReturn(8796093027322l)
             .thenReturn(4398046517253l);
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderDeletePostThread();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -1137,19 +1137,19 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 05:15:19.784+00:00")
-            .thenReturn("2012-11-29 08:02:14.565+00:00")
-            .thenReturn("2012-11-29 21:14:20.406+00:00")
-            .thenReturn("2012-12-01 06:34:34.368+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354166119784l)
+            .thenReturn(1354176134565l)
+            .thenReturn(1354223660406l)
+            .thenReturn(1354343674368l);
         when(rs.getLong(2))
             .thenReturn(28587302326532l)
             .thenReturn(28587302325029l)
             .thenReturn(8796093027322l)
             .thenReturn(4398046517253l);
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderDeleteCommentSubThread();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
@@ -1184,11 +1184,11 @@ public class InteractiveUpdateEventStreamReaderTest
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
 
-        when(rs.getString(1))
-            .thenReturn("2012-11-29 03:06:43.640+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 03:26:56.392+00:00")
-            .thenReturn("2012-11-29 04:55:52.506+00:00");
+        when(rs.getLong(1))
+            .thenReturn(1354158403640L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354159616392L)
+            .thenReturn(1354164952506L);
         when(rs.getLong(2))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
@@ -1201,8 +1201,8 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(2336465315493l);
 
         EventStreamReader.EventDecoder<Operation> decoder = new UpdateEventStreamReader.EventDecoderDeleteFriendship();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new UpdateEventStreamReader(
