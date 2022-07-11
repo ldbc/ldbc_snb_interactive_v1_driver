@@ -7,7 +7,6 @@ package org.ldbcouncil.snb.driver.validation;
  * - An iterator with time mapped operations
  */
 
-
 import org.ldbcouncil.snb.driver.Db;
 import org.ldbcouncil.snb.driver.DbConnectionState;
 import org.ldbcouncil.snb.driver.DbException;
@@ -39,10 +38,19 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
     private final List<Operation> injectedOperations;
     private int requiredValidationParameterSize;
 
-    public ValidationParamsGenerator( Db db,
-            DbValidationParametersFilter dbValidationParametersFilter,
-            Iterator<Operation> operations,
-            int requiredValidationParameterSize )
+    /**
+     * Create validation parameters
+     * @param db: Database to connect to
+     * @param dbValidationParametersFilter: Object filtering disabled queries from the validation parameters
+     * @param operations: Operation streams
+     * @param requiredValidationParameterSize: Amount of validation parameters to generate
+     */
+    public ValidationParamsGenerator(
+        Db db,
+        DbValidationParametersFilter dbValidationParametersFilter,
+        Iterator<Operation> operations,
+        int requiredValidationParameterSize
+    )
     {
         this.db = db;
         this.dbValidationParametersFilter = dbValidationParametersFilter;
@@ -62,9 +70,9 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
     @Override
     protected ValidationParam doNext() throws GeneratorException
     {
-        while ( (injectedOperations.size() > 0 || operations.hasNext()) && needMoreValidationParameters && (requiredValidationParameterSize > entriesWrittenSoFar) )
+        Operation operation;
+        while ( operations.hasNext() && needMoreValidationParameters )
         {
-            Operation operation;
             if ( injectedOperations.isEmpty() )
             {
                 operation = operations.next();
@@ -74,48 +82,12 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
                 operation = injectedOperations.remove( 0 );
             }
 
-            if ( false == dbValidationParametersFilter.useOperation( operation ) )
+            if (!dbValidationParametersFilter.useOperation( operation ) )
             { 
                 continue; 
             }
 
-            OperationHandlerRunnableContext operationHandlerRunner;
-            try
-            {
-                operationHandlerRunner = db.getOperationHandlerRunnableContext( operation );
-            }
-            catch ( DbException e )
-            {
-                throw new GeneratorException(
-                        format(
-                                "Error retrieving operation handler for operation\n"
-                                + "Db: %s\n"
-                                + "Operation: %s",
-                                db.getClass().getName(), operation ),
-                        e );
-            }
-            try
-            {
-                OperationHandler operationHandler = operationHandlerRunner.operationHandler();
-                DbConnectionState dbConnectionState = operationHandlerRunner.dbConnectionState();
-                operationHandler.executeOperation( operation, dbConnectionState, resultReporter );
-            }
-            catch ( DbException e )
-            {
-                throw new GeneratorException(
-                        format( ""
-                                + "Error executing operation to retrieve validation result\n"
-                                + "Db: %s\n"
-                                + "Operation: %s",
-                                db.getClass().getName(), operation ),
-                        e );
-            }
-            finally
-            {
-                operationHandlerRunner.cleanup();
-            }
-
-            Object result = resultReporter.result();
+            Object result = getOperationResult(operation);
             DbValidationParametersFilterResult dbValidationParametersFilterResult =
                     dbValidationParametersFilter.useOperationAndResultForValidation( operation, result );
             injectedOperations.addAll( dbValidationParametersFilterResult.injectedOperations() );
@@ -145,5 +117,51 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
         }
         // ran out of operations OR validation set size has been reached
         return null;
+    }
+
+    /**
+     * Get operation result from the connected database.
+     * @param operation: Operation to get the result from
+     * @return Result object
+     */
+    private Object getOperationResult(Operation operation)
+    {
+        OperationHandlerRunnableContext operationHandlerRunner;
+        try
+        {
+            operationHandlerRunner = db.getOperationHandlerRunnableContext( operation );
+        }
+        catch ( DbException e )
+        {
+            throw new GeneratorException(
+                    format(
+                            "Error retrieving operation handler for operation\n"
+                            + "Db: %s\n"
+                            + "Operation: %s",
+                            db.getClass().getName(), operation ),
+                    e );
+        }
+        try
+        {
+            OperationHandler operationHandler = operationHandlerRunner.operationHandler();
+            DbConnectionState dbConnectionState = operationHandlerRunner.dbConnectionState();
+            operationHandler.executeOperation( operation, dbConnectionState, resultReporter );
+        }
+        catch ( DbException e )
+        {
+            throw new GeneratorException(
+                    format( ""
+                            + "Error executing operation to retrieve validation result\n"
+                            + "Db: %s\n"
+                            + "Operation: %s",
+                            db.getClass().getName(), operation ),
+                    e );
+        }
+        finally
+        {
+            operationHandlerRunner.cleanup();
+        }
+
+        return resultReporter.result();
     }
 }

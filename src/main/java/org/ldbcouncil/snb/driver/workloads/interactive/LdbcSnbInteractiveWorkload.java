@@ -104,13 +104,15 @@ public class LdbcSnbInteractiveWorkload extends Workload
             updatesDir = new File( params.get( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY ).trim() );
             if ( !updatesDir.exists() )
             {
-                throw new WorkloadException( format( "Updates directory does not exist\nDirectory: %s",
-                updatesDir.getAbsolutePath() ) );
+                throw new WorkloadException(
+                    format( "Updates directory does not exist%nDirectory: %s",
+                            updatesDir.getAbsolutePath() ) );
             }
             if ( !updatesDir.isDirectory() )
             {
-                throw new WorkloadException( format( "Updates directory is not a directory\nDirectory: %s",
-                updatesDir.getAbsolutePath() ) );
+                throw new WorkloadException( 
+                    format( "Updates directory is not a directory%nDirectory: %s",
+                        updatesDir.getAbsolutePath() ) );
             }
         }
 
@@ -151,7 +153,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             {
                 throw new WorkloadException(
                         format( "Configuration parameter %s should be in interval [1.0,0.0] but is: %s",
-                                shortReadDissipationFactor ) );
+                        LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_DISSIPATION , shortReadDissipationFactor ) );
             }
         }
 
@@ -623,24 +625,26 @@ public class LdbcSnbInteractiveWorkload extends Workload
                         requiredValidationParameterCount.doubleValue() / operationTypeCount.doubleValue() ) )
         );
 
-        final Map<Class,Long> remainingRequiredResultsPerUpdateType = new HashMap<>();
+        final Map<Class,Long> remainingRequiredResultsPerType = new HashMap<>();
         for ( Class updateOperationType : enabledUpdateOperationTypes )
         {
-            remainingRequiredResultsPerUpdateType.put( updateOperationType, minimumResultCountPerOperationType );
+            remainingRequiredResultsPerType.put( updateOperationType, minimumResultCountPerOperationType );
         }
-
-        final Map<Class,Long> remainingRequiredResultsPerLongReadType = new HashMap<>();
         for ( Class longReadOperationType : enabledLongReadOperationTypes )
         {
-            remainingRequiredResultsPerLongReadType.put( longReadOperationType, minimumResultCountPerOperationType );
+            remainingRequiredResultsPerType.put( longReadOperationType, minimumResultCountPerOperationType );
+        }
+
+        for ( Class shortReadOperationType : enabledShortReadOperationTypes )
+        {
+            remainingRequiredResultsPerType.put( shortReadOperationType, minimumResultCountPerOperationType );
         }
 
         return new LdbcSnbInteractiveDbValidationParametersFilter(
-                remainingRequiredResultsPerUpdateType,
-                remainingRequiredResultsPerLongReadType,
-                // Writes are required to determine short reads operations to inject
-                enabledWriteOperationTypes,
-                enabledShortReadOperationTypes
+            remainingRequiredResultsPerType,
+            // Writes are required to determine short reads operations to inject
+            enabledWriteOperationTypes,
+            enabledShortReadOperationTypes
         );
     }
 
