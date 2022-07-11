@@ -44,9 +44,9 @@ tools/run.py \
     --output-dir out-sf${SF}/
 ```
 
-Set `${DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data e.g. '/data/out-sf1' and run the script:
+Set `${LDBC_SNB_DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data e.g. '/data/out-sf1' and run the script:
 
 ```bash
-export DATA_ROOT_DIRECTORY=...
+export LDBC_SNB_DATA_ROOT_DIRECTORY=...
 ./convert.sh
 ```
