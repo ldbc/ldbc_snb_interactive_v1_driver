@@ -1,6 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 /**
- * LdbcUpdate7AddComment.java
+ * LdbcInsert7AddComment.java
  * 
  * Interactive workload insert query 7:
  * -- Add comment --
@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class LdbcUpdate7AddComment extends LdbcOperation<LdbcNoResult>
+public class LdbcInsert7AddComment extends LdbcOperation<LdbcNoResult>
 {
     public static final int TYPE = 1007;
     public static final String COMMENT_ID = "commentId";
@@ -45,7 +45,7 @@ public class LdbcUpdate7AddComment extends LdbcOperation<LdbcNoResult>
     private final long replyToCommentId;
     private final List<Long> tagIds;
 
-    public LdbcUpdate7AddComment(
+    public LdbcInsert7AddComment(
         @JsonProperty("commentId")              long commentId,
         @JsonProperty("creationDate")           Date creationDate,
         @JsonProperty("locationIp")             String locationIp,
@@ -151,7 +151,7 @@ public class LdbcUpdate7AddComment extends LdbcOperation<LdbcNoResult>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcUpdate7AddComment that = (LdbcUpdate7AddComment) o;
+        LdbcInsert7AddComment that = (LdbcInsert7AddComment) o;
 
         if ( authorPersonId != that.authorPersonId )
         { return false; }
@@ -199,7 +199,7 @@ public class LdbcUpdate7AddComment extends LdbcOperation<LdbcNoResult>
     @Override
     public String toString()
     {
-        return "LdbcUpdate7AddComment{" +
+        return "LdbcInsert7AddComment{" +
                "commentId=" + commentId +
                ", creationDate=" + creationDate +
                ", locationIp='" + locationIp + '\'' +

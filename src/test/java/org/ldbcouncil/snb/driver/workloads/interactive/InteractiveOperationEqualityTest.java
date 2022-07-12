@@ -352,7 +352,7 @@ public class InteractiveOperationEqualityTest
     }
 
     @Test
-    public void ldbcUpdate1ShouldDoEqualsCorrectly() {
+    public void ldbcInsert1ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
         String personFirstName1 = "\u16a0";
@@ -366,10 +366,10 @@ public class InteractiveOperationEqualityTest
         List<String> languages1 = Lists.newArrayList("10");
         List<String> emails1 = Lists.newArrayList("11", "12");
         List<Long> tagIds1 = Lists.newArrayList();
-        List<LdbcUpdate1AddPerson.Organization> studyAt1 = Lists.newArrayList(new LdbcUpdate1AddPerson.Organization(13, 14));
-        List<LdbcUpdate1AddPerson.Organization> workAt1 = Lists.newArrayList(
-                new LdbcUpdate1AddPerson.Organization(15, 16),
-                new LdbcUpdate1AddPerson.Organization(17, 18));
+        List<LdbcInsert1AddPerson.Organization> studyAt1 = Lists.newArrayList(new LdbcInsert1AddPerson.Organization(13, 14));
+        List<LdbcInsert1AddPerson.Organization> workAt1 = Lists.newArrayList(
+                new LdbcInsert1AddPerson.Organization(15, 16),
+                new LdbcInsert1AddPerson.Organization(17, 18));
 
         long personId2 = 19;
         String personFirstName2 = "20";
@@ -383,11 +383,11 @@ public class InteractiveOperationEqualityTest
         List<String> languages2 = Lists.newArrayList();
         List<String> emails2 = Lists.newArrayList("28", "29");
         List<Long> tagIds2 = Lists.newArrayList(30l);
-        List<LdbcUpdate1AddPerson.Organization> studyAt2 = Lists.newArrayList(new LdbcUpdate1AddPerson.Organization(31, 32));
-        List<LdbcUpdate1AddPerson.Organization> workAt2 = Lists.newArrayList();
+        List<LdbcInsert1AddPerson.Organization> studyAt2 = Lists.newArrayList(new LdbcInsert1AddPerson.Organization(31, 32));
+        List<LdbcInsert1AddPerson.Organization> workAt2 = Lists.newArrayList();
 
         // When
-        LdbcUpdate1AddPerson ldbcUpdate1a = new LdbcUpdate1AddPerson(
+        LdbcInsert1AddPerson ldbcInsert1a = new LdbcInsert1AddPerson(
                 personId1,
                 personFirstName1,
                 personLastName1,
@@ -397,7 +397,7 @@ public class InteractiveOperationEqualityTest
                 locationIp1,
                 browserUsed1,
                 cityId1, languages1, emails1, tagIds1, studyAt1, workAt1);
-        LdbcUpdate1AddPerson ldbcUpdate1b = new LdbcUpdate1AddPerson(
+        LdbcInsert1AddPerson ldbcInsert1b = new LdbcInsert1AddPerson(
                 personId1,
                 personFirstName1,
                 personLastName1,
@@ -407,7 +407,7 @@ public class InteractiveOperationEqualityTest
                 locationIp1,
                 browserUsed1,
                 cityId1, languages1, emails1, tagIds1, studyAt1, workAt1);
-        LdbcUpdate1AddPerson ldbcUpdate2a = new LdbcUpdate1AddPerson(
+        LdbcInsert1AddPerson ldbcInsert2a = new LdbcInsert1AddPerson(
                 personId2,
                 personFirstName2,
                 personLastName2,
@@ -417,7 +417,7 @@ public class InteractiveOperationEqualityTest
                 locationIp2,
                 browserUsed2,
                 cityId2, languages2, emails2, tagIds2, studyAt2, workAt2);
-        LdbcUpdate1AddPerson ldbcUpdate2b = new LdbcUpdate1AddPerson(
+        LdbcInsert1AddPerson ldbcInsert2b = new LdbcInsert1AddPerson(
                 personId2,
                 personFirstName2,
                 personLastName2,
@@ -427,7 +427,7 @@ public class InteractiveOperationEqualityTest
                 locationIp2,
                 browserUsed2,
                 cityId2, languages2, emails2, tagIds2, studyAt2, workAt2);
-        LdbcUpdate1AddPerson ldbcUpdate3a = new LdbcUpdate1AddPerson(
+        LdbcInsert1AddPerson ldbcInsert3a = new LdbcInsert1AddPerson(
                 personId1,
                 personFirstName1,
                 personLastName1,
@@ -439,15 +439,15 @@ public class InteractiveOperationEqualityTest
                 cityId1, languages1, emails1, tagIds1, studyAt1, workAt2);
 
         // Then
-        assertThat(ldbcUpdate1a, equalTo(ldbcUpdate1b));
-        assertThat(ldbcUpdate2a, equalTo(ldbcUpdate2b));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate2a)));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate3a)));
-        assertThat(ldbcUpdate2a, not(equalTo(ldbcUpdate3a)));
+        assertThat(ldbcInsert1a, equalTo(ldbcInsert1b));
+        assertThat(ldbcInsert2a, equalTo(ldbcInsert2b));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert2a)));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert3a)));
+        assertThat(ldbcInsert2a, not(equalTo(ldbcInsert3a)));
     }
 
     @Test
-    public void ldbcUpdate2ShouldDoEqualsCorrectly() {
+    public void ldbcInsert2ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
         long postId1 = 2;
@@ -458,20 +458,20 @@ public class InteractiveOperationEqualityTest
         Date creationDate2 = new Date(6);
 
         // When
-        LdbcUpdate2AddPostLike ldbcUpdate1a = new LdbcUpdate2AddPostLike(personId1, postId1, creationDate1);
-        LdbcUpdate2AddPostLike ldbcUpdate1b = new LdbcUpdate2AddPostLike(personId1, postId1, creationDate1);
-        LdbcUpdate2AddPostLike ldbcUpdate2a = new LdbcUpdate2AddPostLike(personId2, postId2, creationDate2);
-        LdbcUpdate2AddPostLike ldbcUpdate3a = new LdbcUpdate2AddPostLike(personId1, postId1, creationDate2);
+        LdbcInsert2AddPostLike ldbcInsert1a = new LdbcInsert2AddPostLike(personId1, postId1, creationDate1);
+        LdbcInsert2AddPostLike ldbcInsert1b = new LdbcInsert2AddPostLike(personId1, postId1, creationDate1);
+        LdbcInsert2AddPostLike ldbcInsert2a = new LdbcInsert2AddPostLike(personId2, postId2, creationDate2);
+        LdbcInsert2AddPostLike ldbcInsert3a = new LdbcInsert2AddPostLike(personId1, postId1, creationDate2);
 
         // Then
-        assertThat(ldbcUpdate1a, equalTo(ldbcUpdate1b));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate2a)));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate3a)));
-        assertThat(ldbcUpdate2a, not(equalTo(ldbcUpdate3a)));
+        assertThat(ldbcInsert1a, equalTo(ldbcInsert1b));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert2a)));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert3a)));
+        assertThat(ldbcInsert2a, not(equalTo(ldbcInsert3a)));
     }
 
     @Test
-    public void ldbcUpdate3ShouldDoEqualsCorrectly() {
+    public void ldbcInsert3ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
         long commentId1 = 2;
@@ -482,20 +482,20 @@ public class InteractiveOperationEqualityTest
         Date creationDate2 = new Date(6);
 
         // When
-        LdbcUpdate3AddCommentLike ldbcUpdate1a = new LdbcUpdate3AddCommentLike(personId1, commentId1, creationDate1);
-        LdbcUpdate3AddCommentLike ldbcUpdate1b = new LdbcUpdate3AddCommentLike(personId1, commentId1, creationDate1);
-        LdbcUpdate3AddCommentLike ldbcUpdate2a = new LdbcUpdate3AddCommentLike(personId2, commentId2, creationDate2);
-        LdbcUpdate3AddCommentLike ldbcUpdate3a = new LdbcUpdate3AddCommentLike(personId1, commentId1, creationDate2);
+        LdbcInsert3AddCommentLike ldbcInsert1a = new LdbcInsert3AddCommentLike(personId1, commentId1, creationDate1);
+        LdbcInsert3AddCommentLike ldbcInsert1b = new LdbcInsert3AddCommentLike(personId1, commentId1, creationDate1);
+        LdbcInsert3AddCommentLike ldbcInsert2a = new LdbcInsert3AddCommentLike(personId2, commentId2, creationDate2);
+        LdbcInsert3AddCommentLike ldbcInsert3a = new LdbcInsert3AddCommentLike(personId1, commentId1, creationDate2);
 
         // Then
-        assertThat(ldbcUpdate1a, equalTo(ldbcUpdate1b));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate2a)));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate3a)));
-        assertThat(ldbcUpdate2a, not(equalTo(ldbcUpdate3a)));
+        assertThat(ldbcInsert1a, equalTo(ldbcInsert1b));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert2a)));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert3a)));
+        assertThat(ldbcInsert2a, not(equalTo(ldbcInsert3a)));
     }
 
     @Test
-    public void ldbcUpdate4ShouldDoEqualsCorrectly() {
+    public void ldbcInsert4ShouldDoEqualsCorrectly() {
         // Given
         long forumId1 = 1;
         String forumTitle1 = "\u16a0";
@@ -510,20 +510,20 @@ public class InteractiveOperationEqualityTest
         List<Long> tagIds2 = Lists.newArrayList();
 
         // When
-        LdbcUpdate4AddForum ldbcUpdate1a = new LdbcUpdate4AddForum(forumId1, forumTitle1, creationDate1, moderatorPersonId1, tagIds1);
-        LdbcUpdate4AddForum ldbcUpdate1b = new LdbcUpdate4AddForum(forumId1, forumTitle1, creationDate1, moderatorPersonId1, tagIds1);
-        LdbcUpdate4AddForum ldbcUpdate2a = new LdbcUpdate4AddForum(forumId2, forumTitle2, creationDate2, moderatorPersonId2, tagIds2);
-        LdbcUpdate4AddForum ldbcUpdate3a = new LdbcUpdate4AddForum(forumId1, forumTitle1, creationDate1, moderatorPersonId1, tagIds2);
+        LdbcInsert4AddForum ldbcInsert1a = new LdbcInsert4AddForum(forumId1, forumTitle1, creationDate1, moderatorPersonId1, tagIds1);
+        LdbcInsert4AddForum ldbcInsert1b = new LdbcInsert4AddForum(forumId1, forumTitle1, creationDate1, moderatorPersonId1, tagIds1);
+        LdbcInsert4AddForum ldbcInsert2a = new LdbcInsert4AddForum(forumId2, forumTitle2, creationDate2, moderatorPersonId2, tagIds2);
+        LdbcInsert4AddForum ldbcInsert3a = new LdbcInsert4AddForum(forumId1, forumTitle1, creationDate1, moderatorPersonId1, tagIds2);
 
         // Then
-        assertThat(ldbcUpdate1a, equalTo(ldbcUpdate1b));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate2a)));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate3a)));
-        assertThat(ldbcUpdate2a, not(equalTo(ldbcUpdate3a)));
+        assertThat(ldbcInsert1a, equalTo(ldbcInsert1b));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert2a)));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert3a)));
+        assertThat(ldbcInsert2a, not(equalTo(ldbcInsert3a)));
     }
 
     @Test
-    public void ldbcUpdate5ShouldDoEqualsCorrectly() {
+    public void ldbcInsert5ShouldDoEqualsCorrectly() {
         // Given
         long forumId1 = 1;
         long personId1 = 2;
@@ -534,20 +534,20 @@ public class InteractiveOperationEqualityTest
         Date creationDate2 = new Date(6);
 
         // When
-        LdbcUpdate5AddForumMembership ldbcUpdate1a = new LdbcUpdate5AddForumMembership(forumId1, personId1, creationDate1);
-        LdbcUpdate5AddForumMembership ldbcUpdate1b = new LdbcUpdate5AddForumMembership(forumId1, personId1, creationDate1);
-        LdbcUpdate5AddForumMembership ldbcUpdate2a = new LdbcUpdate5AddForumMembership(forumId2, personId2, creationDate2);
-        LdbcUpdate5AddForumMembership ldbcUpdate3a = new LdbcUpdate5AddForumMembership(forumId1, personId1, creationDate2);
+        LdbcInsert5AddForumMembership ldbcInsert1a = new LdbcInsert5AddForumMembership(forumId1, personId1, creationDate1);
+        LdbcInsert5AddForumMembership ldbcInsert1b = new LdbcInsert5AddForumMembership(forumId1, personId1, creationDate1);
+        LdbcInsert5AddForumMembership ldbcInsert2a = new LdbcInsert5AddForumMembership(forumId2, personId2, creationDate2);
+        LdbcInsert5AddForumMembership ldbcInsert3a = new LdbcInsert5AddForumMembership(forumId1, personId1, creationDate2);
 
         // Then
-        assertThat(ldbcUpdate1a, equalTo(ldbcUpdate1b));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate2a)));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate3a)));
-        assertThat(ldbcUpdate2a, not(equalTo(ldbcUpdate3a)));
+        assertThat(ldbcInsert1a, equalTo(ldbcInsert1b));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert2a)));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert3a)));
+        assertThat(ldbcInsert2a, not(equalTo(ldbcInsert3a)));
     }
 
     @Test
-    public void ldbcUpdate6ShouldDoEqualsCorrectly() {
+    public void ldbcInsert6ShouldDoEqualsCorrectly() {
         // Given
         long postId1 = 1;
         String imageFile1 = "\u16a0";
@@ -576,7 +576,7 @@ public class InteractiveOperationEqualityTest
         List<Long> tagIds2 = Lists.newArrayList(24l, 25l, 26l);
 
         // When
-        LdbcUpdate6AddPost ldbcUpdate1a = new LdbcUpdate6AddPost(
+        LdbcInsert6AddPost ldbcInsert1a = new LdbcInsert6AddPost(
                 postId1,
                 imageFile1,
                 creationDate1,
@@ -590,7 +590,7 @@ public class InteractiveOperationEqualityTest
                 countryId1,
                 tagIds1);
 
-        LdbcUpdate6AddPost ldbcUpdate1b = new LdbcUpdate6AddPost(
+        LdbcInsert6AddPost ldbcInsert1b = new LdbcInsert6AddPost(
                 postId1,
                 imageFile1,
                 creationDate1,
@@ -604,7 +604,7 @@ public class InteractiveOperationEqualityTest
                 countryId1,
                 tagIds1);
 
-        LdbcUpdate6AddPost ldbcUpdate2a = new LdbcUpdate6AddPost(
+        LdbcInsert6AddPost ldbcInsert2a = new LdbcInsert6AddPost(
                 postId2,
                 imageFile2,
                 creationDate2,
@@ -618,7 +618,7 @@ public class InteractiveOperationEqualityTest
                 countryId2,
                 tagIds2);
 
-        LdbcUpdate6AddPost ldbcUpdate3a = new LdbcUpdate6AddPost(
+        LdbcInsert6AddPost ldbcInsert3a = new LdbcInsert6AddPost(
                 postId1,
                 imageFile1,
                 creationDate1,
@@ -634,14 +634,14 @@ public class InteractiveOperationEqualityTest
 
 
         // Then
-        assertThat(ldbcUpdate1a, equalTo(ldbcUpdate1b));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate2a)));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate3a)));
-        assertThat(ldbcUpdate2a, not(equalTo(ldbcUpdate3a)));
+        assertThat(ldbcInsert1a, equalTo(ldbcInsert1b));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert2a)));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert3a)));
+        assertThat(ldbcInsert2a, not(equalTo(ldbcInsert3a)));
     }
 
     @Test
-    public void ldbcUpdate7ShouldDoEqualsCorrectly() {
+    public void ldbcInsert7ShouldDoEqualsCorrectly() {
         // Given
         long commentId1 = 1;
         Date creationDate1 = new Date(2);
@@ -668,7 +668,7 @@ public class InteractiveOperationEqualityTest
         List<Long> tagIds2 = Lists.newArrayList(21l);
 
         // When
-        LdbcUpdate7AddComment ldbcUpdate1a = new LdbcUpdate7AddComment(
+        LdbcInsert7AddComment ldbcInsert1a = new LdbcInsert7AddComment(
                 commentId1,
                 creationDate1,
                 locationIp1,
@@ -681,7 +681,7 @@ public class InteractiveOperationEqualityTest
                 replyToCommentId1,
                 tagIds1);
 
-        LdbcUpdate7AddComment ldbcUpdate1b = new LdbcUpdate7AddComment(
+        LdbcInsert7AddComment ldbcInsert1b = new LdbcInsert7AddComment(
                 commentId1,
                 creationDate1,
                 locationIp1,
@@ -694,7 +694,7 @@ public class InteractiveOperationEqualityTest
                 replyToCommentId1,
                 tagIds1);
 
-        LdbcUpdate7AddComment ldbcUpdate2a = new LdbcUpdate7AddComment(
+        LdbcInsert7AddComment ldbcInsert2a = new LdbcInsert7AddComment(
                 commentId2,
                 creationDate2,
                 locationIp2,
@@ -707,7 +707,7 @@ public class InteractiveOperationEqualityTest
                 replyToCommentId2,
                 tagIds2);
 
-        LdbcUpdate7AddComment ldbcUpdate3a = new LdbcUpdate7AddComment(
+        LdbcInsert7AddComment ldbcInsert3a = new LdbcInsert7AddComment(
                 commentId1,
                 creationDate1,
                 locationIp1,
@@ -721,14 +721,14 @@ public class InteractiveOperationEqualityTest
                 tagIds2);
 
         // Then
-        assertThat(ldbcUpdate1a, equalTo(ldbcUpdate1b));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate2a)));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate3a)));
-        assertThat(ldbcUpdate2a, not(equalTo(ldbcUpdate3a)));
+        assertThat(ldbcInsert1a, equalTo(ldbcInsert1b));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert2a)));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert3a)));
+        assertThat(ldbcInsert2a, not(equalTo(ldbcInsert3a)));
     }
 
     @Test
-    public void ldbcUpdate8ShouldDoEqualsCorrectly() {
+    public void ldbcInsert8ShouldDoEqualsCorrectly() {
         // Given
         long person1Id1 = 1;
         long person2Id1 = 2;
@@ -739,15 +739,15 @@ public class InteractiveOperationEqualityTest
         Date creationDate2 = new Date(6);
 
         // When
-        LdbcUpdate8AddFriendship ldbcUpdate1a = new LdbcUpdate8AddFriendship(person1Id1, person2Id1, creationDate1);
-        LdbcUpdate8AddFriendship ldbcUpdate1b = new LdbcUpdate8AddFriendship(person1Id1, person2Id1, creationDate1);
-        LdbcUpdate8AddFriendship ldbcUpdate2a = new LdbcUpdate8AddFriendship(person1Id2, person2Id2, creationDate2);
-        LdbcUpdate8AddFriendship ldbcUpdate3a = new LdbcUpdate8AddFriendship(person1Id1, person2Id1, creationDate2);
+        LdbcInsert8AddFriendship ldbcInsert1a = new LdbcInsert8AddFriendship(person1Id1, person2Id1, creationDate1);
+        LdbcInsert8AddFriendship ldbcInsert1b = new LdbcInsert8AddFriendship(person1Id1, person2Id1, creationDate1);
+        LdbcInsert8AddFriendship ldbcInsert2a = new LdbcInsert8AddFriendship(person1Id2, person2Id2, creationDate2);
+        LdbcInsert8AddFriendship ldbcInsert3a = new LdbcInsert8AddFriendship(person1Id1, person2Id1, creationDate2);
 
         // Then
-        assertThat(ldbcUpdate1a, equalTo(ldbcUpdate1b));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate2a)));
-        assertThat(ldbcUpdate1a, not(equalTo(ldbcUpdate3a)));
-        assertThat(ldbcUpdate2a, not(equalTo(ldbcUpdate3a)));
+        assertThat(ldbcInsert1a, equalTo(ldbcInsert1b));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert2a)));
+        assertThat(ldbcInsert1a, not(equalTo(ldbcInsert3a)));
+        assertThat(ldbcInsert2a, not(equalTo(ldbcInsert3a)));
     }
 }

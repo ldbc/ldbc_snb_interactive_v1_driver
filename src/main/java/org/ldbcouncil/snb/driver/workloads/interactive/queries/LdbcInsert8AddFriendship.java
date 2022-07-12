@@ -1,6 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 /**
- * LdbcUpdate8AddFriendship.java
+ * LdbcInsert8AddFriendship.java
  * 
  * Interactive workload insert query 8:
  * -- Add friendship --
@@ -15,7 +15,7 @@ import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 import java.util.Date;
 import java.util.Map;
 
-public class LdbcUpdate8AddFriendship extends LdbcOperation<LdbcNoResult>
+public class LdbcInsert8AddFriendship extends LdbcOperation<LdbcNoResult>
 {
     public static final int TYPE = 1008;
     public static final String PERSON1_ID = "person1Id";
@@ -26,7 +26,7 @@ public class LdbcUpdate8AddFriendship extends LdbcOperation<LdbcNoResult>
     private final long person2Id;
     private final Date creationDate;
 
-    public LdbcUpdate8AddFriendship(
+    public LdbcInsert8AddFriendship(
         @JsonProperty("person1Id")    long person1Id,
         @JsonProperty("person2Id")    long person2Id,
         @JsonProperty("creationDate") Date creationDate
@@ -69,7 +69,7 @@ public class LdbcUpdate8AddFriendship extends LdbcOperation<LdbcNoResult>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcUpdate8AddFriendship that = (LdbcUpdate8AddFriendship) o;
+        LdbcInsert8AddFriendship that = (LdbcInsert8AddFriendship) o;
 
         if ( person1Id != that.person1Id )
         { return false; }
@@ -93,7 +93,7 @@ public class LdbcUpdate8AddFriendship extends LdbcOperation<LdbcNoResult>
     @Override
     public String toString()
     {
-        return "LdbcUpdate8AddFriendship{" +
+        return "LdbcInsert8AddFriendship{" +
                "person1Id=" + person1Id +
                ", person2Id=" + person2Id +
                ", creationDate=" + creationDate +

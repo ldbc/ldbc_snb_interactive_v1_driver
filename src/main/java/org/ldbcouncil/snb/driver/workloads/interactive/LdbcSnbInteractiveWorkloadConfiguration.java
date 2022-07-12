@@ -229,14 +229,14 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             SHORT_READ_OPERATION_7_ENABLE_KEY
     );
 
-    public static final String WRITE_OPERATION_1_ENABLE_KEY = asEnableKey( LdbcUpdate1AddPerson.class );
-    public static final String WRITE_OPERATION_2_ENABLE_KEY = asEnableKey( LdbcUpdate2AddPostLike.class );
-    public static final String WRITE_OPERATION_3_ENABLE_KEY = asEnableKey( LdbcUpdate3AddCommentLike.class );
-    public static final String WRITE_OPERATION_4_ENABLE_KEY = asEnableKey( LdbcUpdate4AddForum.class );
-    public static final String WRITE_OPERATION_5_ENABLE_KEY = asEnableKey( LdbcUpdate5AddForumMembership.class );
-    public static final String WRITE_OPERATION_6_ENABLE_KEY = asEnableKey( LdbcUpdate6AddPost.class );
-    public static final String WRITE_OPERATION_7_ENABLE_KEY = asEnableKey( LdbcUpdate7AddComment.class );
-    public static final String WRITE_OPERATION_8_ENABLE_KEY = asEnableKey( LdbcUpdate8AddFriendship.class );
+    public static final String WRITE_OPERATION_1_ENABLE_KEY = asEnableKey( LdbcInsert1AddPerson.class );
+    public static final String WRITE_OPERATION_2_ENABLE_KEY = asEnableKey( LdbcInsert2AddPostLike.class );
+    public static final String WRITE_OPERATION_3_ENABLE_KEY = asEnableKey( LdbcInsert3AddCommentLike.class );
+    public static final String WRITE_OPERATION_4_ENABLE_KEY = asEnableKey( LdbcInsert4AddForum.class );
+    public static final String WRITE_OPERATION_5_ENABLE_KEY = asEnableKey( LdbcInsert5AddForumMembership.class );
+    public static final String WRITE_OPERATION_6_ENABLE_KEY = asEnableKey( LdbcInsert6AddPost.class );
+    public static final String WRITE_OPERATION_7_ENABLE_KEY = asEnableKey( LdbcInsert7AddComment.class );
+    public static final String WRITE_OPERATION_8_ENABLE_KEY = asEnableKey( LdbcInsert8AddFriendship.class );
     public static final String WRITE_OPERATION_9_ENABLE_KEY = asEnableKey( LdbcDelete1RemovePerson.class );
     public static final String WRITE_OPERATION_10_ENABLE_KEY = asEnableKey( LdbcDelete2RemovePostLike.class );
     public static final String WRITE_OPERATION_11_ENABLE_KEY = asEnableKey( LdbcDelete3RemoveCommentLike.class );
@@ -544,14 +544,14 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         operationTypeToClassMapping.put( LdbcShortQuery5MessageCreator.TYPE, LdbcShortQuery5MessageCreator.class );
         operationTypeToClassMapping.put( LdbcShortQuery6MessageForum.TYPE, LdbcShortQuery6MessageForum.class );
         operationTypeToClassMapping.put( LdbcShortQuery7MessageReplies.TYPE, LdbcShortQuery7MessageReplies.class );
-        operationTypeToClassMapping.put( LdbcUpdate1AddPerson.TYPE, LdbcUpdate1AddPerson.class );
-        operationTypeToClassMapping.put( LdbcUpdate2AddPostLike.TYPE, LdbcUpdate2AddPostLike.class );
-        operationTypeToClassMapping.put( LdbcUpdate3AddCommentLike.TYPE, LdbcUpdate3AddCommentLike.class );
-        operationTypeToClassMapping.put( LdbcUpdate4AddForum.TYPE, LdbcUpdate4AddForum.class );
-        operationTypeToClassMapping.put( LdbcUpdate5AddForumMembership.TYPE, LdbcUpdate5AddForumMembership.class );
-        operationTypeToClassMapping.put( LdbcUpdate6AddPost.TYPE, LdbcUpdate6AddPost.class );
-        operationTypeToClassMapping.put( LdbcUpdate7AddComment.TYPE, LdbcUpdate7AddComment.class );
-        operationTypeToClassMapping.put( LdbcUpdate8AddFriendship.TYPE, LdbcUpdate8AddFriendship.class );
+        operationTypeToClassMapping.put( LdbcInsert1AddPerson.TYPE, LdbcInsert1AddPerson.class );
+        operationTypeToClassMapping.put( LdbcInsert2AddPostLike.TYPE, LdbcInsert2AddPostLike.class );
+        operationTypeToClassMapping.put( LdbcInsert3AddCommentLike.TYPE, LdbcInsert3AddCommentLike.class );
+        operationTypeToClassMapping.put( LdbcInsert4AddForum.TYPE, LdbcInsert4AddForum.class );
+        operationTypeToClassMapping.put( LdbcInsert5AddForumMembership.TYPE, LdbcInsert5AddForumMembership.class );
+        operationTypeToClassMapping.put( LdbcInsert6AddPost.TYPE, LdbcInsert6AddPost.class );
+        operationTypeToClassMapping.put( LdbcInsert7AddComment.TYPE, LdbcInsert7AddComment.class );
+        operationTypeToClassMapping.put( LdbcInsert8AddFriendship.TYPE, LdbcInsert8AddFriendship.class );
         operationTypeToClassMapping.put( LdbcDelete1RemovePerson.TYPE, LdbcDelete1RemovePerson.class );
         operationTypeToClassMapping.put( LdbcDelete2RemovePostLike.TYPE, LdbcDelete2RemovePostLike.class );
         operationTypeToClassMapping.put( LdbcDelete3RemoveCommentLike.TYPE, LdbcDelete3RemoveCommentLike.class );
@@ -607,14 +607,14 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     {
         Map<Class<? extends Operation>, String> classToFileNameMapping = new HashMap<>();
         // Inserts
-        classToFileNameMapping.put( LdbcUpdate1AddPerson.class, INSERTS_DIRECTORY + "/Person.parquet" );
-        classToFileNameMapping.put( LdbcUpdate2AddPostLike.class, INSERTS_DIRECTORY + "/Person_likes_Post.parquet" );
-        classToFileNameMapping.put( LdbcUpdate3AddCommentLike.class, INSERTS_DIRECTORY + "/Person_likes_Comment.parquet" );
-        classToFileNameMapping.put( LdbcUpdate4AddForum.class, INSERTS_DIRECTORY + "/Forum.parquet" );
-        classToFileNameMapping.put( LdbcUpdate5AddForumMembership.class, INSERTS_DIRECTORY + "/Forum_hasMember_Person.parquet" );
-        classToFileNameMapping.put( LdbcUpdate6AddPost.class, INSERTS_DIRECTORY + "/Post.parquet" );
-        classToFileNameMapping.put( LdbcUpdate7AddComment.class, INSERTS_DIRECTORY + "/Comment.parquet" );
-        classToFileNameMapping.put( LdbcUpdate8AddFriendship.class, INSERTS_DIRECTORY + "/Person_knows_Person.parquet" );
+        classToFileNameMapping.put( LdbcInsert1AddPerson.class, INSERTS_DIRECTORY + "/Person.parquet" );
+        classToFileNameMapping.put( LdbcInsert2AddPostLike.class, INSERTS_DIRECTORY + "/Person_likes_Post.parquet" );
+        classToFileNameMapping.put( LdbcInsert3AddCommentLike.class, INSERTS_DIRECTORY + "/Person_likes_Comment.parquet" );
+        classToFileNameMapping.put( LdbcInsert4AddForum.class, INSERTS_DIRECTORY + "/Forum.parquet" );
+        classToFileNameMapping.put( LdbcInsert5AddForumMembership.class, INSERTS_DIRECTORY + "/Forum_hasMember_Person.parquet" );
+        classToFileNameMapping.put( LdbcInsert6AddPost.class, INSERTS_DIRECTORY + "/Post.parquet" );
+        classToFileNameMapping.put( LdbcInsert7AddComment.class, INSERTS_DIRECTORY + "/Comment.parquet" );
+        classToFileNameMapping.put( LdbcInsert8AddFriendship.class, INSERTS_DIRECTORY + "/Person_knows_Person.parquet" );
 
         // Deletes
         classToFileNameMapping.put( LdbcDelete1RemovePerson.class, DELETES_DIRECTORY + "/Person.parquet" );

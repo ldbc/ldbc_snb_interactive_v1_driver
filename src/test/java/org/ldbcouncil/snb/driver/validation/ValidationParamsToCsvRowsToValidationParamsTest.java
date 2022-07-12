@@ -206,28 +206,28 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
         );
         ValidationParam validationParamShortRead7 = ValidationParam.createTyped( shortRead7, shortReadResult7 );
 
-        LdbcUpdate1AddPerson write1 = DummyLdbcSnbInteractiveOperationInstances.write1();
+        LdbcInsert1AddPerson write1 = DummyLdbcSnbInteractiveOperationInstances.write1();
         ValidationParam validationParamWrite1 = ValidationParam.createTyped( write1, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate2AddPostLike write2 = DummyLdbcSnbInteractiveOperationInstances.write2();
+        LdbcInsert2AddPostLike write2 = DummyLdbcSnbInteractiveOperationInstances.write2();
         ValidationParam validationParamWrite2 = ValidationParam.createTyped( write2, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate3AddCommentLike write3 = DummyLdbcSnbInteractiveOperationInstances.write3();
+        LdbcInsert3AddCommentLike write3 = DummyLdbcSnbInteractiveOperationInstances.write3();
         ValidationParam validationParamWrite3 = ValidationParam.createTyped( write3, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate4AddForum write4 = DummyLdbcSnbInteractiveOperationInstances.write4();
+        LdbcInsert4AddForum write4 = DummyLdbcSnbInteractiveOperationInstances.write4();
         ValidationParam validationParamWrite4 = ValidationParam.createTyped( write4, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate5AddForumMembership write5 = DummyLdbcSnbInteractiveOperationInstances.write5();
+        LdbcInsert5AddForumMembership write5 = DummyLdbcSnbInteractiveOperationInstances.write5();
         ValidationParam validationParamWrite5 = ValidationParam.createTyped( write5, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate6AddPost write6 = DummyLdbcSnbInteractiveOperationInstances.write6();
+        LdbcInsert6AddPost write6 = DummyLdbcSnbInteractiveOperationInstances.write6();
         ValidationParam validationParamWrite6 = ValidationParam.createTyped( write6, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate7AddComment write7 = DummyLdbcSnbInteractiveOperationInstances.write7();
+        LdbcInsert7AddComment write7 = DummyLdbcSnbInteractiveOperationInstances.write7();
         ValidationParam validationParamWrite7 = ValidationParam.createTyped( write7, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate8AddFriendship write8 = DummyLdbcSnbInteractiveOperationInstances.write8();
+        LdbcInsert8AddFriendship write8 = DummyLdbcSnbInteractiveOperationInstances.write8();
         ValidationParam validationParamWrite8 = ValidationParam.createTyped( write8, LdbcNoResult.INSTANCE );
 
         LdbcDelete1RemovePerson delete1 = DummyLdbcSnbInteractiveOperationInstances.delete1();

@@ -1,6 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 /**
- * LdbcUpdate4AddForum.java
+ * LdbcInsert4AddForum.java
  * 
  * Interactive workload insert query 4:
  * -- Add forum --
@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class LdbcUpdate4AddForum extends LdbcOperation<LdbcNoResult>
+public class LdbcInsert4AddForum extends LdbcOperation<LdbcNoResult>
 {
     public static final int TYPE = 1004;
     public static final String FORUM_ID = "forumId";
@@ -32,7 +32,7 @@ public class LdbcUpdate4AddForum extends LdbcOperation<LdbcNoResult>
     private final long moderatorPersonId;
     private final List<Long> tagIds;
 
-    public LdbcUpdate4AddForum(
+    public LdbcInsert4AddForum(
         @JsonProperty("forumId")           long forumId,
         @JsonProperty("forumTitle")        String forumTitle,
         @JsonProperty("creationDate")      Date creationDate,
@@ -91,7 +91,7 @@ public class LdbcUpdate4AddForum extends LdbcOperation<LdbcNoResult>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcUpdate4AddForum that = (LdbcUpdate4AddForum) o;
+        LdbcInsert4AddForum that = (LdbcInsert4AddForum) o;
 
         if ( forumId != that.forumId )
         { return false; }
@@ -121,7 +121,7 @@ public class LdbcUpdate4AddForum extends LdbcOperation<LdbcNoResult>
     @Override
     public String toString()
     {
-        return "LdbcUpdate4AddForum{" +
+        return "LdbcInsert4AddForum{" +
                "forumId=" + forumId +
                ", forumTitle='" + forumTitle + '\'' +
                ", creationDate=" + creationDate +

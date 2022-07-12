@@ -1,6 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 /**
- * LdbcUpdate5AddForumMembership.java
+ * LdbcInsert5AddForumMembership.java
  * 
  * Interactive workload insert query 5:
  * -- Add forum membership --
@@ -15,7 +15,7 @@ import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 import java.util.Date;
 import java.util.Map;
 
-public class LdbcUpdate5AddForumMembership extends LdbcOperation<LdbcNoResult>
+public class LdbcInsert5AddForumMembership extends LdbcOperation<LdbcNoResult>
 {
     public static final int TYPE = 1005;
     public static final String FORUM_ID = "forumId";
@@ -26,7 +26,7 @@ public class LdbcUpdate5AddForumMembership extends LdbcOperation<LdbcNoResult>
     private final long personId;
     private final Date creationDate;
 
-    public LdbcUpdate5AddForumMembership(
+    public LdbcInsert5AddForumMembership(
         @JsonProperty("forumId")  long forumId,
         @JsonProperty("personId") long personId,
         @JsonProperty("creationDate") Date creationDate
@@ -69,7 +69,7 @@ public class LdbcUpdate5AddForumMembership extends LdbcOperation<LdbcNoResult>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcUpdate5AddForumMembership that = (LdbcUpdate5AddForumMembership) o;
+        LdbcInsert5AddForumMembership that = (LdbcInsert5AddForumMembership) o;
 
         if ( forumId != that.forumId )
         { return false; }
@@ -93,7 +93,7 @@ public class LdbcUpdate5AddForumMembership extends LdbcOperation<LdbcNoResult>
     @Override
     public String toString()
     {
-        return "LdbcUpdate5AddForumMembership{" +
+        return "LdbcInsert5AddForumMembership{" +
                "forumId=" + forumId +
                ", personId=" + personId +
                ", creationDate=" + creationDate +

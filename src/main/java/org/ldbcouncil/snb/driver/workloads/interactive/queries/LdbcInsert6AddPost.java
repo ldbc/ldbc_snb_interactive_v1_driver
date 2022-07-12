@@ -1,6 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 /**
- * LdbcUpdate6AddPost.java
+ * LdbcInsert6AddPost.java
  * 
  * Interactive workload insert query 6:
  * -- Add post --
@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LdbcUpdate6AddPost extends LdbcOperation<LdbcNoResult>
+public class LdbcInsert6AddPost extends LdbcOperation<LdbcNoResult>
 {
     public static final int TYPE = 1006;
     public static final String POST_ID = "postId";
@@ -47,7 +47,7 @@ public class LdbcUpdate6AddPost extends LdbcOperation<LdbcNoResult>
     private final long countryId;
     private final List<Long> tagIds;
 
-    public LdbcUpdate6AddPost( 
+    public LdbcInsert6AddPost( 
         @JsonProperty("postId")         long postId,
         @JsonProperty("imageFile")      String imageFile,
         @JsonProperty("creationDate")   Date creationDate,
@@ -163,7 +163,7 @@ public class LdbcUpdate6AddPost extends LdbcOperation<LdbcNoResult>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcUpdate6AddPost that = (LdbcUpdate6AddPost) o;
+        LdbcInsert6AddPost that = (LdbcInsert6AddPost) o;
 
         if ( authorPersonId != that.authorPersonId )
         { return false; }
@@ -214,7 +214,7 @@ public class LdbcUpdate6AddPost extends LdbcOperation<LdbcNoResult>
     @Override
     public String toString()
     {
-        return "LdbcUpdate6AddPost{" +
+        return "LdbcInsert6AddPost{" +
                "postId=" + postId +
                ", imageFile='" + imageFile + '\'' +
                ", creationDate=" + creationDate +

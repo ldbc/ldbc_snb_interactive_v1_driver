@@ -67,14 +67,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
 
     public static Map<Class<? extends Operation>, EventDecoder<Operation>> getDecoders(){
         Map<Class<? extends Operation>, EventDecoder<Operation>> decoders = new HashMap<>();
-        decoders.put(LdbcUpdate1AddPerson.class,      new EventDecoderAddPerson());
-        decoders.put(LdbcUpdate2AddPostLike.class,    new EventDecoderAddLikePost());
-        decoders.put(LdbcUpdate3AddCommentLike.class, new EventDecoderAddLikeComment());
-        decoders.put(LdbcUpdate4AddForum.class,       new EventDecoderAddForum());
-        decoders.put(LdbcUpdate5AddForumMembership.class, new EventDecoderAddForumMembership());
-        decoders.put(LdbcUpdate6AddPost.class,        new EventDecoderAddPost());
-        decoders.put(LdbcUpdate7AddComment.class,     new EventDecoderAddComment());
-        decoders.put(LdbcUpdate8AddFriendship.class,  new EventDecoderAddFriendship());
+        decoders.put(LdbcInsert1AddPerson.class,      new EventDecoderAddPerson());
+        decoders.put(LdbcInsert2AddPostLike.class,    new EventDecoderAddLikePost());
+        decoders.put(LdbcInsert3AddCommentLike.class, new EventDecoderAddLikeComment());
+        decoders.put(LdbcInsert4AddForum.class,       new EventDecoderAddForum());
+        decoders.put(LdbcInsert5AddForumMembership.class, new EventDecoderAddForumMembership());
+        decoders.put(LdbcInsert6AddPost.class,        new EventDecoderAddPost());
+        decoders.put(LdbcInsert7AddComment.class,     new EventDecoderAddComment());
+        decoders.put(LdbcInsert8AddFriendship.class,  new EventDecoderAddFriendship());
         decoders.put(LdbcDelete1RemovePerson.class,   new EventDecoderDeletePerson());
         decoders.put(LdbcDelete2RemovePostLike.class, new EventDecoderDeletePostLike());
         decoders.put(LdbcDelete3RemoveCommentLike.class, new EventDecoderDeleteCommentLike());
@@ -133,29 +133,29 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                     }
                 }
 
-                List<LdbcUpdate1AddPerson.Organization> studyAts = new ArrayList<>();
+                List<LdbcInsert1AddPerson.Organization> studyAts = new ArrayList<>();
                 String studyAtsResult = rs.getString(13);
                 if (studyAtsResult != null && !studyAtsResult.isEmpty()) {
                     String[] studyAtsArray = studyAtsResult.split(";");
                     List<String> studyAtsStrings = Arrays.asList(studyAtsArray);
                     for (String study : studyAtsStrings) {
                         String[] studySplit = study.split(",");
-                        studyAts.add(new LdbcUpdate1AddPerson.Organization(Long.parseLong(studySplit[0]), Integer.parseInt(studySplit[1])));
+                        studyAts.add(new LdbcInsert1AddPerson.Organization(Long.parseLong(studySplit[0]), Integer.parseInt(studySplit[1])));
                     }
                 }
 
-                List<LdbcUpdate1AddPerson.Organization> workAts = new ArrayList<>();
+                List<LdbcInsert1AddPerson.Organization> workAts = new ArrayList<>();
                 String workAtsResult = rs.getString(14);
                 if (workAtsResult != null && !workAtsResult.isEmpty()) {
                     String[] workAtsArray =  workAtsResult.split(";");
                     List<String> workAtsStrings = Arrays.asList(workAtsArray);
                     for (String work : workAtsStrings) {
                         String[] workSplit = work.split(",");
-                        workAts.add(new LdbcUpdate1AddPerson.Organization(Long.parseLong(workSplit[0]), Integer.parseInt(workSplit[1])));
+                        workAts.add(new LdbcInsert1AddPerson.Organization(Long.parseLong(workSplit[0]), Integer.parseInt(workSplit[1])));
                     }
                 }
 
-                Operation operation = new LdbcUpdate1AddPerson(
+                Operation operation = new LdbcInsert1AddPerson(
                         personId,
                         firstName,
                         lastName,
@@ -176,7 +176,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 return operation;
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for LdbcUpdate1AddPerson: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for LdbcInsert1AddPerson: %s", e));
             }
         }
     }
@@ -192,14 +192,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 long postId = rs.getLong(3);
                 Date creationDate = new Date(scheduledStartTimeAsMilli); // Same as scheduled time
 
-                Operation operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
+                Operation operation = new LdbcInsert2AddPostLike(personId, postId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(0); // Not present in BI update stream
                 return operation;
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for LdbcUpdate2AddPostLike: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for LdbcInsert2AddPostLike: %s", e));
             }
         }
     }
@@ -215,14 +215,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 long commentId = rs.getLong(3);
                 Date creationDate = new Date(scheduledStartTimeAsMilli);
 
-                Operation operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
+                Operation operation = new LdbcInsert3AddCommentLike(personId, commentId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(0); // Not present in BI update stream
                 return operation;
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for LdbcUpdate3AddCommentLike: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for LdbcInsert3AddCommentLike: %s", e));
             }
         }
     }
@@ -248,14 +248,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                     }
                 }
 
-                Operation operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
+                Operation operation = new LdbcInsert4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(0); // Not present in BI update stream
                 return operation;
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for LdbcUpdate4AddForum: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for LdbcInsert4AddForum: %s", e));
             }
         }
     }
@@ -271,14 +271,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 long personId = rs.getLong(3);
                 Date creationDate = new Date(scheduledStartTimeAsMilli);
 
-                Operation operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
+                Operation operation = new LdbcInsert5AddForumMembership(forumId, personId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(0); // Not present in BI update stream
                 return operation;
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for LdbcUpdate5AddForumMembership: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for LdbcInsert5AddForumMembership: %s", e));
             }
         }
     }
@@ -311,7 +311,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                     }
                 }
 
-                Operation operation = new LdbcUpdate6AddPost(
+                Operation operation = new LdbcInsert6AddPost(
                         postId,
                         imageFile,
                         creationDate,
@@ -330,7 +330,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 return operation;
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for LdbcUpdate6AddPost: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for LdbcInsert6AddPost: %s", e));
             }
         }
     }
@@ -362,7 +362,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                     }
                 }
 
-                Operation operation = new LdbcUpdate7AddComment(
+                Operation operation = new LdbcInsert7AddComment(
                         commentId,
                         creationDate,
                         locationIp,
@@ -380,7 +380,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 return operation;
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for LdbcUpdate7AddComment: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for LdbcInsert7AddComment: %s", e));
             }
         }
     }
@@ -396,14 +396,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 long person2Id = rs.getLong(3);
                 Date creationDate = new Date(scheduledStartTimeAsMilli);
 
-                Operation operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
+                Operation operation = new LdbcInsert8AddFriendship(person1Id, person2Id, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(0); // Not present in BI update stream
                 return operation;
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for LdbcUpdate8AddFriendship: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for LdbcInsert8AddFriendship: %s", e));
             }
         }
     }

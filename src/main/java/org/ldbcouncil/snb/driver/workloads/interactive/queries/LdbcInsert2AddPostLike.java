@@ -1,11 +1,11 @@
 package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 /**
- * LdbcUpdate3AddCommentLike.java
+ * LdbcInsert2AddPostLike.java
  * 
- * Interactive workload insert query 3:
- * -- Add like to comment --
+ * Interactive workload insert query 2:
+ * -- Add like to post --
  * 
- * Add a likes edge to a Comment.
+ * Add like to post
  */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,25 +15,25 @@ import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 import java.util.Date;
 import java.util.Map;
 
-public class LdbcUpdate3AddCommentLike extends LdbcOperation<LdbcNoResult>
+public class LdbcInsert2AddPostLike extends LdbcOperation<LdbcNoResult>
 {
-    public static final int TYPE = 1003;
+    public static final int TYPE = 1002;
     public static final String PERSON_ID = "personId";
-    public static final String COMMENT_ID = "commentId";
+    public static final String POST_ID = "postId";
     public static final String CREATION_DATE = "creationDate";
 
     private final long personId;
-    private final long commentId;
+    private final long postId;
     private final Date creationDate;
 
-    public LdbcUpdate3AddCommentLike(
+    public LdbcInsert2AddPostLike(
         @JsonProperty("personId")     long personId,
-        @JsonProperty("commentId")    long commentId,
+        @JsonProperty("postId")       long postId,
         @JsonProperty("creationDate") Date creationDate
     )
     {
         this.personId = personId;
-        this.commentId = commentId;
+        this.postId = postId;
         this.creationDate = creationDate;
     }
 
@@ -42,9 +42,9 @@ public class LdbcUpdate3AddCommentLike extends LdbcOperation<LdbcNoResult>
         return personId;
     }
 
-    public long getCommentId()
+    public long getPostId()
     {
-        return commentId;
+        return postId;
     }
 
     public Date getCreationDate()
@@ -56,7 +56,7 @@ public class LdbcUpdate3AddCommentLike extends LdbcOperation<LdbcNoResult>
     public Map<String, Object> parameterMap() {
         return ImmutableMap.<String, Object>builder()
                 .put(PERSON_ID, personId)
-                .put(COMMENT_ID, commentId)
+                .put(POST_ID, postId)
                 .put(CREATION_DATE, creationDate)
                 .build();
     }
@@ -69,11 +69,11 @@ public class LdbcUpdate3AddCommentLike extends LdbcOperation<LdbcNoResult>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcUpdate3AddCommentLike that = (LdbcUpdate3AddCommentLike) o;
+        LdbcInsert2AddPostLike that = (LdbcInsert2AddPostLike) o;
 
-        if ( commentId != that.commentId )
-        { return false; }
         if ( personId != that.personId )
+        { return false; }
+        if ( postId != that.postId )
         { return false; }
         if ( creationDate != null ? !creationDate.equals( that.creationDate ) : that.creationDate != null )
         { return false; }
@@ -85,7 +85,7 @@ public class LdbcUpdate3AddCommentLike extends LdbcOperation<LdbcNoResult>
     public int hashCode()
     {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (int) (commentId ^ (commentId >>> 32));
+        result = 31 * result + (int) (postId ^ (postId >>> 32));
         result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);
         return result;
     }
@@ -93,9 +93,9 @@ public class LdbcUpdate3AddCommentLike extends LdbcOperation<LdbcNoResult>
     @Override
     public String toString()
     {
-        return "LdbcUpdate3AddCommentLike{" +
+        return "LdbcInsert2AddPostLike{" +
                "personId=" + personId +
-               ", commentId=" + commentId +
+               ", postId=" + postId +
                ", creationDate=" + creationDate +
                '}';
     }
