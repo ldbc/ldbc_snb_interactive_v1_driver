@@ -58,13 +58,13 @@ public class ConsoleAndFileDriverConfigurationTest
         assertThat( configuration1.workloadClassName(), equalTo( "workload1" ) );
         assertThat( configuration1.operationCount(), equalTo( 1L ) );
 
-        Map<String,String> configurationUpdate2 = new HashMap<>();
-        configurationUpdate2.put( ConsoleAndFileDriverConfiguration.DB_ARG, "db2" );
-        configurationUpdate2.put( ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, "workload2" );
-        configurationUpdate2.put( ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "2" );
+        Map<String,String> configurationInsert2 = new HashMap<>();
+        configurationInsert2.put( ConsoleAndFileDriverConfiguration.DB_ARG, "db2" );
+        configurationInsert2.put( ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, "workload2" );
+        configurationInsert2.put( ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "2" );
 
         ConsoleAndFileDriverConfiguration configuration2 =
-                (ConsoleAndFileDriverConfiguration) configuration1.applyArgs( configurationUpdate2 );
+                (ConsoleAndFileDriverConfiguration) configuration1.applyArgs( configurationInsert2 );
 
         assertThat( configuration2.dbClassName(), equalTo( "db2" ) );
         assertThat( configuration2.workloadClassName(), equalTo( "workload2" ) );

@@ -87,7 +87,7 @@ public class CalculateWorkloadStatisticsMode implements ClientMode<WorkloadStati
         loggingService.info(
                 format( "Calculating workload statistics for: %s", workload.getClass().getSimpleName() ) );
         WorkloadStatistics workloadStatistics;
-        try ( Workload w = workload )
+        try  
         {
             WorkloadStatisticsCalculator workloadStatisticsCalculator = new WorkloadStatisticsCalculator();
             workloadStatistics = workloadStatisticsCalculator.calculate(
@@ -99,10 +99,6 @@ public class CalculateWorkloadStatisticsMode implements ClientMode<WorkloadStati
             loggingService.info( "Calculation complete\n" + workloadStatistics );
         }
         catch ( MetricsCollectionException e )
-        {
-            throw new ClientException( "Error while calculating workload statistics", e );
-        }
-        catch ( IOException e )
         {
             throw new ClientException( "Error while calculating workload statistics", e );
         }

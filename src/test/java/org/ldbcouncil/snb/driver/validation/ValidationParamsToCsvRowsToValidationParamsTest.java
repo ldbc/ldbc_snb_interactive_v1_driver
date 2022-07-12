@@ -5,8 +5,6 @@ import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.DriverConfigurationException;
-import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileReader;
-import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileWriter;
 import org.ldbcouncil.snb.driver.testutils.TestUtils;
 import org.ldbcouncil.snb.driver.util.MapUtils;
 import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkload;
@@ -59,58 +57,18 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
         List<ValidationParam> validationParamsBeforeSerializing =
                 buildParams( workload.dbValidationParametersFilter( 0 ) );
 
-        // (2) original->csv_rows
-        List<String[]> serializedValidationParamsAsCsvRows = Lists.newArrayList(
-                new ValidationParamsToCsvRows( validationParamsBeforeSerializing.iterator(), workload, true )
-        );
+        // (2) original->JSON
+        File jsonFile1 = temporaryFolder.newFile();
+        ValidationParamsToJson validationParamsAsJson = 
+            new ValidationParamsToJson( validationParamsBeforeSerializing, workload, true );
+        validationParamsAsJson.serializeValidationParameters(jsonFile1);
 
-        // (3) csv_rows->csv_file
-        File csvFile1 = temporaryFolder.newFile();
-        SimpleCsvFileWriter simpleCsvFileWriter1 =
-                new SimpleCsvFileWriter( csvFile1, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, configuration.flushLog() );
-        simpleCsvFileWriter1.writeRows( serializedValidationParamsAsCsvRows.iterator() );
-        simpleCsvFileWriter1.close();
-
-        // (4) csv_file->csv_rows
-        List<String[]> csvFile1Rows = Lists.newArrayList(
-                new SimpleCsvFileReader( csvFile1, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING )
-        );
-
-        // (5) csv_rows->params
-        List<ValidationParam> validationParamsAfterSerializingAndMarshalling = Lists.newArrayList(
-                new ValidationParamsFromCsvRows( csvFile1Rows.iterator(), workload )
-        );
-
-        // (6) params->csv_rows
-        List<String[]> serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling = Lists.newArrayList(
-                new ValidationParamsToCsvRows( validationParamsAfterSerializingAndMarshalling.iterator(), workload,
-                        true )
-        );
-
-        // (7) csv_rows->csv_file
-        File csvFile2 = temporaryFolder.newFile();
-        SimpleCsvFileWriter simpleCsvFileWriter2 =
-                new SimpleCsvFileWriter( csvFile2, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, configuration.flushLog() );
-        simpleCsvFileWriter2.writeRows( serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling.iterator() );
-        simpleCsvFileWriter2.close();
-
-        // (8) csv_file->csv_rows
-        List<String[]> csvFile2Rows = Lists.newArrayList(
-                new SimpleCsvFileReader( csvFile2, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING )
-        );
-
-        // (8) csv_rows->params
-        List<ValidationParam> validationParamsAfterSerializingAndMarshallingAndSerializingAndMarshalling =
-                Lists.newArrayList(
-                        new ValidationParamsFromCsvRows( csvFile2Rows.iterator(), workload )
-                );
-
+        // (3) JSON->params
+        ValidationParamsFromJson validationParamsFromJson = new ValidationParamsFromJson(jsonFile1, workload);
+        List<ValidationParam> validationParamsAfterDeserializing = validationParamsFromJson.deserialize();
+      
         // Then
-        assertThat( validationParamsBeforeSerializing, equalTo( validationParamsAfterSerializingAndMarshalling ) );
-        assertThat( validationParamsBeforeSerializing,
-                equalTo( validationParamsAfterSerializingAndMarshallingAndSerializingAndMarshalling ) );
-        assertThat( validationParamsAfterSerializingAndMarshalling,
-                equalTo( validationParamsAfterSerializingAndMarshallingAndSerializingAndMarshalling ) );
+        assertThat( validationParamsBeforeSerializing, equalTo( validationParamsAfterDeserializing ) );
     }
 
     List<ValidationParam> buildParams( Workload.DbValidationParametersFilter dbValidationParametersFilter )
@@ -248,29 +206,53 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
         );
         ValidationParam validationParamShortRead7 = ValidationParam.createTyped( shortRead7, shortReadResult7 );
 
-        LdbcUpdate1AddPerson write1 = DummyLdbcSnbInteractiveOperationInstances.write1();
+        LdbcInsert1AddPerson write1 = DummyLdbcSnbInteractiveOperationInstances.write1();
         ValidationParam validationParamWrite1 = ValidationParam.createTyped( write1, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate2AddPostLike write2 = DummyLdbcSnbInteractiveOperationInstances.write2();
+        LdbcInsert2AddPostLike write2 = DummyLdbcSnbInteractiveOperationInstances.write2();
         ValidationParam validationParamWrite2 = ValidationParam.createTyped( write2, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate3AddCommentLike write3 = DummyLdbcSnbInteractiveOperationInstances.write3();
+        LdbcInsert3AddCommentLike write3 = DummyLdbcSnbInteractiveOperationInstances.write3();
         ValidationParam validationParamWrite3 = ValidationParam.createTyped( write3, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate4AddForum write4 = DummyLdbcSnbInteractiveOperationInstances.write4();
+        LdbcInsert4AddForum write4 = DummyLdbcSnbInteractiveOperationInstances.write4();
         ValidationParam validationParamWrite4 = ValidationParam.createTyped( write4, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate5AddForumMembership write5 = DummyLdbcSnbInteractiveOperationInstances.write5();
+        LdbcInsert5AddForumMembership write5 = DummyLdbcSnbInteractiveOperationInstances.write5();
         ValidationParam validationParamWrite5 = ValidationParam.createTyped( write5, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate6AddPost write6 = DummyLdbcSnbInteractiveOperationInstances.write6();
+        LdbcInsert6AddPost write6 = DummyLdbcSnbInteractiveOperationInstances.write6();
         ValidationParam validationParamWrite6 = ValidationParam.createTyped( write6, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate7AddComment write7 = DummyLdbcSnbInteractiveOperationInstances.write7();
+        LdbcInsert7AddComment write7 = DummyLdbcSnbInteractiveOperationInstances.write7();
         ValidationParam validationParamWrite7 = ValidationParam.createTyped( write7, LdbcNoResult.INSTANCE );
 
-        LdbcUpdate8AddFriendship write8 = DummyLdbcSnbInteractiveOperationInstances.write8();
+        LdbcInsert8AddFriendship write8 = DummyLdbcSnbInteractiveOperationInstances.write8();
         ValidationParam validationParamWrite8 = ValidationParam.createTyped( write8, LdbcNoResult.INSTANCE );
+
+        LdbcDelete1RemovePerson delete1 = DummyLdbcSnbInteractiveOperationInstances.delete1();
+        ValidationParam validationParamDelete1 = ValidationParam.createTyped( delete1, LdbcNoResult.INSTANCE );
+
+        LdbcDelete2RemovePostLike delete2 = DummyLdbcSnbInteractiveOperationInstances.delete2();
+        ValidationParam validationParamDelete2 = ValidationParam.createTyped( delete2, LdbcNoResult.INSTANCE );
+
+        LdbcDelete3RemoveCommentLike delete3 = DummyLdbcSnbInteractiveOperationInstances.delete3();
+        ValidationParam validationParamDelete3 = ValidationParam.createTyped( delete3, LdbcNoResult.INSTANCE );
+
+        LdbcDelete4RemoveForum delete4 = DummyLdbcSnbInteractiveOperationInstances.delete4();
+        ValidationParam validationParamDelete4 = ValidationParam.createTyped( delete4, LdbcNoResult.INSTANCE );
+
+        LdbcDelete5RemoveForumMembership delete5 = DummyLdbcSnbInteractiveOperationInstances.delete5();
+        ValidationParam validationParamDelete5 = ValidationParam.createTyped( delete5, LdbcNoResult.INSTANCE );
+
+        LdbcDelete6RemovePostThread delete6 = DummyLdbcSnbInteractiveOperationInstances.delete6();
+        ValidationParam validationParamDelete6 = ValidationParam.createTyped( delete6, LdbcNoResult.INSTANCE );
+
+        LdbcDelete7RemoveCommentSubthread delete7 = DummyLdbcSnbInteractiveOperationInstances.delete7();
+        ValidationParam validationParamDelete7 = ValidationParam.createTyped( delete7, LdbcNoResult.INSTANCE );
+
+        LdbcDelete8RemoveFriendship delete8 = DummyLdbcSnbInteractiveOperationInstances.delete8();
+        ValidationParam validationParamDelete8 = ValidationParam.createTyped( delete8, LdbcNoResult.INSTANCE );
 
         return Lists.newArrayList(
                 // Long Reads
@@ -304,7 +286,16 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
                 validationParamWrite5,
                 validationParamWrite6,
                 validationParamWrite7,
-                validationParamWrite8
+                validationParamWrite8,
+                // Deletes
+                validationParamDelete1,
+                validationParamDelete2,
+                validationParamDelete3,
+                validationParamDelete4,
+                validationParamDelete5,
+                validationParamDelete6,
+                validationParamDelete7,
+                validationParamDelete8
         );
     }
 }

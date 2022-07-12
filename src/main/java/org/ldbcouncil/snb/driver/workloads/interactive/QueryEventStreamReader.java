@@ -2,6 +2,9 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,23 +19,23 @@ import static java.lang.String.format;
 
 public class QueryEventStreamReader implements Iterator<Operation>{
     
-    private final Iterator<Operation> objectArray;
+    private final Iterator<Operation> operationStream;
 
-    public QueryEventStreamReader( Iterator<Operation> objectArray )
+    public QueryEventStreamReader( Iterator<Operation> operationStream )
     {
-        this.objectArray = objectArray;
+        this.operationStream = operationStream;
     }
 
     @Override
     public boolean hasNext()
     {
-        return objectArray.hasNext();
+        return operationStream.hasNext();
     }
 
     @Override
     public Operation next()
     {
-        Operation query = objectArray.next();
+        Operation query = operationStream.next();
         Operation operation = query.newInstance();
         operation.setDependencyTimeStamp( 0 );
         return operation;
@@ -67,7 +70,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array
+         * @return LdbcQuery1 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -93,7 +96,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array 
+         * @return LdbcQuery2 Object 
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -101,8 +104,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         {
             try {
                 long personId = rs.getLong(1);
-                // Dates are stored as long in the operation streams.
-                Date maxDate = new Date(rs.getLong(2));
+                Date maxDate = convertStringToDate(rs.getString(2));
                 return new LdbcQuery2(
                     personId,
                     maxDate,
@@ -119,7 +121,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array
+         * @return LdbcQuery3 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -128,10 +130,10 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             try
             {
                 long personId = rs.getLong(1);
-                Date maxDate = new Date(rs.getLong(2));
-                int durationDays = rs.getInt(3);
-                String countryXName = rs.getString(4);
-                String countryYName = rs.getString(5);
+                String countryXName = rs.getString(2);
+                String countryYName = rs.getString(3);
+                Date maxDate = convertStringToDate(rs.getString(4));
+                int durationDays = rs.getInt(5);
                 return new LdbcQuery3(
                     personId,
                     countryXName,
@@ -151,7 +153,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array 
+         * @return LdbcQuery4 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -160,7 +162,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             try
             {
                 long personId = rs.getLong(1);
-                Date startDate = new Date(rs.getLong(2));
+                Date startDate = convertStringToDate(rs.getString(2));
                 int durationDays = rs.getInt(3);
                 return new LdbcQuery4(
                     personId,
@@ -179,7 +181,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array 
+         * @return LdbcQuery5 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -188,7 +190,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             try {
                 long personId = rs.getLong(1);
                 // Dates are stored as long in the oepration streams.
-                Date minDate = new Date(rs.getLong(2));
+                Date minDate = convertStringToDate(rs.getString(2));
                 return new LdbcQuery5(
                     personId,
                     minDate,
@@ -205,7 +207,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array
+         * @return LdbcQuery6 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -231,7 +233,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array
+         * @return LdbcQuery7 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -255,7 +257,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array
+         * @return LdbcQuery8 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -279,7 +281,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array 
+         * @return LdbcQuery9 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -287,8 +289,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         {
             try {
                 long personId = rs.getLong(1);
-                // Dates are stored as long in the oepration streams.
-                Date maxDate = new Date(rs.getLong(2));
+                Date maxDate = convertStringToDate(rs.getString(2));
                 return new LdbcQuery9(
                     personId,
                     maxDate,
@@ -305,7 +306,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array
+         * @return LdbcQuery10 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -331,7 +332,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array 
+         * @return LdbcQuery11 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -359,7 +360,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array
+         * @return LdbcQuery12 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -385,7 +386,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array
+         * @return LdbcQuery13 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -410,7 +411,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         /**
          * @param rs: Resultset object containing the row to decode
-         * @return Object array
+         * @return LdbcQuery14 Object
          * @throws SQLException when an error occurs reading the resultset
          */
         @Override
@@ -429,5 +430,18 @@ public class QueryEventStreamReader implements Iterator<Operation>{
                 throw new WorkloadException(format("Error while decoding ResultSet for Query14Event: %s", e));
             }
         }
+    }
+
+    /**
+     * Converts a date as string to java.util.Date
+     * @param dateString date as string (using YYYY-MM-DD format)
+     * @return Date object from given string
+     */
+    private static Date convertStringToDate(String dateString)
+    {
+        LocalDate localDate = LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
+        return Date.from(localDate.atStartOfDay()
+            .atZone(ZoneId.of("Etc/GMT"))
+            .toInstant());
     }
 }

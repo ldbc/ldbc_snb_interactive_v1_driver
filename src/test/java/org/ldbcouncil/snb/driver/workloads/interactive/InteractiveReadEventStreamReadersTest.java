@@ -2,7 +2,7 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
-import org.ldbcouncil.snb.driver.csv.CsvLoader;
+import org.ldbcouncil.snb.driver.csv.ParquetLoader;
 import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
 import org.ldbcouncil.snb.driver.generator.EventStreamReader;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
@@ -12,8 +12,6 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -29,7 +27,6 @@ public class InteractiveReadEventStreamReadersTest
 {
     private DuckDbConnectionState db;
     private Statement stmt;
-    public SimpleDateFormat DATE_FORMAT;
 
     /**
      * Initialize mock objects used in all the tests
@@ -42,8 +39,6 @@ public class InteractiveReadEventStreamReadersTest
         when(db.getConnection()).thenReturn(connection);
         stmt = mock(Statement.class);
         when(connection.createStatement()).thenReturn(stmt);
-        DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd" );
-        DATE_FORMAT.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
     }
 
     @Test
@@ -63,8 +58,8 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(6597070008725l)
             .thenReturn(2199023331001l);
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query1Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new QueryEventStreamReader(
@@ -94,7 +89,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery2Events() throws WorkloadException, SQLException, ParseException {
+    public void shouldParseAllQuery2Events() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -104,14 +99,14 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(9895606011404l)
             .thenReturn(14293651244033l)
             .thenReturn(13194139602632l);
-        when(rs.getLong(2))
-            .thenReturn(DATE_FORMAT.parse( "2013-01-28" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2013-01-28" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2013-02-2" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2013-10-16" ).getTime());
+        when(rs.getString(2))
+            .thenReturn("2013-01-28")
+            .thenReturn("2013-01-28")
+            .thenReturn("2013-02-02")
+            .thenReturn("2013-10-16");
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query2Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -150,23 +145,23 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery3Events() throws WorkloadException, SQLException, ParseException {
+    public void shouldParseAllQuery3Events() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
         when(rs.getLong(1)).thenReturn(9895605643992l).thenReturn(979201l).thenReturn(129891l).thenReturn(13194140498760l);
-        when(rs.getLong(2))
-            .thenReturn(DATE_FORMAT.parse( "2011-12-1" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2012-4-1" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2011-05-1" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2010-12-1" ).getTime());
-        when(rs.getInt(3)).thenReturn(53).thenReturn(64).thenReturn(58).thenReturn(53);
-        when(rs.getString(4)).thenReturn("Taiwan").thenReturn("Nicaragua").thenReturn("Colombia").thenReturn("Lithuania");
-        when(rs.getString(5)).thenReturn("Bulgaria").thenReturn("Afghanistan").thenReturn("Lithuania").thenReturn("Afghanistan");
+        when(rs.getString(4))
+            .thenReturn("2011-12-01")
+            .thenReturn("2012-04-01" )
+            .thenReturn("2011-05-01" )
+            .thenReturn("2010-12-01" );
+        when(rs.getInt(5)).thenReturn(53).thenReturn(64).thenReturn(58).thenReturn(53);
+        when(rs.getString(2)).thenReturn("Taiwan").thenReturn("Nicaragua").thenReturn("Colombia").thenReturn("Lithuania");
+        when(rs.getString(3)).thenReturn("Bulgaria").thenReturn("Afghanistan").thenReturn("Lithuania").thenReturn("Afghanistan");
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query3Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         // Act
@@ -214,7 +209,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery4Events() throws WorkloadException, SQLException, ParseException {
+    public void shouldParseAllQuery4Events() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -224,19 +219,19 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(9895606011404l)
             .thenReturn(14293651244033l)
             .thenReturn(13194139602632l);
-        when(rs.getLong(2))
-            .thenReturn(DATE_FORMAT.parse( "2011-4-1" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2012-1-1" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2011-7-1" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2011-7-1" ).getTime());
+        when(rs.getString(2))
+            .thenReturn("2011-04-01" )
+            .thenReturn("2012-01-01" )
+            .thenReturn("2011-07-01" )
+            .thenReturn("2011-07-01" );
         when(rs.getInt(3))
             .thenReturn(43)
             .thenReturn(36)
             .thenReturn(57)
             .thenReturn(81);
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query4Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         // Act
@@ -277,7 +272,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery5Events() throws WorkloadException, SQLException, ParseException {
+    public void shouldParseAllQuery5Events() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -287,15 +282,15 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(979201l)
             .thenReturn(129891l)
             .thenReturn(13194140498760l);
-        when(rs.getLong(2))
-            .thenReturn(DATE_FORMAT.parse( "2012-12-15" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2012-12-16" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2012-12-14" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2012-12-12" ).getTime());
+        when(rs.getString(2))
+            .thenReturn("2012-12-15")
+            .thenReturn("2012-12-16")
+            .thenReturn("2012-12-14")
+            .thenReturn("2012-12-12");
 
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query5Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -351,8 +346,8 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(129891l)
             .thenReturn(13194140498760l);
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query6Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new QueryEventStreamReader(
@@ -393,8 +388,8 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(4398047140913l)
             .thenReturn(13194140823804l);
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query7Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
         // Act
         Iterator<Operation> reader = new QueryEventStreamReader(
             opStream
@@ -430,8 +425,8 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(7696582593995l)
             .thenReturn(15393162809578l);
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query8Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
         // Act
         Iterator<Operation> reader = new QueryEventStreamReader(
             opStream
@@ -455,7 +450,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery9Events() throws WorkloadException, SQLException, ParseException {
+    public void shouldParseAllQuery9Events() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -465,14 +460,14 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(979201l)
             .thenReturn(129891l)
             .thenReturn(13194140498760l);
-        when(rs.getLong(2))
-            .thenReturn(DATE_FORMAT.parse( "2011-12-22" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2011-11-19" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2011-11-20" ).getTime())
-            .thenReturn(DATE_FORMAT.parse( "2011-12-1" ).getTime());
+        when(rs.getString(2))
+            .thenReturn("2011-12-22" )
+            .thenReturn("2011-11-19" )
+            .thenReturn("2011-11-20" )
+            .thenReturn("2011-12-01" );
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query9Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         // Act
@@ -526,8 +521,8 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(129891l)
             .thenReturn(13194140498760l);
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query10Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new QueryEventStreamReader(
@@ -579,8 +574,8 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(129891l)
             .thenReturn(13194140498760l);
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query11Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new QueryEventStreamReader(
@@ -630,8 +625,8 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(14293651244033l)
             .thenReturn(13194139602632l);
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query12Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new QueryEventStreamReader(
@@ -677,8 +672,8 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(9895606000517l)
             .thenReturn(7696582276748l);
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query13Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
         // Act
         Iterator<Operation> reader = new QueryEventStreamReader(
             opStream
@@ -723,8 +718,8 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(6597069967720l)
             .thenReturn(3298534975254l);
         EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query14Decoder();
-        CsvLoader loader = new CsvLoader(db);
-        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", '|', decoder);
+        ParquetLoader loader = new ParquetLoader(db);
+        Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
         // Act
         Iterator<Operation> reader = new QueryEventStreamReader(

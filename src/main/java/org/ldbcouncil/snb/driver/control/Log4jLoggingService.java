@@ -6,7 +6,10 @@ import org.ldbcouncil.snb.driver.runtime.metrics.WorkloadMetricsFormatter;
 import org.ldbcouncil.snb.driver.runtime.metrics.WorkloadResultsSnapshot;
 import org.ldbcouncil.snb.driver.runtime.metrics.WorkloadStatusSnapshot;
 import org.ldbcouncil.snb.driver.temporal.TemporalUtil;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -27,7 +30,8 @@ public class Log4jLoggingService implements LoggingService
 
     Log4jLoggingService( String source, TemporalUtil temporalUtil, boolean detailedStatus )
     {
-        this.logger = Logger.getLogger( source );
+        this.logger = LogManager.getLogger( source );
+        Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
         this.temporalUtil = temporalUtil;
         this.detailedStatus = detailedStatus;
         this.summaryWorkloadMetricsFormatter = new SimpleSummaryWorkloadMetricsFormatter();

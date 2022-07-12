@@ -53,8 +53,8 @@ public class DbValidator
         while ( true )
         {
             if (null != operation) {
-                System.out.print(format(
-                        "Processed %s / %s -- Crashed %s -- Incorrect %s -- Currently processing %s...\r",
+                System.out.println(format(
+                        "Processed %s / %s -- Crashed %s -- Incorrect %s -- Currently processing %s...",
                         numberFormat.format(validationParamsProcessedSoFar),
                         numberFormat.format(validationParamsCount),
                         numberFormat.format(validationParamsCrashedSoFar),

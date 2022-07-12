@@ -19,14 +19,14 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import org.ldbcouncil.snb.driver.Operation;
+import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>>
+public class LdbcQuery7 extends LdbcOperation<List<LdbcQuery7Result>>
 {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 

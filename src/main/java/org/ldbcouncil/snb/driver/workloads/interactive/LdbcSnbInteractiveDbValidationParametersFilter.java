@@ -1,4 +1,9 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
+/**
+ * LdbcSnbInteractiveDbValidationParametersFilter.java
+ * IF update queries are disabled, then short reads are dependent on the results of complex queries. 
+ * IF update queries are enabled,  then short reads are dependent on update queries.
+ */
 
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.Workload.DbValidationParametersFilter;
@@ -12,92 +17,59 @@ import java.util.Map;
 import java.util.Set;
 
 class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationParametersFilter {
-    private final Map<Class, Long> remainingRequiredResultsPerWriteType;
-    private final Map<Class, Long> remainingRequiredResultsPerLongReadType;
+    private final Map<Class, Long> remainingRequiredResultsPerType;
+    private final Set<Class> enabledUpdateInsertOperationTypes;
     private final Set<Class> enabledShortReadOperationTypes;
-    private long writeAddPersonOperationCount;
     private int uncompletedShortReads;
 
-    LdbcSnbInteractiveDbValidationParametersFilter(long writeAddPersonOperationCount,
-                                                   Map<Class, Long> remainingRequiredResultsPerWriteType,
-                                                   Map<Class, Long> remainingRequiredResultsPerLongReadType,
-                                                   Set<Class> enabledShortReadOperationTypes) {
-        this.writeAddPersonOperationCount = writeAddPersonOperationCount;
-        this.remainingRequiredResultsPerWriteType = remainingRequiredResultsPerWriteType;
-        this.remainingRequiredResultsPerLongReadType = remainingRequiredResultsPerLongReadType;
+    LdbcSnbInteractiveDbValidationParametersFilter(
+        Map<Class, Long> remainingRequiredResultsPerType,
+        Set<Class> enabledUpdateInsertOperationTypes,
+        Set<Class> enabledShortReadOperationTypes) {
+        this.remainingRequiredResultsPerType = remainingRequiredResultsPerType;
+        this.enabledUpdateInsertOperationTypes = enabledUpdateInsertOperationTypes;
         this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
         this.uncompletedShortReads = 0;
     }
 
+    /**
+     * Check if the given operation is enabled or disabled
+     * or that extra params needs to be generated.
+     * @param operation: The operation to evaluate
+     */
     @Override
     public boolean useOperation(Operation operation) {
         Class operationType = operation.getClass();
-
-        if (enabledShortReadOperationTypes.contains(operationType)) {
-            return true;
-        } else if (operationType.equals(LdbcUpdate1AddPerson.class)) {
-            return writeAddPersonOperationCount > 0;
-        } else if (remainingRequiredResultsPerWriteType.containsKey(operationType)) {
-            return false == haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType);
-        } else if (remainingRequiredResultsPerLongReadType.containsKey(operationType)) {
-            return remainingRequiredResultsPerLongReadType.get(operationType) > 0;
+        if (remainingRequiredResultsPerType.containsKey(operationType)) {
+            return remainingRequiredResultsPerType.get(operationType) > 0;
         } else {
-            // disabled operation
             return false;
         }
     }
 
     @Override
-    public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation operation,
-                                                                                 Object operationResult) {
+    public DbValidationParametersFilterResult useOperationAndResultForValidation(
+        Operation operation,
+        Object operationResult
+    ) {
         Class operationType = operation.getClass();
         List<Operation> injectedOperations = new ArrayList<>();
 
         injectedOperations.addAll(generateOperationsToInject(operation));
         uncompletedShortReads += injectedOperations.size();
 
-        if (operationType.equals(LdbcUpdate1AddPerson.class)) {
-            // writes do not return anything, but they should be executed and some default result needs to be stored in the validation parameters
-            writeAddPersonOperationCount--;
-        } else if (enabledShortReadOperationTypes.contains(operationType)) {
-            // keep track of how many injected operations have completed (only short reads are injected)
-            uncompletedShortReads--;
-        } else if (remainingRequiredResultsPerWriteType.containsKey(operationType)) {
+        if (remainingRequiredResultsPerType.containsKey(operationType)) {
             // decrement count for write operation type
-            remainingRequiredResultsPerWriteType.put(operationType, Math.max(0, remainingRequiredResultsPerWriteType.get(operationType) - 1));
-        } else if (remainingRequiredResultsPerLongReadType.containsKey(operationType)) {
-            // decrement count for long read operation type
-            remainingRequiredResultsPerLongReadType.put(operationType, remainingRequiredResultsPerLongReadType.get(operationType) - 1);
+            remainingRequiredResultsPerType.put(operationType, Math.max(0, remainingRequiredResultsPerType.get(operationType) - 1));
         } else {
             throw new RuntimeException("Unexpected operation type: " + operationType.getSimpleName());
         }
 
-        if (validationParameterGenerationFinished()) {
+        if (haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerType)) {
             return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.ACCEPT_AND_FINISH, injectedOperations);
         } else {
             return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.ACCEPT_AND_CONTINUE, injectedOperations);
         }
-    }
-
-    private boolean validationParameterGenerationFinished() {
-        // check that all writes have completed
-        if (false == haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType)) {
-            return false;
-        }
-        // check that all long reads have completed
-        if (false == haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerLongReadType)) {
-            return false;
-        }
-        // check that all Add Person writes have completed
-        if (writeAddPersonOperationCount > 0) {
-            return false;
-        }
-        // check that all short reads have completed
-        if (uncompletedShortReads > 0) {
-            return false;
-        }
-        // we're done
-        return true;
     }
 
     private boolean haveCompletedAllRequiredResultsPerOperationType(Map<Class, Long> requiredResultsPerOperationType) {
@@ -107,78 +79,80 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
         return true;
     }
 
+    /**
+     * Inject short reads after a LdbcUpdate operation is scheduled.
+     * @param operation The update operation
+     * @return List of short reads operations
+     */
     private List<Operation> generateOperationsToInject(Operation operation) {
         List<Operation> operationsToInject = new ArrayList<>();
         switch (operation.type()) {
-            case LdbcUpdate1AddPerson.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate1AddPerson) operation).getPersonId());
-                injectShort2(operationsToInject, ((LdbcUpdate1AddPerson) operation).getPersonId());
-                injectShort3(operationsToInject, ((LdbcUpdate1AddPerson) operation).getPersonId());
+            case LdbcInsert1AddPerson.TYPE: {
+                LdbcInsert1AddPerson updateOperation = (LdbcInsert1AddPerson) operation;
+                injectPersonShorts(operationsToInject, updateOperation.getPersonId());
                 break;
             }
-            case LdbcUpdate2AddPostLike.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPersonId());
-                injectShort2(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPersonId());
-                injectShort3(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPersonId());
-                injectShort4(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPostId());
-                injectShort5(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPostId());
-                injectShort6(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPostId());
-                injectShort7(operationsToInject, ((LdbcUpdate2AddPostLike) operation).getPostId());
+            case LdbcInsert2AddPostLike.TYPE: {
+                LdbcInsert2AddPostLike updateOperation = (LdbcInsert2AddPostLike) operation;
+                injectAllShorts(operationsToInject, updateOperation.getPersonId(), updateOperation.getPostId());
                 break;
             }
-            case LdbcUpdate3AddCommentLike.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getPersonId());
-                injectShort2(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getPersonId());
-                injectShort3(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getPersonId());
-                injectShort4(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getCommentId());
-                injectShort5(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getCommentId());
-                injectShort6(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getCommentId());
-                injectShort7(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).getCommentId());
+            case LdbcInsert3AddCommentLike.TYPE: {
+                LdbcInsert3AddCommentLike updateOperation = (LdbcInsert3AddCommentLike) operation;
+                injectAllShorts(operationsToInject, updateOperation.getPersonId(), updateOperation.getCommentId());
                 break;
             }
-            case LdbcUpdate4AddForum.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate4AddForum) operation).getModeratorPersonId());
-                injectShort2(operationsToInject, ((LdbcUpdate4AddForum) operation).getModeratorPersonId());
-                injectShort3(operationsToInject, ((LdbcUpdate4AddForum) operation).getModeratorPersonId());
+            case LdbcInsert4AddForum.TYPE: {
+                LdbcInsert4AddForum updateOperation = (LdbcInsert4AddForum) operation;
+                injectPersonShorts(operationsToInject, updateOperation.getModeratorPersonId());
                 break;
             }
-            case LdbcUpdate5AddForumMembership.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).getPersonId());
-                injectShort2(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).getPersonId());
-                injectShort3(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).getPersonId());
+            case LdbcInsert5AddForumMembership.TYPE: {
+                LdbcInsert5AddForumMembership updateOperation = (LdbcInsert5AddForumMembership) operation;
+                injectPersonShorts(operationsToInject, updateOperation.getPersonId());
                 break;
             }
-            case LdbcUpdate6AddPost.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate6AddPost) operation).getAuthorPersonId());
-                injectShort2(operationsToInject, ((LdbcUpdate6AddPost) operation).getAuthorPersonId());
-                injectShort3(operationsToInject, ((LdbcUpdate6AddPost) operation).getAuthorPersonId());
-                injectShort4(operationsToInject, ((LdbcUpdate6AddPost) operation).getPostId());
-                injectShort5(operationsToInject, ((LdbcUpdate6AddPost) operation).getPostId());
-                injectShort6(operationsToInject, ((LdbcUpdate6AddPost) operation).getPostId());
-                injectShort7(operationsToInject, ((LdbcUpdate6AddPost) operation).getPostId());
+            case LdbcInsert6AddPost.TYPE: {
+                LdbcInsert6AddPost updateOperation = (LdbcInsert6AddPost) operation;
+                injectAllShorts(operationsToInject, updateOperation.getAuthorPersonId(), updateOperation.getPostId());
                 break;
             }
-            case LdbcUpdate7AddComment.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate7AddComment) operation).getAuthorPersonId());
-                injectShort2(operationsToInject, ((LdbcUpdate7AddComment) operation).getAuthorPersonId());
-                injectShort3(operationsToInject, ((LdbcUpdate7AddComment) operation).getAuthorPersonId());
-                injectShort4(operationsToInject, ((LdbcUpdate7AddComment) operation).getCommentId());
-                injectShort5(operationsToInject, ((LdbcUpdate7AddComment) operation).getCommentId());
-                injectShort6(operationsToInject, ((LdbcUpdate7AddComment) operation).getCommentId());
-                injectShort7(operationsToInject, ((LdbcUpdate7AddComment) operation).getCommentId());
+            case LdbcInsert7AddComment.TYPE: {
+                LdbcInsert7AddComment updateOperation = (LdbcInsert7AddComment) operation;
+                injectAllShorts(operationsToInject, updateOperation.getAuthorPersonId(), updateOperation.getCommentId());
                 break;
             }
-            case LdbcUpdate8AddFriendship.TYPE: {
-                injectShort1(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson1Id());
-                injectShort2(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson1Id());
-                injectShort3(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson1Id());
-                injectShort1(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson2Id());
-                injectShort2(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson2Id());
-                injectShort3(operationsToInject, ((LdbcUpdate8AddFriendship) operation).getPerson2Id());
+            case LdbcInsert8AddFriendship.TYPE: {
+                LdbcInsert8AddFriendship updateOperation = (LdbcInsert8AddFriendship) operation;
+                injectPersonShorts(operationsToInject, updateOperation.getPerson1Id());
+                injectPersonShorts(operationsToInject, updateOperation.getPerson2Id());
                 break;
             }
         }
         return operationsToInject;
+    }
+
+    /**
+     * Inject all types of short operations given the personId and messageId
+     * @param operationsToInject
+     * @param personId: person id to use
+     * @param messageId: message id to use
+     */
+    private void injectAllShorts(List<Operation> operationsToInject, long personId, long messageId)
+    {
+        injectShort1(operationsToInject, personId);
+        injectShort2(operationsToInject, personId);
+        injectShort3(operationsToInject, personId);
+        injectShort4(operationsToInject, messageId);
+        injectShort5(operationsToInject, messageId);
+        injectShort6(operationsToInject, messageId);
+        injectShort7(operationsToInject, messageId);
+    }
+
+    private void injectPersonShorts(List<Operation> operationsToInject, long personId) {
+        injectShort1(operationsToInject, personId);
+        injectShort2(operationsToInject, personId);
+        injectShort3(operationsToInject, personId);
     }
 
     private void injectShort1(List<Operation> operationsToInject, long personId) {

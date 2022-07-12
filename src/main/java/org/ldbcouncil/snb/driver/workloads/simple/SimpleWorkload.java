@@ -20,8 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
-
 public class SimpleWorkload extends Workload
 {
     // NOTE, in a real Workload these would ideally come from configuration and get set in onInit()
@@ -57,6 +55,12 @@ public class SimpleWorkload extends Workload
     @Override
     public void onInit( Map<String,String> params )
     {
+    }
+
+    @Override
+    public Class<? extends Operation> getOperationClass()
+    {
+        return Operation.class;
     }
 
     @Override
@@ -217,175 +221,4 @@ public class SimpleWorkload extends Workload
         );
         return workloadStreams;
     }
-
-    @Override
-    protected void onClose() throws IOException
-    {
-    }
-
-    // private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    // private static final TypeReference TYPE_REFERENCE = new TypeReference<List<Object>>()
-    // {
-    // };
-
-//     @Override
-//     public String serializeOperation( Operation operation ) throws SerializingMarshallingException
-//     {
-//         try
-//         {
-//             switch ( operation.type() )
-//             {
-//             case InsertOperation.TYPE:
-//             {
-//                 InsertOperation simpleOperation = (InsertOperation) operation;
-//                 List<Object> operationAsList = new ArrayList<>();
-//                 operationAsList.add( simpleOperation.getClass().getName() );
-//                 operationAsList.add( simpleOperation.table() );
-//                 operationAsList.add( simpleOperation.key() );
-//                 // TODO
-// //                operationAsList.add( simpleOperation.fields() );
-//                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
-//             }
-//             case ReadOperation.TYPE:
-//             {
-//                 ReadOperation simpleOperation = (ReadOperation) operation;
-//                 List<Object> operationAsList = new ArrayList<>();
-//                 operationAsList.add( simpleOperation.getClass().getName() );
-//                 operationAsList.add( simpleOperation.table() );
-//                 operationAsList.add( simpleOperation.key() );
-//                 operationAsList.add( simpleOperation.fields() );
-//                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
-//             }
-//             case UpdateOperation.TYPE:
-//             {
-//                 UpdateOperation simpleOperation = (UpdateOperation) operation;
-//                 List<Object> operationAsList = new ArrayList<>();
-//                 operationAsList.add( simpleOperation.getClass().getName() );
-//                 operationAsList.add( simpleOperation.table() );
-//                 operationAsList.add( simpleOperation.key() );
-//                 // TODO
-// //                operationAsList.add( simpleOperation.fields() );
-//                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
-//             }
-//             case ScanOperation.TYPE:
-//             {
-//                 ScanOperation simpleOperation = (ScanOperation) operation;
-//                 List<Object> operationAsList = new ArrayList<>();
-//                 operationAsList.add( simpleOperation.getClass().getName() );
-//                 operationAsList.add( simpleOperation.table() );
-//                 operationAsList.add( simpleOperation.startkey() );
-//                 operationAsList.add( simpleOperation.recordCount() );
-//                 operationAsList.add( simpleOperation.fields() );
-//                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
-//             }
-//             case ReadModifyWriteOperation.TYPE:
-//             {
-//                 ReadModifyWriteOperation simpleOperation = (ReadModifyWriteOperation) operation;
-//                 List<Object> operationAsList = new ArrayList<>();
-//                 operationAsList.add( simpleOperation.getClass().getName() );
-//                 operationAsList.add( simpleOperation.table() );
-//                 operationAsList.add( simpleOperation.key() );
-//                 operationAsList.add( simpleOperation.fields() );
-//                 // TODO
-// //                operationAsList.add( simpleOperation.values() );
-//                 return OBJECT_MAPPER.writeValueAsString( operationAsList );
-//             }
-//             default:
-//             {
-//                 throw new SerializingMarshallingException(
-//                         format(
-//                                 "Workload does not know how to serialize operation\nWorkload: %s\nOperation Type: " +
-//                                 "%s\nOperation: %s",
-//                                 getClass().getName(),
-//                                 operation.getClass().getName(),
-//                                 operation ) );
-//             }
-//             }
-//         }
-//         catch ( IOException e )
-//         {
-//             throw new SerializingMarshallingException( format( "Error serializing operation\n%s", operation ), e );
-//         }
-//     }
-
-//     @Override
-//     public Operation marshalOperation( String serializedOperation ) throws SerializingMarshallingException
-//     {
-//         List<Object> operationAsList;
-//         try
-//         {
-//             operationAsList = Arrays.asList(OBJECT_MAPPER.readValue(serializedOperation, Operation[].class));
-//             // operationAsList = OBJECT_MAPPER.readValue( serializedOperation, TYPE_REFERENCE );
-//         }
-//         catch ( IOException e )
-//         {
-//             throw new SerializingMarshallingException(
-//                     format( "Error while parsing serialized results\n%s", serializedOperation ), e );
-//         }
-//         String operationClassName = (String) operationAsList.get( 0 );
-
-//         if ( operationClassName.equals( InsertOperation.class.getName() ) )
-//         {
-//             return new InsertOperation(
-//                     (String) operationAsList.get( 1 ),
-//                     (String) operationAsList.get( 2 ),
-//                     // TODO
-//                     new HashMap<String,Iterator<Byte>>()
-//             );
-//         }
-//         else if ( operationClassName.equals( ReadOperation.class.getName() ) )
-//         {
-//             return new ReadOperation(
-//                     (String) operationAsList.get( 1 ),
-//                     (String) operationAsList.get( 2 ),
-//                     (List<String>) operationAsList.get( 3 )
-//             );
-//         }
-//         else if ( operationClassName.equals( UpdateOperation.class.getName() ) )
-//         {
-//             return new UpdateOperation(
-//                     (String) operationAsList.get( 1 ),
-//                     (String) operationAsList.get( 2 ),
-//                     // TODO
-//                     new HashMap<String,Iterator<Byte>>()
-//             );
-//         }
-//         else if ( operationClassName.equals( ScanOperation.class.getName() ) )
-//         {
-//             return new ScanOperation(
-//                     (String) operationAsList.get( 1 ),
-//                     (String) operationAsList.get( 2 ),
-//                     ((Number) operationAsList.get( 3 )).intValue(),
-//                     (List<String>) operationAsList.get( 4 )
-//             );
-//         }
-//         else if ( operationClassName.equals( ReadModifyWriteOperation.class.getName() ) )
-//         {
-//             return new ReadModifyWriteOperation(
-//                     (String) operationAsList.get( 1 ),
-//                     (String) operationAsList.get( 2 ),
-//                     (List<String>) operationAsList.get( 3 ),
-//                     // TODO
-//                     new HashMap<String,Iterator<Byte>>()
-//             );
-//         }
-
-//         throw new SerializingMarshallingException(
-//                 format(
-//                         "Workload does not know how to marshal operation\nWorkload: %s\nAssumed Operation Type: " +
-//                         "%s\nSerialized Operation: %s",
-//                         getClass().getName(),
-//                         operationClassName,
-//                         serializedOperation ) );
-//     }
-
-//     @Override
-//     public boolean resultsEqual( Operation operation, Object result1, Object result2 ) throws WorkloadException
-//     {
-//         if ( null == result1 || null == result2 )
-//         { return false; }
-//         else
-//         { return result1.equals( result2 ); }
-//     }
 }
-

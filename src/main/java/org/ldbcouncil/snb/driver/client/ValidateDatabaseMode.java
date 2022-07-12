@@ -1,7 +1,6 @@
 package org.ldbcouncil.snb.driver.client;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Iterators;
 import org.ldbcouncil.snb.driver.ClientException;
 import org.ldbcouncil.snb.driver.Db;
 import org.ldbcouncil.snb.driver.DbException;
@@ -9,12 +8,11 @@ import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.control.ControlService;
 import org.ldbcouncil.snb.driver.control.LoggingService;
-import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileReader;
 import org.ldbcouncil.snb.driver.util.ClassLoaderHelper;
 import org.ldbcouncil.snb.driver.validation.DbValidationResult;
 import org.ldbcouncil.snb.driver.validation.DbValidator;
 import org.ldbcouncil.snb.driver.validation.ValidationParam;
-import org.ldbcouncil.snb.driver.validation.ValidationParamsFromCsvRows;
+import org.ldbcouncil.snb.driver.validation.ValidationParamsFromJson;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -22,7 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Iterator;
+import java.util.List;
 
 import static java.lang.String.format;
 
@@ -78,49 +76,34 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
     @Override
     public DbValidationResult startExecutionAndAwaitCompletion() throws ClientException
     {
-        try ( Workload w = workload; Db db = database )
+        try ( Db db = database )
         {
+            Workload w = workload; 
             File validationParamsFile = new File( controlService.configuration().databaseValidationFilePath() );
 
             loggingService.info(
                     format( "Validating database against expected results\n * Db: %s\n * Validation Params File: %s",
                             db.getClass().getName(), validationParamsFile.getAbsolutePath() ) );
 
-            int validationParamsCount;
-            SimpleCsvFileReader validationParamsReader;
-            try
-            {
-                validationParamsReader = new SimpleCsvFileReader( validationParamsFile,
-                        SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
-                validationParamsCount = Iterators.size( validationParamsReader );
-                validationParamsReader.close();
-                validationParamsReader = new SimpleCsvFileReader( validationParamsFile,
-                        SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING );
-            }
-            catch ( IOException e )
-            {
-                throw new ClientException( "Error encountered trying to create CSV file reader", e );
-            }
+            ValidationParamsFromJson validationParamsFromJson = new ValidationParamsFromJson(validationParamsFile, workload);
+            List<ValidationParam> validationParamList = validationParamsFromJson.deserialize();
 
             DbValidationResult databaseValidationResult;
             try
             {
-                Iterator<ValidationParam> validationParams =
-                        new ValidationParamsFromCsvRows( validationParamsReader, w );
                 DbValidator dbValidator = new DbValidator();
                 databaseValidationResult = dbValidator.validate(
-                        validationParams,
+                        validationParamList.iterator(),
                         db,
-                        validationParamsCount,
+                        validationParamList.size(),
                         w
                 );
             }
             catch ( WorkloadException e )
             {
-                throw new ClientException( format( "Error reading validation parameters file\nFile: %s",
+                throw new ClientException( format( "Error while validating workload using file: %s",
                         validationParamsFile.getAbsolutePath() ), e );
             }
-            validationParamsReader.close();
 
             File failedValidationOperationsFile = new File( validationParamsFile.getParentFile(),
                     removeExtension( validationParamsFile.getName() ) + "-failed-actual.json" );
@@ -186,5 +169,4 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
     {
         return (filename.indexOf( "." ) == -1) ? filename : filename.substring( 0, filename.lastIndexOf( "." ) );
     }
-
 }
