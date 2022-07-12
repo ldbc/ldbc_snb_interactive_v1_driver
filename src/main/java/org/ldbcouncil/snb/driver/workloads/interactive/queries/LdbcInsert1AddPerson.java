@@ -1,6 +1,6 @@
 package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 /**
- * LdbcUpdate1AddPerson.java
+ * LdbcInsert1AddPerson.java
  * 
  * Interactive workload insert query 1:
  * -- Add person --
@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class LdbcUpdate1AddPerson extends LdbcOperation<LdbcNoResult>
+public class LdbcInsert1AddPerson extends LdbcOperation<LdbcNoResult>
 {
     public static final int TYPE = 1001;
     public static final String PERSON_ID = "personId";
@@ -50,7 +50,7 @@ public class LdbcUpdate1AddPerson extends LdbcOperation<LdbcNoResult>
     private final List<Organization> studyAt;
     private final List<Organization> workAt;
 
-    public LdbcUpdate1AddPerson(
+    public LdbcInsert1AddPerson(
         @JsonProperty("personId")        long personId,
         @JsonProperty("personFirstName") String personFirstName,
         @JsonProperty("personLastName")  String personLastName,
@@ -181,7 +181,7 @@ public class LdbcUpdate1AddPerson extends LdbcOperation<LdbcNoResult>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcUpdate1AddPerson that = (LdbcUpdate1AddPerson) o;
+        LdbcInsert1AddPerson that = (LdbcInsert1AddPerson) o;
         if ( cityId != that.cityId )
         { return false; }
         if ( personId != that.personId )
@@ -238,7 +238,7 @@ public class LdbcUpdate1AddPerson extends LdbcOperation<LdbcNoResult>
     @Override
     public String toString()
     {
-        return "LdbcUpdate1AddPerson{" +
+        return "LdbcInsert1AddPerson{" +
                "personId=" + personId +
                ", personFirstName='" + personFirstName + '\'' +
                ", personLastName='" + personLastName + '\'' +

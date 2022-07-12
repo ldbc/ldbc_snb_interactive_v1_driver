@@ -81,7 +81,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
                 Math.round( Math.ceil( compressionRatio * updateInterleaveAsMilli ) );
 
         int maxOperationType = Ordering.<Integer>natural().max( LdbcQuery14.TYPE, LdbcShortQuery7MessageReplies.TYPE,
-                LdbcUpdate8AddFriendship.TYPE ) + 1;
+                LdbcInsert8AddFriendship.TYPE ) + 1;
         this.shortReadFactories = new LdbcShortQueryFactory[maxOperationType];
         this.probabilityDegradationFactors = new double[maxOperationType];
         for ( int i = 0; i < probabilityDegradationFactors.length; i++ )
@@ -245,14 +245,14 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
         shortReadFactories[LdbcQuery13.TYPE] = randomFirstQuery;
         shortReadFactories[LdbcQuery14.TYPE] = randomFirstQuery;
 
-        shortReadFactories[LdbcUpdate1AddPerson.TYPE] = new NoOpFactory();
-        shortReadFactories[LdbcUpdate2AddPostLike.TYPE] = new NoOpFactory();
-        shortReadFactories[LdbcUpdate3AddCommentLike.TYPE] = new NoOpFactory();
-        shortReadFactories[LdbcUpdate4AddForum.TYPE] = new NoOpFactory();
-        shortReadFactories[LdbcUpdate5AddForumMembership.TYPE] = new NoOpFactory();
-        shortReadFactories[LdbcUpdate6AddPost.TYPE] = new NoOpFactory();
-        shortReadFactories[LdbcUpdate7AddComment.TYPE] = new NoOpFactory();
-        shortReadFactories[LdbcUpdate8AddFriendship.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcInsert1AddPerson.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcInsert2AddPostLike.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcInsert3AddCommentLike.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcInsert4AddForum.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcInsert5AddForumMembership.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcInsert6AddPost.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcInsert7AddComment.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcInsert8AddFriendship.TYPE] = new NoOpFactory();
 
         shortReadFactories[LdbcShortQuery1PersonProfile.TYPE] = null;
         shortReadFactories[LdbcShortQuery2PersonPosts.TYPE] = null;

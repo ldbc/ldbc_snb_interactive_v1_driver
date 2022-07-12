@@ -103,39 +103,39 @@ public class DummyLdbcSnbInteractiveOperationInstances {
     UPDATES
      */
 
-    public static LdbcUpdate1AddPerson write1() {
-        return new LdbcUpdate1AddPerson(
+    public static LdbcInsert1AddPerson write1() {
+        return new LdbcInsert1AddPerson(
                 1, "2", "3", "4", new Date(5), new Date(6), "7", "8", 9, Lists.newArrayList("10", "11"), Lists.<String>newArrayList(), Lists.newArrayList(13l),
-                Lists.newArrayList(new LdbcUpdate1AddPerson.Organization(14, 15), new LdbcUpdate1AddPerson.Organization(16, 17)),
-                Lists.<LdbcUpdate1AddPerson.Organization>newArrayList());
+                Lists.newArrayList(new LdbcInsert1AddPerson.Organization(14, 15), new LdbcInsert1AddPerson.Organization(16, 17)),
+                Lists.<LdbcInsert1AddPerson.Organization>newArrayList());
     }
 
-    public static LdbcUpdate2AddPostLike write2() {
-        return new LdbcUpdate2AddPostLike(1, 2, new Date(3));
+    public static LdbcInsert2AddPostLike write2() {
+        return new LdbcInsert2AddPostLike(1, 2, new Date(3));
     }
 
-    public static LdbcUpdate3AddCommentLike write3() {
-        return new LdbcUpdate3AddCommentLike(1, 2, new Date(3));
+    public static LdbcInsert3AddCommentLike write3() {
+        return new LdbcInsert3AddCommentLike(1, 2, new Date(3));
     }
 
-    public static LdbcUpdate4AddForum write4() {
-        return new LdbcUpdate4AddForum(1, "2", new Date(3), 4, Lists.newArrayList(5l, 6l));
+    public static LdbcInsert4AddForum write4() {
+        return new LdbcInsert4AddForum(1, "2", new Date(3), 4, Lists.newArrayList(5l, 6l));
     }
 
-    public static LdbcUpdate5AddForumMembership write5() {
-        return new LdbcUpdate5AddForumMembership(1, 2, new Date(3));
+    public static LdbcInsert5AddForumMembership write5() {
+        return new LdbcInsert5AddForumMembership(1, 2, new Date(3));
     }
 
-    public static LdbcUpdate6AddPost write6() {
-        return new LdbcUpdate6AddPost(1, "2", new Date(3), "4", "5", "6", "7", 8, 9, 10, 11, Lists.newArrayList(12l));
+    public static LdbcInsert6AddPost write6() {
+        return new LdbcInsert6AddPost(1, "2", new Date(3), "4", "5", "6", "7", 8, 9, 10, 11, Lists.newArrayList(12l));
     }
 
-    public static LdbcUpdate7AddComment write7() {
-        return new LdbcUpdate7AddComment(1, new Date(2), "3", "4", "5", 6, 7, 8, 9, 10, Lists.newArrayList(11l, 12l));
+    public static LdbcInsert7AddComment write7() {
+        return new LdbcInsert7AddComment(1, new Date(2), "3", "4", "5", 6, 7, 8, 9, 10, Lists.newArrayList(11l, 12l));
     }
 
-    public static LdbcUpdate8AddFriendship write8() {
-        return new LdbcUpdate8AddFriendship(1, 2, new Date(3));
+    public static LdbcInsert8AddFriendship write8() {
+        return new LdbcInsert8AddFriendship(1, 2, new Date(3));
     }
 
     /* DELETES

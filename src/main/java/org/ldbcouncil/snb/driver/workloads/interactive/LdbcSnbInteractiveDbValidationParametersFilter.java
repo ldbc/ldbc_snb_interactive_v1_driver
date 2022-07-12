@@ -87,43 +87,43 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     private List<Operation> generateOperationsToInject(Operation operation) {
         List<Operation> operationsToInject = new ArrayList<>();
         switch (operation.type()) {
-            case LdbcUpdate1AddPerson.TYPE: {
-                LdbcUpdate1AddPerson updateOperation = (LdbcUpdate1AddPerson) operation;
+            case LdbcInsert1AddPerson.TYPE: {
+                LdbcInsert1AddPerson updateOperation = (LdbcInsert1AddPerson) operation;
                 injectPersonShorts(operationsToInject, updateOperation.getPersonId());
                 break;
             }
-            case LdbcUpdate2AddPostLike.TYPE: {
-                LdbcUpdate2AddPostLike updateOperation = (LdbcUpdate2AddPostLike) operation;
+            case LdbcInsert2AddPostLike.TYPE: {
+                LdbcInsert2AddPostLike updateOperation = (LdbcInsert2AddPostLike) operation;
                 injectAllShorts(operationsToInject, updateOperation.getPersonId(), updateOperation.getPostId());
                 break;
             }
-            case LdbcUpdate3AddCommentLike.TYPE: {
-                LdbcUpdate3AddCommentLike updateOperation = (LdbcUpdate3AddCommentLike) operation;
+            case LdbcInsert3AddCommentLike.TYPE: {
+                LdbcInsert3AddCommentLike updateOperation = (LdbcInsert3AddCommentLike) operation;
                 injectAllShorts(operationsToInject, updateOperation.getPersonId(), updateOperation.getCommentId());
                 break;
             }
-            case LdbcUpdate4AddForum.TYPE: {
-                LdbcUpdate4AddForum updateOperation = (LdbcUpdate4AddForum) operation;
+            case LdbcInsert4AddForum.TYPE: {
+                LdbcInsert4AddForum updateOperation = (LdbcInsert4AddForum) operation;
                 injectPersonShorts(operationsToInject, updateOperation.getModeratorPersonId());
                 break;
             }
-            case LdbcUpdate5AddForumMembership.TYPE: {
-                LdbcUpdate5AddForumMembership updateOperation = (LdbcUpdate5AddForumMembership) operation;
+            case LdbcInsert5AddForumMembership.TYPE: {
+                LdbcInsert5AddForumMembership updateOperation = (LdbcInsert5AddForumMembership) operation;
                 injectPersonShorts(operationsToInject, updateOperation.getPersonId());
                 break;
             }
-            case LdbcUpdate6AddPost.TYPE: {
-                LdbcUpdate6AddPost updateOperation = (LdbcUpdate6AddPost) operation;
+            case LdbcInsert6AddPost.TYPE: {
+                LdbcInsert6AddPost updateOperation = (LdbcInsert6AddPost) operation;
                 injectAllShorts(operationsToInject, updateOperation.getAuthorPersonId(), updateOperation.getPostId());
                 break;
             }
-            case LdbcUpdate7AddComment.TYPE: {
-                LdbcUpdate7AddComment updateOperation = (LdbcUpdate7AddComment) operation;
+            case LdbcInsert7AddComment.TYPE: {
+                LdbcInsert7AddComment updateOperation = (LdbcInsert7AddComment) operation;
                 injectAllShorts(operationsToInject, updateOperation.getAuthorPersonId(), updateOperation.getCommentId());
                 break;
             }
-            case LdbcUpdate8AddFriendship.TYPE: {
-                LdbcUpdate8AddFriendship updateOperation = (LdbcUpdate8AddFriendship) operation;
+            case LdbcInsert8AddFriendship.TYPE: {
+                LdbcInsert8AddFriendship updateOperation = (LdbcInsert8AddFriendship) operation;
                 injectPersonShorts(operationsToInject, updateOperation.getPerson1Id());
                 injectPersonShorts(operationsToInject, updateOperation.getPerson2Id());
                 break;

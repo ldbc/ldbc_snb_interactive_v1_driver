@@ -197,14 +197,14 @@ public class DummyLdbcSnbInteractiveDb extends Db
         registerOperationHandler( LdbcShortQuery6MessageForum.class, LdbcShortQuery6MessageForumHandler.class );
         registerOperationHandler( LdbcShortQuery7MessageReplies.class, LdbcShortQuery7MessageRepliesHandler.class );
         // Updates
-        registerOperationHandler( LdbcUpdate1AddPerson.class, LdbcUpdate1AddPersonHandler.class );
-        registerOperationHandler( LdbcUpdate2AddPostLike.class, LdbcUpdate2AddPostLikeHandler.class );
-        registerOperationHandler( LdbcUpdate3AddCommentLike.class, LdbcUpdate3AddCommentLikeHandler.class );
-        registerOperationHandler( LdbcUpdate4AddForum.class, LdbcUpdate4AddForumHandler.class );
-        registerOperationHandler( LdbcUpdate5AddForumMembership.class, LdbcUpdate5AddForumMembershipHandler.class );
-        registerOperationHandler( LdbcUpdate6AddPost.class, LdbcUpdate6AddPostHandler.class );
-        registerOperationHandler( LdbcUpdate7AddComment.class, LdbcUpdate7AddCommentHandler.class );
-        registerOperationHandler( LdbcUpdate8AddFriendship.class, LdbcUpdate8AddFriendshipHandler.class );
+        registerOperationHandler( LdbcInsert1AddPerson.class, LdbcInsert1AddPersonHandler.class );
+        registerOperationHandler( LdbcInsert2AddPostLike.class, LdbcInsert2AddPostLikeHandler.class );
+        registerOperationHandler( LdbcInsert3AddCommentLike.class, LdbcInsert3AddCommentLikeHandler.class );
+        registerOperationHandler( LdbcInsert4AddForum.class, LdbcInsert4AddForumHandler.class );
+        registerOperationHandler( LdbcInsert5AddForumMembership.class, LdbcInsert5AddForumMembershipHandler.class );
+        registerOperationHandler( LdbcInsert6AddPost.class, LdbcInsert6AddPostHandler.class );
+        registerOperationHandler( LdbcInsert7AddComment.class, LdbcInsert7AddCommentHandler.class );
+        registerOperationHandler( LdbcInsert8AddFriendship.class, LdbcInsert8AddFriendshipHandler.class );
 
                 // Deletes
         registerOperationHandler( LdbcDelete1RemovePerson.class, LdbcDelete1RemovePersonHandler.class );
@@ -546,11 +546,11 @@ public class DummyLdbcSnbInteractiveDb extends Db
     UPDATES
      */
 
-    public static class LdbcUpdate1AddPersonHandler
-            implements OperationHandler<LdbcUpdate1AddPerson,DummyDbConnectionState>
+    public static class LdbcInsert1AddPersonHandler
+            implements OperationHandler<LdbcInsert1AddPerson,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcUpdate1AddPerson operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcInsert1AddPerson operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );
@@ -558,11 +558,11 @@ public class DummyLdbcSnbInteractiveDb extends Db
         }
     }
 
-    public static class LdbcUpdate2AddPostLikeHandler
-            implements OperationHandler<LdbcUpdate2AddPostLike,DummyDbConnectionState>
+    public static class LdbcInsert2AddPostLikeHandler
+            implements OperationHandler<LdbcInsert2AddPostLike,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcUpdate2AddPostLike operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcInsert2AddPostLike operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );
@@ -570,11 +570,11 @@ public class DummyLdbcSnbInteractiveDb extends Db
         }
     }
 
-    public static class LdbcUpdate3AddCommentLikeHandler
-            implements OperationHandler<LdbcUpdate3AddCommentLike,DummyDbConnectionState>
+    public static class LdbcInsert3AddCommentLikeHandler
+            implements OperationHandler<LdbcInsert3AddCommentLike,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcUpdate3AddCommentLike operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcInsert3AddCommentLike operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );
@@ -582,11 +582,11 @@ public class DummyLdbcSnbInteractiveDb extends Db
         }
     }
 
-    public static class LdbcUpdate4AddForumHandler
-            implements OperationHandler<LdbcUpdate4AddForum,DummyDbConnectionState>
+    public static class LdbcInsert4AddForumHandler
+            implements OperationHandler<LdbcInsert4AddForum,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcUpdate4AddForum operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcInsert4AddForum operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );
@@ -594,11 +594,11 @@ public class DummyLdbcSnbInteractiveDb extends Db
         }
     }
 
-    public static class LdbcUpdate5AddForumMembershipHandler
-            implements OperationHandler<LdbcUpdate5AddForumMembership,DummyDbConnectionState>
+    public static class LdbcInsert5AddForumMembershipHandler
+            implements OperationHandler<LdbcInsert5AddForumMembership,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcUpdate5AddForumMembership operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcInsert5AddForumMembership operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );
@@ -606,10 +606,10 @@ public class DummyLdbcSnbInteractiveDb extends Db
         }
     }
 
-    public static class LdbcUpdate6AddPostHandler implements OperationHandler<LdbcUpdate6AddPost,DummyDbConnectionState>
+    public static class LdbcInsert6AddPostHandler implements OperationHandler<LdbcInsert6AddPost,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcUpdate6AddPost operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcInsert6AddPost operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );
@@ -617,11 +617,11 @@ public class DummyLdbcSnbInteractiveDb extends Db
         }
     }
 
-    public static class LdbcUpdate7AddCommentHandler
-            implements OperationHandler<LdbcUpdate7AddComment,DummyDbConnectionState>
+    public static class LdbcInsert7AddCommentHandler
+            implements OperationHandler<LdbcInsert7AddComment,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcUpdate7AddComment operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcInsert7AddComment operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );
@@ -629,11 +629,11 @@ public class DummyLdbcSnbInteractiveDb extends Db
         }
     }
 
-    public static class LdbcUpdate8AddFriendshipHandler
-            implements OperationHandler<LdbcUpdate8AddFriendship,DummyDbConnectionState>
+    public static class LdbcInsert8AddFriendshipHandler
+            implements OperationHandler<LdbcInsert8AddFriendship,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcUpdate8AddFriendship operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcInsert8AddFriendship operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );

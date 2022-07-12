@@ -41,9 +41,9 @@ public class InteractiveUpdateEventStreamReaderTest
         when(connection.createStatement()).thenReturn(stmt);
     }
 
-    // TODO: Complete LdbcUpdate1AddPerson test
+    // TODO: Complete LdbcInsert1AddPerson test
     @Ignore
-    public void shouldParseAllUpdate1Events() throws WorkloadException, SQLException {
+    public void shouldParseAllInsert1Events() throws WorkloadException, SQLException {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
@@ -123,8 +123,8 @@ public class InteractiveUpdateEventStreamReaderTest
         );
 
         // Assert
-        LdbcUpdate1AddPerson operation;
-        operation = (LdbcUpdate1AddPerson) reader.next();
+        LdbcInsert1AddPerson operation;
+        operation = (LdbcInsert1AddPerson) reader.next();
         assertThat(operation.getPersonId(), is(2336462220352l));
         assertThat(operation.getPersonFirstName(), is("William"));
         assertThat(operation.getPersonLastName(), is("Riker"));
@@ -135,7 +135,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354158403640L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354158403640L));
 
-        operation = (LdbcUpdate1AddPerson) reader.next();
+        operation = (LdbcInsert1AddPerson) reader.next();
         assertThat(operation.getPersonId(), is(2336462274764l));
         assertThat(operation.getPersonFirstName(), is("Jean-Luc"));
         assertThat(operation.getPersonLastName(), is("Picard"));
@@ -145,7 +145,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354159616392L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159616392L));
 
-        operation = (LdbcUpdate1AddPerson) reader.next();
+        operation = (LdbcInsert1AddPerson) reader.next();
         assertThat(operation.getPersonId(), is(2336462234123l));
         assertThat(operation.getPersonFirstName(), is("Wesley"));
         assertThat(operation.getPersonLastName(), is("Crusher"));
@@ -155,7 +155,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354159616392L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159616392L));
 
-        operation = (LdbcUpdate1AddPerson) reader.next();
+        operation = (LdbcInsert1AddPerson) reader.next();
         assertThat(operation.getPersonId(), is(2336462255683l));
         assertThat(operation.getPersonFirstName(), is("Miles"));
         assertThat(operation.getPersonLastName(), is("O'Brien"));
@@ -169,7 +169,7 @@ public class InteractiveUpdateEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseAllUpdate2Events() throws WorkloadException, SQLException {
+    public void shouldParseAllInsert2Events() throws WorkloadException, SQLException {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
@@ -199,27 +199,27 @@ public class InteractiveUpdateEventStreamReaderTest
         );
 
         // Assert
-        LdbcUpdate2AddPostLike operation;
+        LdbcInsert2AddPostLike operation;
 
-        operation = (LdbcUpdate2AddPostLike) reader.next();
+        operation = (LdbcInsert2AddPostLike) reader.next();
         assertThat(operation.getPersonId(), is(15393162789345l));
         assertThat(operation.getPostId(), is(2336468703973l));
         assertThat(operation.getCreationDate().getTime(), is(1354158403640L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354158403640L));
 
-        operation = (LdbcUpdate2AddPostLike) reader.next();
+        operation = (LdbcInsert2AddPostLike) reader.next();
         assertThat(operation.getPersonId(), is(15393162794683l));
         assertThat(operation.getPostId(), is(2336467057324l));
         assertThat(operation.getCreationDate().getTime(), is(1354159616392L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159616392L));
 
-        operation = (LdbcUpdate2AddPostLike) reader.next();
+        operation = (LdbcInsert2AddPostLike) reader.next();
         assertThat(operation.getPersonId(), is(8796093026612l));
         assertThat(operation.getPostId(), is(2336462285980l));
         assertThat(operation.getCreationDate().getTime(), is(1354159616392L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159616392L));
 
-        operation = (LdbcUpdate2AddPostLike) reader.next();
+        operation = (LdbcInsert2AddPostLike) reader.next();
         assertThat(operation.getPersonId(), is(26388279069478l));
         assertThat(operation.getPostId(), is(2336465315493l));
         assertThat(operation.getCreationDate().getTime(), is(1354164952506L));
@@ -229,7 +229,7 @@ public class InteractiveUpdateEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseAllUpdate3Events() throws WorkloadException, SQLException {
+    public void shouldParseAllInsert3Events() throws WorkloadException, SQLException {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
@@ -259,27 +259,27 @@ public class InteractiveUpdateEventStreamReaderTest
         );
 
         // Assert
-        LdbcUpdate3AddCommentLike operation;
+        LdbcInsert3AddCommentLike operation;
 
-        operation = (LdbcUpdate3AddCommentLike) reader.next();
+        operation = (LdbcInsert3AddCommentLike) reader.next();
         assertThat(operation.getPersonId(), is(15393162789345l));
         assertThat(operation.getCommentId(), is(2336468703973l));
         assertThat(operation.getCreationDate().getTime(), is(1354158403640L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354158403640L));
 
-        operation = (LdbcUpdate3AddCommentLike) reader.next();
+        operation = (LdbcInsert3AddCommentLike) reader.next();
         assertThat(operation.getPersonId(), is(15393162794683l));
         assertThat(operation.getCommentId(), is(2336467057324l));
         assertThat(operation.getCreationDate().getTime(), is(1354159616392L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159616392L));
 
-        operation = (LdbcUpdate3AddCommentLike) reader.next();
+        operation = (LdbcInsert3AddCommentLike) reader.next();
         assertThat(operation.getPersonId(), is(8796093026612l));
         assertThat(operation.getCommentId(), is(2336462285980l));
         assertThat(operation.getCreationDate().getTime(), is(1354159616392L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159616392L));
 
-        operation = (LdbcUpdate3AddCommentLike) reader.next();
+        operation = (LdbcInsert3AddCommentLike) reader.next();
         assertThat(operation.getPersonId(), is(26388279069478l));
         assertThat(operation.getCommentId(), is(2336465315493l));
         assertThat(operation.getCreationDate().getTime(), is(1354164952506L));
@@ -289,7 +289,7 @@ public class InteractiveUpdateEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseAllUpdate4Events() throws WorkloadException, SQLException {
+    public void shouldParseAllInsert4Events() throws WorkloadException, SQLException {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
@@ -329,9 +329,9 @@ public class InteractiveUpdateEventStreamReaderTest
         );
 
         // Assert
-        LdbcUpdate4AddForum operation;
+        LdbcInsert4AddForum operation;
 
-        operation = (LdbcUpdate4AddForum) reader.next();
+        operation = (LdbcInsert4AddForum) reader.next();
         assertThat(operation.getForumId(), is(2336462220352l));
         assertThat(operation.getForumTitle(), is("Album 31 of Anand Rao"));
         assertThat(operation.getModeratorPersonId(), is(2199023256479l));
@@ -344,7 +344,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354157772178L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354157772178L));
 
-        operation = (LdbcUpdate4AddForum) reader.next();
+        operation = (LdbcInsert4AddForum) reader.next();
         assertThat(operation.getForumId(), is(2336462274764l));
         assertThat(operation.getForumTitle(), is("Album 0 of A. Rao"));
         assertThat(operation.getModeratorPersonId(), is(15393162797039l));
@@ -357,7 +357,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354158101157L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354158101157L));
 
-        operation = (LdbcUpdate4AddForum) reader.next();
+        operation = (LdbcInsert4AddForum) reader.next();
         assertThat(operation.getForumId(), is(2336462234123l));
         assertThat(operation.getForumTitle(), is("Album 6 of Alfonso Chavez"));
         assertThat(operation.getModeratorPersonId(), is(4398046516485l));
@@ -370,7 +370,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354159101925L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159101925L));
 
-        operation = (LdbcUpdate4AddForum) reader.next();
+        operation = (LdbcInsert4AddForum) reader.next();
         assertThat(operation.getForumId(), is(2336462255683l));
         assertThat(operation.getForumTitle(), is("Album 14 of Ivan Ivanov"));
         assertThat(operation.getModeratorPersonId(), is(8796093032781l));
@@ -387,7 +387,7 @@ public class InteractiveUpdateEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseAllUpdate5Events() throws WorkloadException, SQLException {
+    public void shouldParseAllInsert5Events() throws WorkloadException, SQLException {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
@@ -417,27 +417,27 @@ public class InteractiveUpdateEventStreamReaderTest
         );
 
         // Assert
-        LdbcUpdate5AddForumMembership operation;
+        LdbcInsert5AddForumMembership operation;
 
-        operation = (LdbcUpdate5AddForumMembership) reader.next();
+        operation = (LdbcInsert5AddForumMembership) reader.next();
         assertThat(operation.getPersonId(), is(15393162789345l));
         assertThat(operation.getForumId(), is(2336468703973l));
         assertThat(operation.getCreationDate().getTime(), is(1354158403640L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354158403640L));
 
-        operation = (LdbcUpdate5AddForumMembership) reader.next();
+        operation = (LdbcInsert5AddForumMembership) reader.next();
         assertThat(operation.getPersonId(), is(15393162794683l));
         assertThat(operation.getForumId(), is(2336467057324l));
         assertThat(operation.getCreationDate().getTime(), is(1354159616392L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159616392L));
 
-        operation = (LdbcUpdate5AddForumMembership) reader.next();
+        operation = (LdbcInsert5AddForumMembership) reader.next();
         assertThat(operation.getPersonId(), is(8796093026612l));
         assertThat(operation.getForumId(), is(2336462285980l));
         assertThat(operation.getCreationDate().getTime(), is(1354159616392L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159616392L));
 
-        operation = (LdbcUpdate5AddForumMembership) reader.next();
+        operation = (LdbcInsert5AddForumMembership) reader.next();
         assertThat(operation.getPersonId(), is(26388279069478l));
         assertThat(operation.getForumId(), is(2336465315493l));
         assertThat(operation.getCreationDate().getTime(), is(1354164952506L));
@@ -447,7 +447,7 @@ public class InteractiveUpdateEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseAllUpdate6Events() throws WorkloadException, SQLException {
+    public void shouldParseAllInsert6Events() throws WorkloadException, SQLException {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
@@ -523,9 +523,9 @@ public class InteractiveUpdateEventStreamReaderTest
         );
 
         // Assert
-        LdbcUpdate6AddPost operation;
+        LdbcInsert6AddPost operation;
 
-        operation = (LdbcUpdate6AddPost) reader.next();
+        operation = (LdbcInsert6AddPost) reader.next();
         assertThat(operation.getPostId(), is(2336462220352l));
         assertThat(operation.getLocationIp(), is("127.0.0.1"));
         assertThat(operation.getImageFile(), is("image1"));
@@ -545,7 +545,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354157772178L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354157772178L));
 
-        operation = (LdbcUpdate6AddPost) reader.next();
+        operation = (LdbcInsert6AddPost) reader.next();
         assertThat(operation.getPostId(), is(2336462274764l));
         assertThat(operation.getLocationIp(), is("127.0.0.2"));
         assertThat(operation.getImageFile(), is(""));
@@ -565,7 +565,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354158101157L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354158101157L));
 
-        operation = (LdbcUpdate6AddPost) reader.next();
+        operation = (LdbcInsert6AddPost) reader.next();
         assertThat(operation.getPostId(), is(2336462234123l));
         assertThat(operation.getLocationIp(), is("127.0.0.3"));
         assertThat(operation.getImageFile(), is("image3"));
@@ -585,7 +585,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354159101925L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159101925L));
 
-        operation = (LdbcUpdate6AddPost) reader.next();
+        operation = (LdbcInsert6AddPost) reader.next();
         assertThat(operation.getPostId(), is(2336462255683l));
         assertThat(operation.getLocationIp(), is("127.0.0.4"));
         assertThat(operation.getImageFile(), is(""));
@@ -609,7 +609,7 @@ public class InteractiveUpdateEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseAllUpdate7Events() throws WorkloadException, SQLException {
+    public void shouldParseAllInsert7Events() throws WorkloadException, SQLException {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
@@ -680,9 +680,9 @@ public class InteractiveUpdateEventStreamReaderTest
         );
 
         // Assert
-        LdbcUpdate7AddComment operation;
+        LdbcInsert7AddComment operation;
 
-        operation = (LdbcUpdate7AddComment) reader.next();
+        operation = (LdbcInsert7AddComment) reader.next();
         assertThat(operation.getCommentId(), is(2336462220352l));
         assertThat(operation.getLocationIp(), is("127.0.0.1"));
         assertThat(operation.getBrowserUsed(), is("Netscape"));
@@ -701,7 +701,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354157772178L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354157772178L));
 
-        operation = (LdbcUpdate7AddComment) reader.next();
+        operation = (LdbcInsert7AddComment) reader.next();
         assertThat(operation.getCommentId(), is(2336462274764l));
         assertThat(operation.getLocationIp(), is("127.0.0.2"));
         assertThat(operation.getBrowserUsed(), is("Mosaic"));
@@ -720,7 +720,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354158101157L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354158101157L));
 
-        operation = (LdbcUpdate7AddComment) reader.next();
+        operation = (LdbcInsert7AddComment) reader.next();
         assertThat(operation.getCommentId(), is(2336462234123l));
         assertThat(operation.getLocationIp(), is("127.0.0.3"));
         assertThat(operation.getBrowserUsed(), is("Internet Explorer"));
@@ -739,7 +739,7 @@ public class InteractiveUpdateEventStreamReaderTest
         assertThat(operation.getCreationDate().getTime(), is(1354159101925L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159101925L));
 
-        operation = (LdbcUpdate7AddComment) reader.next();
+        operation = (LdbcInsert7AddComment) reader.next();
         assertThat(operation.getCommentId(), is(2336462255683l));
         assertThat(operation.getLocationIp(), is("127.0.0.4"));
         assertThat(operation.getBrowserUsed(), is("Vivaldi"));
@@ -762,7 +762,7 @@ public class InteractiveUpdateEventStreamReaderTest
     }
 
     @Test
-    public void shouldParseAllUpdate8Events() throws WorkloadException, SQLException {
+    public void shouldParseAllInsert8Events() throws WorkloadException, SQLException {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(stmt.executeQuery(anyString())).thenReturn(rs);
@@ -793,27 +793,27 @@ public class InteractiveUpdateEventStreamReaderTest
         );
 
         // Assert
-        LdbcUpdate8AddFriendship operation;
+        LdbcInsert8AddFriendship operation;
 
-        operation = (LdbcUpdate8AddFriendship) reader.next();
+        operation = (LdbcInsert8AddFriendship) reader.next();
         assertThat(operation.getPerson1Id(), is(15393162789345l));
         assertThat(operation.getPerson2Id(), is(2336468703973l));
         assertThat(operation.getCreationDate().getTime(), is(1354158403640L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354158403640L));
 
-        operation = (LdbcUpdate8AddFriendship) reader.next();
+        operation = (LdbcInsert8AddFriendship) reader.next();
         assertThat(operation.getPerson1Id(), is(15393162794683l));
         assertThat(operation.getPerson2Id(), is(2336467057324l));
         assertThat(operation.getCreationDate().getTime(), is(1354159616392L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159616392L));
 
-        operation = (LdbcUpdate8AddFriendship) reader.next();
+        operation = (LdbcInsert8AddFriendship) reader.next();
         assertThat(operation.getPerson1Id(), is(8796093026612l));
         assertThat(operation.getPerson2Id(), is(2336462285980l));
         assertThat(operation.getCreationDate().getTime(), is(1354159616392L));
         assertThat(operation.scheduledStartTimeAsMilli(), is(1354159616392L));
 
-        operation = (LdbcUpdate8AddFriendship) reader.next();
+        operation = (LdbcInsert8AddFriendship) reader.next();
         assertThat(operation.getPerson1Id(), is(26388279069478l));
         assertThat(operation.getPerson2Id(), is(2336465315493l));
         assertThat(operation.getCreationDate().getTime(), is(1354164952506L));
