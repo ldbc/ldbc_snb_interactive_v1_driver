@@ -76,7 +76,7 @@ def convert_inserts(input_dir, output_dir):
 
     for entity in entities:
         filename = os.path.join(output_path, entity + ".parquet")
-        con.execute(f"COPY (SELECT date_part('epoch', creationDate)*1000+date_part('milliseconds', creationDate)%1000, * EXCLUDE creationDate FROM {entity}_Insert_Converted) TO '{filename}' (FORMAT 'parquet')")
+        con.execute(f"COPY (SELECT date_part('epoch', creationDate)*1000+date_part('milliseconds', creationDate)%1000, * EXCLUDE creationDate FROM {entity}_Insert_Converted) TO '{filename}' (FORMAT PARQUET)")
 
 def convert_deletes(input_dir, output_dir):
     """
@@ -114,7 +114,7 @@ def convert_deletes(input_dir, output_dir):
 
     for entity in entities:
         filename = os.path.join(output_path, entity + ".parquet")
-        con.execute(f"COPY (SELECT date_part('epoch', deletionDate)*1000+date_part('milliseconds', deletionDate)%1000 AS deletionDate, * EXCLUDE deletionDate FROM {entity}_Delete) TO '{filename}' (FORMAT 'parquet')")
+        con.execute(f"COPY (SELECT date_part('epoch', deletionDate)*1000+date_part('milliseconds', deletionDate)%1000 AS deletionDate, * EXCLUDE deletionDate FROM {entity}_Delete) TO '{filename}' (FORMAT PARQUET)")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
