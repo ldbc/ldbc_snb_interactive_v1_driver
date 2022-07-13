@@ -18,6 +18,8 @@ import argparse
 import glob
 import os
 import duckdb
+import re
+import time
 
 entities = [
     "Comment",                # INS7
@@ -29,6 +31,26 @@ entities = [
     "Person_likes_Post",      # INS2
     "Post"                    # INS6
 ]
+
+def run_script(con, filename):
+    with open(filename, "r") as f:
+        queries_file = f.read()
+        # strip comments
+        queries_file = re.sub(r"\n--.*", "", queries_file)
+        queries = queries_file.split(';\n') # split on semicolon-newline sequences
+        print(queries)
+        for query in queries:
+            if not query or query.isspace():
+                continue
+
+            sql_statement = re.findall(r"^((CREATE|INSERT|DROP|DELETE|SELECT|COPY|UPDATE|ALTER) [A-Za-z0-9_ ]*)", query, re.MULTILINE)
+            print(f"{sql_statement[0][0].strip()} ...")
+            start = time.time()
+            con.execute(query)
+            con.commit()
+            end = time.time()
+            duration = end - start
+            print(f"-> {duration:.4f} seconds")
 
 def convert_inserts(input_dir, output_dir):
     """
@@ -66,10 +88,9 @@ def convert_inserts(input_dir, output_dir):
         entity_dir = os.path.join(data_path, entity)
         for csv_path in glob.glob(f'{entity_dir}/**/*.csv', recursive=True):
             con.execute(f"COPY {entity} FROM '{csv_path}' (DELIMITER '|', HEADER, TIMESTAMPFORMAT '%Y-%m-%dT%H:%M:%S.%g+00:00');")
+    print("Loading finished.")
 
-    with open("convert_spark_inserts_to_interactive.sql") as f:
-        convert_script = f.read()
-        con.execute(convert_script)
+    run_script(con, "convert_spark_inserts_to_interactive.sql")
 
     output_path = os.path.join(output_dir, "inserts")
     os.makedirs(output_path, exist_ok=True)
@@ -108,6 +129,7 @@ def convert_deletes(input_dir, output_dir):
         entity_dir = os.path.join(data_path, entity)
         for csv_path in glob.glob(f'{entity_dir}/**/*.csv', recursive=True):
             con.execute(f"COPY {entity}_Delete FROM '{csv_path}' (DELIMITER '|', HEADER, TIMESTAMPFORMAT '%Y-%m-%dT%H:%M:%S.%g+00:00');")
+    print("Loading finished.")
 
     output_path = os.path.join(output_dir, "deletes")
     os.makedirs(output_path, exist_ok=True)
