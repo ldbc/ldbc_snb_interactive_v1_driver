@@ -5,20 +5,13 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
  * Interactive workload complex read query 14:
  * -- Trusted connection paths--
  * 
- * Given two Persons, find all (unweighted) shortest paths between these
- * two Persons, in the subgraph induced by the knows relationship. Then,
- * for each path calculate a weight. The nodes in the path are Persons,
- * and the weight of a path is the sum of weights between every pair of
- * consecutive Person nodes in the path. The weight for a pair of Persons
- * is calculated based on their interactions:
- * - Every direct reply (by one of the Persons) to a Post (by the other Person) contributes 1.0.
- * - Every direct reply (by one of the Persons) to a Comment (by the other Person) contributes 0.5.
- * 
- * Note that interactions are counted both ways (e.g. if Alice writes 2 Post replies and 
- * 1 Comment reply to Bob, while Bob writes 3 Post replies and 4 Comment replies to Alice, 
- * their interaction score is 2 × 1.0 + 1 × 0.5 + 3 × 1.0 + 4 × 0.5 = 7.5).
- * Return all the paths with shortest length, and their weights. Do not return any rows
- * if there is no path between the two Persons
+ * Find a cheapest path between the given Persons, in the interaction subgraph.
+ * (If there are multiple cheapest paths, return any of them can be returned).
+ * The interaction subgraph is based on the Person-knows-Person graph where the
+ * Person endpoints of each knows edge have at least one interaction between them.
+ * An interaction is defined as a direct reply Comment (by one of the Persons)
+ * to a Message (by the other Person). The edge weights are determined as
+ * max(floor(40 - sqrt(numInteractions)), 1).
  */
 
 
