@@ -38,7 +38,6 @@ def run_script(con, filename):
         # strip comments
         queries_file = re.sub(r"\n--.*", "", queries_file)
         queries = queries_file.split(';\n') # split on semicolon-newline sequences
-        print(queries)
         for query in queries:
             if not query or query.isspace():
                 continue
