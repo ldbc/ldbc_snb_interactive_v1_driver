@@ -11,8 +11,6 @@ import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.runtime.ConcurrentErrorReporter;
 import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloadConfiguration;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14Result;
 
 import java.text.DecimalFormat;
 import java.util.Iterator;
@@ -111,22 +109,8 @@ public class DbValidator
             }
 
             Object actualOperationResult = resultReporter.result();
-            
-            // Exception for Q14 where the path ordering for equal weights is not defined.
-            // This comparison should be made on list level and then on individual paths
-            // where paths with equal weights are grouped and compared.
-            // TODO: Either remove workload abstraction or move this to separate validator class.
-            if (LdbcQuery14.class  == operationMap.get(operation.type()))
-            {
-                if (!LdbcQuery14Result.resultListEqual(expectedOperationResult, actualOperationResult)){
-                    validationParamsIncorrectSoFar++;
-                    dbValidationResult
-                            .reportIncorrectResultForOperation( operation, expectedOperationResult, actualOperationResult );
-                    continue;
-                }
-            }
 
-            else if ( false == actualOperationResult.equals(expectedOperationResult))
+            if ( false == actualOperationResult.equals(expectedOperationResult))
             {
                 validationParamsIncorrectSoFar++;
                 dbValidationResult
