@@ -174,7 +174,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         String scaleFactor = params.get( LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR ).trim();
         // Load the frequencyKeys for the appropiate scale factor if that scale factor is supported
         
-        String scaleFactorPropertiesPath = "configuration/ldbc/snb/interactive/sf" + scaleFactor  + ".properties"; 
+        String scaleFactorPropertiesPath = "configuration/ldbc/snb/interactive/sf" + scaleFactor + ".properties";
         // Load the properties file, throw error if file is not present (and thus not supported)
         final Properties scaleFactorProperties = new Properties();
 
