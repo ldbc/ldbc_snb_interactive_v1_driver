@@ -7,11 +7,11 @@ import java.util.Iterator;
 public class LdbcQuery14Result
 {
     private final Iterable<? extends Number> personIdsInPath;
-    private final int pathWeight;
+    private final long pathWeight;
 
     public LdbcQuery14Result(
         @JsonProperty("personIdsInPath") Iterable<? extends Number> personIdsInPath,
-        @JsonProperty("pathWeight")      int pathWeight
+        @JsonProperty("pathWeight")      long pathWeight
     )
     {
         this.personIdsInPath = personIdsInPath;
@@ -23,7 +23,7 @@ public class LdbcQuery14Result
         return personIdsInPath;
     }
 
-    public int getPathWeight()
+    public long getPathWeight()
     {
         return pathWeight;
     }
