@@ -26,10 +26,6 @@ public class BufferedIterator implements Iterator<Operation> {
         if(!currentOperationStream.hasNext())
         {
             currentOperationStream = operationStreamBuffer.next();
-            if (currentOperationStream == null)
-            {
-                return false;
-            }
         }
         return currentOperationStream.hasNext();
     }

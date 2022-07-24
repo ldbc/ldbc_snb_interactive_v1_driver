@@ -1,6 +1,7 @@
 package org.ldbcouncil.snb.driver.generator;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -67,6 +68,10 @@ public class OperationStreamBuffer implements Iterator<Iterator<Operation>>{
             opStream = blockingQueue.poll(2, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+        if (opStream == null)
+        {
+            return Collections.emptyIterator();
         }
         return opStream;
     }
