@@ -398,10 +398,14 @@ public abstract class WorkloadTest
                     )
             );
 
-            long prevOperationScheduledStartTime = operations.get( 0 ).scheduledStartTimeAsMilli() - 1;
+            Operation prevOperation = operations.get( 0 );
+            long prevOperationScheduledStartTime = prevOperation.scheduledStartTimeAsMilli() - 1;
             for ( Operation operation : operations )
             {
-                assertTrue( operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTime );
+                assertTrue(
+                    format("Previous scheduled start time higher than current scheduled time: %d smaller than %d with previous operation %s and operation %s", operation.scheduledStartTimeAsMilli(), prevOperationScheduledStartTime, operation.toString(), prevOperation.toString()),
+                    operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTime
+                );
                 prevOperationScheduledStartTime = operation.scheduledStartTimeAsMilli();
             }
         }
