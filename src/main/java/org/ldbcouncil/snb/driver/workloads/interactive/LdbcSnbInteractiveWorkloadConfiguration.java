@@ -3,7 +3,6 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.DriverConfigurationException;
 import org.ldbcouncil.snb.driver.util.MapUtils;
@@ -11,15 +10,12 @@ import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import static java.lang.String.format;
 
 public abstract class LdbcSnbInteractiveWorkloadConfiguration
 {
@@ -40,22 +36,12 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
 
     public static final String SCALE_FACTOR = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "scale_factor";
 
-    // The parser implementation to use when reading update events
-    public enum UpdateStreamParser
-    {
-        REGEX,
-        CHAR_SEEKER,
-        CHAR_SEEKER_THREAD
-    }
-
     public static final String INSERTS_DIRECTORY = "inserts";
     public static final String DELETES_DIRECTORY = "deletes";
 
     public static final String INSERTS_DATE_COLUMN = "creationDate";
     public static final String DELETES_DATE_COLUMN = "deletionDate";
 
-    public static final String UPDATE_STREAM_PARSER = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_parser";
-    public static final UpdateStreamParser DEFAULT_UPDATE_STREAM_PARSER = UpdateStreamParser.CHAR_SEEKER;
     public static final String LDBC_INTERACTIVE_PACKAGE_PREFIX =
             removeSuffix( LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName() );
 
@@ -586,21 +572,6 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             { missingPropertyKeys.add( compulsoryKey ); }
         }
         return missingPropertyKeys;
-    }
-
-    static boolean isValidParser( String parserString ) throws WorkloadException
-    {
-        try
-        {
-            UpdateStreamParser parser = UpdateStreamParser.valueOf( parserString );
-            Set<UpdateStreamParser> validParsers = new HashSet<>();
-            validParsers.addAll( Arrays.asList( UpdateStreamParser.values() ) );
-            return validParsers.contains( parser );
-        }
-        catch ( IllegalArgumentException e )
-        {
-            throw new WorkloadException( format( "Unsupported parser value: %s", parserString ), e );
-        }
     }
 
     /**
