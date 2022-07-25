@@ -4,7 +4,6 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
  *
  * Decoder for the update events. There are 8 insert events and 8 delete events.
  * Each event has a separate decoder that decodes a java.sql.Resultset
- *
  */
 
 import org.ldbcouncil.snb.driver.generator.EventStreamReader;
@@ -15,11 +14,6 @@ import org.ldbcouncil.snb.driver.WorkloadException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.ZonedDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -38,6 +32,10 @@ public class UpdateEventStreamReader implements Iterator<Operation>
      */
     static long getOperationDate(ResultSet rs) throws SQLException {
         return rs.getLong(1);
+    }
+
+    static long getDependencyTimeStamp(ResultSet rs) throws SQLException {
+        return rs.getLong(2);
     }
 
     private final Iterator<Operation> operationStream;
@@ -93,19 +91,20 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long personId = rs.getLong(2);
-                String firstName = rs.getString(3);
-                String lastName = rs.getString(4);
-                String gender = rs.getString(5);
-                long birthdayAsMilli = rs.getDate(6).getTime();
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long personId = rs.getLong(3);
+                String firstName = rs.getString(4);
+                String lastName = rs.getString(5);
+                String gender = rs.getString(6);
+                long birthdayAsMilli = rs.getDate(7).getTime();
                 Date birthday = new Date(birthdayAsMilli);
                 Date creationDate = new Date(scheduledStartTimeAsMilli);
-                String locationIp = rs.getString(7);
-                String browserUsed = rs.getString(8);
-                long cityId = rs.getLong(9);
+                String locationIp = rs.getString(8);
+                String browserUsed = rs.getString(9);
+                long cityId = rs.getLong(10);
 
                 List<String> languages;
-                String languagesResult = rs.getString(10);
+                String languagesResult = rs.getString(11);
                 if (languagesResult != null && !languagesResult.isEmpty()) {
                     String[] languagesArray = languagesResult.split(";");
                     languages = Arrays.asList(languagesArray);
@@ -115,7 +114,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 }
 
                 List<String> emails;
-                String emailsResult = rs.getString(11);
+                String emailsResult = rs.getString(12);
                 if (emailsResult != null && !emailsResult.isEmpty()) {
                     String[] emailsArray = emailsResult.split(";");
                     emails = Arrays.asList(emailsArray);
@@ -125,7 +124,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 }
 
                 List<Long> tagIds = new ArrayList<>();
-                String tagIdsResult = rs.getString(12);
+                String tagIdsResult = rs.getString(13);
                 if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
                     String[] tagIdsArrays = tagIdsResult.split(";");
                     for (String value : tagIdsArrays) {
@@ -134,7 +133,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 }
 
                 List<LdbcInsert1AddPerson.Organization> studyAts = new ArrayList<>();
-                String studyAtsResult = rs.getString(13);
+                String studyAtsResult = rs.getString(14);
                 if (studyAtsResult != null && !studyAtsResult.isEmpty()) {
                     String[] studyAtsArray = studyAtsResult.split(";");
                     List<String> studyAtsStrings = Arrays.asList(studyAtsArray);
@@ -145,7 +144,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 }
 
                 List<LdbcInsert1AddPerson.Organization> workAts = new ArrayList<>();
-                String workAtsResult = rs.getString(14);
+                String workAtsResult = rs.getString(15);
                 if (workAtsResult != null && !workAtsResult.isEmpty()) {
                     String[] workAtsArray =  workAtsResult.split(";");
                     List<String> workAtsStrings = Arrays.asList(workAtsArray);
@@ -172,7 +171,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                         workAts);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -188,14 +187,15 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long personId = rs.getLong(2);
-                long postId = rs.getLong(3);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long personId = rs.getLong(3);
+                long postId = rs.getLong(4);
                 Date creationDate = new Date(scheduledStartTimeAsMilli); // Same as scheduled time
 
                 Operation operation = new LdbcInsert2AddPostLike(personId, postId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -211,14 +211,15 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long personId = rs.getLong(2);
-                long commentId = rs.getLong(3);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long personId = rs.getLong(3);
+                long commentId = rs.getLong(4);
                 Date creationDate = new Date(scheduledStartTimeAsMilli);
 
                 Operation operation = new LdbcInsert3AddCommentLike(personId, commentId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -234,13 +235,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long forumId = rs.getLong(2);
-                String forumTitle = rs.getString(3);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long forumId = rs.getLong(3);
+                String forumTitle = rs.getString(4);
                 Date creationDate = new Date(scheduledStartTimeAsMilli); // Same as scheduled time
-                long moderatorPersonId = rs.getLong(4);
+                long moderatorPersonId = rs.getLong(5);
 
                 List<Long> tagIds = new ArrayList<>();
-                String tagIdsResult = rs.getString(5);
+                String tagIdsResult = rs.getString(6);
                 if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
                     String[] tagIdsArrays = tagIdsResult.split(";");
                     for (String value : tagIdsArrays) {
@@ -251,7 +253,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 Operation operation = new LdbcInsert4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -267,14 +269,15 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long forumId = rs.getLong(2);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
                 long personId = rs.getLong(3);
+                long forumId = rs.getLong(4);
                 Date creationDate = new Date(scheduledStartTimeAsMilli);
 
                 Operation operation = new LdbcInsert5AddForumMembership(forumId, personId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -290,20 +293,21 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long postId = rs.getLong(2);
-                String imageFile = rs.getString(3);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long postId = rs.getLong(3);
+                String imageFile = rs.getString(4);
                 Date creationDate = new Date(scheduledStartTimeAsMilli); // Same as scheduled
-                String locationIp = rs.getString(4);
-                String browserUsed = rs.getString(5);
-                String language = rs.getString(6);
-                String content = rs.getString(7);
-                int length = rs.getInt(8);
-                long authorPersonId = rs.getLong(9);
-                long forumId = rs.getLong(10);
-                long countryId = rs.getLong(11);
+                String locationIp = rs.getString(5);
+                String browserUsed = rs.getString(6);
+                String language = rs.getString(7);
+                String content = rs.getString(8);
+                int length = rs.getInt(9);
+                long authorPersonId = rs.getLong(10);
+                long forumId = rs.getLong(11);
+                long countryId = rs.getLong(12);
 
                 List<Long> tagIds = new ArrayList<>();
-                String tagIdsResult = rs.getString(12);
+                String tagIdsResult = rs.getString(13);
                 if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
                     String[] tagIdsArrays = tagIdsResult.split(";");
                     for (String value : tagIdsArrays) {
@@ -326,7 +330,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                         tagIds);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -342,19 +346,20 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long commentId = rs.getLong(2);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long commentId = rs.getLong(3);
                 Date creationDate = new Date(scheduledStartTimeAsMilli); // Same as scheduled time
-                String locationIp = rs.getString(3);
-                String browserUsed = rs.getString(4);
-                String content = rs.getString(5);
-                int length = rs.getInt(6);
-                long authorPersonId = rs.getLong(7);
-                long countryId = rs.getLong(8);
-                long replyOfPostId = rs.getLong(9);
-                long replyOfCommentId = rs.getLong(10);
+                String locationIp = rs.getString(4);
+                String browserUsed = rs.getString(5);
+                String content = rs.getString(6);
+                int length = rs.getInt(7);
+                long authorPersonId = rs.getLong(8);
+                long countryId = rs.getLong(9);
+                long replyOfPostId = rs.getLong(10);
+                long replyOfCommentId = rs.getLong(11);
 
                 List<Long> tagIds = new ArrayList<>();
-                String tagIdsResult = rs.getString(11);
+                String tagIdsResult = rs.getString(12);
                 if (tagIdsResult != null && !tagIdsResult.isEmpty()) {
                     String[] tagIdsArrays = tagIdsResult.split(";");
                     for (String value : tagIdsArrays) {
@@ -376,7 +381,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                         tagIds);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -392,14 +397,15 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long person1Id = rs.getLong(2);
-                long person2Id = rs.getLong(3);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long person1Id = rs.getLong(3);
+                long person2Id = rs.getLong(4);
                 Date creationDate = new Date(scheduledStartTimeAsMilli);
 
                 Operation operation = new LdbcInsert8AddFriendship(person1Id, person2Id, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -416,12 +422,13 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long personId = rs.getLong(2);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long personId = rs.getLong(3);
 
                 Operation operation = new LdbcDelete1RemovePerson(personId);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -437,13 +444,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long personId = rs.getLong(2);
-                long postId = rs.getLong(3);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long personId = rs.getLong(3);
+                long postId = rs.getLong(4);
 
                 Operation operation = new LdbcDelete2RemovePostLike(personId, postId);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -459,13 +467,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long personId = rs.getLong(2);
-                long commentId = rs.getLong(3);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long personId = rs.getLong(3);
+                long commentId = rs.getLong(4);
 
                 Operation operation = new LdbcDelete3RemoveCommentLike(personId, commentId);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -481,12 +490,13 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long forumId = rs.getLong(2);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long forumId = rs.getLong(3);
 
                 Operation operation = new LdbcDelete4RemoveForum(forumId);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -502,13 +512,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long forumId = rs.getLong(2);
-                long personId = rs.getLong(3);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long forumId = rs.getLong(3);
+                long personId = rs.getLong(4);
 
                 Operation operation = new LdbcDelete5RemoveForumMembership(forumId, personId);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -524,12 +535,13 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long postId = rs.getLong(2);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long postId = rs.getLong(3);
 
                 Operation operation = new LdbcDelete6RemovePostThread(postId);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -545,12 +557,13 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long commentId = rs.getLong(2);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long commentId = rs.getLong(3);
 
                 Operation operation = new LdbcDelete7RemoveCommentSubthread(commentId);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
@@ -566,13 +579,14 @@ public class UpdateEventStreamReader implements Iterator<Operation>
             try
             {
                 long scheduledStartTimeAsMilli = getOperationDate(rs);
-                long person1Id = rs.getLong(2);
-                long person2Id = rs.getLong(3);
+                long dependencyTimeStamp = getDependencyTimeStamp(rs);
+                long person1Id = rs.getLong(3);
+                long person2Id = rs.getLong(4);
 
                 Operation operation = new LdbcDelete8RemoveFriendship(person1Id, person2Id);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
-                operation.setDependencyTimeStamp(0); // Not present in BI update stream
+                operation.setDependencyTimeStamp(dependencyTimeStamp); 
                 return operation;
             }
             catch (SQLException e){
