@@ -19,22 +19,26 @@ from pathlib import Path
 class DependentTimeAppender:
 
     def __init__(self,
-        initial_snapshot_path:str,
-        update_event_path:str,
+        data_path:str,
         dependent_date_column:str = "dependentDate",
         default_dependent_time:int = 0
     ):
-        if (initial_snapshot_path[-1] == '/'):
-            initial_snapshot_path = initial_snapshot_path[:-1]
+        if (data_path[-1] == '/'):
+            data_path = data_path[:-1]
 
-        self.initial_snapshot_path = initial_snapshot_path
-        self.update_event_path = update_event_path
+        self.initial_snapshot_path = data_path + "/dynamic"
+        self.update_event_path = data_path
         self.dependent_date_column = dependent_date_column
         self.cursor = duckdb.connect(database='snb.duckdb')
         self.default_dependent_time = default_dependent_time
     
     def create_views(self):  
+        print("Create temp table")
+        with open('./schema_dependentTime.sql') as f:
+            schema_def = f.read()
+            self.cursor.execute(schema_def)
 
+        print("Creating views")
         for entity in ["Person", "Post", "Comment", "Forum"]:
             self.cursor.execute(f"CREATE VIEW {entity} AS SELECT * FROM read_parquet('{self.initial_snapshot_path}/{entity}/*.parquet');")
 
@@ -42,21 +46,18 @@ class DependentTimeAppender:
         """
         Loads the update event data into temporary tables
         """
-        with open('schema_dependentTime.sql') as f:
-            schema_def = f.read()
-            self.cursor.execute(schema_def)
 
         for update_type in ['inserts', 'deletes']:
-            paths = glob.glob(f'{updates_path}/{update_type}/*.parquet')
+            paths = glob.glob(f'{self.update_event_path}/{update_type}/*.parquet')
             for path in paths:
                 operation_type = os.path.basename(path.removesuffix('.parquet'))
                 if update_type == 'deletes':
                     operation_type_suffix = "_Delete"
+                    date_column = 'deletionDate'
                 else:
                     operation_type_suffix = "_Insert"
+                    date_column = 'creationDate'
                 table_name = operation_type + operation_type_suffix
-                if (table_name == "Person_Insert"):
-                    continue
                 print("Parsing: " + table_name)
 
                 # 1. Create select list
@@ -66,11 +67,14 @@ class DependentTimeAppender:
                 column_string = column_string[:-1] # remove last comma
                 
                 # 2. Load data into temporary table
-                self.cursor.execute(f"INSERT INTO {table_name} SELECT {column_string} FROM read_parquet('" + path + "');")
-
+                self.cursor.execute(f"INSERT INTO {table_name} SELECT {column_string} FROM read_parquet('" + path + f"')  ORDER BY {date_column} ASC;")
+                if (table_name == "Person_Insert"):
+                    Path(f"{self.update_event_path}/{update_type}_dep").mkdir(parents=True, exist_ok=True)
+                    self.cursor.execute(f"COPY {table_name} TO '{self.update_event_path}/{update_type}_dep/{operation_type}.parquet' (FORMAT PARQUET);")
+                    continue
                 # 3. Add dependent time for table requiring personIds
                 #dependent_entity_map
-                self.update_dependent_time(table_name, f'{updates_path}/{update_type}', operation_type)
+                self.update_dependent_time(table_name, f'{self.update_event_path}/{update_type}', operation_type)
 
 
     def update_dependent_time(self, table_name, output_path, operation_type):
@@ -124,9 +128,12 @@ class DependentTimeAppender:
         return self.cursor.execute(query).fetchall()
 
 if __name__ == "__main__":
-    initial_snapshot_path = '/home/gladap/repos/ldbc-data/spark/out-sf1/graphs/parquet/raw/composite-merged-fk/initial_snapshot/dynamic'
-    updates_path = '/home/gladap/repos/ldbc-data/spark/out-sf1/graphs/parquet/raw/composite-merged-fk'
+    root_data_path = '/home/gladap/repos/ldbc-data/spark/out-sf0.1/'
+    dta_data_path = root_data_path + 'graphs/parquet/raw/composite-merged-fk'
 
-    DTA = DependentTimeAppender(initial_snapshot_path, updates_path)
+
+
+
+    DTA = DependentTimeAppender(dta_data_path)
     DTA.create_views()
     DTA.create_and_load_temp_tables()

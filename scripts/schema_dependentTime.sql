@@ -1,5 +1,25 @@
 ---- drop tables
 
+DROP TABLE IF EXISTS Comment;
+DROP TABLE IF EXISTS Comment_hasTag_Tag;
+DROP TABLE IF EXISTS Forum;
+DROP TABLE IF EXISTS Forum_hasMember_Person;
+DROP TABLE IF EXISTS Forum_hasTag_Tag;
+DROP TABLE IF EXISTS Person;
+DROP TABLE IF EXISTS Person_hasInterest_Tag;
+DROP TABLE IF EXISTS Person_knows_Person;
+DROP TABLE IF EXISTS Person_likes_Comment;
+DROP TABLE IF EXISTS Person_likes_Post;
+DROP TABLE IF EXISTS Person_studyAt_University;
+DROP TABLE IF EXISTS Person_workAt_Company;
+DROP TABLE IF EXISTS Post;
+DROP TABLE IF EXISTS Post_hasTag_Tag;
+
+DROP VIEW IF EXISTS Comment;
+DROP VIEW IF EXISTS Forum;
+DROP VIEW IF EXISTS Person;
+DROP VIEW IF EXISTS Post;
+
 -- processed inserts
 DROP TABLE IF EXISTS Comment_Insert;
 DROP TABLE IF EXISTS Forum_Insert;
