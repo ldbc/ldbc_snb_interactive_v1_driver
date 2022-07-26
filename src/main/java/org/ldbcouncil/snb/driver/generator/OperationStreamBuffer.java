@@ -3,6 +3,7 @@ package org.ldbcouncil.snb.driver.generator;
 import java.io.File;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -22,6 +23,8 @@ public class OperationStreamBuffer implements Iterator<Iterator<Operation>>{
     private final long batchSize;
     private final Set<Class<? extends Operation>> enabledUpdateOperationTypes;
     private final File updatesDir;
+
+    private boolean isEmpty = false;
 
     private Thread runnableBatchLoader;
 
@@ -63,17 +66,26 @@ public class OperationStreamBuffer implements Iterator<Iterator<Operation>>{
     @Override
     public Iterator<Operation> next()
     {
-        Iterator<Operation> opStream = null;
-        try {
-            opStream = blockingQueue.poll(2, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if (opStream == null)
+        if (!isEmpty)
         {
-            return Collections.emptyIterator();
+            Iterator<Operation> opStream = null;
+            try {
+                opStream = blockingQueue.poll(2, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (opStream == null)
+            {
+                isEmpty = true;
+                return Collections.emptyIterator();
+            }
+            return opStream;
         }
-        return opStream;
+        else
+        {
+            return null;
+        }
+
     }
 
     @Override

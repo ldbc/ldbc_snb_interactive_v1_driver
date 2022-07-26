@@ -2,6 +2,7 @@ package org.ldbcouncil.snb.driver.generator;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.ldbcouncil.snb.driver.Operation;
 
@@ -12,20 +13,26 @@ public class BufferedIterator implements Iterator<Operation> {
     private Iterator<Operation> currentOperationStream = Collections.emptyIterator();
     private final OperationStreamBuffer operationStreamBuffer;
 
+    private boolean isEmpty = false;
+
     public BufferedIterator(
         OperationStreamBuffer operationStreamBuffer
     )
     {
         this.operationStreamBuffer = operationStreamBuffer;
-        hasNext();
     }
 
     @Override
     public boolean hasNext() 
     {
-        if(!currentOperationStream.hasNext())
+        if(!currentOperationStream.hasNext() && !isEmpty)
         {
             currentOperationStream = operationStreamBuffer.next();
+            if (currentOperationStream == null)
+            {
+                currentOperationStream = Collections.emptyIterator();
+                isEmpty = true;
+            }
         }
         return currentOperationStream.hasNext();
     }
@@ -33,7 +40,14 @@ public class BufferedIterator implements Iterator<Operation> {
     @Override
     public Operation next()
     {
-        return currentOperationStream.next();
+        if(hasNext())
+        {
+            return currentOperationStream.next();
+        }
+        else
+        {
+            return null;
+        }
     }
 
     @Override
