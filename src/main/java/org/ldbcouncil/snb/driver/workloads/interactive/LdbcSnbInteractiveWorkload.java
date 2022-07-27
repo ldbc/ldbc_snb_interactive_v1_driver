@@ -607,7 +607,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         ParquetLoader loader
     ) throws WorkloadException, SQLException
     {
-        long batchSize = TimeUnit.HOURS.toMillis( 12 ); //  Make configurable
+        long batchSize = TimeUnit.HOURS.toMillis( 24 ); //  Make configurable
 
         Set<Class<? extends Operation>> dependencyUpdateOperationTypes = Sets.<Class<? extends Operation>>newHashSet();
 

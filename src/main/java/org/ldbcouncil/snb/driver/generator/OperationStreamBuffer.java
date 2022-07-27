@@ -3,10 +3,9 @@ package org.ldbcouncil.snb.driver.generator;
 import java.io.File;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.ldbcouncil.snb.driver.Operation;
@@ -37,7 +36,7 @@ public class OperationStreamBuffer implements Iterator<Iterator<Operation>>{
         Set<Class<? extends Operation>> enabledUpdateOperationTypes
     )
     {
-        this.blockingQueue = new LinkedBlockingDeque<>(numThreads);
+        this.blockingQueue = new LinkedBlockingQueue<>(numThreads);
         this.loader = loader;
         this.updatesDir = updatesDir;
         this.gf = gf;
