@@ -52,6 +52,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private double shortReadDissipationFactor;
     private OperationMode operationMode;
     private int numThreads;
+    private long batchSize;
     private Set<Class> enabledLongReadOperationTypes;
     private Set<Class> enabledShortReadOperationTypes;
     private Set<Class> enabledWriteOperationTypes;
@@ -86,6 +87,14 @@ public class LdbcSnbInteractiveWorkload extends Workload
         else
         {
             numThreads = Integer.parseInt(params.get(ConsoleAndFileDriverConfiguration.THREADS_DEFAULT_STRING));
+        }
+
+        if (params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.BATCH_SIZE)){
+            batchSize = Long.parseLong(params.get(LdbcSnbInteractiveWorkloadConfiguration.BATCH_SIZE));
+        }
+        else
+        {
+            batchSize = LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_BATCH_SIZE;
         }
 
         compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_ENABLE_KEYS );
@@ -607,7 +616,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         ParquetLoader loader
     ) throws WorkloadException, SQLException
     {
-        long batchSize = TimeUnit.HOURS.toMillis( 24 ); //  Make configurable
+        long batchSizeInMillis = TimeUnit.HOURS.toMillis( batchSize );
 
         Set<Class<? extends Operation>> dependencyUpdateOperationTypes = Sets.<Class<? extends Operation>>newHashSet();
 
@@ -615,7 +624,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             dependencyUpdateOperationTypes.add(class1);
         }
 
-        OperationStreamBuffer buffer = new OperationStreamBuffer(loader, updatesDir, gf, batchSize, numThreads, dependencyUpdateOperationTypes);
+        OperationStreamBuffer buffer = new OperationStreamBuffer(loader, updatesDir, gf, batchSizeInMillis, numThreads, dependencyUpdateOperationTypes);
         buffer.init();
 
         for (int i = 0; i < numThreads; i++) {

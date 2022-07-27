@@ -35,6 +35,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     public static final String UPDATE_INTERLEAVE = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_interleave";
 
     public static final String SCALE_FACTOR = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "scale_factor";
+    public static final String BATCH_SIZE = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "batch_size";
+
+    // Default batch size denotes 24 hours of data
+    public static final long DEFAULT_BATCH_SIZE = 24l;
 
     public static final String INSERTS_DIRECTORY = "inserts";
     public static final String DELETES_DIRECTORY = "deletes";
