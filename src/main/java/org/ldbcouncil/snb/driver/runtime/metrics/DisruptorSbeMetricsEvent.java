@@ -1,9 +1,10 @@
 package org.ldbcouncil.snb.driver.runtime.metrics;
 
+import com.lmax.disruptor.EventFactory;
+import org.agrona.DirectBuffer;
+import org.agrona.concurrent.UnsafeBuffer;
 import org.ldbcouncil.snb.driver.runtime.metrics.sbe.MessageHeader;
 import org.ldbcouncil.snb.driver.runtime.metrics.sbe.MetricsEvent;
-import com.lmax.disruptor.EventFactory;
-import uk.co.real_logic.sbe.codec.java.DirectBuffer;
 
 import java.nio.ByteBuffer;
 
@@ -26,7 +27,7 @@ public class DisruptorSbeMetricsEvent {
     static {
         MetricsEvent metricsEvent = new MetricsEvent();
         MessageHeader messageHeader = new MessageHeader();
-        DirectBuffer directBuffer = new DisruptorSbeMetricsEvent.MetricsCollectionEventFactory().newInstance();
+        UnsafeBuffer directBuffer = new DisruptorSbeMetricsEvent.MetricsCollectionEventFactory().newInstance();
         messageHeader.wrap(directBuffer, 0, MESSAGE_TEMPLATE_VERSION)
                 .blockLength(metricsEvent.sbeBlockLength())
                 .templateId(metricsEvent.sbeTemplateId())
@@ -43,9 +44,9 @@ public class DisruptorSbeMetricsEvent {
         private final MessageHeader messageHeader = new MessageHeader();
 
         @Override
-        public DirectBuffer newInstance() {
+        public UnsafeBuffer newInstance() {
             final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(64);
-            DirectBuffer directBuffer = new DirectBuffer(byteBuffer);
+            UnsafeBuffer directBuffer = new UnsafeBuffer(byteBuffer);
             messageHeader.wrap(directBuffer, 0, MESSAGE_TEMPLATE_VERSION)
                     .blockLength(metricsEvent.sbeBlockLength())
                     .templateId(metricsEvent.sbeTemplateId())
@@ -55,7 +56,7 @@ public class DisruptorSbeMetricsEvent {
         }
     }
 
-    public static String toString(DirectBuffer event) {
+    public static String toString(UnsafeBuffer event) {
         final MetricsEvent metricsEvent = new MetricsEvent();
         metricsEvent.wrapForDecode(event, MESSAGE_HEADER_SIZE, ACTING_BLOCK_LENGTH, ACTING_VERSION);
         return "METRICS_EVENT.eventType(){" +
