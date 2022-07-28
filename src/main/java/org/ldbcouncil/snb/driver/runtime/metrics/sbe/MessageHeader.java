@@ -1,15 +1,15 @@
 /* Generated SBE (Simple Binary Encoding) message codec */
 package org.ldbcouncil.snb.driver.runtime.metrics.sbe;
 
-import uk.co.real_logic.sbe.codec.java.*;
+import org.agrona.concurrent.UnsafeBuffer;
 
 public class MessageHeader
 {
-    private DirectBuffer buffer;
+    private UnsafeBuffer buffer;
     private int offset;
     private int actingVersion;
 
-    public MessageHeader wrap(final DirectBuffer buffer, final int offset, final int actingVersion)
+    public MessageHeader wrap(final UnsafeBuffer buffer, final int offset, final int actingVersion)
     {
         this.buffer = buffer;
         this.offset = offset;
@@ -39,12 +39,12 @@ public class MessageHeader
 
     public int blockLength()
     {
-        return CodecUtil.uint16Get(buffer, offset + 0, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return buffer.getShort(offset + 0, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-    public MessageHeader blockLength(final int value)
+    public MessageHeader blockLength(final short value)
     {
-        CodecUtil.uint16Put(buffer, offset + 0, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        buffer.putShort(offset + 0, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -65,12 +65,12 @@ public class MessageHeader
 
     public int templateId()
     {
-        return CodecUtil.uint16Get(buffer, offset + 2, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return buffer.getShort(offset + 2, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-    public MessageHeader templateId(final int value)
+    public MessageHeader templateId(final short value)
     {
-        CodecUtil.uint16Put(buffer, offset + 2, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        buffer.putShort(offset + 2, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -91,12 +91,12 @@ public class MessageHeader
 
     public int schemaId()
     {
-        return CodecUtil.uint16Get(buffer, offset + 4, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return buffer.getShort(offset + 4, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-    public MessageHeader schemaId(final int value)
+    public MessageHeader schemaId(final short value)
     {
-        CodecUtil.uint16Put(buffer, offset + 4, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        buffer.putShort(offset + 4, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -117,12 +117,12 @@ public class MessageHeader
 
     public int version()
     {
-        return CodecUtil.uint16Get(buffer, offset + 6, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return buffer.getShort(offset + 6, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-    public MessageHeader version(final int value)
+    public MessageHeader version(final short value)
     {
-        CodecUtil.uint16Put(buffer, offset + 6, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        buffer.putShort(offset + 6, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 }

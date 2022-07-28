@@ -1,38 +1,38 @@
 /* Generated SBE (Simple Binary Encoding) message codec */
 package org.ldbcouncil.snb.driver.runtime.metrics.sbe;
 
-import uk.co.real_logic.sbe.codec.java.*;
+import org.agrona.concurrent.UnsafeBuffer;
 
 public class MetricsEvent
 {
-    public static final int BLOCK_LENGTH = 41;
-    public static final int TEMPLATE_ID = 1;
+    public static final short BLOCK_LENGTH = 41;
+    public static final short TEMPLATE_ID = 1;
     public static final int SCHEMA_ID = 1;
     public static final int SCHEMA_VERSION = 0;
 
     private final MetricsEvent parentMessage = this;
-    private DirectBuffer buffer;
+    private UnsafeBuffer buffer;
     private int offset;
     private int limit;
     private int actingBlockLength;
     private int actingVersion;
 
-    public int sbeBlockLength()
+    public short sbeBlockLength()
     {
         return BLOCK_LENGTH;
     }
 
-    public int sbeTemplateId()
+    public short sbeTemplateId()
     {
         return TEMPLATE_ID;
     }
 
-    public int sbeSchemaId()
+    public short sbeSchemaId()
     {
         return SCHEMA_ID;
     }
 
-    public int sbeSchemaVersion()
+    public short sbeSchemaVersion()
     {
         return SCHEMA_VERSION;
     }
@@ -47,7 +47,7 @@ public class MetricsEvent
         return offset;
     }
 
-    public MetricsEvent wrapForEncode(final DirectBuffer buffer, final int offset)
+    public MetricsEvent wrapForEncode(final UnsafeBuffer buffer, final int offset)
     {
         this.buffer = buffer;
         this.offset = offset;
@@ -59,7 +59,7 @@ public class MetricsEvent
     }
 
     public MetricsEvent wrapForDecode(
-        final DirectBuffer buffer, final int offset, final int actingBlockLength, final int actingVersion)
+        final UnsafeBuffer buffer, final int offset, final int actingBlockLength, final int actingVersion)
     {
         this.buffer = buffer;
         this.offset = offset;
@@ -120,12 +120,13 @@ public class MetricsEvent
 
     public byte eventType()
     {
-        return CodecUtil.int8Get(buffer, offset + 0);
+        return buffer.getByte(offset + 0);
     }
 
     public MetricsEvent eventType(final byte value)
     {
-        CodecUtil.int8Put(buffer, offset + 0, value);
+
+        buffer.putByte(offset + 0, value);
         return this;
     }
 
@@ -163,12 +164,13 @@ public class MetricsEvent
 
     public int operationType()
     {
-        return CodecUtil.int32Get(buffer, offset + 1, java.nio.ByteOrder.LITTLE_ENDIAN);
+
+        return buffer.getInt(offset + 1, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public MetricsEvent operationType(final int value)
     {
-        CodecUtil.int32Put(buffer, offset + 1, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        buffer.putInt(offset + 1, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -206,12 +208,12 @@ public class MetricsEvent
 
     public long scheduledStartTimeAsMilli()
     {
-        return CodecUtil.int64Get(buffer, offset + 5, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return buffer.getLong(offset + 5, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public MetricsEvent scheduledStartTimeAsMilli(final long value)
     {
-        CodecUtil.int64Put(buffer, offset + 5, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        buffer.putLong(offset + 5, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -249,12 +251,12 @@ public class MetricsEvent
 
     public long actualStartTimeAsMilli()
     {
-        return CodecUtil.int64Get(buffer, offset + 13, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return buffer.getLong(offset + 13, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public MetricsEvent actualStartTimeAsMilli(final long value)
     {
-        CodecUtil.int64Put(buffer, offset + 13, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        buffer.putLong(offset + 13, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -292,12 +294,13 @@ public class MetricsEvent
 
     public long runDurationAsNano()
     {
-        return CodecUtil.int64Get(buffer, offset + 21, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return buffer.getLong(offset + 21, java.nio.ByteOrder.LITTLE_ENDIAN);
+
     }
 
     public MetricsEvent runDurationAsNano(final long value)
     {
-        CodecUtil.int64Put(buffer, offset + 21, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        buffer.putLong(offset + 21, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -335,12 +338,12 @@ public class MetricsEvent
 
     public int resultCode()
     {
-        return CodecUtil.int32Get(buffer, offset + 29, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return buffer.getInt(offset + 29, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public MetricsEvent resultCode(final int value)
     {
-        CodecUtil.int32Put(buffer, offset + 29, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        buffer.putInt(offset + 29, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -378,12 +381,12 @@ public class MetricsEvent
 
     public long originalStartTime()
     {
-        return CodecUtil.int64Get(buffer, offset + 33, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return buffer.getLong(offset + 33, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public MetricsEvent originalStartTime(final long value)
     {
-        CodecUtil.int64Put(buffer, offset + 33, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        buffer.putLong(offset + 33, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 }
