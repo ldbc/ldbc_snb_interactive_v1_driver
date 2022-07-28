@@ -14,7 +14,9 @@ import org.ldbcouncil.snb.driver.control.OperationMode;
 import org.ldbcouncil.snb.driver.csv.ParquetLoader;
 import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
+import org.ldbcouncil.snb.driver.generator.OperationStreamBuffer;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
+import org.ldbcouncil.snb.driver.generator.BufferedIterator;
 import org.ldbcouncil.snb.driver.generator.EventStreamReader;
 import org.ldbcouncil.snb.driver.util.ClassLoaderHelper;
 import org.ldbcouncil.snb.driver.util.ClassLoadingException;
@@ -50,6 +52,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private double shortReadDissipationFactor;
     private OperationMode operationMode;
     private int numThreads;
+    private long batchSize;
     private Set<Class> enabledLongReadOperationTypes;
     private Set<Class> enabledShortReadOperationTypes;
     private Set<Class> enabledWriteOperationTypes;
@@ -84,6 +87,14 @@ public class LdbcSnbInteractiveWorkload extends Workload
         else
         {
             numThreads = Integer.parseInt(params.get(ConsoleAndFileDriverConfiguration.THREADS_DEFAULT_STRING));
+        }
+
+        if (params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.BATCH_SIZE)){
+            batchSize = Long.parseLong(params.get(LdbcSnbInteractiveWorkloadConfiguration.BATCH_SIZE));
+        }
+        else
+        {
+            batchSize = LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_BATCH_SIZE;
         }
 
         compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_ENABLE_KEYS );
@@ -381,12 +392,28 @@ public class LdbcSnbInteractiveWorkload extends Workload
             throw new WorkloadException(format("Error creating loader for operation streams %s", e));
         }
 
+        ParquetLoader updateLoader;
+        try {
+            DuckDbConnectionState db = new DuckDbConnectionState();
+            updateLoader = new ParquetLoader(db);
+        }
+        catch (SQLException e){
+            throw new WorkloadException(format("Error creating updateLoader for operation streams %s", e));
+        }
+
+
         /* 
          * WRITES
          */
         if (!enabledUpdateOperationTypes.isEmpty())
         {
-            workloadStartTimeAsMilli = setUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams, loader);
+            try {
+                workloadStartTimeAsMilli = setBatchedUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams, updateLoader);
+
+            }
+            catch (SQLException e){
+                throw new WorkloadException(format("Error loading batched update streams %s", e));
+            }
         }
 
         if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
@@ -435,94 +462,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         );
 
         return ldbcSnbInteractiveWorkloadStreams;
-    }
-
-    /**
-     * Set the update streams in the given WorkloadStreams
-     * @param gf: Generator factory with generator functions to merge iterators
-     * @param workloadStartTimeAsMilli: The initial workload start time as milli
-     * @param ldbcSnbInteractiveWorkloadStreams: The workloadstreams where the update streams are set
-     * @return Updated workload start time as milli.
-     * @throws WorkloadException
-     */
-    private long setUpdateStreams(
-        GeneratorFactory gf,
-        long workloadStartTimeAsMilli,
-        WorkloadStreams ldbcSnbInteractiveWorkloadStreams,
-        ParquetLoader loader
-    ) throws WorkloadException
-    {
-        // Store the operation streams in this list
-        ArrayList<Iterator<Operation>> listOfOperationStreams = new ArrayList<>();
-
-        Set<Class<? extends Operation>> dependencyUpdateOperationTypes =
-        Sets.<Class<? extends Operation>>newHashSet();
-
-        Map<Class<? extends Operation>, String> classToPathMap = LdbcSnbInteractiveWorkloadConfiguration.getUpdateStreamClassToPathMapping();
-
-        // Get all enabled update and delete events
-        OperationStreamReader updateOperationStream = new OperationStreamReader(loader);
-        Map<Class<? extends Operation>, EventStreamReader.EventDecoder<Operation>> decoders = UpdateEventStreamReader.getDecoders();
-        for (Class enabledClass : enabledUpdateOperationTypes) {
-            dependencyUpdateOperationTypes.add(enabledClass);
-            String filename = classToPathMap.get(enabledClass);
-            Iterator<Operation> operationStream = updateOperationStream.readOperationStream(
-                decoders.get(enabledClass),
-                new File( updatesDir, filename)
-            );
-            listOfOperationStreams.add(operationStream);
-        }
-
-        // Merge the operation streams and sort them by timestamp
-        Iterator<Operation> mergedUpdateStreams = Collections.<Operation>emptyIterator();
-        for (Iterator<Operation> updateStream : listOfOperationStreams) {
-            mergedUpdateStreams = gf.mergeSortOperationsByTimeStamp(mergedUpdateStreams,  updateStream);
-        }
-
-        workloadStartTimeAsMilli = getOperationStreamStartTime(mergedUpdateStreams, workloadStartTimeAsMilli);
-
-        if (numThreads == 1)
-        {
-            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                Sets.newHashSet(),
-                dependencyUpdateOperationTypes,
-                mergedUpdateStreams,
-                Collections.<Operation>emptyIterator(),
-                null
-            );
-        }
-        else
-        {
-            // Split across numThreads
-            List<ArrayList<Operation>> operationLists = new ArrayList<>();
-            for (int i = 0; i < numThreads; i++) {
-                // Instantiate lists
-                operationLists.add(new ArrayList<Operation>());
-            }
-
-            int index = 0;
-            // Split accros threads
-            while(mergedUpdateStreams.hasNext())
-            {
-                int listIndex = index % numThreads;
-                Operation operation = mergedUpdateStreams.next();
-                operationLists.get(listIndex).add(operation);
-                index++;
-            }
-
-            // Add streams
-            for (ArrayList<Operation> operationStream : operationLists) {
-                
-                ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                    Sets.newHashSet(),
-                    dependencyUpdateOperationTypes,
-                    operationStream.iterator(),
-                    Collections.<Operation>emptyIterator(),
-                    null
-                );
-            }
-        }
-        return workloadStartTimeAsMilli;
     }
 
     /**
@@ -668,5 +607,41 @@ public class LdbcSnbInteractiveWorkload extends Workload
     public long maxExpectedInterleaveAsMilli()
     {
         return TimeUnit.HOURS.toMillis( 1 );
+    }
+
+    private long setBatchedUpdateStreams(
+        GeneratorFactory gf,
+        long workloadStartTimeAsMilli,
+        WorkloadStreams ldbcSnbInteractiveWorkloadStreams,
+        ParquetLoader loader
+    ) throws WorkloadException, SQLException
+    {
+        long batchSizeInMillis = TimeUnit.HOURS.toMillis( batchSize );
+
+        Set<Class<? extends Operation>> dependencyUpdateOperationTypes = Sets.<Class<? extends Operation>>newHashSet();
+
+        for (Class class1 : enabledUpdateOperationTypes) {
+            dependencyUpdateOperationTypes.add(class1);
+        }
+
+        OperationStreamBuffer buffer = new OperationStreamBuffer(loader, updatesDir, gf, batchSizeInMillis, numThreads, dependencyUpdateOperationTypes);
+        buffer.init();
+
+        for (int i = 0; i < numThreads; i++) {
+            // Instantiate lists
+            Iterator<Operation> stream = new BufferedIterator(buffer);
+
+            // Fetch start time
+            workloadStartTimeAsMilli = getOperationStreamStartTime(stream, workloadStartTimeAsMilli);
+
+            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
+                Sets.newHashSet(),
+                dependencyUpdateOperationTypes,
+                stream,
+                Collections.<Operation>emptyIterator(),
+                null
+            );
+        }
+        return workloadStartTimeAsMilli;
     }
 }

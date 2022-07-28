@@ -3,7 +3,6 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.ldbcouncil.snb.driver.Operation;
-import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.DriverConfigurationException;
 import org.ldbcouncil.snb.driver.util.MapUtils;
@@ -11,15 +10,12 @@ import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import static java.lang.String.format;
 
 public abstract class LdbcSnbInteractiveWorkloadConfiguration
 {
@@ -39,20 +35,17 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     public static final String UPDATE_INTERLEAVE = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_interleave";
 
     public static final String SCALE_FACTOR = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "scale_factor";
+    public static final String BATCH_SIZE = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "batch_size";
 
-    // The parser implementation to use when reading update events
-    public enum UpdateStreamParser
-    {
-        REGEX,
-        CHAR_SEEKER,
-        CHAR_SEEKER_THREAD
-    }
+    // Default batch size denotes 24 hours of data
+    public static final long DEFAULT_BATCH_SIZE = 24l;
 
     public static final String INSERTS_DIRECTORY = "inserts";
     public static final String DELETES_DIRECTORY = "deletes";
 
-    public static final String UPDATE_STREAM_PARSER = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_parser";
-    public static final UpdateStreamParser DEFAULT_UPDATE_STREAM_PARSER = UpdateStreamParser.CHAR_SEEKER;
+    public static final String INSERTS_DATE_COLUMN = "creationDate";
+    public static final String DELETES_DATE_COLUMN = "deletionDate";
+
     public static final String LDBC_INTERACTIVE_PACKAGE_PREFIX =
             removeSuffix( LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName() );
 
@@ -585,21 +578,6 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         return missingPropertyKeys;
     }
 
-    static boolean isValidParser( String parserString ) throws WorkloadException
-    {
-        try
-        {
-            UpdateStreamParser parser = UpdateStreamParser.valueOf( parserString );
-            Set<UpdateStreamParser> validParsers = new HashSet<>();
-            validParsers.addAll( Arrays.asList( UpdateStreamParser.values() ) );
-            return validParsers.contains( parser );
-        }
-        catch ( IllegalArgumentException e )
-        {
-            throw new WorkloadException( format( "Unsupported parser value: %s", parserString ), e );
-        }
-    }
-
     /**
      * Get mapping of update/delete operation and filename containing the events
      */
@@ -626,5 +604,33 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         classToFileNameMapping.put( LdbcDelete7RemoveCommentSubthread.class, DELETES_DIRECTORY + "/Comment.parquet" );
         classToFileNameMapping.put( LdbcDelete8RemoveFriendship.class, DELETES_DIRECTORY + "/Person_knows_Person.parquet" );
         return classToFileNameMapping;
+    }
+
+        /**
+     * Get mapping of update/delete operation and filename containing the events
+     */
+    public static Map<Class<? extends Operation>, String> getUpdateStreamClassToDateColumn( )
+    {
+        Map<Class<? extends Operation>, String> classToDateColumnNameMapping = new HashMap<>();
+        // Inserts
+        classToDateColumnNameMapping.put( LdbcInsert1AddPerson.class, INSERTS_DATE_COLUMN);
+        classToDateColumnNameMapping.put( LdbcInsert2AddPostLike.class, INSERTS_DATE_COLUMN);
+        classToDateColumnNameMapping.put( LdbcInsert3AddCommentLike.class, INSERTS_DATE_COLUMN);
+        classToDateColumnNameMapping.put( LdbcInsert4AddForum.class, INSERTS_DATE_COLUMN);
+        classToDateColumnNameMapping.put( LdbcInsert5AddForumMembership.class, INSERTS_DATE_COLUMN);
+        classToDateColumnNameMapping.put( LdbcInsert6AddPost.class, INSERTS_DATE_COLUMN);
+        classToDateColumnNameMapping.put( LdbcInsert7AddComment.class, INSERTS_DATE_COLUMN);
+        classToDateColumnNameMapping.put( LdbcInsert8AddFriendship.class, INSERTS_DATE_COLUMN );
+
+        // Deletes
+        classToDateColumnNameMapping.put( LdbcDelete1RemovePerson.class, DELETES_DATE_COLUMN );
+        classToDateColumnNameMapping.put( LdbcDelete2RemovePostLike.class, DELETES_DATE_COLUMN );
+        classToDateColumnNameMapping.put( LdbcDelete3RemoveCommentLike.class, DELETES_DATE_COLUMN );
+        classToDateColumnNameMapping.put( LdbcDelete4RemoveForum.class, DELETES_DATE_COLUMN );
+        classToDateColumnNameMapping.put( LdbcDelete5RemoveForumMembership.class, DELETES_DATE_COLUMN );
+        classToDateColumnNameMapping.put( LdbcDelete6RemovePostThread.class, DELETES_DATE_COLUMN );
+        classToDateColumnNameMapping.put( LdbcDelete7RemoveCommentSubthread.class, DELETES_DATE_COLUMN );
+        classToDateColumnNameMapping.put( LdbcDelete8RemoveFriendship.class, DELETES_DATE_COLUMN );
+        return classToDateColumnNameMapping;
     }
 }

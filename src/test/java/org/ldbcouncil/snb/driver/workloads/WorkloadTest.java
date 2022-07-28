@@ -398,11 +398,13 @@ public abstract class WorkloadTest
                     )
             );
 
-            long prevOperationScheduledStartTime = operations.get( 0 ).scheduledStartTimeAsMilli() - 1;
+            Operation prevOperation = operations.get( 0 );
+            long prevOperationScheduledStartTime = prevOperation.scheduledStartTimeAsMilli() - 1;
             for ( Operation operation : operations )
             {
-                assertTrue( operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTime );
+                assertTrue(format("Operation %s has lower start time than %s", operation, prevOperation), operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTime );
                 prevOperationScheduledStartTime = operation.scheduledStartTimeAsMilli();
+                prevOperation = operation;
             }
         }
     }
