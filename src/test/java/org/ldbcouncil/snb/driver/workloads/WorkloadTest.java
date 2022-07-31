@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -47,7 +48,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -74,7 +74,7 @@ public abstract class WorkloadTest
             configurationsWithTempResultDirs.add(
                     configuration.applyArg(
                             ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG,
-                            temporaryFolder.getAbsolutePath()
+                            new File(temporaryFolder, UUID.randomUUID().toString()).getAbsolutePath()
                     )
             );
         }
@@ -344,7 +344,7 @@ public abstract class WorkloadTest
             {
                 assertTrue( file.exists() );
             }
-            assertEquals( resultsDirectory.expectedFiles(), resultsDirectory.files() );
+            assertThat( resultsDirectory.expectedFiles(), equalTo( resultsDirectory.files() ) );
 
             if ( configuration.warmupCount() > 0 )
             {
