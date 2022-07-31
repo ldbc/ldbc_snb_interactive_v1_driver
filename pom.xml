@@ -32,10 +32,8 @@
         <disruptor-version>3.3.2</disruptor-version>
         <mockito.version>4.6.0</mockito.version>
         <duckdb.version>0.4.0</duckdb.version>
-        <!-- TODO add fastutil? -->
         <agrona-version>1.16.0</agrona-version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -89,14 +87,12 @@
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
-<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
-<dependency>
-    <groupId>org.junit.jupiter</groupId>
-    <artifactId>junit-jupiter-api</artifactId>
-    <version>${junit.version}</version>
-    <scope>test</scope>
-</dependency>
-
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
