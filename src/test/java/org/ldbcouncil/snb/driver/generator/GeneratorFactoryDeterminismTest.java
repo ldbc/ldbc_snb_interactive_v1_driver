@@ -1,12 +1,12 @@
 package org.ldbcouncil.snb.driver.generator;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GeneratorFactoryDeterminismTest {
 
@@ -20,8 +20,8 @@ public class GeneratorFactoryDeterminismTest {
             RandomDataGenerator generatorA = generatorsA.getRandom();
             RandomDataGenerator generatorB = generatorsB.getRandom();
             for (int j = 0; j < 1000; j++) {
-                assertThat(generatorA.nextLong(0, 1000), is(generatorB.nextLong(0, 1000)));
-                assertThat(generatorA.nextUniform(0D, 1000D), is(generatorB.nextUniform(0D, 1000D)));
+                assertEquals(generatorB.nextLong(0, 1000), generatorA.nextLong(0, 1000));
+                assertEquals(generatorB.nextUniform(0D, 1000D), generatorA.nextUniform(0D, 1000D));
             }
         }
     }
@@ -38,7 +38,7 @@ public class GeneratorFactoryDeterminismTest {
                 generatorsDiffer = true;
         }
 
-        assertThat(generatorsDiffer, is(true));
+        assertTrue(generatorsDiffer);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class GeneratorFactoryDeterminismTest {
                 generatorsDiffer = true;
         }
 
-        assertThat(generatorsDiffer, is(true));
+        assertTrue(generatorsDiffer);
     }
 
     @Test
@@ -69,8 +69,8 @@ public class GeneratorFactoryDeterminismTest {
         Iterator<Long> longUniformB = generatorsB.uniform(0L, 1000L);
 
         for (int j = 0; j < 1000; j++) {
-            assertThat(doubleUniformA.next(), is(doubleUniformB.next()));
-            assertThat(longUniformA.next(), is(longUniformB.next()));
+            assertEquals(doubleUniformA.next(), doubleUniformB.next());
+            assertEquals(longUniformA.next(), longUniformB.next());
         }
     }
 
@@ -88,6 +88,6 @@ public class GeneratorFactoryDeterminismTest {
                 generatorsDiffer = true;
         }
 
-        assertThat(generatorsDiffer, is(true));
+        assertTrue(generatorsDiffer);
     }
 }

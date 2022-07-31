@@ -4,10 +4,8 @@ import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileWriter;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,8 +16,8 @@ import java.util.Map;
 import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ResultsLogValidationTest
 {
@@ -35,8 +33,8 @@ public class ResultsLogValidationTest
             Tuple.tuple2( "D", 1000l ),
             Tuple.tuple2( "E", 10000l )
     );
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
 
     @Test
     public void shouldPassValidationWhenResultsAreGood()
@@ -81,7 +79,7 @@ public class ResultsLogValidationTest
                 tolerances,
                 recordDelayedOperations
         );
-        assertTrue( result.toString(), result.isSuccessful() );
+        assertTrue( result.isSuccessful(), result.toString() );
     }
 
     @Test
@@ -123,8 +121,8 @@ public class ResultsLogValidationTest
                 tolerances,
                 recordDelayedOperations
         );
-        assertFalse( result.toString(), result.isSuccessful() );
-        Assert.assertThat(
+        assertFalse( result.isSuccessful(), result.toString() );
+        assertThat(
                 result.toString(),
                 result.errors().get( 0 ).errorType(),
                 equalTo( ResultsLogValidationResult.ValidationErrorType.TOO_MANY_LATE_OPERATIONS )
@@ -164,7 +162,8 @@ public class ResultsLogValidationTest
     {
         // Given
         long excessiveDelayThreshold = 5;
-        File file = temporaryFolder.newFile();
+        File file = new File(this.temporaryFolder, "output.csv");
+
         try ( SimpleCsvFileWriter writer =
                       new SimpleCsvFileWriter( file, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, false ) )
         {

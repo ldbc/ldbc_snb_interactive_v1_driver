@@ -1,26 +1,14 @@
 package org.ldbcouncil.snb.driver.workloads;
 
-import com.google.common.base.CaseFormat;
-import com.google.common.collect.Sets;
-import com.google.common.reflect.ClassPath;
-import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.control.DriverConfigurationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class OperationMixTest
 {

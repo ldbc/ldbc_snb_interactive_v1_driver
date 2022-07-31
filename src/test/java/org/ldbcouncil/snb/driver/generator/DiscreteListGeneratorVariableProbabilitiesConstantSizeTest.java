@@ -4,14 +4,14 @@ import org.ldbcouncil.snb.driver.util.Bucket.DiscreteBucket;
 import org.ldbcouncil.snb.driver.util.Histogram;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DiscreteListGeneratorVariableProbabilitiesConstantSizeTest extends GeneratorTest<List<String>, Integer> {
 
@@ -57,7 +57,7 @@ public class DiscreteListGeneratorVariableProbabilitiesConstantSizeTest extends 
         return generator;
     }
 
-    @Test(expected = GeneratorException.class)
+    @Test
     public void emptyConstructorTest() {
         // Given
         GeneratorFactory generatorFactory = new GeneratorFactory(new RandomDataGeneratorFactory());
@@ -67,9 +67,8 @@ public class DiscreteListGeneratorVariableProbabilitiesConstantSizeTest extends 
                 amountToRetrieveGenerator);
 
         // When
-        generator.next();
-
-        // Then
-        assertEquals("Empty DiscreteGenerator should throw exception on next()", false, true);
+        assertThrows(GeneratorException.class, () -> {generator.next();},
+            "Empty DiscreteGenerator should throw exception on next()"
+        );
     }
 }

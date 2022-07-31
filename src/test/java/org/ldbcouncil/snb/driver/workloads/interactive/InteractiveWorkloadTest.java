@@ -15,13 +15,13 @@ import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiv
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationResultSets;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcNoResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class InteractiveWorkloadTest extends WorkloadTest
 {

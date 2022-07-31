@@ -13,9 +13,8 @@ import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiv
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,12 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ValidationParamsToCsvRowsToValidationParamsTest
 {
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
 
     @Test
     public void validationParametersShouldBeUnchangedAfterSerializingAndMarshalling()
@@ -58,7 +57,7 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
                 buildParams( workload.dbValidationParametersFilter( 0 ) );
 
         // (2) original->JSON
-        File jsonFile1 = temporaryFolder.newFile();
+        File jsonFile1 = new File(temporaryFolder, "validation.json");
         ValidationParamsToJson validationParamsAsJson = 
             new ValidationParamsToJson( validationParamsBeforeSerializing, workload, true );
         validationParamsAsJson.serializeValidationParameters(jsonFile1);

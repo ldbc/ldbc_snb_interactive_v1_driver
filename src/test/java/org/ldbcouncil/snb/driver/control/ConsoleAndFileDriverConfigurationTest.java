@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.util.MapUtils;
 import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkload;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveDb;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -17,11 +17,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ConsoleAndFileDriverConfigurationTest
 {
@@ -31,21 +30,21 @@ public class ConsoleAndFileDriverConfigurationTest
         ConsoleAndFileDriverConfiguration configuration =
                 ConsoleAndFileDriverConfiguration.fromDefaults( "db1", "workload1", 1 );
 
-        assertThat( configuration.dbClassName(), equalTo( "db1" ) );
-        assertThat( configuration.workloadClassName(), equalTo( "workload1" ) );
-        assertThat( configuration.operationCount(), equalTo( 1L ) );
+        assertEquals("db1", configuration.dbClassName());
+        assertEquals("workload1", configuration.workloadClassName());
+        assertEquals(1L, configuration.operationCount());
 
         configuration = (ConsoleAndFileDriverConfiguration) configuration
                 .applyArg( ConsoleAndFileDriverConfiguration.DB_ARG, "db2" );
-        assertThat( configuration.dbClassName(), equalTo( "db2" ) );
+                assertEquals("db2", configuration.dbClassName());
 
         configuration = (ConsoleAndFileDriverConfiguration) configuration
                 .applyArg( ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, "workload2" );
-        assertThat( configuration.workloadClassName(), equalTo( "workload2" ) );
+        assertEquals("workload2", configuration.workloadClassName());
 
         configuration = (ConsoleAndFileDriverConfiguration) configuration
                 .applyArg( ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "2" );
-        assertThat( configuration.operationCount(), equalTo( 2L ) );
+                assertEquals(2L, configuration.operationCount());
     }
 
     @Test
@@ -54,9 +53,9 @@ public class ConsoleAndFileDriverConfigurationTest
         ConsoleAndFileDriverConfiguration configuration1 =
                 ConsoleAndFileDriverConfiguration.fromDefaults( "db1", "workload1", 1 );
 
-        assertThat( configuration1.dbClassName(), equalTo( "db1" ) );
-        assertThat( configuration1.workloadClassName(), equalTo( "workload1" ) );
-        assertThat( configuration1.operationCount(), equalTo( 1L ) );
+        assertEquals("db1", configuration1.dbClassName());
+        assertEquals("workload1", configuration1.workloadClassName());
+        assertEquals(1L, configuration1.operationCount());
 
         Map<String,String> configurationInsert2 = new HashMap<>();
         configurationInsert2.put( ConsoleAndFileDriverConfiguration.DB_ARG, "db2" );
@@ -66,9 +65,9 @@ public class ConsoleAndFileDriverConfigurationTest
         ConsoleAndFileDriverConfiguration configuration2 =
                 (ConsoleAndFileDriverConfiguration) configuration1.applyArgs( configurationInsert2 );
 
-        assertThat( configuration2.dbClassName(), equalTo( "db2" ) );
-        assertThat( configuration2.workloadClassName(), equalTo( "workload2" ) );
-        assertThat( configuration2.operationCount(), equalTo( 2L ) );
+        assertEquals("db2", configuration2.dbClassName());
+        assertEquals("workload2", configuration2.workloadClassName());
+        assertEquals(2L, configuration2.operationCount());
     }
 
     @Test
@@ -84,7 +83,7 @@ public class ConsoleAndFileDriverConfigurationTest
         DriverConfiguration configurationAfter =
                 ConsoleAndFileDriverConfiguration.fromParamsMap( configurationBefore.asMap() );
 
-        assertThat( configurationBefore, equalTo( configurationAfter ) );
+        assertEquals( configurationBefore, configurationAfter );
     }
 
     @Test
@@ -138,7 +137,7 @@ public class ConsoleAndFileDriverConfigurationTest
         DriverConfiguration configurationAfter =
                 ConsoleAndFileDriverConfiguration.fromParamsMap( configurationBefore.asMap() );
 
-        assertThat( configurationBefore, equalTo( configurationAfter ) );
+        assertEquals( configurationBefore, configurationAfter );
     }
 
     @Test
@@ -154,7 +153,7 @@ public class ConsoleAndFileDriverConfigurationTest
         DriverConfiguration configurationAfter =
                 ConsoleAndFileDriverConfiguration.fromArgs( configurationBefore.toArgs() );
 
-        assertThat( configurationBefore, equalTo( configurationAfter ) );
+        assertEquals( configurationBefore, configurationAfter );
     }
 
     @Test
@@ -179,7 +178,7 @@ public class ConsoleAndFileDriverConfigurationTest
         ConsoleAndFileDriverConfiguration configurationAfter =
                 ConsoleAndFileDriverConfiguration.fromArgs( configurationBefore.toArgs() );
 
-        assertThat( configurationBefore, equalTo( configurationAfter ) );
+        assertEquals( configurationBefore, configurationAfter );
     }
 
     @Test
@@ -241,7 +240,7 @@ public class ConsoleAndFileDriverConfigurationTest
         ConsoleAndFileDriverConfiguration configurationAfter =
                 ConsoleAndFileDriverConfiguration.fromArgs( configurationBefore.toArgs() );
 
-        assertThat( configurationBefore, equalTo( configurationAfter ) );
+        assertEquals( configurationBefore, configurationAfter );
     }
 
     @Test
@@ -261,7 +260,7 @@ public class ConsoleAndFileDriverConfigurationTest
                 ConsoleAndFileDriverConfiguration
                         .fromParamsMap( MapUtils.<String,String>propertiesToMap( configurationProperties ) );
 
-        assertThat( configurationBefore, equalTo( configurationAfter ) );
+        assertEquals( configurationBefore, configurationAfter );
     }
 
     @Test
@@ -272,9 +271,9 @@ public class ConsoleAndFileDriverConfigurationTest
         long operationCount = 0;
         DriverConfiguration configuration =
                 ConsoleAndFileDriverConfiguration.fromDefaults( databaseClassName, workloadClassName, operationCount );
-        assertThat( configuration.dbClassName(), is( nullValue() ) );
-        assertThat( configuration.workloadClassName(), is( nullValue() ) );
-        assertThat( configuration.operationCount(), is( 0L ) );
+        assertNull( configuration.dbClassName() );
+        assertNull( configuration.workloadClassName() );
+        assertEquals( 0L, configuration.operationCount());
     }
 
     @Test
@@ -294,11 +293,11 @@ public class ConsoleAndFileDriverConfigurationTest
         {
             exceptionThrown = true;
         }
-        assertThat( exceptionThrown, is( false ) );
-        assertThat( configuration, is( notNullValue() ) );
-        assertThat( configuration.dbClassName(), is( nullValue() ) );
-        assertThat( configuration.workloadClassName(), is( nullValue() ) );
-        assertThat( configuration.operationCount(), is( 0L ) );
+        assertFalse( exceptionThrown );
+        assertNotNull( configuration );
+        assertNull( configuration.dbClassName() );
+        assertNull( configuration.workloadClassName() );
+        assertEquals(0L, configuration.operationCount() );
     }
 
     @Test
@@ -369,10 +368,9 @@ public class ConsoleAndFileDriverConfigurationTest
         DriverConfiguration configurationFromDefaultOptionalParamsMap =
                 ConsoleAndFileDriverConfiguration.fromParamsMap( defaultOptionalParamsMap );
 
-        assertThat( configurationFromPublicStaticDefaultValuesAsMap, equalTo( configurationFromDefault ) );
-        assertThat( configurationFromPublicStaticDefaultValuesAsMap,
-                equalTo( configurationFromDefaultOptionalParamsMap ) );
-        assertThat( configurationFromDefault, equalTo( configurationFromDefaultOptionalParamsMap ) );
+        assertEquals( configurationFromPublicStaticDefaultValuesAsMap, configurationFromDefault );
+        assertEquals( configurationFromPublicStaticDefaultValuesAsMap, configurationFromDefaultOptionalParamsMap );
+        assertEquals( configurationFromDefault, configurationFromDefaultOptionalParamsMap );
     }
 
     @Test
@@ -494,8 +492,8 @@ public class ConsoleAndFileDriverConfigurationTest
                 ConsoleAndFileDriverConfiguration.fromArgs( optionalParamsArgs );
 
         // Then
-        assertThat( configurationFromParamsMap, equalTo( configurationFromParamsArgs ) );
-        assertThat( configurationFromParamsMap.asMap(), equalTo( configurationFromParamsArgs.asMap() ) );
+        assertEquals( configurationFromParamsMap,  configurationFromParamsArgs );
+        assertEquals( configurationFromParamsMap.asMap(),  configurationFromParamsArgs.asMap() );
     }
 
     @Test
@@ -514,32 +512,22 @@ public class ConsoleAndFileDriverConfigurationTest
                 ConsoleAndFileDriverConfiguration.fromParamsMap( requiredParams );
 
         // Then
-        assertThat( configurationFromParams.name(), equalTo( ConsoleAndFileDriverConfiguration.NAME_DEFAULT ) );
-        assertThat( configurationFromParams.dbClassName(), equalTo( "db class name" ) );
-        assertThat( configurationFromParams.workloadClassName(), equalTo( "workload class name" ) );
-        assertThat( configurationFromParams.operationCount(), is( 1L ) );
-        assertThat( configurationFromParams.threadCount(), is( ConsoleAndFileDriverConfiguration.THREADS_DEFAULT ) );
-        assertThat( configurationFromParams.statusDisplayIntervalAsSeconds(),
-                is( ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT ) );
-        assertThat( configurationFromParams.timeUnit(), is( ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT ) );
-        assertThat( new File( configurationFromParams.resultDirPath() ).getName(),
-                is( ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT ) );
-        assertThat( configurationFromParams.timeCompressionRatio(),
-                is( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT ) );
-        assertThat( configurationFromParams.validationParametersSize(),
-                is( ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_DEFAULT));
-        assertThat( configurationFromParams.validationSerializationCheck(),
-                is( ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_DEFAULT));
-        assertThat( configurationFromParams.databaseValidationFilePath(),
-                is( ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT ) );
-        assertThat( configurationFromParams.shouldPrintHelpString(),
-                is( ConsoleAndFileDriverConfiguration.HELP_DEFAULT ) );
-        assertThat( configurationFromParams.ignoreScheduledStartTimes(),
-                is( ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT ) );
-        assertThat( configurationFromParams.spinnerSleepDurationAsMilli(),
-                is( ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT ) );
-        assertThat( configurationFromParams.warmupCount(),
-                is( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT ) );
+        assertEquals( ConsoleAndFileDriverConfiguration.NAME_DEFAULT, configurationFromParams.name()   );
+        assertEquals( "db class name" , configurationFromParams.dbClassName()  );
+        assertEquals( "workload class name", configurationFromParams.workloadClassName() );
+        assertEquals( 1L, configurationFromParams.operationCount() );
+        assertEquals( ConsoleAndFileDriverConfiguration.THREADS_DEFAULT, configurationFromParams.threadCount() );
+        assertEquals( ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT, configurationFromParams.statusDisplayIntervalAsSeconds());
+        assertEquals( ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT, configurationFromParams.timeUnit() );
+        assertEquals( ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT, new File( configurationFromParams.resultDirPath() ).getName());
+        assertEquals( ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT, configurationFromParams.timeCompressionRatio());
+        assertEquals( ConsoleAndFileDriverConfiguration.VALIDATION_PARAMS_SIZE_DEFAULT, configurationFromParams.validationParametersSize());
+        assertEquals( ConsoleAndFileDriverConfiguration.VALIDATION_SERIALIZATION_CHECK_DEFAULT, configurationFromParams.validationSerializationCheck());
+        assertEquals( ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT, configurationFromParams.databaseValidationFilePath());
+        assertEquals( ConsoleAndFileDriverConfiguration.HELP_DEFAULT, configurationFromParams.shouldPrintHelpString());
+        assertEquals( ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT, configurationFromParams.ignoreScheduledStartTimes());
+        assertEquals( ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT, configurationFromParams.spinnerSleepDurationAsMilli());
+        assertEquals( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT, configurationFromParams.warmupCount());
     }
 
     @Test
@@ -591,23 +579,23 @@ public class ConsoleAndFileDriverConfigurationTest
                 flushLog
         );
 
-        assertThat( params.asMap(), equalTo( paramsMap ) );
-        assertThat( params.mode(), equalTo( mode ) );
-        assertThat( params.name(), equalTo( name ) );
-        assertThat( params.dbClassName(), equalTo( dbClassName ) );
-        assertThat( params.workloadClassName(), equalTo( workloadClassName ) );
-        assertThat( params.operationCount(), equalTo( operationCount ) );
-        assertThat( params.threadCount(), equalTo( threadCount ) );
-        assertThat( params.statusDisplayIntervalAsSeconds(), equalTo( statusDisplayInterval ) );
-        assertThat( params.timeUnit(), equalTo( timeUnit ) );
-        assertThat( params.resultDirPath(), equalTo( resultDirPath ) );
-        assertThat( params.timeCompressionRatio(), equalTo( timeCompressionRatio ) );
-        assertThat( params.validationSerializationCheck(), equalTo( validationSerializationCheck ) );
-        assertThat( params.validationParametersSize(), equalTo( validationParamsSize ) );
-        assertThat( params.databaseValidationFilePath(), equalTo( dbValidationFilePath ) );
-        assertThat( params.shouldPrintHelpString(), equalTo( printHelp ) );
-        assertThat( params.ignoreScheduledStartTimes(), equalTo( ignoreScheduledStartTimes ) );
-        assertThat( params.spinnerSleepDurationAsMilli(), equalTo( spinnerSleepDuration ) );
+        assertEquals( paramsMap, params.asMap());
+        assertEquals( mode, params.mode() );
+        assertEquals( name, params.name() );
+        assertEquals( dbClassName, params.dbClassName() );
+        assertEquals( workloadClassName, params.workloadClassName() );
+        assertEquals( operationCount, params.operationCount() );
+        assertEquals( threadCount, params.threadCount() );
+        assertEquals( statusDisplayInterval, params.statusDisplayIntervalAsSeconds() );
+        assertEquals( timeUnit, params.timeUnit() );
+        assertEquals( resultDirPath, params.resultDirPath() );
+        assertEquals( timeCompressionRatio, params.timeCompressionRatio() );
+        assertEquals( validationSerializationCheck, params.validationSerializationCheck() );
+        assertEquals( validationParamsSize, params.validationParametersSize() );
+        assertEquals( dbValidationFilePath, params.databaseValidationFilePath() );
+        assertEquals( printHelp, params.shouldPrintHelpString() );
+        assertEquals( ignoreScheduledStartTimes, params.ignoreScheduledStartTimes() );
+        assertEquals( spinnerSleepDuration, params.spinnerSleepDurationAsMilli() );
     }
 
     @Test
@@ -632,7 +620,7 @@ public class ConsoleAndFileDriverConfigurationTest
         Map<String,String> configurationInWorkloadsDirectoryAsMap =
                 MapUtils.propertiesToMap( ldbcDriverConfigurationInWorkloadsDirectoryProperties );
 
-        assertThat( configurationInTestResourcesAsMap, equalTo( configurationInWorkloadsDirectoryAsMap ) );
+        assertEquals( configurationInWorkloadsDirectoryAsMap, configurationInTestResourcesAsMap );
 
         Map<String,String> requiredParamsAsMap = new HashMap<>();
         requiredParamsAsMap.put( ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName() );
@@ -648,6 +636,6 @@ public class ConsoleAndFileDriverConfigurationTest
                 ConsoleAndFileDriverConfiguration.fromParamsMap(
                         MapUtils.mergeMaps( configurationInWorkloadsDirectoryAsMap, requiredParamsAsMap, true ) );
 
-        assertThat( configurationFromTestResources, equalTo( configurationFromWorkloadsDirectory ) );
+        assertEquals( configurationFromWorkloadsDirectory, configurationFromTestResources);
     }
 }

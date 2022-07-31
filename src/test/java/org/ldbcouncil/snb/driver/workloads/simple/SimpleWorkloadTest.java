@@ -10,15 +10,15 @@ import org.ldbcouncil.snb.driver.util.Tuple2;
 import org.ldbcouncil.snb.driver.workloads.ClassNameWorkloadFactory;
 import org.ldbcouncil.snb.driver.workloads.WorkloadTest;
 import org.ldbcouncil.snb.driver.workloads.simple.db.SimpleDb;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-// TODO unignore and fix existing failures
-@Ignore
+// TODO unDisabled and fix existing failures
+@Disabled
 public class SimpleWorkloadTest extends WorkloadTest
 {
     @Override

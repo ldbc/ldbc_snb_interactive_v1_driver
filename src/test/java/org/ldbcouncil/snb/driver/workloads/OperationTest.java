@@ -4,7 +4,7 @@ import com.google.common.base.CaseFormat;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.ClassPath;
 import org.ldbcouncil.snb.driver.Operation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -16,12 +16,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static java.util.stream.Collectors.toList;
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class OperationTest
 {
@@ -92,13 +92,12 @@ public class OperationTest
             {
                 String fieldName = field.getName().toLowerCase();
                 assertTrue(
-                        clazz.getName() + " is missing field name declaration (case-insensitive) " + fieldName + " for parameter " + field.getName(),
                         allFields.stream().anyMatch( f ->
                                 CaseFormat.UPPER_UNDERSCORE
                                         .to( CaseFormat.LOWER_CAMEL, f.getName() )
                                         .toLowerCase()
                                         .equals(fieldName)
-                        )
+                        ),clazz.getName() + " is missing field name declaration (case-insensitive) " + fieldName + " for parameter " + field.getName()
                 );
             } );
         } );

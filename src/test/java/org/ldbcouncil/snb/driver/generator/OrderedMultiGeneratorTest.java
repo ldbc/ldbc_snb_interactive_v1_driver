@@ -1,12 +1,13 @@
 package org.ldbcouncil.snb.driver.generator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 import java.util.Iterator;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderedMultiGeneratorTest {
     GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
@@ -21,10 +22,10 @@ public class OrderedMultiGeneratorTest {
         Iterator<Integer> orderedGenerator = generators.mergeSort(new IntegerComparator(), lookaheadDistance, g1);
 
         // Then
-        assertThat(orderedGenerator.next(), is(1));
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(3));
-        assertThat(orderedGenerator.hasNext(), is(false));
+        assertEquals(1, orderedGenerator.next());
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(3, orderedGenerator.next());
+        assertFalse(orderedGenerator.hasNext());
     }
 
     @Test
@@ -37,10 +38,10 @@ public class OrderedMultiGeneratorTest {
         Iterator<Integer> orderedGenerator = generators.mergeSort(new IntegerComparator(), lookaheadDistance, g1);
 
         // Then
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(1));
-        assertThat(orderedGenerator.next(), is(3));
-        assertThat(orderedGenerator.hasNext(), is(false));
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(1, orderedGenerator.next());
+        assertEquals(3, orderedGenerator.next());
+        assertFalse(orderedGenerator.hasNext());
     }
 
     @Test
@@ -57,21 +58,21 @@ public class OrderedMultiGeneratorTest {
         Iterator<Integer> orderedGenerator = generators.mergeSort(new IntegerComparator(), lookaheadDistance, g1, g2, g3, g4, g5);
 
         // Then
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(1));
-        assertThat(orderedGenerator.next(), is(1));
-        assertThat(orderedGenerator.next(), is(2));
-        assertThat(orderedGenerator.next(), is(2));
-        assertThat(orderedGenerator.next(), is(3));
-        assertThat(orderedGenerator.next(), is(3));
-        assertThat(orderedGenerator.next(), is(4));
-        assertThat(orderedGenerator.next(), is(4));
-        assertThat(orderedGenerator.next(), is(8));
-        assertThat(orderedGenerator.next(), is(10));
-        assertThat(orderedGenerator.hasNext(), is(false));
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(1, orderedGenerator.next());
+        assertEquals(1, orderedGenerator.next());
+        assertEquals(2, orderedGenerator.next());
+        assertEquals(2, orderedGenerator.next());
+        assertEquals(3, orderedGenerator.next());
+        assertEquals(3, orderedGenerator.next());
+        assertEquals(4, orderedGenerator.next());
+        assertEquals(4, orderedGenerator.next());
+        assertEquals(8, orderedGenerator.next());
+        assertEquals(10, orderedGenerator.next());
+        assertFalse(orderedGenerator.hasNext());
     }
 
     @Test
@@ -88,21 +89,21 @@ public class OrderedMultiGeneratorTest {
         Iterator<Integer> orderedGenerator = generators.mergeSort(new IntegerComparator(), lookaheadDistance, g1, g2, g3, g4, g5);
 
         // Then
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(1));
-        assertThat(orderedGenerator.next(), is(1));
-        assertThat(orderedGenerator.next(), is(2));
-        assertThat(orderedGenerator.next(), is(2));
-        assertThat(orderedGenerator.next(), is(3));
-        assertThat(orderedGenerator.next(), is(3));
-        assertThat(orderedGenerator.next(), is(4));
-        assertThat(orderedGenerator.next(), is(4));
-        assertThat(orderedGenerator.next(), is(8));
-        assertThat(orderedGenerator.next(), is(10));
-        assertThat(orderedGenerator.hasNext(), is(false));
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(1, orderedGenerator.next());
+        assertEquals(1, orderedGenerator.next());
+        assertEquals(2, orderedGenerator.next());
+        assertEquals(2, orderedGenerator.next());
+        assertEquals(3, orderedGenerator.next());
+        assertEquals(3, orderedGenerator.next());
+        assertEquals(4, orderedGenerator.next());
+        assertEquals(4, orderedGenerator.next());
+        assertEquals(8, orderedGenerator.next());
+        assertEquals(10, orderedGenerator.next());
+        assertFalse(orderedGenerator.hasNext());
     }
 
     @Test
@@ -117,19 +118,19 @@ public class OrderedMultiGeneratorTest {
         Iterator<Integer> orderedGenerator = generators.mergeSort(new IntegerComparator(), lookaheadDistance, g1, g2, g3);
 
         // Then
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(0));
-        assertThat(orderedGenerator.next(), is(1));
-        assertThat(orderedGenerator.next(), is(1));
-        assertThat(orderedGenerator.next(), is(2));
-        assertThat(orderedGenerator.next(), is(2));
-        assertThat(orderedGenerator.next(), is(3));
-        assertThat(orderedGenerator.next(), is(3));
-        assertThat(orderedGenerator.next(), is(4));
-        assertThat(orderedGenerator.next(), is(4));
-        assertThat(orderedGenerator.next(), is(8));
-        assertThat(orderedGenerator.hasNext(), is(false));
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(0, orderedGenerator.next());
+        assertEquals(1, orderedGenerator.next());
+        assertEquals(1, orderedGenerator.next());
+        assertEquals(2, orderedGenerator.next());
+        assertEquals(2, orderedGenerator.next());
+        assertEquals(3, orderedGenerator.next());
+        assertEquals(3, orderedGenerator.next());
+        assertEquals(4, orderedGenerator.next());
+        assertEquals(4, orderedGenerator.next());
+        assertEquals(8, orderedGenerator.next());
+        assertFalse(orderedGenerator.hasNext());
     }
 
     @Test
@@ -149,7 +150,7 @@ public class OrderedMultiGeneratorTest {
         Integer previous = Integer.MIN_VALUE;
         while (orderedGenerator.hasNext()) {
             Integer current = orderedGenerator.next();
-            assertThat(current >= previous, is(true));
+            assertTrue(current >= previous);
             previous = current;
         }
     }
@@ -170,7 +171,7 @@ public class OrderedMultiGeneratorTest {
         long previous = 0l;
         while (orderedGenerator.hasNext()) {
             long current = orderedGenerator.next();
-            assertThat(current >= previous, is(true));
+            assertTrue(current >= previous);
             previous = current;
         }
     }

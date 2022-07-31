@@ -1,6 +1,6 @@
 package org.ldbcouncil.snb.driver.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -8,10 +8,9 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.ldbcouncil.snb.driver.generator.GeneratorException;
-import org.ldbcouncil.snb.driver.util.NumberHelper;
 
 public class NumberHelperTest
 {

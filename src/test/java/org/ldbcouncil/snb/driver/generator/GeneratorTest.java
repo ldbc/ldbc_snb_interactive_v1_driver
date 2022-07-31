@@ -3,16 +3,15 @@ package org.ldbcouncil.snb.driver.generator;
 import com.google.common.collect.Iterators;
 import org.ldbcouncil.snb.driver.util.Histogram;
 import org.ldbcouncil.snb.driver.util.NumberHelper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import static java.lang.String.format;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class GeneratorTest<GENERATE_TYPE, COUNT extends Number>
 {
@@ -36,7 +35,7 @@ public abstract class GeneratorTest<GENERATE_TYPE, COUNT extends Number>
         return generatorFactory;
     }
 
-    @Before
+    @BeforeEach
     public final void initGeneratorFactory()
     {
         generatorFactory = new GeneratorFactory( new RandomDataGeneratorFactory( RANDOM_SEED ) );
@@ -51,7 +50,7 @@ public abstract class GeneratorTest<GENERATE_TYPE, COUNT extends Number>
         Iterator<GENERATE_TYPE> sequenceA = Iterators.limit( getGeneratorImpl( generatorFactoryA ), getSampleSize() );
         Iterator<GENERATE_TYPE> sequenceB = Iterators.limit( getGeneratorImpl( generatorFactoryB ), getSampleSize() );
 
-        assertThat( Iterators.elementsEqual( sequenceA, sequenceB ), is( true ) );
+        assertTrue( Iterators.elementsEqual( sequenceA, sequenceB ) );
     }
 
     @Test
@@ -79,11 +78,9 @@ public abstract class GeneratorTest<GENERATE_TYPE, COUNT extends Number>
         String errMsg = format( "Distributions should be within tolerance[%s]\nExpected[%s]\nGenerated[%s]",
                 getDistributionTolerance(), expectedDistributionAsPercentage, generatedDistributionAsPercentage );
 
-        assertThat(
-                errMsg,
+        assertTrue(
                 Histogram.equalsWithinTolerance( generatedDistributionAsPercentage, expectedDistributionAsPercentage,
-                        getDistributionTolerance() ),
-                is( true ) );
+                        getDistributionTolerance()), errMsg );
     }
 
     public final List<GENERATE_TYPE> generateSequence( Iterator<GENERATE_TYPE> generator, Integer size )

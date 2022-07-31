@@ -2,12 +2,13 @@ package org.ldbcouncil.snb.driver.generator;
 
 import org.ldbcouncil.snb.driver.util.Bucket;
 import org.ldbcouncil.snb.driver.util.Histogram;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class IncrementingGeneratorTest extends NumberGeneratorTest<Long, Long> {
     private final long start = 0;

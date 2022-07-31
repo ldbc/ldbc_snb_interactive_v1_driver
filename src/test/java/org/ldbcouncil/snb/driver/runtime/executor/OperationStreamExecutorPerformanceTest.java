@@ -23,8 +23,8 @@ import org.ldbcouncil.snb.driver.temporal.SystemTimeSource;
 import org.ldbcouncil.snb.driver.temporal.TimeSource;
 import org.ldbcouncil.snb.driver.workloads.dummy.DummyDb;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation1Factory;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,9 +39,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@Ignore
+@Disabled
 public class OperationStreamExecutorPerformanceTest
 {
     private final ManualTimeSource timeSource = new ManualTimeSource( 0 );

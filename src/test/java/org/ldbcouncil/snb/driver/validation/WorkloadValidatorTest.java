@@ -20,7 +20,7 @@ import org.ldbcouncil.snb.driver.workloads.dummy.DummyWorkloadFactory;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation1;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation1Factory;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,7 +30,7 @@ import java.util.Set;
 import static org.ldbcouncil.snb.driver.validation.WorkloadValidationResult.ResultType;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class WorkloadValidatorTest
 {

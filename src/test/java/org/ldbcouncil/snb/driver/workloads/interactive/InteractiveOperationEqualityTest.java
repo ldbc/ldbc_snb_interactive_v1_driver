@@ -1,7 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.util.Date;
@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class InteractiveOperationEqualityTest
 {

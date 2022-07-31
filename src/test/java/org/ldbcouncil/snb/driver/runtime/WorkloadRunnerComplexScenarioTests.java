@@ -29,8 +29,6 @@ import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation1;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2Factory;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation3;
-import org.junit.Test;
-import org.junit.Ignore;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -42,10 +40,13 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.lang.String.format;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 public class WorkloadRunnerComplexScenarioTests
 {
@@ -56,7 +57,7 @@ public class WorkloadRunnerComplexScenarioTests
     private final CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
     private final GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
 
-    @Ignore
+    @Disabled
     @Test
     public void oneExecutorShouldNotBeAbleToStarveAnotherOfThreads()
             throws WorkloadException, CompletionTimeException, DbException, InterruptedException,
@@ -525,7 +526,7 @@ public class WorkloadRunnerComplexScenarioTests
         }
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync()
             throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException,
@@ -812,7 +813,7 @@ public class WorkloadRunnerComplexScenarioTests
         }
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking()
             throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException,
@@ -1422,7 +1423,7 @@ public class WorkloadRunnerComplexScenarioTests
         }
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking()
             throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException,
@@ -1758,7 +1759,7 @@ public class WorkloadRunnerComplexScenarioTests
             Db db )
             throws WorkloadException, CompletionTimeException, DbException, MetricsCollectionException
     {
-        boolean ignoreScheduledStartTime = false;
+        boolean DisabledScheduledStartTime = false;
         long statusDisplayIntervalAsMilli = 0;
         long spinnerSleepDurationAsMilli = SPINNER_SLEEP_DURATION_AS_MILLI;
         int operationHandlerExecutorsBoundedQueueSize = 100;
@@ -1775,7 +1776,7 @@ public class WorkloadRunnerComplexScenarioTests
                 threadCount,
                 statusDisplayIntervalAsMilli,
                 spinnerSleepDurationAsMilli,
-                ignoreScheduledStartTime,
+                DisabledScheduledStartTime,
                 operationHandlerExecutorsBoundedQueueSize
         );
         return new WorkloadRunnerThread( runner, errorReporter );

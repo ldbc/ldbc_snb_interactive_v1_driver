@@ -11,8 +11,6 @@ import org.ldbcouncil.snb.driver.util.Tuple3;
 import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkload;
 import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveDb;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -23,9 +21,12 @@ import java.util.concurrent.*;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
-@Ignore
+
+@Disabled
 public class QueuePerformanceTests
 {
     final Operation TERMINATE_OPERATION = new Operation<Object>()
@@ -78,7 +79,7 @@ public class QueuePerformanceTests
         int validationParamsSize = 0;
         long spinnerSleepDuration = 0l;
         boolean printHelp = false;
-        boolean ignoreScheduledStartTimes = false;
+        boolean DisabledScheduledStartTimes = false;
         boolean recordDelayedOperations = true;
         long warmupCount = 0;
         long skipCount = 0;
@@ -102,7 +103,7 @@ public class QueuePerformanceTests
                 dbValidationFilePath,
                 spinnerSleepDuration,
                 printHelp,
-                ignoreScheduledStartTimes,
+                DisabledScheduledStartTimes,
                 warmupCount,
                 skipCount,
                 flushLog
@@ -211,7 +212,7 @@ public class QueuePerformanceTests
     }
 
 
-    @Ignore
+    @Disabled
     @Test
     public void comparePerformanceOfQueueImplementationsDuringConcurrentAccess() throws InterruptedException
     {

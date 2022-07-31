@@ -6,9 +6,9 @@ import org.ldbcouncil.snb.driver.csv.ParquetLoader;
 import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
 import org.ldbcouncil.snb.driver.generator.EventStreamReader;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -18,7 +18,8 @@ import java.util.*;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,7 +33,7 @@ public class InteractiveUpdateEventStreamReaderTest
      * Initialize mock objects used in all the tests
      * @throws SQLException
      */
-    @Before
+    @BeforeEach
     public void init() throws SQLException {
         Connection connection = mock(Connection.class);
         db = mock(DuckDbConnectionState.class);
@@ -42,7 +43,7 @@ public class InteractiveUpdateEventStreamReaderTest
     }
 
     // TODO: Complete LdbcInsert1AddPerson test
-    @Ignore
+    @Disabled
     public void shouldParseAllInsert1Events() throws WorkloadException, SQLException {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);

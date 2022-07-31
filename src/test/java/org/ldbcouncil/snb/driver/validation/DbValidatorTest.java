@@ -22,9 +22,7 @@ import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiv
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcNoResult;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14Result;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,13 +32,10 @@ import java.util.Map;
 
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DbValidatorTest
 {
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @Test
     public void shouldFailValidationWhenDbImplementationIsIncorrect()
             throws DbException, WorkloadException, IOException, DriverConfigurationException

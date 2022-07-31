@@ -1,8 +1,7 @@
 package org.ldbcouncil.snb.driver.util;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -20,12 +19,12 @@ import java.util.Set;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MapUtilsTest
 {
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
 
     @Test
     public void shouldBeEqualAfterMapToPropertiesThenPropertiesToMap()
@@ -253,7 +252,7 @@ public class MapUtilsTest
         Properties properties = new Properties();
         properties.put( "one", "1" );
         properties.put( "two", "2" );
-        File propertiesFile = temporaryFolder.newFile();
+        File propertiesFile = new File(this.temporaryFolder, "temp.properties");
         properties.store( new FileOutputStream( propertiesFile ), "no comment" );
 
         // When
