@@ -151,7 +151,7 @@ public class ConservativeDependencyTimeAssigningOperationGeneratorTest
         Operation operation4 = operationsWithDependencyTimes.next();
         assertEquals( 3l, operation4.scheduledStartTimeAsMilli() );
         assertEquals( 3l, operation4.timeStamp() );
-        assertEquals( 1l, operation4.dependencyTimeStamp() );
+        assertEquals( 3l, operation4.dependencyTimeStamp() );
 
         Operation operation5 = operationsWithDependencyTimes.next();
         assertEquals( 5l, operation5.scheduledStartTimeAsMilli() );
@@ -171,7 +171,7 @@ public class ConservativeDependencyTimeAssigningOperationGeneratorTest
         Operation operation8 = operationsWithDependencyTimes.next();
         assertEquals( 7l, operation8.scheduledStartTimeAsMilli());
         assertEquals( 7l, operation8.timeStamp() );
-        assertEquals( 5l, operation8.dependencyTimeStamp() );
+        assertEquals( 7l, operation8.dependencyTimeStamp() );
 
         Operation operation9 = operationsWithDependencyTimes.next();
         assertEquals( 8l, operation9.scheduledStartTimeAsMilli() );

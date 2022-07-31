@@ -47,10 +47,9 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer> {
         // Given
         GeneratorFactory generatorFactory = new GeneratorFactory(new RandomDataGeneratorFactory());
         ArrayList<Tuple2<Double, String>> emptyItems = new ArrayList<Tuple2<Double, String>>();
-        Iterator<String> generator = generatorFactory.weightedDiscrete(emptyItems);
 
         // When
-        assertThrows(GeneratorException.class, () -> {generator.next();},
+        assertThrows(GeneratorException.class, () -> {generatorFactory.weightedDiscrete(emptyItems);},
             "Empty DiscreteGenerator should throw exception on next()"
         );
     }

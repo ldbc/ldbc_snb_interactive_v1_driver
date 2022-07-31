@@ -47,6 +47,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -343,7 +344,7 @@ public abstract class WorkloadTest
             {
                 assertTrue( file.exists() );
             }
-            assertThat( resultsDirectory.expectedFiles(), equalTo( resultsDirectory.files() ) );
+            assertEquals( resultsDirectory.expectedFiles(), resultsDirectory.files() );
 
             if ( configuration.warmupCount() > 0 )
             {

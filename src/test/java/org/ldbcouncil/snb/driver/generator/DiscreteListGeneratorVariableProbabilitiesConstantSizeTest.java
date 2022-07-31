@@ -63,11 +63,10 @@ public class DiscreteListGeneratorVariableProbabilitiesConstantSizeTest extends 
         GeneratorFactory generatorFactory = new GeneratorFactory(new RandomDataGeneratorFactory());
         Iterator<Integer> amountToRetrieveGenerator = generatorFactory.constant(1);
         ArrayList<Tuple2<Double, String>> emptyItems = new ArrayList<Tuple2<Double, String>>();
-        Iterator<List<String>> generator = generatorFactory.weightedDiscreteList(emptyItems,
-                amountToRetrieveGenerator);
 
         // When
-        assertThrows(GeneratorException.class, () -> {generator.next();},
+        assertThrows(GeneratorException.class, () -> {generatorFactory.weightedDiscreteList(emptyItems,
+            amountToRetrieveGenerator);},
             "Empty DiscreteGenerator should throw exception on next()"
         );
     }

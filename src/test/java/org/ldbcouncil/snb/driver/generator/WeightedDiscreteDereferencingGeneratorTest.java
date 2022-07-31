@@ -45,10 +45,9 @@ public class WeightedDiscreteDereferencingGeneratorTest extends GeneratorTest<St
         // Given
         GeneratorFactory generatorFactory = new GeneratorFactory(new RandomDataGeneratorFactory());
         List<Tuple2<Double, Iterator<String>>> emptyItems = new ArrayList<Tuple2<Double, Iterator<String>>>();
-        Iterator<String> generator = generatorFactory.weightedDiscreteDereferencing(emptyItems);
 
         // When
-        assertThrows(GeneratorException.class, () -> {generator.next();},
+        assertThrows(GeneratorException.class, () -> {generatorFactory.weightedDiscreteDereferencing(emptyItems);},
             "Empty DiscreteGenerator should throw exception on next()"
         );
     }
