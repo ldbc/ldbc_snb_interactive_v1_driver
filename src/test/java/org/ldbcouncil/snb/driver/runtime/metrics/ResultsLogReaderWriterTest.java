@@ -1,8 +1,7 @@
 package org.ldbcouncil.snb.driver.runtime.metrics;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -10,19 +9,19 @@ import java.util.concurrent.TimeUnit;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ResultsLogReaderWriterTest
 {
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
 
     @Test
     public void shouldWriteAndReadSameValues() throws Exception
     {
-        File resultsLog = temporaryFolder.newFile();
+        File resultsLog = new File(this.temporaryFolder, "log.csv");
         TimeUnit unit = NANOSECONDS;
         boolean flushLog = false;
 
@@ -69,7 +68,7 @@ public class ResultsLogReaderWriterTest
     @Test
     public void shouldConvertUnitsCorrectly() throws Exception
     {
-        File resultsLog = temporaryFolder.newFile();
+        File resultsLog = new File(this.temporaryFolder, "log2.csv");
         TimeUnit unit = MILLISECONDS;
         boolean flushLog = false;
 

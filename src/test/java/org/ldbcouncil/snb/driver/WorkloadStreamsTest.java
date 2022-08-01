@@ -18,7 +18,7 @@ import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2Factory;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation3;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation3Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class WorkloadStreamsTest
 {

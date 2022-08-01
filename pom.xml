@@ -17,8 +17,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.assembly.version>2.4</maven.assembly.version>
         <jackson.api.version>2.13.3</jackson.api.version>
-        <junit.version>4.12</junit.version>
-        <hamcrest.version>1.3</hamcrest.version>
+        <junit.version>5.9.0</junit.version>
+        <hamcrest.version>2.2</hamcrest.version>
         <commons.io.version>2.11.0</commons.io.version>
         <common.math.version>3.2</common.math.version>
         <commmons.cli.version>1.2</commmons.cli.version>
@@ -32,10 +32,8 @@
         <disruptor-version>3.3.2</disruptor-version>
         <mockito.version>4.6.0</mockito.version>
         <duckdb.version>0.4.0</duckdb.version>
-        <!-- TODO add fastutil? -->
         <agrona-version>1.16.0</agrona-version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -54,8 +52,9 @@
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
+            <artifactId>hamcrest</artifactId>
             <version>${hamcrest.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.chrisvest</groupId>
@@ -90,10 +89,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

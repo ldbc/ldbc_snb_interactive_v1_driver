@@ -37,12 +37,12 @@ import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloa
 import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery4;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.HashSet;
@@ -58,8 +58,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WorkloadRunnerTest
 {
@@ -68,8 +69,9 @@ public class WorkloadRunnerTest
     private DecimalFormat numberFormatter = new DecimalFormat( "###,###,###,###" );
     private DecimalFormat doubleNumberFormatter = new DecimalFormat( "###,###,###,##0.00" );
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    // @Rule
+    @TempDir
+    public File temporaryFolder;
     private static final long ONE_SECOND_AS_NANO = TimeUnit.SECONDS.toNanos( 1 );
 
     private TimeSource timeSource = new SystemTimeSource();
@@ -105,7 +107,7 @@ public class WorkloadRunnerTest
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             int statusDisplayInterval = 1;
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
-            String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
+            String resultDirPath = this.temporaryFolder.getAbsolutePath();
             double timeCompressionRatio = 0.0000001;
             String dbValidationFilePath = null;
             boolean validationSerializationCheck = false;
@@ -175,7 +177,7 @@ public class WorkloadRunnerTest
                     gf
             );
 
-            File resultsLog = temporaryFolder.newFile();
+            File resultsLog = new File(this.temporaryFolder, "log.csv");
             SimpleCsvFileWriter csvResultsLogWriter =
                     new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, flushLog );
             metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
@@ -312,7 +314,7 @@ public class WorkloadRunnerTest
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             int statusDisplayInterval = 1;
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
-            String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
+            String resultDirPath = temporaryFolder.getAbsolutePath();
             double timeCompressionRatio = 0.0000001;
             String dbValidationFilePath = null;
             boolean validationSerializationCheck = false;
@@ -382,7 +384,7 @@ public class WorkloadRunnerTest
                     gf
             );
 
-            File resultsLog = temporaryFolder.newFile();
+            File resultsLog = new File(this.temporaryFolder, "log2.csv");
             SimpleCsvFileWriter csvResultsLogWriter =
                     new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, flushLog );
             metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
@@ -537,7 +539,7 @@ public class WorkloadRunnerTest
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             int statusDisplayInterval = 1;
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
-            String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
+            String resultDirPath = temporaryFolder.getAbsolutePath();
             double timeCompressionRatio = 0.000001;
             String dbValidationFilePath = null;
             boolean validationSerializationCheck = false;
@@ -607,7 +609,7 @@ public class WorkloadRunnerTest
                     gf
             );
 
-            File resultsLog = temporaryFolder.newFile();
+            File resultsLog = new File(this.temporaryFolder, "log3.csv");
             SimpleCsvFileWriter csvResultsLogWriter =
                     new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, flushLog );
             metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
@@ -808,7 +810,7 @@ public class WorkloadRunnerTest
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             int statusDisplayInterval = 1;
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
-            String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
+            String resultDirPath = temporaryFolder.getAbsolutePath();
             double timeCompressionRatio = 1.0;
             String dbValidationFilePath = null;
             boolean validationSerializationCheck = false;
@@ -881,7 +883,7 @@ public class WorkloadRunnerTest
                     null
             );
 
-            File resultsLog = temporaryFolder.newFile();
+            File resultsLog = new File(this.temporaryFolder, "log.csv");
             SimpleCsvFileWriter csvResultsLogWriter =
                     new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, flushLog );
             metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(

@@ -7,8 +7,8 @@ import org.ldbcouncil.snb.driver.temporal.TemporalUtil;
 import org.ldbcouncil.snb.driver.temporal.TimeSource;
 import org.ldbcouncil.snb.driver.workloads.dummy.NothingOperation;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation1;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.text.DecimalFormat;
 import java.util.Iterator;
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class SpinnerTests
 {
@@ -26,15 +26,15 @@ public class SpinnerTests
     ManualTimeSource timeSource = new ManualTimeSource( 0 );
     DecimalFormat integerFormat = new DecimalFormat( "###,###,###,###,###" );
 
-    @Ignore
+    @Disabled
     @Test
     public void shouldPassWhenNoCheckAndStartTimeArrives() throws InterruptedException
     {
         // Given
         timeSource.setNowFromMilli( 0 );
-        boolean ignoreScheduledStartTime = false;
+        boolean DisabledScheduledStartTime = false;
         long spinnerSleepDuration = 0l;
-        Spinner spinner = new Spinner( timeSource, spinnerSleepDuration, ignoreScheduledStartTime );
+        Spinner spinner = new Spinner( timeSource, spinnerSleepDuration, DisabledScheduledStartTime );
 
         long scheduledStartTime = 10l;
         Operation operation = new TimedNamedOperation1( scheduledStartTime, scheduledStartTime, 0l, "name" );
@@ -60,16 +60,16 @@ public class SpinnerTests
         spinningThread.join( ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING );
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void shouldPassOnlyWhenCheckPassesAndStartTimeArrives() throws InterruptedException
     {
         // Given
         timeSource.setNowFromMilli( 0 );
-        boolean ignoreScheduledStartTime = false;
+        boolean DisabledScheduledStartTime = false;
         long spinnerSleepDuration = 0l;
         SettableSpinnerCheck check = new SettableSpinnerCheck( SpinnerCheck.SpinnerCheckResult.STILL_CHECKING );
-        Spinner spinner = new Spinner( timeSource, spinnerSleepDuration, ignoreScheduledStartTime );
+        Spinner spinner = new Spinner( timeSource, spinnerSleepDuration, DisabledScheduledStartTime );
 
         long scheduledStartTime = 10l;
         Operation operation = new TimedNamedOperation1( scheduledStartTime, scheduledStartTime, 0l, "name" );
@@ -109,16 +109,16 @@ public class SpinnerTests
         spinningThread.join( ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING );
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void shouldFailWhenCheckFails() throws InterruptedException
     {
         // Given
         timeSource.setNowFromMilli( 0 );
-        boolean ignoreScheduledStartTime = false;
+        boolean DisabledScheduledStartTime = false;
         long spinnerSleepDuration = 0l;
         SettableSpinnerCheck check = new SettableSpinnerCheck( SpinnerCheck.SpinnerCheckResult.STILL_CHECKING );
-        Spinner spinner = new Spinner( timeSource, spinnerSleepDuration, ignoreScheduledStartTime );
+        Spinner spinner = new Spinner( timeSource, spinnerSleepDuration, DisabledScheduledStartTime );
 
         long scheduledStartTime = 10l;
         Operation operation = new TimedNamedOperation1( scheduledStartTime, scheduledStartTime, 0l, "name" );
@@ -210,7 +210,7 @@ public class SpinnerTests
 
     // This testing methodology seems bad, not enough iterations or something, the numbers are dependent on order
     // things are done
-    @Ignore
+    @Disabled
     @Test
     public void measureCostOfSpinnerWithNoSleepAndPassingCheckAndAtScheduledStartTime()
     {
@@ -219,10 +219,10 @@ public class SpinnerTests
         long scheduledStartTime = this.timeSource.nowAsMilli();
         long operationCount = 100000000;
         int experimentCount = 10;
-        boolean ignoreScheduledStartTime;
+        boolean DisabledScheduledStartTime;
 
-        ignoreScheduledStartTime = false;
-        Spinner spinnerWithStartTimeCheck = new Spinner( timeSource, 0l, ignoreScheduledStartTime );
+        DisabledScheduledStartTime = false;
+        Spinner spinnerWithStartTimeCheck = new Spinner( timeSource, 0l, DisabledScheduledStartTime );
         SpinnerCheck singleTrueCheck = new SettableSpinnerCheck( SpinnerCheck.SpinnerCheckResult.PASSED );
 
         long singleCheckWithStartTimeCheckTestDuration = 0l;

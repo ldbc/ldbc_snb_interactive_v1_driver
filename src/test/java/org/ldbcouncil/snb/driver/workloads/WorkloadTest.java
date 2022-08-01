@@ -28,9 +28,8 @@ import org.ldbcouncil.snb.driver.util.Tuple2;
 import org.ldbcouncil.snb.driver.validation.DbValidationResult;
 import org.ldbcouncil.snb.driver.validation.WorkloadValidationResult;
 import org.ldbcouncil.snb.driver.validation.WorkloadValidator;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -48,14 +48,15 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public abstract class WorkloadTest
 {
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
     TimeSource timeSource = new SystemTimeSource();
 
     public abstract Workload workload() throws Exception;
@@ -73,7 +74,7 @@ public abstract class WorkloadTest
             configurationsWithTempResultDirs.add(
                     configuration.applyArg(
                             ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG,
-                            temporaryFolder.newFolder().getAbsolutePath()
+                            new File(temporaryFolder, UUID.randomUUID().toString()).getAbsolutePath()
                     )
             );
         }
@@ -140,15 +141,17 @@ public abstract class WorkloadTest
                 workload.operationTypeToClassMapping().entrySet() )
         {
             assertTrue(
-                    format( "%s has negative type: %s", entry.getValue().getSimpleName(), entry.getKey() ),
-                    entry.getKey() >= 0
+                entry.getKey() >= 0,
+                    format( "%s has negative type: %s", entry.getValue().getSimpleName(), entry.getKey() )
+                    
             );
         }
         for ( Tuple2<Operation,Object> operation : operationsAndResults() )
         {
             assertTrue(
-                    format( "%s has negative type: %s", operation.getClass().getSimpleName(), operation._1().type() ),
-                    operation._1().type() >= 0
+                operation._1().type() >= 0,
+                    format( "%s has negative type: %s", operation.getClass().getSimpleName(), operation._1().type() )
+                    
             );
         }
     }
@@ -309,7 +312,7 @@ public abstract class WorkloadTest
     {
         for ( DriverConfiguration configuration : withSkip( withWarmup( withTempResultDirs( configurations() ) ) ) )
         {
-            File configurationFile = temporaryFolder.newFile();
+            File configurationFile = new File(temporaryFolder, "config.properties");
             Files.write( configurationFile.toPath(), configuration.toPropertiesString().getBytes() );
             assertTrue( configurationFile.exists() );
 
@@ -321,7 +324,7 @@ public abstract class WorkloadTest
 
             for ( File file : resultsDirectory.expectedFiles() )
             {
-                assertFalse( format( "Did not expect file to exist %s", file.getAbsolutePath() ), file.exists() );
+                assertFalse( file.exists(), format( "Did not expect file to exist %s", file.getAbsolutePath() ));
             }
 
             // When
@@ -402,7 +405,9 @@ public abstract class WorkloadTest
             long prevOperationScheduledStartTime = prevOperation.scheduledStartTimeAsMilli() - 1;
             for ( Operation operation : operations )
             {
-                assertTrue(format("Operation %s has lower start time than %s", operation, prevOperation), operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTime );
+                assertTrue(
+                    operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTime ,
+                    format("Operation %s has lower start time than %s", operation, prevOperation));
                 prevOperationScheduledStartTime = operation.scheduledStartTimeAsMilli();
                 prevOperation = operation;
             }
@@ -418,7 +423,9 @@ public abstract class WorkloadTest
 
             for ( File file : resultsDirectory.expectedFiles() )
             {
-                assertFalse( format( "Did not expect file to exist %s", file.getAbsolutePath() ), file.exists() );
+                assertFalse( 
+                    file.exists(),
+                    format( "Did not expect file to exist %s", file.getAbsolutePath() ) );
             }
 
             Client client = new Client();
@@ -481,7 +488,7 @@ public abstract class WorkloadTest
             // **************************************************
             // where validation parameters should be written (ensure file does not yet exist)
             // **************************************************
-            File validationParamsFile = temporaryFolder.newFile();
+            File validationParamsFile = new File(temporaryFolder, "validation.csv");
             assertThat( validationParamsFile.length(), is( 0l ) );
 
             configuration = configuration.applyArg(ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_ARG, validationParamsFile.getAbsolutePath());
@@ -491,7 +498,7 @@ public abstract class WorkloadTest
 
             for ( File file : resultsDirectory.expectedFiles() )
             {
-                assertFalse( format( "Did not expect file to exist %s", file.getAbsolutePath() ), file.exists() );
+                assertFalse( file.exists(), format( "Did not expect file to exist %s", file.getAbsolutePath() ) );
             }
 
             // **************************************************
@@ -545,8 +552,9 @@ public abstract class WorkloadTest
             // **************************************************
             assertTrue( validationParamsFile.length() > 0 );
             assertThat( dbValidationResult, is( notNullValue() ) );
-            assertTrue( format( "Validation with following error\n%s", dbValidationResult.resultMessage() ),
-                    dbValidationResult.isSuccessful() );
+            assertTrue( 
+                    dbValidationResult.isSuccessful(),
+                    format( "Validation with following error\n%s", dbValidationResult.resultMessage() ) );
         }
     }
 
@@ -561,7 +569,7 @@ public abstract class WorkloadTest
                     configuration,
                     new Log4jLoggingServiceFactory( true )
             );
-            assertTrue( workloadValidationResult.errorMessage(), workloadValidationResult.isSuccessful() );
+            assertTrue( workloadValidationResult.isSuccessful(),workloadValidationResult.errorMessage() );
         }
     }
 

@@ -15,8 +15,9 @@ import org.ldbcouncil.snb.driver.temporal.TimeSource;
 import org.ldbcouncil.snb.driver.testutils.TestUtils;
 import org.ldbcouncil.snb.driver.testutils.ThreadPoolLoadGenerator;
 import org.ldbcouncil.snb.driver.workloads.simple.SimpleWorkload;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -33,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 import static org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration.fromDefaults;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 public class CompletionTimeServiceAdvancedTest
 {
@@ -41,7 +41,7 @@ public class CompletionTimeServiceAdvancedTest
     private final TimeSource timeSource = new SystemTimeSource();
     private final CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
 
-    @Ignore
+    @Disabled
     @Test
     public void stressTestThreadedQueuedCompletionTimeService()
             throws InterruptedException, ExecutionException, WorkloadException, CompletionTimeException,

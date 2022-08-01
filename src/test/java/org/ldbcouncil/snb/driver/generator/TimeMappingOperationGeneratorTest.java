@@ -18,11 +18,12 @@ import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2;
 import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkload;
 import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveDb;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -31,18 +32,18 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TimeMappingOperationGeneratorTest
 {
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
 
     private TimeSource timeSource = new SystemTimeSource();
     private final long RANDOM_SEED = 42;
     private GeneratorFactory gf = null;
 
-    @Before
+    @BeforeEach
     public final void initGeneratorFactory()
     {
         gf = new GeneratorFactory( new RandomDataGeneratorFactory( RANDOM_SEED ) );
@@ -355,7 +356,7 @@ public class TimeMappingOperationGeneratorTest
         int threadCount = 1;
         int statusDisplayInterval = 1;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
+        String resultDirPath = temporaryFolder.getAbsolutePath();
         double timeCompressionRatio = 1.0;
         String dbValidationFilePath = null;
         boolean validationSerializationCheck = false;

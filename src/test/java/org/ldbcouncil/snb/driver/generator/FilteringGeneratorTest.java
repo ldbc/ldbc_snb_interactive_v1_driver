@@ -2,13 +2,13 @@ package org.ldbcouncil.snb.driver.generator;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FilteringGeneratorTest {
     @Test

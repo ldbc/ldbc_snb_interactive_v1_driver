@@ -3,12 +3,11 @@ package org.ldbcouncil.snb.driver.generator;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.util.Function1;
 import org.ldbcouncil.snb.driver.workloads.dummy.NothingOperationFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StartTimeAssigningOperationGeneratorTest
 {
@@ -42,11 +41,11 @@ public class StartTimeAssigningOperationGeneratorTest
         while ( startTimeOperationGenerator.hasNext() )
         {
             Operation operation = startTimeOperationGenerator.next();
-            assertThat( operation.scheduledStartTimeAsMilli(), is( lastTime + incrementMilliTimeBy ) );
-            assertThat( operation.timeStamp(), is( lastTime + incrementMilliTimeBy ) );
+            assertEquals( lastTime + incrementMilliTimeBy, operation.scheduledStartTimeAsMilli());
+            assertEquals( lastTime + incrementMilliTimeBy, operation.timeStamp() );
             lastTime = operation.scheduledStartTimeAsMilli();
             count++;
         }
-        assertThat( count, is( testIterations ) );
+        assertEquals(testIterations, count);
     }
 }

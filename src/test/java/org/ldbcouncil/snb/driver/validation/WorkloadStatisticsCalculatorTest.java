@@ -17,8 +17,8 @@ import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2Factory;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation3;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation3Factory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,13 +30,13 @@ import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class WorkloadStatisticsCalculatorTest
 {
     private GeneratorFactory gf;
 
-    @Before
+    @BeforeEach
     public void init()
     {
         gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );

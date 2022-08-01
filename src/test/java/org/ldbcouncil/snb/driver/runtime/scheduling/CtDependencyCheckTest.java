@@ -4,10 +4,10 @@ import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.runtime.ConcurrentErrorReporter;
 import org.ldbcouncil.snb.driver.runtime.coordination.DummyCompletionTimeReader;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation1;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CtDependencyCheckTest
 {

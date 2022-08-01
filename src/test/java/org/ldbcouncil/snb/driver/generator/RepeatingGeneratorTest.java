@@ -1,18 +1,18 @@
 package org.ldbcouncil.snb.driver.generator;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RepeatingGeneratorTest {
 
     GeneratorFactory generators;
 
-    @Before
+    @BeforeEach
     public void initGenerators() {
         generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
     }
@@ -26,7 +26,7 @@ public class RepeatingGeneratorTest {
         Iterator<Integer> repeatingGenerator = generators.repeating(sourceGenerator);
 
         // Then
-        assertThat(repeatingGenerator.hasNext(), is(false));
+        assertFalse(repeatingGenerator.hasNext());
     }
 
     @Test
@@ -38,12 +38,12 @@ public class RepeatingGeneratorTest {
         Iterator<Integer> repeatingGenerator = generators.repeating(sourceGenerator);
 
         // Then
-        assertThat(repeatingGenerator.next(), is(1));
-        assertThat(repeatingGenerator.next(), is(2));
-        assertThat(repeatingGenerator.next(), is(3));
-        assertThat(repeatingGenerator.next(), is(1));
-        assertThat(repeatingGenerator.next(), is(2));
-        assertThat(repeatingGenerator.next(), is(3));
-        assertThat(repeatingGenerator.next(), is(1));
+        assertEquals(1, repeatingGenerator.next());
+        assertEquals(2, repeatingGenerator.next());
+        assertEquals(3, repeatingGenerator.next());
+        assertEquals(1, repeatingGenerator.next());
+        assertEquals(2, repeatingGenerator.next());
+        assertEquals(3, repeatingGenerator.next());
+        assertEquals(1, repeatingGenerator.next());
     }
 }
