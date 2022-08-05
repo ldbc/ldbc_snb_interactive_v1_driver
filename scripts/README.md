@@ -49,13 +49,13 @@ export LDBC_SNB_DATA_ROOT_DIRECTORY=...
 To use the data conversion script `convert_spark_dataset_to_interactive.py`, use the command like the following:
 
 ```bash
-python3 convert_spark_dataset_to_interactive.py --input_dir '/data/out-sf1' --output_dir '/data/out-sf1/graphs/csv/bi/composite-merged-fk'
+./convert_spark_dataset_to_interactive.py --input_dir '/data/out-sf1' --output_dir '/data/out-sf1/graphs/csv/bi/composite-merged-fk'
 ```
 
 To convert the data and add the dependencyTime column, use the `convert_and_append.py` like:
 
 ```bash
-python3 convert_and_append.py --input_dir '/data/out-sf1'
+./convert_and_append.py --input_dir '/data/out-sf1'
 ```
 
 This will output the files into the parquet folder found under `/data/out-sf1`
