@@ -126,14 +126,3 @@ class DependentTimeAppender:
 
     def execute(self, query):
         return self.cursor.execute(query).fetchall()
-
-if __name__ == "__main__":
-    root_data_path = '/home/gladap/repos/ldbc-data/spark/out-sf0.1/'
-    dta_data_path = root_data_path + 'graphs/parquet/raw/composite-merged-fk'
-
-
-
-
-    DTA = DependentTimeAppender(dta_data_path)
-    DTA.create_views()
-    DTA.create_and_load_temp_tables()
