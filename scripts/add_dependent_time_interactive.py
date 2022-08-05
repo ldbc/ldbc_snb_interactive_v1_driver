@@ -40,7 +40,7 @@ class DependentTimeAppender:
 
         print("Creating views")
         for entity in ["Person", "Post", "Comment", "Forum"]:
-            self.cursor.execute(f"CREATE VIEW {entity} AS SELECT * FROM read_parquet('{self.initial_snapshot_path}/{entity}/*.parquet');")
+            self.cursor.execute(f"CREATE VIEW {entity}_View AS SELECT * FROM read_parquet('{self.initial_snapshot_path}/{entity}/*.parquet');")
 
     def create_and_load_temp_tables(self):
         """
@@ -100,7 +100,7 @@ class DependentTimeAppender:
             entity_columns
         ):
             select_date_columns += f"t{i}.{date_column}, "
-            left_join_tables += f"LEFT JOIN {table} AS t{i} ON t.{event_id} = t{i}.{entity_column} "
+            left_join_tables += f"LEFT JOIN {table}_View AS t{i} ON t.{event_id} = t{i}.{entity_column} "
             i+=1
         where_clause = ""
         select_clause = ""
