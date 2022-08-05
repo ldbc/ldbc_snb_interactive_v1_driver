@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Script to convert the update stream csvs to parquet and add the dependency time
 """
