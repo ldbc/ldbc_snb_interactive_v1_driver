@@ -65,7 +65,7 @@ def convert_inserts(input_dir, output_dir):
         schema_def = f.read()
         con.execute(schema_def)
 
-    data_path = os.path.join(input_dir, "graphs/csv/bi/composite-merged-fk/inserts/dynamic")
+    data_path = os.path.join(input_dir, "graphs/parquet/bi/composite-merged-fk/inserts/dynamic")
 
     for entity in [
         "Comment",
@@ -85,8 +85,10 @@ def convert_inserts(input_dir, output_dir):
     ]:
         print(f"-> {entity}")
         entity_dir = os.path.join(data_path, entity)
-        for csv_path in glob.glob(f'{entity_dir}/**/*.csv', recursive=True):
-            con.execute(f"COPY {entity} FROM '{csv_path}' (DELIMITER '|', HEADER, TIMESTAMPFORMAT '%Y-%m-%dT%H:%M:%S.%g+00:00');")
+        print(entity_dir)
+        exit
+        for parquet_path in glob.glob(f'{entity_dir}/**/*.snappy.parquet', recursive=True):
+            con.execute(f"COPY {entity} FROM '{parquet_path}' (FORMAT PARQUET);")
     print("Loading finished.")
 
     run_script(con, "convert_spark_inserts_to_interactive.sql")
@@ -112,7 +114,7 @@ def convert_deletes(input_dir, output_dir):
         schema_def = f.read()
         con.execute(schema_def)
 
-    data_path = os.path.join(input_dir, "graphs/csv/bi/composite-merged-fk/deletes/dynamic")
+    data_path = os.path.join(input_dir, "graphs/parquet/bi/composite-merged-fk/deletes/dynamic")
 
     for entity in [
         "Comment",
@@ -126,8 +128,8 @@ def convert_deletes(input_dir, output_dir):
     ]:
         print(f"-> {entity}")
         entity_dir = os.path.join(data_path, entity)
-        for csv_path in glob.glob(f'{entity_dir}/**/*.csv', recursive=True):
-            con.execute(f"COPY {entity}_Delete FROM '{csv_path}' (DELIMITER '|', HEADER, TIMESTAMPFORMAT '%Y-%m-%dT%H:%M:%S.%g+00:00');")
+        for csv_path in glob.glob(f'{entity_dir}/**/*.snappy.parquet', recursive=True):
+            con.execute(f"COPY {entity}_Delete FROM '{csv_path}' (FORMAT PARQUET);")
     print("Loading finished.")
 
     output_path = os.path.join(output_dir, "deletes")

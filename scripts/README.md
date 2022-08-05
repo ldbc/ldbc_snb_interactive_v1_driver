@@ -29,7 +29,7 @@ tools/run.py \
     --parallelism $(nproc) \
     --memory ${LDBC_SNB_DATAGEN_MAX_MEM} \
     -- \
-    --format csv \
+    --format parquet \
     --scale-factor ${SF} \
     --mode bi \
     --output-dir out-sf${SF}/
