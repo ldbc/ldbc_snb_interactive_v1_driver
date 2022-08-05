@@ -19,7 +19,7 @@ jobs:
           grep 'BUILD SUCCESS' mvn.log
   test_conversion_script:
     machine:
-      image: ubuntu-2004:202008-01
+      image: ubuntu-2204:edge
     steps:
       - checkout
       - run:
