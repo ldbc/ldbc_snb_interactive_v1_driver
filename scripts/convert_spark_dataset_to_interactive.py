@@ -5,14 +5,14 @@ DESC: This file concatenates the insert and deletes streams from the Spark Datag
       into one file per event. The new files are placed under a 
       newly created directory 'deletes' at the directory where the script
       is executed with the following files:
-      - Comment.csv
-      - Forum.csv
-      - Forum_hasMember_Person.csv
-      - Person.csv
-      - Person_knows_Person.csv
-      - Person_likes_Comment.csv
-      - Person_likes_Post.csv
-      - Post.csv
+      - Comment.parquet
+      - Forum.parquet
+      - Forum_hasMember_Person.parquet
+      - Person.parquet
+      - Person_knows_Person.parquet
+      - Person_likes_Comment.parquet
+      - Person_likes_Post.parquet
+      - Post.parquet
 """
 import argparse
 import glob
