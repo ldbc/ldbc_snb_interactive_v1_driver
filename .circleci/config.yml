@@ -6,6 +6,7 @@ workflows:
   build:
     jobs:
       - compile_driver
+      - test_conversion_script
 
 jobs:
   compile_driver:
@@ -16,3 +17,26 @@ jobs:
       - run: |
           mvn test | tee mvn.log
           grep 'BUILD SUCCESS' mvn.log
+  test_conversion_script:
+    machine:
+      image: ubuntu-2004:202008-01
+    steps:
+      - checkout
+      - run:
+          name: Setup
+          command: |
+            export DEBIAN_FRONTEND=noninteractive
+            sudo apt update
+            # install dependencies
+            sudo apt install -y wget unzip
+            scripts/install-dependencies.sh
+      - run:
+          name: Download data sets
+          command: |
+            wget -q https://ldbcouncil.org/ldbc_snb_datagen_spark/social-network-sf0.003-bi-parquet.zip
+            unzip -q social-network-sf0.003-bi-parquet.zip
+      - run:
+          name: Convert data sets
+          command: |
+            export LDBC_SNB_DATA_ROOT_DIRECTORY=`pwd`/social-network-sf0.003-bi-parquet
+            scripts/convert.sh
