@@ -47,3 +47,4 @@ if __name__ == "__main__":
     )
     DTA.create_views()
     DTA.create_and_load_temp_tables()
+    print("Data converted and dependent time added.")
