@@ -42,6 +42,7 @@ class MergeBatchToSingleParquet:
             - output_dir (str): The output directory where the 'inserts' directory will be created
         """
         self.input_dir = input_dir
+        self.database_name = 'snb.duckdb'
         self.output_dir = output_dir
         if (input_type == 'csv'):
             self.input_extension = '**/*.csv'
@@ -60,7 +61,10 @@ class MergeBatchToSingleParquet:
 
         self.data_format = data_format
 
-        self.con = duckdb.connect(database='snb.duckdb')
+        if (os.path.isfile(self.database_name)):
+            os.remove(self.database_name)
+
+        self.con = duckdb.connect(database=self.database_name)
 
     def convert_inserts(self):
 
