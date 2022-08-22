@@ -4,7 +4,7 @@ Script to convert the update stream csvs to parquet and add the dependency time
 """
 
 from add_dependent_time_interactive import DependentTimeAppender
-from convert_spark_dataset_to_interactive import convert_deletes, convert_inserts
+from convert_spark_dataset_to_interactive import MergeBatchToSingleParquet
 import argparse
 import os
 
@@ -16,15 +16,34 @@ if __name__ == "__main__":
         type=str,
         required=True
     )
+    parser.add_argument(
+        '--output_dir',
+        help="output_dir: directory containing the data e.g. '/data/out-sf1'",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        '--input_type',
+        help="input_type: input file type for update streams (csv|parquet)",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        '--data_format',
+        help="data_format: data format to convert (composite-merged-fk|composite-projected-fk)",
+        type=str,
+        required=True
+    )
     args = parser.parse_args()
 
-    root_data_path = args.input_dir
-    dta_data_path = os.path.join(root_data_path, 'graphs/parquet/raw/composite-merged-fk')
+    Merger = MergeBatchToSingleParquet(args.input_dir, args.output_dir, args.input_type, args.data_format)
+    Merger.convert_inserts()
+    Merger.convert_deletes()
 
-    convert_inserts(root_data_path, dta_data_path)
-    convert_deletes(root_data_path, dta_data_path)
-
-    DTA = DependentTimeAppender(dta_data_path)
+    dta_data_path = os.path.join(args.input_dir, f'graphs/parquet/raw/composite-merged-fk')
+    DTA = DependentTimeAppender(
+        input_file_path=args.output_dir,
+        raw_data_path=dta_data_path
+    )
     DTA.create_views()
     DTA.create_and_load_temp_tables()
-

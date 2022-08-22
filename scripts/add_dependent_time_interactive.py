@@ -19,15 +19,16 @@ from pathlib import Path
 class DependentTimeAppender:
 
     def __init__(self,
-        data_path:str,
+        raw_data_path:str,
+        input_file_path:str,
         dependent_date_column:str = "dependentDate",
         default_dependent_time:int = 0
     ):
-        if (data_path[-1] == '/'):
-            data_path = data_path[:-1]
+        if (raw_data_path[-1] == '/'):
+            raw_data_path = raw_data_path[:-1]
 
-        self.initial_snapshot_path = data_path + "/dynamic"
-        self.update_event_path = data_path
+        self.initial_snapshot_path = raw_data_path + "/dynamic"
+        self.update_event_path = input_file_path
         self.dependent_date_column = dependent_date_column
         self.cursor = duckdb.connect(database='snb.duckdb')
         self.default_dependent_time = default_dependent_time
@@ -40,13 +41,16 @@ class DependentTimeAppender:
 
         print("Creating views")
         for entity in ["Person", "Post", "Comment", "Forum"]:
-            self.cursor.execute(f"CREATE VIEW {entity}_View AS SELECT * FROM read_parquet('{self.initial_snapshot_path}/{entity}/*.parquet');")
+            parquet_dir = f'{self.initial_snapshot_path}/{entity}'
+            parquet_path = f'{parquet_dir}/*.snappy.parquet'
+            if (not os.path.isdir(parquet_dir)):
+                raise ValueError(f"Directory {parquet_dir} does not exist.")
+            self.cursor.execute(f"CREATE VIEW {entity}_View AS SELECT * FROM read_parquet('{parquet_path}');")
 
     def create_and_load_temp_tables(self):
         """
         Loads the update event data into temporary tables
         """
-
         for update_type in ['inserts', 'deletes']:
             paths = glob.glob(f'{self.update_event_path}/{update_type}/*.parquet')
             for path in paths:
