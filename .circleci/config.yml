@@ -39,4 +39,5 @@ jobs:
           name: Convert data sets
           command: |
             export LDBC_SNB_DATA_ROOT_DIRECTORY=`pwd`/social-network-sf0.003-bi-parquet
+            export DATA_INPUT_TYPE=parquet
             scripts/convert.sh
