@@ -74,7 +74,7 @@ class MergeBatchToSingleParquet:
             schema_def = f.read()
             self.con.execute(schema_def)
 
-        data_path = os.path.join(self.input_dir, f"graphs/{self.input_path_folder}/bi/{self.data_format}/inserts/dynamic")
+        data_path = os.path.join(self.input_dir, f"graphs/{self.input_path_folder}/raw/{self.data_format}/inserts/dynamic")
 
         for entity in [
             "Comment",
