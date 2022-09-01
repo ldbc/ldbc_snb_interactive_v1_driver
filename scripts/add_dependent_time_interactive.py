@@ -62,7 +62,7 @@ class DependentTimeAppender:
         for update_type in ['inserts', 'deletes']:
             paths = glob.glob(f'{self.update_event_path}/{update_type}/*.parquet')
             for parquet_path in paths:
-                operation_type = os.path.basename(self.removesuffix(parquet_path, '.parquet'))
+                operation_type = os.path.basename(self.remove_suffix(parquet_path, '.parquet'))
                 if update_type == 'deletes':
                     operation_type_suffix = "_Delete"
                     date_column = 'deletionDate'
