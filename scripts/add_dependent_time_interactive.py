@@ -47,6 +47,14 @@ class DependentTimeAppender:
                 raise ValueError(f"Directory {parquet_dir} does not exist.")
             self.cursor.execute(f"CREATE VIEW {entity}_View AS SELECT * FROM read_parquet('{parquet_path}');")
 
+    def remove_suffix(self, input_string, suffix):
+        """
+        Added for compatibility for Python versions <3.9
+        """
+        if suffix and input_string.endswith(suffix):
+            return input_string[:-len(suffix)]
+        return input_string
+
     def create_and_load_temp_tables(self):
         """
         Loads the update event data into temporary tables
@@ -54,7 +62,7 @@ class DependentTimeAppender:
         for update_type in ['inserts', 'deletes']:
             paths = glob.glob(f'{self.update_event_path}/{update_type}/*.parquet')
             for parquet_path in paths:
-                operation_type = os.path.basename(parquet_path.removesuffix('.parquet'))
+                operation_type = os.path.basename(self.removesuffix(parquet_path, '.parquet'))
                 if update_type == 'deletes':
                     operation_type_suffix = "_Delete"
                     date_column = 'deletionDate'
