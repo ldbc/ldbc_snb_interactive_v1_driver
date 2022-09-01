@@ -53,8 +53,8 @@ class DependentTimeAppender:
         """
         for update_type in ['inserts', 'deletes']:
             paths = glob.glob(f'{self.update_event_path}/{update_type}/*.parquet')
-            for path in paths:
-                operation_type = os.path.basename(path.removesuffix('.parquet'))
+            for parquet_path in paths:
+                operation_type = os.path.basename(parquet_path.removesuffix('.parquet'))
                 if update_type == 'deletes':
                     operation_type_suffix = "_Delete"
                     date_column = 'deletionDate'
@@ -71,7 +71,7 @@ class DependentTimeAppender:
                 column_string = column_string[:-1] # remove last comma
                 
                 # 2. Load data into temporary table
-                self.cursor.execute(f"INSERT INTO {table_name} SELECT {column_string} FROM read_parquet('" + path + f"')  ORDER BY {date_column} ASC;")
+                self.cursor.execute(f"INSERT INTO {table_name} SELECT {column_string} FROM read_parquet('" + parquet_path + f"')  ORDER BY {date_column} ASC;")
                 if (table_name == "Person_Insert"):
                     Path(f"{self.update_event_path}/{update_type}_dep").mkdir(parents=True, exist_ok=True)
                     self.cursor.execute(f"COPY {table_name} TO '{self.update_event_path}/{update_type}_dep/{operation_type}.parquet' (FORMAT PARQUET);")
