@@ -86,10 +86,10 @@ class DependentTimeAppender:
                     continue
                 # 3. Add dependent time for table requiring personIds
                 #dependent_entity_map
-                self.update_dependent_time(table_name, f'{self.update_event_path}/{update_type}', operation_type)
+                self.update_dependent_time(table_name, f'{self.update_event_path}/{update_type}', operation_type, parquet_path)
 
 
-    def update_dependent_time(self, table_name, output_path, operation_type):
+    def update_dependent_time(self, table_name, output_path, operation_type, input_file_path):
         """
         For each table:
         - Fetch creationDate of the dependent columns
@@ -132,8 +132,10 @@ class DependentTimeAppender:
         print(query)
         total_updated = self.cursor.execute(query).fetchall()
         print(f"{table_name} has updated {total_updated}")
-        Path(f"{output_path}_dep").mkdir(parents=True, exist_ok=True)
-        self.cursor.execute(f"COPY {table_name} TO '{output_path}_dep/{operation_type}.parquet' (FORMAT PARQUET);")
+        Path(f"{output_path}").mkdir(parents=True, exist_ok=True)
+        Path(input_file_path).unlink() # Remove original file
+        output_path_absolute = str(Path(f"{input_file_path}").absolute())
+        self.cursor.execute(f"COPY {table_name} TO '{output_path_absolute}' (FORMAT PARQUET);")
         self.cursor.execute(f"DROP TABLE {table_name};")
 
     def execute(self, query):
