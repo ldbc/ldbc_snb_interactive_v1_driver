@@ -81,15 +81,17 @@ class DependentTimeAppender:
                 # 2. Load data into temporary table
                 self.cursor.execute(f"INSERT INTO {table_name} SELECT {column_string} FROM read_parquet('" + parquet_path + f"')  ORDER BY {date_column} ASC;")
                 if (table_name == "Person_Insert"):
-                    Path(f"{self.update_event_path}/{update_type}_dep").mkdir(parents=True, exist_ok=True)
-                    self.cursor.execute(f"COPY {table_name} TO '{self.update_event_path}/{update_type}_dep/{operation_type}.parquet' (FORMAT PARQUET);")
+                    Path(f"{self.update_event_path}/{update_type}").mkdir(parents=True, exist_ok=True)
+                    Path(parquet_path).unlink() # Remove original file
+                    output_path_absolute = str(Path(f"{parquet_path}").absolute())
+                    self.cursor.execute(f"COPY {table_name} TO '{output_path_absolute}' (FORMAT PARQUET);")
+                    self.cursor.execute(f"DROP TABLE {table_name};")
                     continue
                 # 3. Add dependent time for table requiring personIds
-                #dependent_entity_map
-                self.update_dependent_time(table_name, f'{self.update_event_path}/{update_type}', operation_type, parquet_path)
+                self.update_dependent_time(table_name, f'{self.update_event_path}/{update_type}', parquet_path)
 
 
-    def update_dependent_time(self, table_name, output_path, operation_type, input_file_path):
+    def update_dependent_time(self, table_name, output_path, input_file_path):
         """
         For each table:
         - Fetch creationDate of the dependent columns
