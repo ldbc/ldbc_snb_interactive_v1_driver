@@ -582,7 +582,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         return new LdbcSnbInteractiveDbValidationParametersFilter(
             remainingRequiredResultsPerType,
             // Writes are required to determine short reads operations to inject
-            enabledWriteOperationTypes,
             enabledShortReadOperationTypes
         );
     }
