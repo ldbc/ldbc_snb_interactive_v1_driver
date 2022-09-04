@@ -7,9 +7,10 @@ import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.WorkloadStreams;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
 
-import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class DummyWorkload extends Workload
 {
@@ -37,8 +38,8 @@ public class DummyWorkload extends Workload
     }
 
     @Override
-    public int enabledValidationOperations(){
-        return 0;
+    public Set<Class> enabledValidationOperations(){
+        return Collections.emptySet();
     }
 
     @Override

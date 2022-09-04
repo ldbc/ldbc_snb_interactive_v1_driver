@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public abstract class Workload
@@ -122,7 +123,7 @@ public abstract class Workload
         return DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI;
     }
 
-    public abstract int enabledValidationOperations();
+    public abstract Set<Class> enabledValidationOperations();
 
     public interface DbValidationParametersFilter
     {

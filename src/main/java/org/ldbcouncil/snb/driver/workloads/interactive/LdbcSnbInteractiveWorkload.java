@@ -597,9 +597,13 @@ public class LdbcSnbInteractiveWorkload extends Workload
     }
 
     @Override
-    public int enabledValidationOperations()
+    public Set<Class> enabledValidationOperations()
     {
-        return enabledLongReadOperationTypes.size() + enabledUpdateOperationTypes.size() + enabledShortReadOperationTypes.size();
+        Set<Class> enabledOperations = new HashSet<>();
+        enabledOperations.addAll(enabledLongReadOperationTypes);
+        enabledOperations.addAll(enabledUpdateOperationTypes);
+        enabledOperations.addAll(enabledShortReadOperationTypes);
+        return enabledOperations;
     }
 
     @Override

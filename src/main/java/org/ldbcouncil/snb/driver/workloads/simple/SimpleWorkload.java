@@ -12,13 +12,13 @@ import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
 import org.ldbcouncil.snb.driver.util.Tuple3;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SimpleWorkload extends Workload
 {
@@ -64,8 +64,8 @@ public class SimpleWorkload extends Workload
     }
 
     @Override
-    public int enabledValidationOperations(){
-        return 0;
+    public Set<Class> enabledValidationOperations(){
+        return Collections.emptySet();
     }
 
     @Override
