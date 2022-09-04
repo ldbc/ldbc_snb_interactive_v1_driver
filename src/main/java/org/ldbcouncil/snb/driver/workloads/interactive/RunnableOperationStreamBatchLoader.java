@@ -78,7 +78,7 @@ public class RunnableOperationStreamBatchLoader implements Runnable {
             }
 
             // Loop until interrupt or no operations left to load
-            while (true) {
+            while (!Thread.currentThread().interrupted()) {
                 List<Iterator<Operation>> newBatch = loadNextBatch(
                     updateOperationStream,
                     offset,

@@ -38,6 +38,8 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -58,6 +60,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private Set<Class> enabledWriteOperationTypes;
     private Set<Class> enabledDeleteOperationTypes;
     private Set<Class> enabledUpdateOperationTypes;
+
+    private Thread runnableBatchLoaderThread;
 
     @Override
     public Map<Integer, Class<? extends Operation>> operationTypeToClassMapping()
@@ -627,8 +631,20 @@ public class LdbcSnbInteractiveWorkload extends Workload
             dependencyUpdateOperationTypes.add(class1);
         }
 
-        OperationStreamBuffer buffer = new OperationStreamBuffer(loader, updatesDir, gf, batchSizeInMillis, numThreads, dependencyUpdateOperationTypes);
-        buffer.init();
+        BlockingQueue<Iterator<Operation>> blockingQueue = new LinkedBlockingQueue<>(numThreads);
+        Runnable runnableBatchLoader = new RunnableOperationStreamBatchLoader(
+            loader,
+            gf,
+            updatesDir,
+            blockingQueue,
+            dependencyUpdateOperationTypes,
+            batchSizeInMillis,
+            numThreads
+        );
+        runnableBatchLoaderThread = new Thread(runnableBatchLoader);
+        runnableBatchLoaderThread.start();
+
+        OperationStreamBuffer buffer = new OperationStreamBuffer(blockingQueue);
 
         for (int i = 0; i < numThreads; i++) {
             // Instantiate lists
