@@ -909,6 +909,12 @@ public class WorkloadStreamsTest
         }
 
         @Override
+        public void onClose()
+        {
+    
+        }
+      
+        @Override
         public Class<? extends Operation> getOperationClass()
         {
             return Operation.class;

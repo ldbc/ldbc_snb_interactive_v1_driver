@@ -55,6 +55,12 @@ public class DummyWorkload extends Workload
     }
 
     @Override
+    public void onClose()
+    {
+
+    }
+
+    @Override
     public void onInit( Map<String,String> params ) throws WorkloadException
     {
     }
