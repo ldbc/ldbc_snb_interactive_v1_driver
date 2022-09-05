@@ -72,7 +72,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     @Override
     public void onClose()
     {
-
+        runnableBatchLoaderThread.interrupt();
     }
 
     @Override
