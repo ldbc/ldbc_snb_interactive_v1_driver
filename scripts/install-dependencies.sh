@@ -1,8 +1,3 @@
 #!/bin/bash
 
-set -eu
-set -o pipefail
-
-cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
-pip3 install --user pandas duckdb==0.4.0
+pip3 install --user duckdb==0.4.0 pytz
