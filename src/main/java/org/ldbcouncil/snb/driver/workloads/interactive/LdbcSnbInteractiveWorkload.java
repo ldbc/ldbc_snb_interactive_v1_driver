@@ -365,8 +365,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         PeekingIterator<Operation> unfilteredUpdateOperations = Iterators.peekingIterator( updateStream );
         try
         {
-            if ( unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli() <
-                workloadStartTimeAsMilli )
+            if ( unfilteredUpdateOperations.hasNext() && unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli )
             {
                 workloadStartTimeAsMilli = unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli();
             }
