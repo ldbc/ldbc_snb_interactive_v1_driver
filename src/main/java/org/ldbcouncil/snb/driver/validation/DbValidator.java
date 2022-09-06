@@ -10,11 +10,10 @@ import org.ldbcouncil.snb.driver.ResultReporter;
 import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.runtime.ConcurrentErrorReporter;
-import org.ldbcouncil.snb.driver.workloads.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 
 import java.text.DecimalFormat;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -40,23 +39,24 @@ public class DbValidator
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ResultReporter resultReporter = new ResultReporter.SimpleResultReporter( errorReporter );
 
-        Map<Integer, Class<? extends Operation>> operationMap =
-            LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping();
+        Set<Class> operationMap = workload.enabledValidationOperations();
 
         int validationParamsProcessedSoFar = 0;
         int validationParamsCrashedSoFar = 0;
         int validationParamsIncorrectSoFar = 0;
+        int validationParamsSkippedSoFar = 0;
 
         Operation operation = null;
         while ( true )
         {
             if (null != operation) {
                 System.out.println(format(
-                        "Processed %s / %s -- Crashed %s -- Incorrect %s -- Currently processing %s...",
+                        "Processed %s / %s -- Crashed %s -- Incorrect %s -- Skipped %s -- Currently processing %s...",
                         numberFormat.format(validationParamsProcessedSoFar),
                         numberFormat.format(validationParamsCount),
                         numberFormat.format(validationParamsCrashedSoFar),
                         numberFormat.format(validationParamsIncorrectSoFar),
+                        numberFormat.format(validationParamsSkippedSoFar),
                         operation.getClass().getSimpleName()
                 ));
                 System.out.flush();
@@ -69,6 +69,13 @@ public class DbValidator
             ValidationParam validationParam = validationParameters.next();
             operation = validationParam.operation();
             Object expectedOperationResult = validationParam.operationResult();
+
+            if (!operationMap.contains(operation.getClass()))
+            {
+                // Skip disabled operation
+                validationParamsSkippedSoFar++;
+                continue;
+            }
 
             OperationHandlerRunnableContext handlerRunner;
             try
@@ -110,7 +117,7 @@ public class DbValidator
 
             Object actualOperationResult = resultReporter.result();
 
-            if ( false == actualOperationResult.equals(expectedOperationResult))
+            if (!actualOperationResult.equals(expectedOperationResult))
             {
                 validationParamsIncorrectSoFar++;
                 dbValidationResult
