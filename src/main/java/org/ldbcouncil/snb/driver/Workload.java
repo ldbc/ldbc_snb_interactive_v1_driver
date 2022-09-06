@@ -70,6 +70,7 @@ public abstract class Workload implements Closeable
             throw new IOException( "Workload may be cleaned up only once" );
         }
         isClosed = true;
+        onClose();
     }
 
     public abstract void onClose();

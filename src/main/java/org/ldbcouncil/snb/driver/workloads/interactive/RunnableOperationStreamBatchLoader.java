@@ -18,7 +18,7 @@ import org.ldbcouncil.snb.driver.generator.EventStreamReader;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
 import org.ldbcouncil.snb.driver.util.Tuple2;
 
-public class RunnableOperationStreamBatchLoader implements Runnable {
+public class RunnableOperationStreamBatchLoader extends Thread {
     
     private final ParquetLoader loader;
     private final int numThreads;
@@ -50,6 +50,7 @@ public class RunnableOperationStreamBatchLoader implements Runnable {
     /**
      * Loads the operation streams into the LinkedBlockingDeque
      */
+    @Override
     public void run()
     {
         BatchedOperationStreamReader updateOperationStream = new BatchedOperationStreamReader(loader);
@@ -78,7 +79,7 @@ public class RunnableOperationStreamBatchLoader implements Runnable {
             }
 
             // Loop until interrupt or no operations left to load
-            while (!Thread.currentThread().interrupted()) {
+            while (!Thread.interrupted()) {
                 List<Iterator<Operation>> newBatch = loadNextBatch(
                     updateOperationStream,
                     offset,
