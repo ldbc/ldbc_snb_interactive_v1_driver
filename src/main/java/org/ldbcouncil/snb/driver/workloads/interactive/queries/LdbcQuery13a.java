@@ -20,11 +20,11 @@ import org.ldbcouncil.snb.driver.workloads.interactive.LdbcOperation;
 import java.io.IOException;
 import java.util.Map;
 
-public class LdbcQuery13 extends LdbcOperation<LdbcQuery13Result>
+public class LdbcQuery13a extends LdbcOperation<LdbcQuery13Result>
 {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public static final int TYPE = 13;
+    public static final int TYPE = 131;
     // Parameters used for replacement in queries
     public static final String PERSON1_ID = "person1Id";
     public static final String PERSON2_ID = "person2Id";
@@ -32,7 +32,7 @@ public class LdbcQuery13 extends LdbcOperation<LdbcQuery13Result>
     private final long person1IdQ13StartNode;
     private final long person2IdQ13EndNode;
 
-    public LdbcQuery13(
+    public LdbcQuery13a(
         @JsonProperty("person1IdQ13StartNode") long person1IdQ13StartNode,
         @JsonProperty("person2IdQ13EndNode")   long person2IdQ13EndNode
     )
@@ -41,7 +41,7 @@ public class LdbcQuery13 extends LdbcOperation<LdbcQuery13Result>
         this.person2IdQ13EndNode = person2IdQ13EndNode;
     }
 
-    public LdbcQuery13( LdbcQuery13 query )
+    public LdbcQuery13a( LdbcQuery13a query )
     {
         this.person1IdQ13StartNode = query.getPerson1IdQ13StartNode();
         this.person2IdQ13EndNode = query.getPerson2IdQ13EndNode();
@@ -58,8 +58,8 @@ public class LdbcQuery13 extends LdbcOperation<LdbcQuery13Result>
     }
 
     @Override
-    public LdbcQuery13 newInstance(){
-        return new LdbcQuery13(this);
+    public LdbcQuery13a newInstance(){
+        return new LdbcQuery13a(this);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class LdbcQuery13 extends LdbcOperation<LdbcQuery13Result>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcQuery13 that = (LdbcQuery13) o;
+        LdbcQuery13a that = (LdbcQuery13a) o;
 
         if ( person1IdQ13StartNode != that.person1IdQ13StartNode )
         { return false; }

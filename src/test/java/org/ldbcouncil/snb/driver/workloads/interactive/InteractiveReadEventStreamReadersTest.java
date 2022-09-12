@@ -145,7 +145,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery3Events() throws WorkloadException, SQLException {
+    public void shouldParseAllQuery3aEvents() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -159,7 +159,7 @@ public class InteractiveReadEventStreamReadersTest
         when(rs.getInt(5)).thenReturn(53).thenReturn(64).thenReturn(58).thenReturn(53);
         when(rs.getString(2)).thenReturn("Taiwan").thenReturn("Nicaragua").thenReturn("Colombia").thenReturn("Lithuania");
         when(rs.getString(3)).thenReturn("Bulgaria").thenReturn("Afghanistan").thenReturn("Lithuania").thenReturn("Afghanistan");
-        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query3Decoder();
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query3aDecoder();
         ParquetLoader loader = new ParquetLoader(db);
         Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
         Calendar calendar = Calendar.getInstance();
@@ -168,9 +168,9 @@ public class InteractiveReadEventStreamReadersTest
         Iterator<Operation> reader = new QueryEventStreamReader(
             opStream
         );
-        LdbcQuery3 operation;
+        LdbcQuery3a operation;
         // Assert
-        operation = (LdbcQuery3) reader.next();
+        operation = (LdbcQuery3a) reader.next();
         assertThat(operation.getPersonIdQ3(), is(9895605643992L));
         assertThat(operation.getCountryXName(), is("Taiwan"));
         assertThat(operation.getCountryYName(), is("Bulgaria"));
@@ -179,7 +179,7 @@ public class InteractiveReadEventStreamReadersTest
         calendar.set(2011, Calendar.DECEMBER, 1);
         assertThat(operation.getStartDate().getTime(), is(calendar.getTime().getTime()));
 
-        operation = (LdbcQuery3) reader.next();
+        operation = (LdbcQuery3a) reader.next();
         assertThat(operation.getPersonIdQ3(), is(979201L));
         assertThat(operation.getCountryXName(), is("Nicaragua"));
         assertThat(operation.getCountryYName(), is("Afghanistan"));
@@ -188,7 +188,7 @@ public class InteractiveReadEventStreamReadersTest
         calendar.set(2012, Calendar.APRIL, 1);
         assertThat(operation.getStartDate().getTime(), is(calendar.getTime().getTime()));
 
-        operation = (LdbcQuery3) reader.next();
+        operation = (LdbcQuery3a) reader.next();
         assertThat(operation.getPersonIdQ3(), is(129891L));
         assertThat(operation.getCountryXName(), is("Colombia"));
         assertThat(operation.getCountryYName(), is("Lithuania"));
@@ -196,7 +196,7 @@ public class InteractiveReadEventStreamReadersTest
         calendar.clear();
         calendar.set(2011, Calendar.MAY, 1);
 
-        operation = (LdbcQuery3) reader.next();
+        operation = (LdbcQuery3a) reader.next();
         assertThat(operation.getPersonIdQ3(), is(13194140498760L));
         assertThat(operation.getCountryXName(), is("Lithuania"));
         assertThat(operation.getCountryYName(), is("Afghanistan"));
@@ -656,7 +656,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery13Events() throws WorkloadException, SQLException {
+    public void shouldParseAllQuery13aEvents() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -671,7 +671,7 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(95384l)
             .thenReturn(9895606000517l)
             .thenReturn(7696582276748l);
-        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query13Decoder();
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query13aDecoder();
         ParquetLoader loader = new ParquetLoader(db);
         Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
         // Act
@@ -680,21 +680,21 @@ public class InteractiveReadEventStreamReadersTest
         );
 
         // Assert
-        LdbcQuery13 operation;
+        LdbcQuery13a operation;
 
-        operation = (LdbcQuery13) reader.next();
+        operation = (LdbcQuery13a) reader.next();
         assertThat(operation.getPerson1IdQ13StartNode(), is(9895605643992L));
         assertThat(operation.getPerson2IdQ13EndNode(), is(1099512323797L));
 
-        operation = (LdbcQuery13) reader.next();
+        operation = (LdbcQuery13a) reader.next();
         assertThat(operation.getPerson1IdQ13StartNode(), is(979201L));
         assertThat(operation.getPerson2IdQ13EndNode(), is(95384L));
 
-        operation = (LdbcQuery13) reader.next();
+        operation = (LdbcQuery13a) reader.next();
         assertThat(operation.getPerson1IdQ13StartNode(), is(129891L));
         assertThat(operation.getPerson2IdQ13EndNode(), is(9895606000517L));
 
-        operation = (LdbcQuery13) reader.next();
+        operation = (LdbcQuery13a) reader.next();
         assertThat(operation.getPerson1IdQ13StartNode(), is(13194140498760L));
         assertThat(operation.getPerson2IdQ13EndNode(), is(7696582276748L));
 
@@ -702,7 +702,7 @@ public class InteractiveReadEventStreamReadersTest
     }
 
     @Test
-    public void shouldParseAllQuery14Events() throws WorkloadException, SQLException {
+    public void shouldParseAllQuery14aEvents() throws WorkloadException, SQLException {
         // Arrange
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -717,7 +717,7 @@ public class InteractiveReadEventStreamReadersTest
             .thenReturn(1277748l)
             .thenReturn(6597069967720l)
             .thenReturn(3298534975254l);
-        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query14Decoder();
+        EventStreamReader.EventDecoder<Operation> decoder = new QueryEventStreamReader.Query14aDecoder();
         ParquetLoader loader = new ParquetLoader(db);
         Iterator<Operation> opStream = loader.loadOperationStream("/somepath", decoder);
 
@@ -727,21 +727,21 @@ public class InteractiveReadEventStreamReadersTest
         );
 
         // Assert
-        LdbcQuery14 operation;
+        LdbcQuery14a operation;
 
-        operation = (LdbcQuery14) reader.next();
+        operation = (LdbcQuery14a) reader.next();
         assertThat(operation.getPerson1IdQ14StartNode(), is(9895605643992L));
         assertThat(operation.getPerson2IdQ14EndNode(), is(4398046737628L));
 
-        operation = (LdbcQuery14) reader.next();
+        operation = (LdbcQuery14a) reader.next();
         assertThat(operation.getPerson1IdQ14StartNode(), is(979201L));
         assertThat(operation.getPerson2IdQ14EndNode(), is(1277748L));
 
-        operation = (LdbcQuery14) reader.next();
+        operation = (LdbcQuery14a) reader.next();
         assertThat(operation.getPerson1IdQ14StartNode(), is(129891L));
         assertThat(operation.getPerson2IdQ14EndNode(), is(6597069967720L));
 
-        operation = (LdbcQuery14) reader.next();
+        operation = (LdbcQuery14a) reader.next();
         assertThat(operation.getPerson1IdQ14StartNode(), is(13194140498760L));
         assertThat(operation.getPerson2IdQ14EndNode(), is(3298534975254L));
 

@@ -51,7 +51,8 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         Map<Integer, EventDecoder<Operation>> decoders = new HashMap<>();
         decoders.put(LdbcQuery1.TYPE, new Query1Decoder());
         decoders.put(LdbcQuery2.TYPE, new Query2Decoder());
-        decoders.put(LdbcQuery3.TYPE, new Query3Decoder());
+        decoders.put(LdbcQuery3a.TYPE, new Query3aDecoder());
+        decoders.put(LdbcQuery3b.TYPE, new Query3bDecoder());
         decoders.put(LdbcQuery4.TYPE, new Query4Decoder());
         decoders.put(LdbcQuery5.TYPE, new Query5Decoder());
         decoders.put(LdbcQuery6.TYPE, new Query6Decoder());
@@ -61,8 +62,10 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         decoders.put(LdbcQuery10.TYPE, new Query10Decoder());
         decoders.put(LdbcQuery11.TYPE, new Query11Decoder());
         decoders.put(LdbcQuery12.TYPE, new Query12Decoder());
-        decoders.put(LdbcQuery13.TYPE, new Query13Decoder());
-        decoders.put(LdbcQuery14.TYPE, new Query14Decoder());
+        decoders.put(LdbcQuery13a.TYPE, new Query13aDecoder());
+        decoders.put(LdbcQuery13b.TYPE, new Query13bDecoder());
+        decoders.put(LdbcQuery14a.TYPE, new Query14aDecoder());
+        decoders.put(LdbcQuery14b.TYPE, new Query14bDecoder());
         return decoders;
     }
 
@@ -117,7 +120,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         }
     }
 
-    public static class Query3Decoder implements EventDecoder<Operation>
+    public static class Query3aDecoder implements EventDecoder<Operation>
     {
         /**
          * @param rs: Resultset object containing the row to decode
@@ -134,17 +137,49 @@ public class QueryEventStreamReader implements Iterator<Operation>{
                 String countryYName = rs.getString(3);
                 Date maxDate = convertStringToDate(rs.getString(4));
                 int durationDays = rs.getInt(5);
-                return new LdbcQuery3(
+                return new LdbcQuery3a(
                     personId,
                     countryXName,
                     countryYName,
                     maxDate,
                     durationDays,
-                    LdbcQuery3.DEFAULT_LIMIT
+                    LdbcQuery3a.DEFAULT_LIMIT
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query3Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query3aEvent: %s", e));
+            }
+        }
+    }
+
+    public static class Query3bDecoder implements EventDecoder<Operation>
+    {
+        /**
+         * @param rs: Resultset object containing the row to decode
+         * @return LdbcQuery3 Object
+         * @throws SQLException when an error occurs reading the resultset
+         */
+        @Override
+        public Operation decodeEvent( ResultSet rs ) throws WorkloadException
+        {
+            try
+            {
+                long personId = rs.getLong(1);
+                String countryXName = rs.getString(2);
+                String countryYName = rs.getString(3);
+                Date maxDate = convertStringToDate(rs.getString(4));
+                int durationDays = rs.getInt(5);
+                return new LdbcQuery3b(
+                    personId,
+                    countryXName,
+                    countryYName,
+                    maxDate,
+                    durationDays,
+                    LdbcQuery3b.DEFAULT_LIMIT
+            );
+            }
+            catch (SQLException e){
+                throw new WorkloadException(format("Error while decoding ResultSet for Query3bEvent: %s", e));
             }
         }
     }
@@ -382,7 +417,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         }
     }
 
-    public static class Query13Decoder implements EventDecoder<Operation>
+    public static class Query13aDecoder implements EventDecoder<Operation>
     {
         /**
          * @param rs: Resultset object containing the row to decode
@@ -396,18 +431,43 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId1 = rs.getLong(1);
                 long personId2 = rs.getLong(2);
-                return new LdbcQuery13(
+                return new LdbcQuery13a(
                     personId1,
                     personId2
             );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query13Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query13aEvent: %s", e));
             }
         }
     }
 
-    public static class Query14Decoder implements EventDecoder<Operation>
+    public static class Query13bDecoder implements EventDecoder<Operation>
+    {
+        /**
+         * @param rs: Resultset object containing the row to decode
+         * @return LdbcQuery13 Object
+         * @throws SQLException when an error occurs reading the resultset
+         */
+        @Override
+        public Operation decodeEvent( ResultSet rs ) throws WorkloadException
+        {
+            try
+            {
+                long personId1 = rs.getLong(1);
+                long personId2 = rs.getLong(2);
+                return new LdbcQuery13b(
+                    personId1,
+                    personId2
+            );
+            }
+            catch (SQLException e){
+                throw new WorkloadException(format("Error while decoding ResultSet for Query13bEvent: %s", e));
+            }
+        }
+    }
+
+    public static class Query14aDecoder implements EventDecoder<Operation>
     {
         /**
          * @param rs: Resultset object containing the row to decode
@@ -421,13 +481,38 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId1 = rs.getLong(1);
                 long personId2 = rs.getLong(2);
-                return new LdbcQuery14(
+                return new LdbcQuery14a(
                     personId1,
                     personId2
                 );
             }
             catch (SQLException e){
-                throw new WorkloadException(format("Error while decoding ResultSet for Query14Event: %s", e));
+                throw new WorkloadException(format("Error while decoding ResultSet for Query14aEvent: %s", e));
+            }
+        }
+    }
+
+    public static class Query14bDecoder implements EventDecoder<Operation>
+    {
+        /**
+         * @param rs: Resultset object containing the row to decode
+         * @return LdbcQuery14 Object
+         * @throws SQLException when an error occurs reading the resultset
+         */
+        @Override
+        public Operation decodeEvent( ResultSet rs ) throws WorkloadException
+        {
+            try
+            {
+                long personId1 = rs.getLong(1);
+                long personId2 = rs.getLong(2);
+                return new LdbcQuery14b(
+                    personId1,
+                    personId2
+                );
+            }
+            catch (SQLException e){
+                throw new WorkloadException(format("Error while decoding ResultSet for Query14bEvent: %s", e));
             }
         }
     }

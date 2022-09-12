@@ -30,7 +30,8 @@ public class InteractiveShortReadGeneratorTest
         Map<Integer, Long> longReadInterleavesAsMilli = new HashMap<>();
         longReadInterleavesAsMilli.put(LdbcQuery1.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery2.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery3.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery3a.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery3b.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery4.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery5.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery6.TYPE, longReadInterleaveAsMilli);
@@ -40,8 +41,10 @@ public class InteractiveShortReadGeneratorTest
         longReadInterleavesAsMilli.put(LdbcQuery10.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery11.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery12.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery13.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery14.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery13a.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery13b.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery14a.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery14b.TYPE, longReadInterleaveAsMilli);
 
         Set<Class> enabledShortReadOperationTypes = Sets.<Class>newHashSet(
                 LdbcShortQuery1PersonProfile.class,
@@ -252,7 +255,7 @@ public class InteractiveShortReadGeneratorTest
         Map<Integer, Long> longReadInterleavesAsMilli = new HashMap<>();
         longReadInterleavesAsMilli.put(LdbcQuery1.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery2.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery3.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery3a.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery4.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery5.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery6.TYPE, longReadInterleaveAsMilli);
@@ -262,8 +265,8 @@ public class InteractiveShortReadGeneratorTest
         longReadInterleavesAsMilli.put(LdbcQuery10.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery11.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery12.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery13.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery14.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery13a.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery14a.TYPE, longReadInterleaveAsMilli);
 
         Set<Class> enabledShortReadOperationTypes = Sets.<Class>newHashSet(
 //                LdbcShortQuery1PersonProfile.class,
@@ -400,7 +403,7 @@ public class InteractiveShortReadGeneratorTest
         Map<Integer, Long> longReadInterleavesAsMilli = new HashMap<>();
         longReadInterleavesAsMilli.put(LdbcQuery1.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery2.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery3.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery3a.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery4.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery5.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery6.TYPE, longReadInterleaveAsMilli);
@@ -410,8 +413,8 @@ public class InteractiveShortReadGeneratorTest
         longReadInterleavesAsMilli.put(LdbcQuery10.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery11.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery12.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery13.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery14.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery13a.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery14a.TYPE, longReadInterleaveAsMilli);
 
         Set<Class> enabledShortReadOperationTypes = Sets.<Class>newHashSet(
 //                LdbcShortQuery1PersonProfile.class,
@@ -447,7 +450,7 @@ public class InteractiveShortReadGeneratorTest
         assertThat(state, is(initialProbability));
         Operation operation = shortReadGenerator.nextOperation(
                 state,
-                DummyLdbcSnbInteractiveOperationInstances.read3(),
+                DummyLdbcSnbInteractiveOperationInstances.read3a(),
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.read3Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.read3Result(),
@@ -532,7 +535,7 @@ public class InteractiveShortReadGeneratorTest
         Map<Integer, Long> longReadInterleavesAsMilli = new HashMap<>();
         longReadInterleavesAsMilli.put(LdbcQuery1.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery2.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery3.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery3a.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery4.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery5.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery6.TYPE, longReadInterleaveAsMilli);
@@ -542,8 +545,8 @@ public class InteractiveShortReadGeneratorTest
         longReadInterleavesAsMilli.put(LdbcQuery10.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery11.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery12.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery13.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery14.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery13a.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery14a.TYPE, longReadInterleaveAsMilli);
 
         Set<Class> enabledShortReadOperationTypes = Sets.<Class>newHashSet(
 //                LdbcShortQuery1PersonProfile.class,
@@ -667,7 +670,7 @@ public class InteractiveShortReadGeneratorTest
         Map<Integer, Long> longReadInterleavesAsMilli = new HashMap<>();
         longReadInterleavesAsMilli.put(LdbcQuery1.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery2.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery3.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery3a.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery4.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery5.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery6.TYPE, longReadInterleaveAsMilli);
@@ -677,8 +680,8 @@ public class InteractiveShortReadGeneratorTest
         longReadInterleavesAsMilli.put(LdbcQuery10.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery11.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery12.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery13.TYPE, longReadInterleaveAsMilli);
-        longReadInterleavesAsMilli.put(LdbcQuery14.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery13a.TYPE, longReadInterleaveAsMilli);
+        longReadInterleavesAsMilli.put(LdbcQuery14a.TYPE, longReadInterleaveAsMilli);
 
         Set<Class> enabledShortReadOperationTypes = Sets.newHashSet(
 //                LdbcShortQuery1PersonProfile.class,

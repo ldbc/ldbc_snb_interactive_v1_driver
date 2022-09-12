@@ -26,11 +26,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class LdbcQuery14 extends LdbcOperation<List<LdbcQuery14Result>>
+public class LdbcQuery14b extends LdbcOperation<List<LdbcQuery14Result>>
 {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public static final int TYPE = 14;
+    public static final int TYPE = 142;
     // Parameters used for replacement in queries
     public static final String PERSON1_ID = "person1Id";
     public static final String PERSON2_ID = "person2Id";
@@ -38,7 +38,7 @@ public class LdbcQuery14 extends LdbcOperation<List<LdbcQuery14Result>>
     private final long person1IdQ14StartNode;
     private final long person2IdQ14EndNode;
 
-    public LdbcQuery14(
+    public LdbcQuery14b(
         @JsonProperty("person1IdQ14StartNode") long person1IdQ14StartNode,
         @JsonProperty("person2IdQ14EndNode")   long person2IdQ14EndNode
     )
@@ -47,7 +47,7 @@ public class LdbcQuery14 extends LdbcOperation<List<LdbcQuery14Result>>
         this.person2IdQ14EndNode = person2IdQ14EndNode;
     }
 
-    public LdbcQuery14( LdbcQuery14 query )
+    public LdbcQuery14b( LdbcQuery14b query )
     {
         this.person1IdQ14StartNode = query.getPerson1IdQ14StartNode();
         this.person2IdQ14EndNode = query.getPerson2IdQ14EndNode();
@@ -64,8 +64,8 @@ public class LdbcQuery14 extends LdbcOperation<List<LdbcQuery14Result>>
     }
 
     @Override
-    public LdbcQuery14 newInstance(){
-        return new LdbcQuery14(this);
+    public LdbcQuery14b newInstance(){
+        return new LdbcQuery14b(this);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class LdbcQuery14 extends LdbcOperation<List<LdbcQuery14Result>>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcQuery14 that = (LdbcQuery14) o;
+        LdbcQuery14b that = (LdbcQuery14b) o;
 
         if ( person1IdQ14StartNode != that.person1IdQ14StartNode )
         { return false; }
