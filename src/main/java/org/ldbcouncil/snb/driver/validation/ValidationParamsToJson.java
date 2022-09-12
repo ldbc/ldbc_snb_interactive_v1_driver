@@ -55,25 +55,28 @@ public class ValidationParamsToJson
             catch (IOException e )
             {
                 throw new GeneratorException(
-                        format( ""
-                                + "Error marshalling serialized validationparam\n"
-                                + "validationParam: %s\n",
-                                validationParams ),
-                        e );
+                    format( ""
+                        + "Error marshalling serialized validationparam\n"
+                        + "validationParam: %s\n",
+                        validationParams ), e
+                    );
             }
             if (!deserializedValidationParameters.equals( validationParams ) )
             {
                 throw new GeneratorException(
-                        format( ""
-                                + "Deserialized validation parameters and original validation parameters do not equal\n"
-                                + "validationParams: %s\n"
-                                + "serializedValidationParam: %s\n"
-                                + "deserializedValidationParameters: %s",
-                                validationParams, serializedValidationParams, deserializedValidationParameters )
+                    format( ""
+                        + "Deserialized validation parameters and original validation parameters do not equal\n"
+                        + "validationParams: %s\n"
+                        + "serializedValidationParam: %s\n"
+                        + "deserializedValidationParameters: %s",
+                        validationParams,
+                        serializedValidationParams,
+                        deserializedValidationParameters
+                    )
                 );
             }
         }
 
-        OBJECT_MAPPER.writeValue(outputFile, validationParams);
+        OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(outputFile, validationParams);
     }
 }

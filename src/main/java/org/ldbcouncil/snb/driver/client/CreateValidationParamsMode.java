@@ -123,9 +123,8 @@ public class CreateValidationParamsMode implements ClientMode<Object>
     @Override
     public Object startExecutionAndAwaitCompletion() throws ClientException
     {
-        try ( Db db = database )
+        try (Workload w = workload; Db db = database )
         {
-            Workload w = workload;
             File validationFileToGenerate =
                     new File( controlService.configuration().databaseValidationFilePath() );
                 
@@ -137,8 +136,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
             Iterator<ValidationParam> validationParamsGenerator = new ValidationParamsGenerator(
                     db,
                     w.dbValidationParametersFilter( validationSetSize ),
-                    timeMappedOperations,
-                    validationSetSize
+                    timeMappedOperations
             );
             List<ValidationParam> validationParams = ImmutableList.copyOf(validationParamsGenerator);
             ValidationParamsToJson validationParamsAsJson = new ValidationParamsToJson(

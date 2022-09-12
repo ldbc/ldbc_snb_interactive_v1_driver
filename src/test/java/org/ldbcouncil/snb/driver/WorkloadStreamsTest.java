@@ -21,11 +21,13 @@ import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation3Factory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.anyOf;
@@ -901,11 +903,17 @@ public class WorkloadStreamsTest
         }
 
         @Override
-        public int enabledValidationOperations()
+        public Set<Class> enabledValidationOperations()
         {
-            return 0;
+            return Collections.emptySet();
         }
 
+        @Override
+        public void onClose()
+        {
+    
+        }
+      
         @Override
         public Class<? extends Operation> getOperationClass()
         {

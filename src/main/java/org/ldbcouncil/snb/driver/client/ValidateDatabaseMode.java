@@ -76,9 +76,8 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
     @Override
     public DbValidationResult startExecutionAndAwaitCompletion() throws ClientException
     {
-        try ( Db db = database )
+        try (Workload w = workload;  Db db = database )
         {
-            Workload w = workload; 
             File validationParamsFile = new File( controlService.configuration().databaseValidationFilePath() );
 
             loggingService.info(

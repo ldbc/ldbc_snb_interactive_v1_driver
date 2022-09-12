@@ -36,7 +36,6 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
     private int entriesWrittenSoFar;
     private boolean needMoreValidationParameters;
     private final List<Operation> injectedOperations;
-    private int requiredValidationParameterSize;
 
     /**
      * Create validation parameters
@@ -48,8 +47,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
     public ValidationParamsGenerator(
         Db db,
         DbValidationParametersFilter dbValidationParametersFilter,
-        Iterator<Operation> operations,
-        int requiredValidationParameterSize
+        Iterator<Operation> operations
     )
     {
         this.db = db;
@@ -59,7 +57,6 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
         this.entriesWrittenSoFar = 0;
         this.needMoreValidationParameters = true;
         this.injectedOperations = new ArrayList<>();
-        this.requiredValidationParameterSize = requiredValidationParameterSize;
     }
 
     public int entriesWrittenSoFar()
@@ -71,7 +68,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
     protected ValidationParam doNext() throws GeneratorException
     {
         Operation operation;
-        while ( operations.hasNext() && needMoreValidationParameters )
+        while ( (!injectedOperations.isEmpty() || operations.hasNext()) && needMoreValidationParameters )
         {
             if ( injectedOperations.isEmpty() )
             {
@@ -94,25 +91,25 @@ public class ValidationParamsGenerator extends Generator<ValidationParam>
 
             switch ( dbValidationParametersFilterResult.acceptance() )
             {
-            case REJECT_AND_CONTINUE:
-                continue;
-            case REJECT_AND_FINISH:
-                needMoreValidationParameters = false;
-                continue;
-            case ACCEPT_AND_CONTINUE:
-                entriesWrittenSoFar++;
-                return ValidationParam.createUntyped( operation, result );
-            case ACCEPT_AND_FINISH:
-                entriesWrittenSoFar++;
-                needMoreValidationParameters = false;
-                return ValidationParam.createUntyped( operation, result );
-            default:
-                throw new GeneratorException(
-                        format( "Unrecognized %s value: %s",
-                                Workload.DbValidationParametersFilterAcceptance.class.getSimpleName(),
-                                dbValidationParametersFilterResult.acceptance().name()
-                        )
-                );
+                case REJECT_AND_CONTINUE:
+                    continue;
+                case REJECT_AND_FINISH:
+                    needMoreValidationParameters = false;
+                    continue;
+                case ACCEPT_AND_CONTINUE:
+                    entriesWrittenSoFar++;
+                    return ValidationParam.createUntyped( operation, result );
+                case ACCEPT_AND_FINISH:
+                    entriesWrittenSoFar++;
+                    needMoreValidationParameters = false;
+                    return ValidationParam.createUntyped( operation, result );
+                default:
+                    throw new GeneratorException(
+                            format( "Unrecognized %s value: %s",
+                                    Workload.DbValidationParametersFilterAcceptance.class.getSimpleName(),
+                                    dbValidationParametersFilterResult.acceptance().name()
+                            )
+                    );
             }
         }
         // ran out of operations OR validation set size has been reached

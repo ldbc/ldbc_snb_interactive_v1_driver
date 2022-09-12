@@ -1,9 +1,4 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
-/**
- * LdbcSnbInteractiveDbValidationParametersFilter.java
- * IF update queries are disabled, then short reads are dependent on the results of complex queries. 
- * IF update queries are enabled,  then short reads are dependent on update queries.
- */
 
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.Workload.DbValidationParametersFilter;
@@ -18,18 +13,13 @@ import java.util.Set;
 
 class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationParametersFilter {
     private final Map<Class, Long> remainingRequiredResultsPerType;
-    private final Set<Class> enabledUpdateInsertOperationTypes;
     private final Set<Class> enabledShortReadOperationTypes;
-    private int uncompletedShortReads;
 
     LdbcSnbInteractiveDbValidationParametersFilter(
         Map<Class, Long> remainingRequiredResultsPerType,
-        Set<Class> enabledUpdateInsertOperationTypes,
         Set<Class> enabledShortReadOperationTypes) {
         this.remainingRequiredResultsPerType = remainingRequiredResultsPerType;
-        this.enabledUpdateInsertOperationTypes = enabledUpdateInsertOperationTypes;
         this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
-        this.uncompletedShortReads = 0;
     }
 
     /**
@@ -40,6 +30,13 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     @Override
     public boolean useOperation(Operation operation) {
         Class operationType = operation.getClass();
+
+        if (enabledShortReadOperationTypes.contains(operationType))
+        {
+            // Always generate short read operations after updates for validation
+            return true;
+        }
+
         if (remainingRequiredResultsPerType.containsKey(operationType)) {
             return remainingRequiredResultsPerType.get(operationType) > 0;
         } else {
@@ -56,7 +53,6 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
         List<Operation> injectedOperations = new ArrayList<>();
 
         injectedOperations.addAll(generateOperationsToInject(operation));
-        uncompletedShortReads += injectedOperations.size();
 
         if (remainingRequiredResultsPerType.containsKey(operationType)) {
             // decrement count for write operation type

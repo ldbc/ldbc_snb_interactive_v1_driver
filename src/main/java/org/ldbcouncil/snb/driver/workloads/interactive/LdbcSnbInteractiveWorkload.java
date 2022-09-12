@@ -38,6 +38,8 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -59,10 +61,20 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private Set<Class> enabledDeleteOperationTypes;
     private Set<Class> enabledUpdateOperationTypes;
 
+    private RunnableOperationStreamBatchLoader runnableBatchLoader;
+
     @Override
     public Map<Integer, Class<? extends Operation>> operationTypeToClassMapping()
     {
         return LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping();
+    }
+
+    @Override
+    public void onClose()
+    {
+        if (runnableBatchLoader != null && !runnableBatchLoader.isInterrupted()){
+            runnableBatchLoader.interrupt();
+        }
     }
 
     @Override
@@ -328,10 +340,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( ClassLoadingException e )
             {
                 throw new WorkloadException(
-                        format(
-                                "Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
-                                operationEnableKey, operationClassName ),
-                        e
+                    format(
+                        "Unable to load operation class for parameter: %s%nGuessed incorrect class name: %s",
+                        operationEnableKey, operationClassName ),
+                    e
                 );
             }
         }
@@ -353,8 +365,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         PeekingIterator<Operation> unfilteredUpdateOperations = Iterators.peekingIterator( updateStream );
         try
         {
-            if ( unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli() <
-                workloadStartTimeAsMilli )
+            if ( unfilteredUpdateOperations.hasNext() && unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli )
             {
                 workloadStartTimeAsMilli = unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli();
             }
@@ -379,7 +390,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         long workloadStartTimeAsMilli = Long.MAX_VALUE;
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
         List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
-        List<Iterator<?>> asynchronousNonDependencyStreamsList;// = new ArrayList<>();
+        List<Iterator<?>> asynchronousNonDependencyStreamsList;
         Set<Class<? extends Operation>> dependentAsynchronousOperationTypes = Sets.newHashSet();
         Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
 
@@ -407,13 +418,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
          */
         if (!enabledUpdateOperationTypes.isEmpty())
         {
-            try {
-                workloadStartTimeAsMilli = setBatchedUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams, updateLoader);
-
-            }
-            catch (SQLException e){
-                throw new WorkloadException(format("Error loading batched update streams %s", e));
-            }
+            workloadStartTimeAsMilli = setBatchedUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams, updateLoader);
         }
 
         if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
@@ -430,15 +435,18 @@ public class LdbcSnbInteractiveWorkload extends Workload
          * Merge all dependency asynchronous operation streams, ordered by operation start times
          */
         Iterator<Operation> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
-                asynchronousDependencyStreamsList.toArray( new Iterator[asynchronousDependencyStreamsList.size()] )
+            asynchronousDependencyStreamsList.toArray(
+                new Iterator[asynchronousDependencyStreamsList.size()]
+            )
         );
 
         /*
          * Merge all non dependency asynchronous operation streams, ordered by operation start times
          */
         Iterator<Operation> asynchronousNonDependencyStreams = gf.mergeSortOperationsByTimeStamp(
-                asynchronousNonDependencyStreamsList
-                        .toArray( new Iterator[asynchronousNonDependencyStreamsList.size()] )
+            asynchronousNonDependencyStreamsList.toArray(
+                new Iterator[asynchronousNonDependencyStreamsList.size()]
+            )
         );
 
         /* 
@@ -582,7 +590,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         return new LdbcSnbInteractiveDbValidationParametersFilter(
             remainingRequiredResultsPerType,
             // Writes are required to determine short reads operations to inject
-            enabledWriteOperationTypes,
             enabledShortReadOperationTypes
         );
     }
@@ -598,9 +605,13 @@ public class LdbcSnbInteractiveWorkload extends Workload
     }
 
     @Override
-    public int enabledValidationOperations()
+    public Set<Class> enabledValidationOperations()
     {
-        return enabledLongReadOperationTypes.size() + enabledUpdateOperationTypes.size() + enabledShortReadOperationTypes.size();
+        Set<Class> enabledOperations = new HashSet<>();
+        enabledOperations.addAll(enabledLongReadOperationTypes);
+        enabledOperations.addAll(enabledUpdateOperationTypes);
+        enabledOperations.addAll(enabledShortReadOperationTypes);
+        return enabledOperations;
     }
 
     @Override
@@ -614,7 +625,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         long workloadStartTimeAsMilli,
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams,
         ParquetLoader loader
-    ) throws WorkloadException, SQLException
+    ) throws WorkloadException
     {
         long batchSizeInMillis = TimeUnit.HOURS.toMillis( batchSize );
 
@@ -624,8 +635,19 @@ public class LdbcSnbInteractiveWorkload extends Workload
             dependencyUpdateOperationTypes.add(class1);
         }
 
-        OperationStreamBuffer buffer = new OperationStreamBuffer(loader, updatesDir, gf, batchSizeInMillis, numThreads, dependencyUpdateOperationTypes);
-        buffer.init();
+        BlockingQueue<Iterator<Operation>> blockingQueue = new LinkedBlockingQueue<>(numThreads);
+        runnableBatchLoader = new RunnableOperationStreamBatchLoader(
+            loader,
+            gf,
+            updatesDir,
+            blockingQueue,
+            dependencyUpdateOperationTypes,
+            batchSizeInMillis,
+            numThreads
+        );
+        runnableBatchLoader.start();
+
+        OperationStreamBuffer buffer = new OperationStreamBuffer(blockingQueue);
 
         for (int i = 0; i < numThreads; i++) {
             // Instantiate lists

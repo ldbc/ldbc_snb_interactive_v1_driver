@@ -4,13 +4,15 @@ import org.ldbcouncil.snb.driver.control.DriverConfiguration;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
 import org.ldbcouncil.snb.driver.validation.ResultsLogValidationTolerances;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public abstract class Workload
+public abstract class Workload implements Closeable
 {
     public static final long DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI = TimeUnit.HOURS.toMillis( 1 );
 
@@ -68,7 +70,10 @@ public abstract class Workload
             throw new IOException( "Workload may be cleaned up only once" );
         }
         isClosed = true;
+        onClose();
     }
+
+    public abstract void onClose();
 
     public final WorkloadStreams streams( GeneratorFactory gf, boolean hasDbConnected ) throws WorkloadException
     {
@@ -122,7 +127,7 @@ public abstract class Workload
         return DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI;
     }
 
-    public abstract int enabledValidationOperations();
+    public abstract Set<Class> enabledValidationOperations();
 
     public interface DbValidationParametersFilter
     {
