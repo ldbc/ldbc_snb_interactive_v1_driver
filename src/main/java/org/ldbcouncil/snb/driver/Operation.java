@@ -19,6 +19,7 @@ public abstract class Operation<RESULT_TYPE>
     private static final TemporalUtil temporalutil = new TemporalUtil();
     private long scheduledStartTimeAsMilli = -1;
     private long timeStamp = -1;
+    private long expiryTimeStamp = -1;
     private long dependencyTimeStamp = -1;
 
     public final void setScheduledStartTimeAsMilli( long scheduledStartTimeAsMilli )
@@ -31,6 +32,11 @@ public abstract class Operation<RESULT_TYPE>
         this.dependencyTimeStamp = dependencyTimeStamp;
     }
 
+    public final void setExpiryTimeStamp( long expiryTimeStamp )
+    {
+        this.expiryTimeStamp = expiryTimeStamp;
+    }
+
     public final long scheduledStartTimeAsMilli()
     {
         return scheduledStartTimeAsMilli;
@@ -39,6 +45,11 @@ public abstract class Operation<RESULT_TYPE>
     public final long dependencyTimeStamp()
     {
         return dependencyTimeStamp;
+    }
+
+    public long expiryTimeStamp()
+    {
+        return expiryTimeStamp;
     }
 
     public long timeStamp()

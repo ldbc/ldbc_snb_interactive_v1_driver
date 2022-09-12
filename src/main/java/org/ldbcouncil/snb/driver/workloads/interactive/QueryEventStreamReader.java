@@ -2,9 +2,15 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,7 +43,8 @@ public class QueryEventStreamReader implements Iterator<Operation>{
     {
         Operation query = operationStream.next();
         Operation operation = query.newInstance();
-        operation.setDependencyTimeStamp( 0 );
+        operation.setDependencyTimeStamp( query.dependencyTimeStamp() );
+        operation.setExpiryTimeStamp( query.expiryTimeStamp() );
         return operation;
     }
 
@@ -83,11 +90,16 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId = rs.getLong(1);
                 String personName = rs.getString(2);
-                return new LdbcQuery1(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(3));
+                long expiryTimeStamp = convertStringToLong(rs.getString(4));
+                Operation query = new LdbcQuery1(
                     personId,
                     personName,
                         LdbcQuery10.DEFAULT_LIMIT
                 );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query1Event: %s", e));
@@ -107,12 +119,17 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         {
             try {
                 long personId = rs.getLong(1);
-                Date maxDate = convertStringToDate(rs.getString(2));
-                return new LdbcQuery2(
+                Date maxDate = new Date(rs.getTimestamp(2).getTime());//convertStringToDate(rs.getString(2));
+                long dependencyTimeStamp = convertStringToLong(rs.getString(3));
+                long expiryTimeStamp = convertStringToLong(rs.getString(4));
+                Operation query = new LdbcQuery2(
                     personId,
                     maxDate,
                     LdbcQuery2.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query2Event: %s", e));
@@ -135,16 +152,21 @@ public class QueryEventStreamReader implements Iterator<Operation>{
                 long personId = rs.getLong(1);
                 String countryXName = rs.getString(2);
                 String countryYName = rs.getString(3);
-                Date maxDate = convertStringToDate(rs.getString(4));
+                Date maxDate = new Date(rs.getTimestamp(4).getTime());//convertStringToDate(rs.getString(4));
                 int durationDays = rs.getInt(5);
-                return new LdbcQuery3a(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(6));
+                long expiryTimeStamp = convertStringToLong(rs.getString(7));
+                Operation query = new LdbcQuery3a(
                     personId,
                     countryXName,
                     countryYName,
                     maxDate,
                     durationDays,
                     LdbcQuery3a.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query3aEvent: %s", e));
@@ -167,16 +189,21 @@ public class QueryEventStreamReader implements Iterator<Operation>{
                 long personId = rs.getLong(1);
                 String countryXName = rs.getString(2);
                 String countryYName = rs.getString(3);
-                Date maxDate = convertStringToDate(rs.getString(4));
+                Date maxDate = new Date(rs.getTimestamp(4).getTime());//convertStringToDate(rs.getString(4));
                 int durationDays = rs.getInt(5);
-                return new LdbcQuery3b(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(6));
+                long expiryTimeStamp = convertStringToLong(rs.getString(7));
+                Operation query = new LdbcQuery3b(
                     personId,
                     countryXName,
                     countryYName,
                     maxDate,
                     durationDays,
                     LdbcQuery3b.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query3bEvent: %s", e));
@@ -197,14 +224,19 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             try
             {
                 long personId = rs.getLong(1);
-                Date startDate = convertStringToDate(rs.getString(2));
+                Date startDate = new Date(rs.getTimestamp(2).getTime());//convertStringToDate(rs.getString(2));
                 int durationDays = rs.getInt(3);
-                return new LdbcQuery4(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(4));
+                long expiryTimeStamp = convertStringToLong(rs.getString(5));
+                Operation query = new LdbcQuery4(
                     personId,
                     startDate,
                     durationDays,
                     LdbcQuery4.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query4Event: %s", e));
@@ -225,12 +257,17 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             try {
                 long personId = rs.getLong(1);
                 // Dates are stored as long in the oepration streams.
-                Date minDate = convertStringToDate(rs.getString(2));
-                return new LdbcQuery5(
+                Date minDate = new Date(rs.getTimestamp(2).getTime());//convertStringToDate(rs.getString(2));
+                long dependencyTimeStamp = convertStringToLong(rs.getString(3));
+                long expiryTimeStamp = convertStringToLong(rs.getString(4));
+                Operation query = new LdbcQuery5(
                     personId,
                     minDate,
                     LdbcQuery5.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query5Event: %s", e));
@@ -252,11 +289,16 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId = rs.getLong(1);
                 String personName = rs.getString(2);
-                return new LdbcQuery6(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(3));
+                long expiryTimeStamp = convertStringToLong(rs.getString(4));
+                Operation query = new LdbcQuery6(
                     personId,
                     personName,
                     LdbcQuery6.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query6Event: %s", e));
@@ -277,10 +319,15 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             try
             {
                 long personId = rs.getLong(1);
-                return new LdbcQuery7(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(2));
+                long expiryTimeStamp = convertStringToLong(rs.getString(3));
+                Operation query = new LdbcQuery7(
                     personId,
                     LdbcQuery7.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query7Event: %s", e));
@@ -301,10 +348,15 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             try
             {
                 long personId = rs.getLong(1);
-                return new LdbcQuery8(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(2));
+                long expiryTimeStamp = convertStringToLong(rs.getString(3));
+                Operation query = new LdbcQuery8(
                     personId,
                     LdbcQuery8.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query8Event: %s", e));
@@ -324,12 +376,17 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         {
             try {
                 long personId = rs.getLong(1);
-                Date maxDate = convertStringToDate(rs.getString(2));
-                return new LdbcQuery9(
+                Date maxDate = new Date(rs.getTimestamp(2).getTime());//convertStringToDate(rs.getString(2));
+                long dependencyTimeStamp = convertStringToLong(rs.getString(3));
+                long expiryTimeStamp = convertStringToLong(rs.getString(4));
+                Operation query = new LdbcQuery9(
                     personId,
                     maxDate,
                     LdbcQuery9.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query9Event: %s", e));
@@ -351,11 +408,16 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId = rs.getLong(1);
                 int personName = rs.getInt(2);
-                return new LdbcQuery10(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(3));
+                long expiryTimeStamp = convertStringToLong(rs.getString(4));
+                Operation query = new LdbcQuery10(
                     personId,
                     personName,
                     LdbcQuery10.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query10Event: %s", e));
@@ -378,12 +440,17 @@ public class QueryEventStreamReader implements Iterator<Operation>{
                 long personId = rs.getLong(1);
                 String countryName = rs.getString(2);
                 int workFromYear = rs.getInt(3);
-                return new LdbcQuery11(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(4));
+                long expiryTimeStamp = convertStringToLong(rs.getString(5));
+                Operation query = new LdbcQuery11(
                     personId,
                     countryName,
                     workFromYear,
                     LdbcQuery11.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query11Event: %s", e));
@@ -405,11 +472,16 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId = rs.getLong(1);
                 String tagClassName = rs.getString(2);
-                return new LdbcQuery12(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(3));
+                long expiryTimeStamp = convertStringToLong(rs.getString(4));
+                Operation query = new LdbcQuery12(
                     personId,
                     tagClassName,
                     LdbcQuery12.DEFAULT_LIMIT
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query12Event: %s", e));
@@ -431,10 +503,15 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId1 = rs.getLong(1);
                 long personId2 = rs.getLong(2);
-                return new LdbcQuery13a(
+                long dependencyTimeStamp = rs.getLong(3);
+                long expiryTimeStamp = rs.getLong(4);
+                Operation query = new LdbcQuery13a(
                     personId1,
                     personId2
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query13aEvent: %s", e));
@@ -456,10 +533,15 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId1 = rs.getLong(1);
                 long personId2 = rs.getLong(2);
-                return new LdbcQuery13b(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(3));
+                long expiryTimeStamp = convertStringToLong(rs.getString(4));
+                Operation query = new LdbcQuery13b(
                     personId1,
                     personId2
-            );
+                );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query13bEvent: %s", e));
@@ -481,10 +563,15 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId1 = rs.getLong(1);
                 long personId2 = rs.getLong(2);
-                return new LdbcQuery14a(
+                long dependencyTimeStamp = rs.getLong(3);
+                long expiryTimeStamp = rs.getLong(4);
+                Operation query = new LdbcQuery14a(
                     personId1,
                     personId2
                 );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query14aEvent: %s", e));
@@ -506,10 +593,15 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId1 = rs.getLong(1);
                 long personId2 = rs.getLong(2);
-                return new LdbcQuery14b(
+                long dependencyTimeStamp = convertStringToLong(rs.getString(3));
+                long expiryTimeStamp = convertStringToLong(rs.getString(4));
+                Operation query = new LdbcQuery14b(
                     personId1,
                     personId2
                 );
+                query.setDependencyTimeStamp(dependencyTimeStamp);
+                query.setExpiryTimeStamp(expiryTimeStamp);
+                return query;
             }
             catch (SQLException e){
                 throw new WorkloadException(format("Error while decoding ResultSet for Query14bEvent: %s", e));
@@ -517,16 +609,8 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         }
     }
 
-    /**
-     * Converts a date as string to java.util.Date
-     * @param dateString date as string (using YYYY-MM-DD format)
-     * @return Date object from given string
-     */
-    private static Date convertStringToDate(String dateString)
+    private static long convertStringToLong(String dateString)
     {
-        LocalDate localDate = LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
-        return Date.from(localDate.atStartOfDay()
-            .atZone(ZoneId.of("Etc/GMT"))
-            .toInstant());
+        return Instant.parse(dateString.replace(" ", "T") + "Z").toEpochMilli();
     }
 }
