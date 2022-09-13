@@ -2,6 +2,7 @@ import duckdb
 from datetime import timedelta, datetime
 import glob
 from pathlib import Path
+import argparse
 
 remove_duplicates_dict = {
     "Q_1"   : "DELETE FROM Q_1   t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_1   t2 WHERE t2.personId  = t1.personId  AND t2.firstName = t1.firstName);",
@@ -23,9 +24,10 @@ remove_duplicates_dict = {
     "Q_14b" : "DELETE FROM Q_14b t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_14b t2 WHERE t2.person1Id = t1.person1Id AND t2.person2Id = t1.person2Id);"
 }
 
-def generate_parameters(cursor, date_limit, date_start, create_tables, query_variant):
+
+def generate_parameter_for_query_type(cursor, date_limit, date_start, create_tables, query_variant):
     """
-    Creates parameters for given query variant.
+    Creates parameter for given query variant.
     Args:
         - cursor (DuckDBPyConnection): cursor to the DuckDB instance
         - date_limit (datetime): The day to filter on. This date will be used to compare creation and deletion dates
@@ -36,7 +38,7 @@ def generate_parameters(cursor, date_limit, date_start, create_tables, query_var
     date_limit_string = date_limit.strftime('%Y-%m-%d')
     date_limit_long = date_limit.timestamp() * 1000
     date_start_long = date_start.timestamp() * 1000
-    with open(f"paramgen-queries/pg-{query_variant}.sql", "r") as parameter_query_file:
+    with open(f"paramgen/paramgen-queries/pg-{query_variant}.sql", "r") as parameter_query_file:
         parameter_query = parameter_query_file.read().replace(':date_limit_filter', f'\'{date_limit_string}\'')
         parameter_query = parameter_query.replace(':date_limit_long', str(date_limit_long))
         parameter_query = parameter_query.replace(':date_start_long', str(date_start_long))
@@ -44,56 +46,114 @@ def generate_parameters(cursor, date_limit, date_start, create_tables, query_var
             cursor.execute(f"CREATE TABLE 'Q_{query_variant}' AS SELECT * FROM ({parameter_query});")
         cursor.execute(f"INSERT INTO 'Q_{query_variant}' SELECT * FROM ({parameter_query});")
 
-if __name__ == "__main__":
-    parquet_path = "factors/*"
-    Path('paramgen.snb.db').unlink(missing_ok=True)
 
+def create_views_of_factor_tables(cursor, factor_tables_path = "factors/*", preview_tables = False):
+    """
+    Args:
+        - cursor (DuckDBPyConnection): cursor to the DuckDB instance
+        - factor_tables_path    (str): path to the factor tables
+        - preview_tables    (boolean): Whether the first five rows of the factor table should be shown.
+    """
     print("============ Loading the factor tables ============")
-    cursor = duckdb.connect(database="paramgen.snb.db")
-    directories = glob.glob(f'{parquet_path}')
-    print(directories)
+    directories = glob.glob(f'{factor_tables_path}')
+    if (len(directories) == 0):
+        raise ValueError(f"{factor_tables_path} is empty")
     # Create views of raw parquet files
     for directory in directories:
         path_dir = Path(directory)
         if path_dir.is_dir():
-            print(path_dir.name)
-            print(str(Path(directory).absolute()))
             cursor.execute(
                 f"""
                 CREATE VIEW {path_dir.name} AS 
                 SELECT * FROM read_parquet('{str(Path(directory).absolute()) + "/*.parquet"}');
                 """
             )
-            # Check tables
-            print(cursor.execute(f"SELECT * FROM {path_dir.name} LIMIT 5;").fetch_df().head())
+            if (preview_tables):
+                print(cursor.execute(f"SELECT * FROM {path_dir.name} LIMIT 5;").fetch_df().head())
 
-    # Slide through relevant views
-    date_limit = datetime(year=2012, month=11, day=29, hour=0, minute=0, second=0)
-    date_start = date_limit
+
+def generate_parameters(cursor, date_limit, date_start, end_date, window_time):
+    """
+    Generates paramters for all query types until end_date is reached.
+    Args:
+        - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
+        - date_limit  (datetime): The day to filter on. This date will be used to compare creation and deletion dates
+        - date_start  (datetime): The first day of the inserts. This is used for parameters that do not contain creation and deletion dates
+        - end_date    (datetime): The last day of the inserts and when the loop stops.
+        - window_time (timedelta): 
+    """
     print("Start time of initial_snapshot: " + str(date_limit))
-    window_time = timedelta(days=1) # Bucket by week
-    print(window_time)
-    end_date = datetime(year=2013, month=1, day=1, hour=0, minute=0, second=0)
-    # Create factor tables with time_bucket column
+    print("End time of initial_snapshot: " + str(end_date))
+    print("Time bucket size: " + str(window_time))
+
     create_tables = True
     while (date_limit < end_date):
-        # Create factors
-        print(date_limit, end_date, window_time)
-
         print("============ Generating parameters ============")
         for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "13b", "14a", "14b"]:
-            print(f"- Q{query_variant}")
-
-            generate_parameters(cursor, date_limit, date_start, create_tables, query_variant)
+            print(f"- Q{query_variant}, date {date_limit.strftime('%Y-%m-%d')}")
+            generate_parameter_for_query_type(cursor, date_limit, date_start, create_tables, query_variant)
         create_tables = False
         date_limit = date_limit + window_time
-    
-    Path('paramgen.snb.db').unlink(missing_ok=True)
 
+
+def export_parameters(cursor):
+    """
+    Export parameters to interactive-Q{query_variant}.parquet files
+    Args:
+        - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
+    """
     print("============ Output parameters ============")
     for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "13b", "14a", "14b"]:
-        print(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
+        print(f"- Q{query_variant} TO parameters/interactive-{query_variant}.parquet")
         query = remove_duplicates_dict[f"Q_{query_variant}"]
         cursor.execute(query)
-        cursor.execute(f"COPY 'Q_{query_variant}' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
+        cursor.execute(f"COPY 'Q_{query_variant}' TO 'parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
 
+
+def main(factor_tables_dir, start_date, end_date, time_bucket_size_in_days):
+    # Remove previous database if exists
+    Path('paramgen.snb.db').unlink(missing_ok=True)
+    cursor = duckdb.connect(database="paramgen.snb.db")
+
+    date_start = datetime.strptime(start_date, "%Y-%m-%d")
+    date_limit = date_start
+    window_time = timedelta(days=time_bucket_size_in_days)
+    end_date = datetime.strptime(end_date, "%Y-%m-%d")
+
+    create_views_of_factor_tables(cursor, factor_tables_dir)
+    generate_parameters(cursor, date_limit, date_start, end_date, window_time)
+    export_parameters(cursor)
+
+    # Remove temporary database
+    Path('paramgen.snb.db').unlink(missing_ok=True)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--factor_tables_dir',
+        help="factor_tables_dir: directory containing the factor tables e.g. '/data/out-sf1'",
+        type=str,
+        required=False
+    )
+    parser.add_argument(
+        '--start_date',
+        help="start_date: Start date of the update streams, e.g. '2012-11-28'",
+        type=str,
+        required=False
+    )
+    parser.add_argument(
+        '--end_date',
+        help="end_date: End date of the update streams, e.g. '2012-12-31'",
+        type=str,
+        required=False
+    )
+    parser.add_argument(
+        '--time_bucket_size_in_days',
+        help="time_bucket_size_in_days: How many days the parameters should include, e.g. 1",
+        type=int,
+        required=False
+    )
+    args = parser.parse_args()
+
+    main(args.factor_tables_dir, args.start_date, args.end_date, args.time_bucket_size_in_days)

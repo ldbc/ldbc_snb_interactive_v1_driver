@@ -43,22 +43,22 @@ The paramgen implements [parameter curation](https://research.vu.nl/en/publicati
 
     ```bash
     export LDBC_SNB_DATA_ROOT_DIRECTORY=${LDBC_SNB_DATAGEN_DIR}/out-sf${SF}/
-    scripts/get-factors.sh
+    paramgen/get-factors.sh
     ```
 
     To download and use the factors of the sample data set, run:
 
     ```bash
-    scripts/get-sample-factors.sh
+    paramgen/get-sample-factors.sh
     ```
 
 1. To run the parameter generator, issue:
 
     ```bash
-    scripts/paramgen.sh
+    paramgen/paramgen.sh
     ```
 
-1. The parameters will be placed in the `../parameters/` directory.
+1. The parameters will be placed in the `parameters/` directory.
 
 ## Previewing the Parquet files with DuckDB
 
