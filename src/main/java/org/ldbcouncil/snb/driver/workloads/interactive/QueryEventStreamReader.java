@@ -119,7 +119,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         {
             try {
                 long personId = rs.getLong(1);
-                Date maxDate = new Date(rs.getTimestamp(2).getTime());//convertStringToDate(rs.getString(2));
+                Date maxDate = new Date(rs.getTimestamp(2).getTime());
                 long dependencyTimeStamp = convertStringToLong(rs.getString(3));
                 long expiryTimeStamp = convertStringToLong(rs.getString(4));
                 Operation query = new LdbcQuery2(
@@ -152,7 +152,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
                 long personId = rs.getLong(1);
                 String countryXName = rs.getString(2);
                 String countryYName = rs.getString(3);
-                Date maxDate = new Date(rs.getTimestamp(4).getTime());//convertStringToDate(rs.getString(4));
+                Date maxDate = new Date(rs.getTimestamp(4).getTime());
                 int durationDays = rs.getInt(5);
                 long dependencyTimeStamp = convertStringToLong(rs.getString(6));
                 long expiryTimeStamp = convertStringToLong(rs.getString(7));
@@ -189,7 +189,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
                 long personId = rs.getLong(1);
                 String countryXName = rs.getString(2);
                 String countryYName = rs.getString(3);
-                Date maxDate = new Date(rs.getTimestamp(4).getTime());//convertStringToDate(rs.getString(4));
+                Date maxDate = new Date(rs.getTimestamp(4).getTime());
                 int durationDays = rs.getInt(5);
                 long dependencyTimeStamp = convertStringToLong(rs.getString(6));
                 long expiryTimeStamp = convertStringToLong(rs.getString(7));
@@ -224,7 +224,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             try
             {
                 long personId = rs.getLong(1);
-                Date startDate = new Date(rs.getTimestamp(2).getTime());//convertStringToDate(rs.getString(2));
+                Date startDate = new Date(rs.getTimestamp(2).getTime());
                 int durationDays = rs.getInt(3);
                 long dependencyTimeStamp = convertStringToLong(rs.getString(4));
                 long expiryTimeStamp = convertStringToLong(rs.getString(5));
@@ -257,7 +257,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             try {
                 long personId = rs.getLong(1);
                 // Dates are stored as long in the oepration streams.
-                Date minDate = new Date(rs.getTimestamp(2).getTime());//convertStringToDate(rs.getString(2));
+                Date minDate = new Date(rs.getTimestamp(2).getTime());
                 long dependencyTimeStamp = convertStringToLong(rs.getString(3));
                 long expiryTimeStamp = convertStringToLong(rs.getString(4));
                 Operation query = new LdbcQuery5(
@@ -376,7 +376,7 @@ public class QueryEventStreamReader implements Iterator<Operation>{
         {
             try {
                 long personId = rs.getLong(1);
-                Date maxDate = new Date(rs.getTimestamp(2).getTime());//convertStringToDate(rs.getString(2));
+                Date maxDate = new Date(rs.getTimestamp(2).getTime());
                 long dependencyTimeStamp = convertStringToLong(rs.getString(3));
                 long expiryTimeStamp = convertStringToLong(rs.getString(4));
                 Operation query = new LdbcQuery9(
