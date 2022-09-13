@@ -51,9 +51,15 @@ def create_views_of_factor_tables(cursor, factor_tables_path = "factors/*", prev
     """
     Args:
         - cursor (DuckDBPyConnection): cursor to the DuckDB instance
-        - factor_tables_path    (str): path to the factor tables
+        - factor_tables_path    (str): path to the factor tables. Only Unix paths are supported
         - preview_tables    (boolean): Whether the first five rows of the factor table should be shown.
     """
+
+    if factor_tables_path[-1] != '*':
+        if factor_tables_path[-1] != '/':
+            factor_tables_path = factor_tables_path + '/*'
+        else:
+            factor_tables_path = factor_tables_path + '*'
     print("============ Loading the factor tables ============")
     directories = glob.glob(f'{factor_tables_path}')
     if (len(directories) == 0):
@@ -62,6 +68,7 @@ def create_views_of_factor_tables(cursor, factor_tables_path = "factors/*", prev
     for directory in directories:
         path_dir = Path(directory)
         if path_dir.is_dir():
+            print(f"Loading {path_dir.name}")
             cursor.execute(
                 f"""
                 CREATE VIEW {path_dir.name} AS 
