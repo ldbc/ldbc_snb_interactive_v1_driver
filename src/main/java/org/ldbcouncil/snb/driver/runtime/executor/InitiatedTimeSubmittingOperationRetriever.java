@@ -3,25 +3,30 @@ package org.ldbcouncil.snb.driver.runtime.executor;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadStreams;
 import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeException;
+import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeReader;
 import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeWriter;
 
 import java.util.Iterator;
 
-// TODO test
 class InitiatedTimeSubmittingOperationRetriever
 {
     private final Iterator<Operation> nonDependencyOperations;
     private final Iterator<Operation> dependencyOperations;
     private final CompletionTimeWriter completionTimeWriter;
+    private final CompletionTimeReader completionTimeReader;
     private Operation nextNonDependencyOperation = null;
     private Operation nextDependencyOperation = null;
 
-    InitiatedTimeSubmittingOperationRetriever( WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-            CompletionTimeWriter completionTimeWriter )
+    InitiatedTimeSubmittingOperationRetriever(
+        WorkloadStreams.WorkloadStreamDefinition streamDefinition,
+        CompletionTimeWriter completionTimeWriter,
+        CompletionTimeReader completionTimeReader
+    )
     {
         this.nonDependencyOperations = streamDefinition.nonDependencyOperations();
         this.dependencyOperations = streamDefinition.dependencyOperations();
         this.completionTimeWriter = completionTimeWriter;
+        this.completionTimeReader = completionTimeReader;
     }
 
     boolean hasNextOperation()

@@ -3,6 +3,7 @@ package org.ldbcouncil.snb.driver.runtime.executor;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadStreams.WorkloadStreamDefinition;
 import org.ldbcouncil.snb.driver.runtime.ConcurrentErrorReporter;
+import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeReader;
 import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeWriter;
 import org.ldbcouncil.snb.driver.runtime.scheduling.Spinner;
 
@@ -23,7 +24,9 @@ class OperationStreamExecutorServiceThread extends Thread
             WorkloadStreamDefinition streamDefinition,
             AtomicBoolean hasFinished,
             AtomicBoolean forcedTerminate,
-            CompletionTimeWriter completionTimeWriter )
+            CompletionTimeWriter completionTimeWriter,
+            CompletionTimeReader completionTimeReader
+            )
     {
         super( OperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis() );
         this.operationExecutor = operationExecutor;
@@ -32,7 +35,8 @@ class OperationStreamExecutorServiceThread extends Thread
         this.forcedTerminate = forcedTerminate;
         this.initiatedTimeSubmittingOperationRetriever = new InitiatedTimeSubmittingOperationRetriever(
                 streamDefinition,
-                completionTimeWriter
+                completionTimeWriter,
+                completionTimeReader
         );
     }
 

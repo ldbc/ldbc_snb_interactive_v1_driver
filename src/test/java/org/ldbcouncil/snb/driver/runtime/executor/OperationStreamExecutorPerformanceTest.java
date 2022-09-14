@@ -11,6 +11,7 @@ import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
 import org.ldbcouncil.snb.driver.runtime.ConcurrentErrorReporter;
 import org.ldbcouncil.snb.driver.runtime.DefaultQueues;
 import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeException;
+import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeReader;
 import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeWriter;
 import org.ldbcouncil.snb.driver.runtime.coordination.DummyCompletionTimeReader;
 import org.ldbcouncil.snb.driver.runtime.coordination.DummyCompletionTimeWriter;
@@ -141,6 +142,7 @@ public class OperationStreamExecutorPerformanceTest
                         streamDefinition,
                         executor,
                         completionTimeWriter,
+                        completionTimeReader,
                         executorHasFinished,
                         forceThreadToTerminate
                 );
@@ -194,6 +196,7 @@ public class OperationStreamExecutorPerformanceTest
                         streamDefinition,
                         executor,
                         completionTimeWriter,
+                        completionTimeReader,
                         executorHasFinished,
                         forceThreadToTerminate
                 );
@@ -246,6 +249,7 @@ public class OperationStreamExecutorPerformanceTest
                         streamDefinition,
                         executor,
                         completionTimeWriter,
+                        completionTimeReader,
                         executorHasFinished,
                         forceThreadToTerminate
                 );
@@ -328,6 +332,7 @@ public class OperationStreamExecutorPerformanceTest
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
             OperationExecutor operationExecutor,
             CompletionTimeWriter completionTimeWriter,
+            CompletionTimeReader completionTimeReader,
             AtomicBoolean executorHasFinished,
             AtomicBoolean forceThreadToTerminate
     ) throws CompletionTimeException, MetricsCollectionException, DbException
@@ -339,7 +344,8 @@ public class OperationStreamExecutorPerformanceTest
                         streamDefinition,
                         executorHasFinished,
                         forceThreadToTerminate,
-                        completionTimeWriter
+                        completionTimeWriter,
+                        completionTimeReader
                 );
 
         return operationStreamExecutorThread;

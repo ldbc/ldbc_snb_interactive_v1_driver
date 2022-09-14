@@ -2,6 +2,7 @@ package org.ldbcouncil.snb.driver.runtime.executor;
 
 import org.ldbcouncil.snb.driver.WorkloadStreams.WorkloadStreamDefinition;
 import org.ldbcouncil.snb.driver.runtime.ConcurrentErrorReporter;
+import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeReader;
 import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeWriter;
 
 import java.util.concurrent.TimeUnit;
@@ -24,7 +25,9 @@ public class OperationStreamExecutorService
             ConcurrentErrorReporter errorReporter,
             WorkloadStreamDefinition streamDefinition,
             OperationExecutor operationExecutor,
-            CompletionTimeWriter completionTimeWriter )
+            CompletionTimeWriter completionTimeWriter,
+            CompletionTimeReader completionTimeReader
+             )
     {
         this.errorReporter = errorReporter;
         if ( streamDefinition.dependencyOperations().hasNext() || streamDefinition.nonDependencyOperations().hasNext() )
@@ -35,7 +38,8 @@ public class OperationStreamExecutorService
                     streamDefinition,
                     hasFinished,
                     forceThreadToTerminate,
-                    completionTimeWriter );
+                    completionTimeWriter,
+                    completionTimeReader );
         }
         else
         {

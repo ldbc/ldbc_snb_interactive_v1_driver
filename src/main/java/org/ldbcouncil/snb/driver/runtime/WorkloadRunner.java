@@ -344,7 +344,8 @@ public class WorkloadRunner
                     errorReporter,
                     asynchronousStream,
                     executorForAsynchronous,
-                    completionTimeWriterForAsynchronous
+                    completionTimeWriterForAsynchronous,
+                    completionTimeService
             );
 
             for ( WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions() )
@@ -379,7 +380,8 @@ public class WorkloadRunner
                                 errorReporter,
                                 blockingStream,
                                 executorForBlocking,
-                                completionTimeWriterForBlocking
+                                completionTimeWriterForBlocking,
+                                completionTimeService
                         )
                 );
             }
