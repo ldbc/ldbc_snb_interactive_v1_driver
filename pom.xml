@@ -23,11 +23,11 @@
         <junit.version>5.9.0</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
         <commons.io.version>2.11.0</commons.io.version>
-        <common.math.version>3.2</common.math.version>
-        <commmons.cli.version>1.2</commmons.cli.version>
+        <common.math.version>3.6.1</common.math.version>
+        <commmons.cli.version>1.5.0</commmons.cli.version>
         <commmons.collections.version>4.4</commmons.collections.version>
         <log4j.version>2.17.2</log4j.version>
-        <hdrhistogram.version>1.2.1</hdrhistogram.version>
+        <hdrhistogram.version>2.1.12</hdrhistogram.version>
         <guava.version>31.1-jre</guava.version>
         <stormpot.version>3.1</stormpot.version>
         <disruptor-version>3.3.2</disruptor-version>
