@@ -15,6 +15,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.assembly.version>2.4</maven.assembly.version>
         <jackson.api.version>2.13.3</jackson.api.version>
         <junit.version>5.9.0</junit.version>
@@ -27,8 +30,6 @@
         <hdrhistogram.version>1.2.1</hdrhistogram.version>
         <guava.version>31.1-jre</guava.version>
         <stormpot.version>3.1</stormpot.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <disruptor-version>3.3.2</disruptor-version>
         <mockito.version>4.6.0</mockito.version>
         <duckdb.version>0.4.0</duckdb.version>
@@ -153,6 +154,8 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                     <finalName>${project.artifactId}-standalone</finalName>
                     <transformers>
                         <transformer
