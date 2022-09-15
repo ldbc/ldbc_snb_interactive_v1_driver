@@ -235,21 +235,6 @@ public class MapUtils
         return propertiesToMap( properties );
     }
 
-    public static <NEW_KEY_TYPE, OLD_KEY_TYPE, NEW_VALUE_TYPE, OLD_VALUE_TYPE>
-    Map<NEW_KEY_TYPE,NEW_VALUE_TYPE> UNSAFE_changeTypes(
-            Map<OLD_KEY_TYPE,OLD_VALUE_TYPE> originalMap,
-            TypeChangeFun<OLD_KEY_TYPE,NEW_KEY_TYPE> keyFun,
-            TypeChangeFun<OLD_VALUE_TYPE,NEW_VALUE_TYPE> valueFun
-    )
-    {
-        Map<NEW_KEY_TYPE,NEW_VALUE_TYPE> newMap = new HashMap<>();
-        for ( OLD_KEY_TYPE oldKey : originalMap.keySet() )
-        {
-            newMap.put( keyFun.apply( oldKey ), valueFun.apply( originalMap.get( oldKey ) ) );
-        }
-        return newMap;
-    }
-
     /**
      * Inverts the keys and values in a map.
      * NOTE: This method is unsafe as it assumes no duplicate values
