@@ -1,3 +1,4 @@
+from xmlrpc.client import boolean
 import duckdb
 from datetime import timedelta, datetime
 import glob
@@ -47,7 +48,7 @@ def generate_parameter_for_query_type(cursor, date_limit, date_start, create_tab
         cursor.execute(f"INSERT INTO 'Q_{query_variant}' SELECT * FROM ({parameter_query});")
 
 
-def create_views_of_factor_tables(cursor, factor_tables_path = "factors/*", preview_tables = False):
+def create_views_of_factor_tables(cursor, factor_tables_path):
     """
     Args:
         - cursor (DuckDBPyConnection): cursor to the DuckDB instance
@@ -75,8 +76,6 @@ def create_views_of_factor_tables(cursor, factor_tables_path = "factors/*", prev
                 SELECT * FROM read_parquet('{str(Path(directory).absolute()) + "/*.parquet"}');
                 """
             )
-            if (preview_tables):
-                print(cursor.execute(f"SELECT * FROM {path_dir.name} LIMIT 5;").fetch_df().head())
 
 
 def generate_parameters(cursor, date_limit, date_start, end_date, window_time):
@@ -117,7 +116,21 @@ def export_parameters(cursor):
         cursor.execute(f"COPY 'Q_{query_variant}' TO 'parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
 
 
-def main(factor_tables_dir, start_date, end_date, time_bucket_size_in_days):
+def generate_short_parameters(cursor, date_start):
+    """
+    Generates personIds and messageIds for manual testing of short queries
+    Args:
+        - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
+        - date_start  (datetime): The first day of the inserts. This is used for parameters that do not contain creation and deletion dates
+    """
+    print("============ Generate Short Query Parameters ============")
+    for query_variant in ["personId", "messageId"]:
+        generate_parameter_for_query_type(cursor, date_start, date_start, True, query_variant)
+        print(f"- Q{query_variant} TO parameters/interactive-{query_variant}.parquet")
+        cursor.execute(f"COPY 'Q_{query_variant}' TO 'parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
+
+
+def main(factor_tables_dir, start_date, end_date, time_bucket_size_in_days, generate_short_query_parameters):
     # Remove previous database if exists
     Path('paramgen.snb.db').unlink(missing_ok=True)
     cursor = duckdb.connect(database="paramgen.snb.db")
@@ -131,6 +144,9 @@ def main(factor_tables_dir, start_date, end_date, time_bucket_size_in_days):
     generate_parameters(cursor, date_limit, date_start, end_date, window_time)
     export_parameters(cursor)
 
+    if (generate_short_query_parameters):
+        generate_short_parameters(cursor, date_start)
+
     # Remove temporary database
     Path('paramgen.snb.db').unlink(missing_ok=True)
 
@@ -141,26 +157,37 @@ if __name__ == "__main__":
         '--factor_tables_dir',
         help="factor_tables_dir: directory containing the factor tables e.g. '/data/out-sf1'",
         type=str,
+        default='factors/',
         required=False
     )
     parser.add_argument(
         '--start_date',
         help="start_date: Start date of the update streams, e.g. '2012-11-28'",
         type=str,
+        default='2012-11-28',
         required=False
     )
     parser.add_argument(
         '--end_date',
-        help="end_date: End date of the update streams, e.g. '2012-12-31'",
+        help="end_date: End date of the update streams, e.g. '2013-01-01'",
         type=str,
+        default='2013-01-01',
         required=False
     )
     parser.add_argument(
         '--time_bucket_size_in_days',
         help="time_bucket_size_in_days: How many days the parameters should include, e.g. 1",
         type=int,
+        default=1,
+        required=False
+    )
+    parser.add_argument(
+        '--generate_short_query_parameters',
+        help="generate_short_query_parameters: Generate parameters to use manually for the short queries (these are not loaded by the driver)",
+        type=bool,
+        default=False,
         required=False
     )
     args = parser.parse_args()
 
-    main(args.factor_tables_dir, args.start_date, args.end_date, args.time_bucket_size_in_days)
+    main(args.factor_tables_dir, args.start_date, args.end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)
