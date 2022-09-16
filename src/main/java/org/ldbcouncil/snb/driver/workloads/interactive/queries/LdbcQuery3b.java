@@ -23,11 +23,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class LdbcQuery3 extends LdbcOperation<List<LdbcQuery3Result>>
+public class LdbcQuery3b extends LdbcOperation<List<LdbcQuery3Result>>
 {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public static final int TYPE = 3;
+    public static final int TYPE = 32;
     public static final int DEFAULT_LIMIT = 20;
     // Parameters used for replacement in queries
     public static final String PERSON_ID = "personId";
@@ -44,7 +44,7 @@ public class LdbcQuery3 extends LdbcOperation<List<LdbcQuery3Result>>
     private final int durationDays;
     private final int limit;
 
-    public LdbcQuery3(
+    public LdbcQuery3b(
         @JsonProperty("personIdQ3")   long personIdQ3,
         @JsonProperty("countryXName") String countryXName,
         @JsonProperty("countryYName") String countryYName,
@@ -61,7 +61,7 @@ public class LdbcQuery3 extends LdbcOperation<List<LdbcQuery3Result>>
         this.limit = limit;
     }
 
-    public LdbcQuery3( LdbcQuery3 query )
+    public LdbcQuery3b( LdbcQuery3b query )
     {
         this.personIdQ3 = query.getPersonIdQ3();
         this.countryXName = query.getCountryXName();
@@ -102,8 +102,8 @@ public class LdbcQuery3 extends LdbcOperation<List<LdbcQuery3Result>>
     }
 
     @Override
-    public LdbcQuery3 newInstance(){
-        return new LdbcQuery3(this);
+    public LdbcQuery3b newInstance(){
+        return new LdbcQuery3b(this);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class LdbcQuery3 extends LdbcOperation<List<LdbcQuery3Result>>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcQuery3 that = (LdbcQuery3) o;
+        LdbcQuery3b that = (LdbcQuery3b) o;
 
         if ( durationDays != that.durationDays )
         { return false; }

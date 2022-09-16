@@ -176,7 +176,8 @@ public class DummyLdbcSnbInteractiveDb extends Db
         // Long Reads
         registerOperationHandler( LdbcQuery1.class, LdbcQuery1Handler.class );
         registerOperationHandler( LdbcQuery2.class, LdbcQuery2Handler.class );
-        registerOperationHandler( LdbcQuery3.class, LdbcQuery3Handler.class );
+        registerOperationHandler( LdbcQuery3a.class, LdbcQuery3aHandler.class );
+        registerOperationHandler( LdbcQuery3b.class, LdbcQuery3bHandler.class );
         registerOperationHandler( LdbcQuery4.class, LdbcQuery4Handler.class );
         registerOperationHandler( LdbcQuery5.class, LdbcQuery5Handler.class );
         registerOperationHandler( LdbcQuery6.class, LdbcQuery6Handler.class );
@@ -186,8 +187,10 @@ public class DummyLdbcSnbInteractiveDb extends Db
         registerOperationHandler( LdbcQuery10.class, LdbcQuery10Handler.class );
         registerOperationHandler( LdbcQuery11.class, LdbcQuery11Handler.class );
         registerOperationHandler( LdbcQuery12.class, LdbcQuery12Handler.class );
-        registerOperationHandler( LdbcQuery13.class, LdbcQuery13Handler.class );
-        registerOperationHandler( LdbcQuery14.class, LdbcQuery14Handler.class );
+        registerOperationHandler( LdbcQuery13a.class, LdbcQuery13aHandler.class );
+        registerOperationHandler( LdbcQuery13b.class, LdbcQuery13bHandler.class );
+        registerOperationHandler( LdbcQuery14a.class, LdbcQuery14aHandler.class );
+        registerOperationHandler( LdbcQuery14b.class, LdbcQuery14bHandler.class );
         // Short Reads
         registerOperationHandler( LdbcShortQuery1PersonProfile.class, LdbcShortQuery1PersonProfileHandler.class );
         registerOperationHandler( LdbcShortQuery2PersonPosts.class, LdbcShortQuery2PersonPostsHandler.class );
@@ -268,10 +271,21 @@ public class DummyLdbcSnbInteractiveDb extends Db
     private static final List<LdbcQuery3Result> LDBC_QUERY_3_RESULTS =
             DummyLdbcSnbInteractiveOperationResultSets.read3Results();
 
-    public static class LdbcQuery3Handler implements OperationHandler<LdbcQuery3,DummyDbConnectionState>
+    public static class LdbcQuery3aHandler implements OperationHandler<LdbcQuery3a,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcQuery3 operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcQuery3a operation, DummyDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
+        {
+            sleep( operation, sleepDurationAsNano );
+            resultReporter.report( 0, LDBC_QUERY_3_RESULTS, operation );
+        }
+    }
+
+    public static class LdbcQuery3bHandler implements OperationHandler<LdbcQuery3b,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcQuery3b operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );
@@ -408,10 +422,21 @@ public class DummyLdbcSnbInteractiveDb extends Db
     private static final LdbcQuery13Result LDBC_QUERY_13_RESULTS =
             DummyLdbcSnbInteractiveOperationResultSets.read13Results();
 
-    public static class LdbcQuery13Handler implements OperationHandler<LdbcQuery13,DummyDbConnectionState>
+    public static class LdbcQuery13aHandler implements OperationHandler<LdbcQuery13a,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcQuery13 operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcQuery13a operation, DummyDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
+        {
+            sleep( operation, sleepDurationAsNano );
+            resultReporter.report( 0, LDBC_QUERY_13_RESULTS, operation );
+        }
+    }
+
+    public static class LdbcQuery13bHandler implements OperationHandler<LdbcQuery13b,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcQuery13b operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );
@@ -422,10 +447,21 @@ public class DummyLdbcSnbInteractiveDb extends Db
     private static final List<LdbcQuery14Result> LDBC_QUERY_14_RESULTS =
             DummyLdbcSnbInteractiveOperationResultSets.read14Results();
 
-    public static class LdbcQuery14Handler implements OperationHandler<LdbcQuery14,DummyDbConnectionState>
+    public static class LdbcQuery14aHandler implements OperationHandler<LdbcQuery14a,DummyDbConnectionState>
     {
         @Override
-        public void executeOperation( LdbcQuery14 operation, DummyDbConnectionState dbConnectionState,
+        public void executeOperation( LdbcQuery14a operation, DummyDbConnectionState dbConnectionState,
+                ResultReporter resultReporter ) throws DbException
+        {
+            sleep( operation, sleepDurationAsNano );
+            resultReporter.report( 0, LDBC_QUERY_14_RESULTS, operation );
+        }
+    }
+
+    public static class LdbcQuery14bHandler implements OperationHandler<LdbcQuery14b,DummyDbConnectionState>
+    {
+        @Override
+        public void executeOperation( LdbcQuery14b operation, DummyDbConnectionState dbConnectionState,
                 ResultReporter resultReporter ) throws DbException
         {
             sleep( operation, sleepDurationAsNano );

@@ -66,8 +66,12 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         DummyLdbcSnbInteractiveOperationResultSets.read2Results()
                 ),
                 Tuple.<Operation,Object>tuple2(
-                        DummyLdbcSnbInteractiveOperationInstances.read3(),
+                        DummyLdbcSnbInteractiveOperationInstances.read3a(),
                         DummyLdbcSnbInteractiveOperationResultSets.read3Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                    DummyLdbcSnbInteractiveOperationInstances.read3b(),
+                    DummyLdbcSnbInteractiveOperationResultSets.read3Results()
                 ),
                 Tuple.<Operation,Object>tuple2(
                         DummyLdbcSnbInteractiveOperationInstances.read4(),
@@ -106,11 +110,19 @@ public class InteractiveWorkloadTest extends WorkloadTest
                         DummyLdbcSnbInteractiveOperationResultSets.read12Results()
                 ),
                 Tuple.<Operation,Object>tuple2(
-                        DummyLdbcSnbInteractiveOperationInstances.read13(),
+                        DummyLdbcSnbInteractiveOperationInstances.read13a(),
                         DummyLdbcSnbInteractiveOperationResultSets.read13Results()
                 ),
                 Tuple.<Operation,Object>tuple2(
-                        DummyLdbcSnbInteractiveOperationInstances.read14(),
+                    DummyLdbcSnbInteractiveOperationInstances.read13b(),
+                    DummyLdbcSnbInteractiveOperationResultSets.read13Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbInteractiveOperationInstances.read14a(),
+                        DummyLdbcSnbInteractiveOperationResultSets.read14Results()
+                ),
+                Tuple.<Operation,Object>tuple2(
+                        DummyLdbcSnbInteractiveOperationInstances.read14b(),
                         DummyLdbcSnbInteractiveOperationResultSets.read14Results()
                 ),
                 Tuple.<Operation,Object>tuple2(
@@ -373,7 +385,10 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY,
                 "20"
         ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY,
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3a_FREQUENCY_KEY,
+                "30"
+        ).applyArg(
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3b_FREQUENCY_KEY,
                 "30"
         ).applyArg(
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY,
@@ -403,10 +418,16 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY,
                 "300"
         ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY,
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13a_FREQUENCY_KEY,
                 "400"
         ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY,
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13b_FREQUENCY_KEY,
+                    "400"
+        ).applyArg(
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14a_FREQUENCY_KEY,
+                "500"
+        ).applyArg(
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14b_FREQUENCY_KEY,
                 "500"
         ).applyArg(
                 LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE,
@@ -429,7 +450,10 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ),
                 equalTo( "200" ) );
         assertThat(
-                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ),
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3a_INTERLEAVE_KEY ),
+                equalTo( "300" ) );
+        assertThat(
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3b_INTERLEAVE_KEY ),
                 equalTo( "300" ) );
         assertThat(
                 configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ),
@@ -459,10 +483,16 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ),
                 equalTo( "3000" ) );
         assertThat(
-                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ),
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13a_INTERLEAVE_KEY ),
                 equalTo( "4000" ) );
         assertThat(
-                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ),
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13b_INTERLEAVE_KEY ),
+                equalTo( "4000" ) );
+        assertThat(
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14a_INTERLEAVE_KEY ),
+                equalTo( "5000" ) );
+        assertThat(
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14b_INTERLEAVE_KEY ),
                 equalTo( "5000" ) );
     }
 
@@ -495,7 +525,10 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY,
                 "20"
         ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY,
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3a_FREQUENCY_KEY,
+                "30"
+        ).applyArg(
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3b_FREQUENCY_KEY,
                 "30"
         ).applyArg(
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY,
@@ -525,10 +558,16 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY,
                 "300"
         ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY,
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13a_FREQUENCY_KEY,
                 "400"
         ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY,
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13b_FREQUENCY_KEY,
+                "400"
+        ).applyArg(
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14a_FREQUENCY_KEY,
+                "500"
+        ).applyArg(
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14b_FREQUENCY_KEY,
                 "500"
         ).applyArg(
                 LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE,
@@ -551,7 +590,10 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ),
                 equalTo( "200" ) );
         assertThat(
-                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ),
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3a_INTERLEAVE_KEY ),
+                equalTo( "300" ) );
+        assertThat(
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3b_INTERLEAVE_KEY ),
                 equalTo( "300" ) );
         assertThat(
                 configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ),
@@ -581,10 +623,16 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ),
                 equalTo( "3000" ) );
         assertThat(
-                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ),
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13a_INTERLEAVE_KEY ),
                 equalTo( "4000" ) );
         assertThat(
-                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ),
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13b_INTERLEAVE_KEY ),
+                equalTo( "4000" ) );
+        assertThat(
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14a_INTERLEAVE_KEY ),
+                equalTo( "5000" ) );
+        assertThat(
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14b_INTERLEAVE_KEY ),
                 equalTo( "5000" ) );
     }
 
@@ -607,7 +655,10 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY,
                 "20"
         ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY,
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3a_FREQUENCY_KEY,
+                "30"
+        ).applyArg(
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3b_FREQUENCY_KEY,
                 "30"
         ).applyArg(
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY,
@@ -637,11 +688,17 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY,
                 "300"
         ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY,
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13a_FREQUENCY_KEY,
                 "400"
         ).applyArg(
-                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY,
+            LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13b_FREQUENCY_KEY,
+            "400"
+        ).applyArg(
+                LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14a_FREQUENCY_KEY,
                 "500"
+        ).applyArg(
+            LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14b_FREQUENCY_KEY,
+            "500"
         ).applyArg(
                 LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
@@ -669,8 +726,11 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ),
                 equalTo( "200" ) );
         assertThat(
-                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ),
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3a_INTERLEAVE_KEY ),
                 equalTo( "300" ) );
+        assertThat(
+            configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3b_INTERLEAVE_KEY ),
+            equalTo( "300" ) );
         assertThat(
                 configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ),
                 equalTo( "400" ) );
@@ -699,10 +759,16 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ),
                 equalTo( "3000" ) );
         assertThat(
-                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ),
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13a_INTERLEAVE_KEY ),
                 equalTo( "4000" ) );
         assertThat(
-                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ),
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13b_INTERLEAVE_KEY ),
+                equalTo( "4000" ) );
+        assertThat(
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14a_INTERLEAVE_KEY ),
+                equalTo( "5000" ) );
+        assertThat(
+                configurationAsMap.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14b_INTERLEAVE_KEY ),
                 equalTo( "5000" ) );
     }
 }

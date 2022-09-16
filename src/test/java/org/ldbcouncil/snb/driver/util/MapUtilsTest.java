@@ -294,57 +294,6 @@ public class MapUtilsTest
     }
 
     @Test
-    public void changeTypesShouldWorkWithToString() throws IOException
-    {
-        // Given
-        Map<Integer,Long> longMap = new HashMap<>();
-        longMap.put( 1, 10l );
-        longMap.put( 2, 20l );
-        Map<Integer,String> stringMapRight = new HashMap<>();
-        stringMapRight.put( 1, "10" );
-        stringMapRight.put( 2, "20" );
-        Map<Integer,String> stringMapWrong = new HashMap<>();
-        stringMapWrong.put( 1, "10" );
-        stringMapWrong.put( 2, "21" );
-
-        // When
-        Map<Integer,String> stringMapComputed = MapUtils.UNSAFE_changeTypes(
-                longMap,
-                TypeChangeFun.IDENTITY,
-                TypeChangeFun.TO_STRING
-        );
-
-        // Then
-        assertThat( stringMapRight, equalTo( stringMapComputed ) );
-        assertThat( stringMapRight, not( equalTo( stringMapWrong ) ) );
-    }
-
-    @Test
-    public void changeTypesShouldWorkWithMapping() throws IOException
-    {
-        // Given
-        Map<Integer,Long> longMap = new HashMap<>();
-        longMap.put( 1, 10l );
-        longMap.put( 2, 20l );
-        Map<Integer,String> mapping = new HashMap<>();
-        mapping.put( 1, "foo" );
-        mapping.put( 2, "bar" );
-        Map<String,String> expectedMap = new HashMap<>();
-        expectedMap.put( "foo", "10" );
-        expectedMap.put( "bar", "20" );
-
-        // When
-        Map<String,String> computedMap = MapUtils.UNSAFE_changeTypes(
-                longMap,
-                TypeChangeFun.mapped( mapping ),
-                TypeChangeFun.TO_STRING
-        );
-
-        // Then
-        assertThat( computedMap, equalTo( expectedMap ) );
-    }
-
-    @Test
     public void shouldSwitchKeysAndValues() throws IOException
     {
         // Given

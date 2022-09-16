@@ -19,8 +19,12 @@ public class DummyLdbcSnbInteractiveOperationInstances {
         return new LdbcQuery2(1, new Date(3), 4);
     }
 
-    public static LdbcQuery3 read3() {
-        return new LdbcQuery3(1, "3", "4", new Date(5), 6, 7);
+    public static LdbcQuery3a read3a() {
+        return new LdbcQuery3a(1, "3", "4", new Date(5), 6, 7);
+    }
+
+    public static LdbcQuery3b read3b() {
+        return new LdbcQuery3b(1, "3", "4", new Date(5), 6, 7);
     }
 
     public static LdbcQuery4 read4() {
@@ -59,12 +63,20 @@ public class DummyLdbcSnbInteractiveOperationInstances {
         return new LdbcQuery12(1, "3", 4);
     }
 
-    public static LdbcQuery13 read13() {
-        return new LdbcQuery13(1, 3);
+    public static LdbcQuery13a read13a() {
+        return new LdbcQuery13a(1, 3);
     }
 
-    public static LdbcQuery14 read14() {
-        return new LdbcQuery14(1, 3);
+    public static LdbcQuery13b read13b() {
+        return new LdbcQuery13b(1, 3);
+    }
+
+    public static LdbcQuery14a read14a() {
+        return new LdbcQuery14a(1, 3);
+    }
+
+    public static LdbcQuery14b read14b() {
+        return new LdbcQuery14b(1, 3);
     }
 
     /*

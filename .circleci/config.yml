@@ -11,7 +11,7 @@ workflows:
 jobs:
   compile_driver:
     docker:
-      - image: cimg/openjdk:8.0.272
+      - image: cimg/openjdk:11.0.16
     steps:
       - checkout
       - run: |

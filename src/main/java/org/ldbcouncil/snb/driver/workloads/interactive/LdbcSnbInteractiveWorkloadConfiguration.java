@@ -57,8 +57,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery1.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public static final String READ_OPERATION_2_INTERLEAVE_KEY =
             LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery2.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public static final String READ_OPERATION_3_INTERLEAVE_KEY =
-            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public static final String READ_OPERATION_3a_INTERLEAVE_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3a.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public static final String READ_OPERATION_3b_INTERLEAVE_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3b.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public static final String READ_OPERATION_4_INTERLEAVE_KEY =
             LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery4.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public static final String READ_OPERATION_5_INTERLEAVE_KEY =
@@ -77,14 +79,19 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery11.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public static final String READ_OPERATION_12_INTERLEAVE_KEY =
             LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery12.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public static final String READ_OPERATION_13_INTERLEAVE_KEY =
-            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public static final String READ_OPERATION_14_INTERLEAVE_KEY =
-            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public static final String READ_OPERATION_13a_INTERLEAVE_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13a.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public static final String READ_OPERATION_13b_INTERLEAVE_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13b.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public static final String READ_OPERATION_14a_INTERLEAVE_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14a.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public static final String READ_OPERATION_14b_INTERLEAVE_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14b.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public static final List<String> READ_OPERATION_INTERLEAVE_KEYS = Lists.newArrayList(
             READ_OPERATION_1_INTERLEAVE_KEY,
             READ_OPERATION_2_INTERLEAVE_KEY,
-            READ_OPERATION_3_INTERLEAVE_KEY,
+            READ_OPERATION_3a_INTERLEAVE_KEY,
+            READ_OPERATION_3b_INTERLEAVE_KEY,
             READ_OPERATION_4_INTERLEAVE_KEY,
             READ_OPERATION_5_INTERLEAVE_KEY,
             READ_OPERATION_6_INTERLEAVE_KEY,
@@ -94,8 +101,11 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             READ_OPERATION_10_INTERLEAVE_KEY,
             READ_OPERATION_11_INTERLEAVE_KEY,
             READ_OPERATION_12_INTERLEAVE_KEY,
-            READ_OPERATION_13_INTERLEAVE_KEY,
-            READ_OPERATION_14_INTERLEAVE_KEY );
+            READ_OPERATION_13a_INTERLEAVE_KEY,
+            READ_OPERATION_13b_INTERLEAVE_KEY,
+            READ_OPERATION_14a_INTERLEAVE_KEY,
+            READ_OPERATION_14b_INTERLEAVE_KEY
+    );
 
     /*
      * Operation frequency
@@ -105,8 +115,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery1.class.getSimpleName() + FREQUENCY_SUFFIX;
     public static final String READ_OPERATION_2_FREQUENCY_KEY =
             LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery2.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public static final String READ_OPERATION_3_FREQUENCY_KEY =
-            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public static final String READ_OPERATION_3a_FREQUENCY_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3a.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public static final String READ_OPERATION_3b_FREQUENCY_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3b.class.getSimpleName() + FREQUENCY_SUFFIX;
     public static final String READ_OPERATION_4_FREQUENCY_KEY =
             LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery4.class.getSimpleName() + FREQUENCY_SUFFIX;
     public static final String READ_OPERATION_5_FREQUENCY_KEY =
@@ -125,14 +137,19 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery11.class.getSimpleName() + FREQUENCY_SUFFIX;
     public static final String READ_OPERATION_12_FREQUENCY_KEY =
             LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery12.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public static final String READ_OPERATION_13_FREQUENCY_KEY =
-            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public static final String READ_OPERATION_14_FREQUENCY_KEY =
-            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public static final String READ_OPERATION_13a_FREQUENCY_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13a.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public static final String READ_OPERATION_13b_FREQUENCY_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13b.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public static final String READ_OPERATION_14a_FREQUENCY_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14a.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public static final String READ_OPERATION_14b_FREQUENCY_KEY =
+            LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14b.class.getSimpleName() + FREQUENCY_SUFFIX;
     public static final List<String> READ_OPERATION_FREQUENCY_KEYS = Lists.newArrayList(
             READ_OPERATION_1_FREQUENCY_KEY,
             READ_OPERATION_2_FREQUENCY_KEY,
-            READ_OPERATION_3_FREQUENCY_KEY,
+            READ_OPERATION_3a_FREQUENCY_KEY,
+            READ_OPERATION_3b_FREQUENCY_KEY,
             READ_OPERATION_4_FREQUENCY_KEY,
             READ_OPERATION_5_FREQUENCY_KEY,
             READ_OPERATION_6_FREQUENCY_KEY,
@@ -142,8 +159,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             READ_OPERATION_10_FREQUENCY_KEY,
             READ_OPERATION_11_FREQUENCY_KEY,
             READ_OPERATION_12_FREQUENCY_KEY,
-            READ_OPERATION_13_FREQUENCY_KEY,
-            READ_OPERATION_14_FREQUENCY_KEY
+            READ_OPERATION_13a_FREQUENCY_KEY,
+            READ_OPERATION_13b_FREQUENCY_KEY,
+            READ_OPERATION_14a_FREQUENCY_KEY,
+            READ_OPERATION_14b_FREQUENCY_KEY
     );
 
     private static Map<Integer,String> typeToInterleaveKeyMapping()
@@ -151,7 +170,8 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         Map<Integer,String> mapping = new HashMap<>();
         mapping.put( LdbcQuery1.TYPE, READ_OPERATION_1_INTERLEAVE_KEY );
         mapping.put( LdbcQuery2.TYPE, READ_OPERATION_2_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery3.TYPE, READ_OPERATION_3_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery3a.TYPE, READ_OPERATION_3a_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery3a.TYPE, READ_OPERATION_3b_INTERLEAVE_KEY );
         mapping.put( LdbcQuery4.TYPE, READ_OPERATION_4_INTERLEAVE_KEY );
         mapping.put( LdbcQuery5.TYPE, READ_OPERATION_5_INTERLEAVE_KEY );
         mapping.put( LdbcQuery6.TYPE, READ_OPERATION_6_INTERLEAVE_KEY );
@@ -161,8 +181,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         mapping.put( LdbcQuery10.TYPE, READ_OPERATION_10_INTERLEAVE_KEY );
         mapping.put( LdbcQuery11.TYPE, READ_OPERATION_11_INTERLEAVE_KEY );
         mapping.put( LdbcQuery12.TYPE, READ_OPERATION_12_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery13.TYPE, READ_OPERATION_13_INTERLEAVE_KEY );
-        mapping.put( LdbcQuery14.TYPE, READ_OPERATION_14_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery13a.TYPE, READ_OPERATION_13a_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery13a.TYPE, READ_OPERATION_13b_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery14a.TYPE, READ_OPERATION_14a_INTERLEAVE_KEY );
+        mapping.put( LdbcQuery14a.TYPE, READ_OPERATION_14b_INTERLEAVE_KEY );
         return mapping;
     }
 
@@ -177,7 +199,8 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     public static final String ENABLE_SUFFIX = "_enable";
     public static final String LONG_READ_OPERATION_1_ENABLE_KEY = asEnableKey( LdbcQuery1.class );
     public static final String LONG_READ_OPERATION_2_ENABLE_KEY = asEnableKey( LdbcQuery2.class );
-    public static final String LONG_READ_OPERATION_3_ENABLE_KEY = asEnableKey( LdbcQuery3.class );
+    public static final String LONG_READ_OPERATION_3a_ENABLE_KEY = asEnableKey( LdbcQuery3a.class );
+    public static final String LONG_READ_OPERATION_3b_ENABLE_KEY = asEnableKey( LdbcQuery3b.class );
     public static final String LONG_READ_OPERATION_4_ENABLE_KEY = asEnableKey( LdbcQuery4.class );
     public static final String LONG_READ_OPERATION_5_ENABLE_KEY = asEnableKey( LdbcQuery5.class );
     public static final String LONG_READ_OPERATION_6_ENABLE_KEY = asEnableKey( LdbcQuery6.class );
@@ -187,12 +210,15 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     public static final String LONG_READ_OPERATION_10_ENABLE_KEY = asEnableKey( LdbcQuery10.class );
     public static final String LONG_READ_OPERATION_11_ENABLE_KEY = asEnableKey( LdbcQuery11.class );
     public static final String LONG_READ_OPERATION_12_ENABLE_KEY = asEnableKey( LdbcQuery12.class );
-    public static final String LONG_READ_OPERATION_13_ENABLE_KEY = asEnableKey( LdbcQuery13.class );
-    public static final String LONG_READ_OPERATION_14_ENABLE_KEY = asEnableKey( LdbcQuery14.class );
+    public static final String LONG_READ_OPERATION_13a_ENABLE_KEY = asEnableKey( LdbcQuery13a.class );
+    public static final String LONG_READ_OPERATION_13b_ENABLE_KEY = asEnableKey( LdbcQuery13b.class );
+    public static final String LONG_READ_OPERATION_14a_ENABLE_KEY = asEnableKey( LdbcQuery14a.class );
+    public static final String LONG_READ_OPERATION_14b_ENABLE_KEY = asEnableKey( LdbcQuery14b.class );
     public static final List<String> LONG_READ_OPERATION_ENABLE_KEYS = Lists.newArrayList(
             LONG_READ_OPERATION_1_ENABLE_KEY,
             LONG_READ_OPERATION_2_ENABLE_KEY,
-            LONG_READ_OPERATION_3_ENABLE_KEY,
+            LONG_READ_OPERATION_3a_ENABLE_KEY,
+            LONG_READ_OPERATION_3b_ENABLE_KEY,
             LONG_READ_OPERATION_4_ENABLE_KEY,
             LONG_READ_OPERATION_5_ENABLE_KEY,
             LONG_READ_OPERATION_6_ENABLE_KEY,
@@ -202,8 +228,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
             LONG_READ_OPERATION_10_ENABLE_KEY,
             LONG_READ_OPERATION_11_ENABLE_KEY,
             LONG_READ_OPERATION_12_ENABLE_KEY,
-            LONG_READ_OPERATION_13_ENABLE_KEY,
-            LONG_READ_OPERATION_14_ENABLE_KEY
+            LONG_READ_OPERATION_13a_ENABLE_KEY,
+            LONG_READ_OPERATION_13b_ENABLE_KEY,
+            LONG_READ_OPERATION_14a_ENABLE_KEY,
+            LONG_READ_OPERATION_14b_ENABLE_KEY
     );
     public static final String SHORT_READ_OPERATION_1_ENABLE_KEY = asEnableKey( LdbcShortQuery1PersonProfile.class );
     public static final String SHORT_READ_OPERATION_2_ENABLE_KEY = asEnableKey( LdbcShortQuery2PersonPosts.class );
@@ -270,7 +298,8 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
      */
     public static final String READ_OPERATION_1_PARAMS_FILENAME = "interactive-1.parquet";
     public static final String READ_OPERATION_2_PARAMS_FILENAME = "interactive-2.parquet";
-    public static final String READ_OPERATION_3_PARAMS_FILENAME = "interactive-3.parquet";
+    public static final String READ_OPERATION_3a_PARAMS_FILENAME = "interactive-3a.parquet";
+    public static final String READ_OPERATION_3b_PARAMS_FILENAME = "interactive-3b.parquet";
     public static final String READ_OPERATION_4_PARAMS_FILENAME = "interactive-4.parquet";
     public static final String READ_OPERATION_5_PARAMS_FILENAME = "interactive-5.parquet";
     public static final String READ_OPERATION_6_PARAMS_FILENAME = "interactive-6.parquet";
@@ -280,15 +309,18 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     public static final String READ_OPERATION_10_PARAMS_FILENAME = "interactive-10.parquet";
     public static final String READ_OPERATION_11_PARAMS_FILENAME = "interactive-11.parquet";
     public static final String READ_OPERATION_12_PARAMS_FILENAME = "interactive-12.parquet";
-    public static final String READ_OPERATION_13_PARAMS_FILENAME = "interactive-13.parquet";
-    public static final String READ_OPERATION_14_PARAMS_FILENAME = "interactive-14.parquet";
+    public static final String READ_OPERATION_13a_PARAMS_FILENAME = "interactive-13a.parquet";
+    public static final String READ_OPERATION_13b_PARAMS_FILENAME = "interactive-13b.parquet";
+    public static final String READ_OPERATION_14a_PARAMS_FILENAME = "interactive-14a.parquet";
+    public static final String READ_OPERATION_14b_PARAMS_FILENAME = "interactive-14b.parquet";
 
     private static Map<Integer,String> typeToOperationParameterFilename()
     {
         Map<Integer,String> mapping = new HashMap<>();
         mapping.put( LdbcQuery1.TYPE, READ_OPERATION_1_PARAMS_FILENAME );
         mapping.put( LdbcQuery2.TYPE, READ_OPERATION_2_PARAMS_FILENAME );
-        mapping.put( LdbcQuery3.TYPE, READ_OPERATION_3_PARAMS_FILENAME );
+        mapping.put( LdbcQuery3a.TYPE, READ_OPERATION_3a_PARAMS_FILENAME );
+        mapping.put( LdbcQuery3b.TYPE, READ_OPERATION_3b_PARAMS_FILENAME );
         mapping.put( LdbcQuery4.TYPE, READ_OPERATION_4_PARAMS_FILENAME );
         mapping.put( LdbcQuery5.TYPE, READ_OPERATION_5_PARAMS_FILENAME );
         mapping.put( LdbcQuery6.TYPE, READ_OPERATION_6_PARAMS_FILENAME );
@@ -298,8 +330,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         mapping.put( LdbcQuery10.TYPE, READ_OPERATION_10_PARAMS_FILENAME );
         mapping.put( LdbcQuery11.TYPE, READ_OPERATION_11_PARAMS_FILENAME );
         mapping.put( LdbcQuery12.TYPE, READ_OPERATION_12_PARAMS_FILENAME );
-        mapping.put( LdbcQuery13.TYPE, READ_OPERATION_13_PARAMS_FILENAME );
-        mapping.put( LdbcQuery14.TYPE, READ_OPERATION_14_PARAMS_FILENAME );
+        mapping.put( LdbcQuery13a.TYPE, READ_OPERATION_13a_PARAMS_FILENAME );
+        mapping.put( LdbcQuery13b.TYPE, READ_OPERATION_13b_PARAMS_FILENAME );
+        mapping.put( LdbcQuery14a.TYPE, READ_OPERATION_14a_PARAMS_FILENAME );
+        mapping.put( LdbcQuery14b.TYPE, READ_OPERATION_14b_PARAMS_FILENAME );
         return mapping;
     }
 
@@ -320,8 +354,11 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         interleave = Integer.parseInt( params.get( READ_OPERATION_2_FREQUENCY_KEY ) ) * updateDistance;
         params.put( READ_OPERATION_2_INTERLEAVE_KEY, interleave.toString() );
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_3_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_3_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt( params.get( READ_OPERATION_3a_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_3a_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_3b_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_3b_INTERLEAVE_KEY, interleave.toString() );
 
         interleave = Integer.parseInt( params.get( READ_OPERATION_4_FREQUENCY_KEY ) ) * updateDistance;
         params.put( READ_OPERATION_4_INTERLEAVE_KEY, interleave.toString() );
@@ -350,11 +387,17 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         interleave = Integer.parseInt( params.get( READ_OPERATION_12_FREQUENCY_KEY ) ) * updateDistance;
         params.put( READ_OPERATION_12_INTERLEAVE_KEY, interleave.toString() );
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_13_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_13_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt( params.get( READ_OPERATION_13a_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_13a_INTERLEAVE_KEY, interleave.toString() );
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_14_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_14_INTERLEAVE_KEY, interleave.toString() );
+        interleave = Integer.parseInt( params.get( READ_OPERATION_13b_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_13b_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_14a_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_14a_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_14b_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_14b_INTERLEAVE_KEY, interleave.toString() );
 
         return params;
     }
@@ -405,7 +448,8 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         return Lists.newArrayList(
                 LONG_READ_OPERATION_1_ENABLE_KEY,
                 LONG_READ_OPERATION_2_ENABLE_KEY,
-                LONG_READ_OPERATION_3_ENABLE_KEY,
+                LONG_READ_OPERATION_3a_ENABLE_KEY,
+                LONG_READ_OPERATION_3b_ENABLE_KEY,
                 LONG_READ_OPERATION_4_ENABLE_KEY,
                 LONG_READ_OPERATION_5_ENABLE_KEY,
                 LONG_READ_OPERATION_6_ENABLE_KEY,
@@ -415,8 +459,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
                 LONG_READ_OPERATION_10_ENABLE_KEY,
                 LONG_READ_OPERATION_11_ENABLE_KEY,
                 LONG_READ_OPERATION_12_ENABLE_KEY,
-                LONG_READ_OPERATION_13_ENABLE_KEY,
-                LONG_READ_OPERATION_14_ENABLE_KEY ).stream().anyMatch( key -> isSet( params, key ) );
+                LONG_READ_OPERATION_13a_ENABLE_KEY,
+                LONG_READ_OPERATION_13b_ENABLE_KEY,
+                LONG_READ_OPERATION_14a_ENABLE_KEY,
+                LONG_READ_OPERATION_14b_ENABLE_KEY ).stream().anyMatch( key -> isSet( params, key ) );
     }
 
     public static boolean hasWrites( Map<String,String> params )
@@ -491,7 +537,8 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         Map<String,String> params = MapUtils.copyExcludingKeys( originalParams, new HashSet<String>() );
         params.put( LONG_READ_OPERATION_1_ENABLE_KEY, "false" );
         params.put( LONG_READ_OPERATION_2_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_3_ENABLE_KEY, "false" );
+        params.put( LONG_READ_OPERATION_3a_ENABLE_KEY, "false" );
+        params.put( LONG_READ_OPERATION_3b_ENABLE_KEY, "false" );
         params.put( LONG_READ_OPERATION_4_ENABLE_KEY, "false" );
         params.put( LONG_READ_OPERATION_5_ENABLE_KEY, "false" );
         params.put( LONG_READ_OPERATION_6_ENABLE_KEY, "false" );
@@ -501,8 +548,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         params.put( LONG_READ_OPERATION_10_ENABLE_KEY, "false" );
         params.put( LONG_READ_OPERATION_11_ENABLE_KEY, "false" );
         params.put( LONG_READ_OPERATION_12_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_13_ENABLE_KEY, "false" );
-        params.put( LONG_READ_OPERATION_14_ENABLE_KEY, "false" );
+        params.put( LONG_READ_OPERATION_13a_ENABLE_KEY, "false" );
+        params.put( LONG_READ_OPERATION_13b_ENABLE_KEY, "false" );
+        params.put( LONG_READ_OPERATION_14a_ENABLE_KEY, "false" );
+        params.put( LONG_READ_OPERATION_14b_ENABLE_KEY, "false" );
         params.put( SHORT_READ_OPERATION_1_ENABLE_KEY, "false" );
         params.put( SHORT_READ_OPERATION_2_ENABLE_KEY, "false" );
         params.put( SHORT_READ_OPERATION_3_ENABLE_KEY, "false" );
@@ -518,7 +567,8 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         Map<Integer,Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put( LdbcQuery1.TYPE, LdbcQuery1.class );
         operationTypeToClassMapping.put( LdbcQuery2.TYPE, LdbcQuery2.class );
-        operationTypeToClassMapping.put( LdbcQuery3.TYPE, LdbcQuery3.class );
+        operationTypeToClassMapping.put( LdbcQuery3a.TYPE, LdbcQuery3a.class );
+        operationTypeToClassMapping.put( LdbcQuery3b.TYPE, LdbcQuery3b.class );
         operationTypeToClassMapping.put( LdbcQuery4.TYPE, LdbcQuery4.class );
         operationTypeToClassMapping.put( LdbcQuery5.TYPE, LdbcQuery5.class );
         operationTypeToClassMapping.put( LdbcQuery6.TYPE, LdbcQuery6.class );
@@ -528,8 +578,10 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
         operationTypeToClassMapping.put( LdbcQuery10.TYPE, LdbcQuery10.class );
         operationTypeToClassMapping.put( LdbcQuery11.TYPE, LdbcQuery11.class );
         operationTypeToClassMapping.put( LdbcQuery12.TYPE, LdbcQuery12.class );
-        operationTypeToClassMapping.put( LdbcQuery13.TYPE, LdbcQuery13.class );
-        operationTypeToClassMapping.put( LdbcQuery14.TYPE, LdbcQuery14.class );
+        operationTypeToClassMapping.put( LdbcQuery13a.TYPE, LdbcQuery13a.class );
+        operationTypeToClassMapping.put( LdbcQuery13b.TYPE, LdbcQuery13b.class );
+        operationTypeToClassMapping.put( LdbcQuery14a.TYPE, LdbcQuery14a.class );
+        operationTypeToClassMapping.put( LdbcQuery14b.TYPE, LdbcQuery14b.class );
         operationTypeToClassMapping.put( LdbcShortQuery1PersonProfile.TYPE, LdbcShortQuery1PersonProfile.class );
         operationTypeToClassMapping.put( LdbcShortQuery2PersonPosts.TYPE, LdbcShortQuery2PersonPosts.class );
         operationTypeToClassMapping.put( LdbcShortQuery3PersonFriends.TYPE, LdbcShortQuery3PersonFriends.class );
