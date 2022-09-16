@@ -21,7 +21,6 @@ import org.ldbcouncil.snb.driver.util.Tuple2;
 public class RunnableOperationStreamBatchLoader extends Thread {
     
     private final ParquetLoader loader;
-    private final int numThreads;
     private final long batchSize;
     private final GeneratorFactory gf;
     private final File updatesDir;
@@ -34,8 +33,7 @@ public class RunnableOperationStreamBatchLoader extends Thread {
         File updatesDir,
         BlockingQueue<Iterator<Operation>> blockingQueue,
         Set<Class<? extends Operation>> enabledUpdateOperationTypes,
-        long batchSize,
-        int numThreads
+        long batchSize
     )
     {
         this.loader = loader;
@@ -44,7 +42,6 @@ public class RunnableOperationStreamBatchLoader extends Thread {
         this.blockingQueue = blockingQueue;
         this.enabledUpdateOperationTypes = enabledUpdateOperationTypes;
         this.batchSize = batchSize;
-        this.numThreads = numThreads;
     }
 
     /**
@@ -148,39 +145,13 @@ public class RunnableOperationStreamBatchLoader extends Thread {
         }
         // Merge the operation streams and sort them by timestamp
         List<Iterator<Operation>> listOfMergedAndSplittedOperationStreams = new ArrayList<>();
-        List<ArrayList<Operation>> operationLists = new ArrayList<>();
         Iterator<Operation> mergedUpdateStreams = Collections.<Operation>emptyIterator();
         for (Iterator<Operation> updateStream : listOfBatchedOperationStreams) {
             mergedUpdateStreams = gf.mergeSortOperationsByTimeStamp(mergedUpdateStreams,  updateStream);
         }
 
-        if (numThreads == 1)
-        {
-            listOfMergedAndSplittedOperationStreams.add(mergedUpdateStreams);
-        }
-        else
-        {
-            // Split across numThreads
-            for (int i = 0; i < numThreads; i++) {
-                // Instantiate lists
-                operationLists.add(new ArrayList<Operation>());
-            }
-
-            int index = 0;
-            // Split accros threads
-            while(mergedUpdateStreams.hasNext())
-            {
-                int listIndex = index % numThreads;
-                Operation operation = mergedUpdateStreams.next();
-                operationLists.get(listIndex).add(operation);
-                index++;
-            }
-            for (int i = 0; i < numThreads; i++) {
-                // Instantiate lists
-                ArrayList<Operation> operationList = operationLists.get(i);
-                listOfMergedAndSplittedOperationStreams.add(operationList.iterator());
-            }
-        }
+        listOfMergedAndSplittedOperationStreams.add(mergedUpdateStreams);
+     
         return listOfMergedAndSplittedOperationStreams;
     }
 }
