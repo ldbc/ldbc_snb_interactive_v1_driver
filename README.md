@@ -1,75 +1,54 @@
-# Parameter generation
+![LDBC Logo](ldbc-logo.png)
+# LDBC SNB Interactive driver
 
-The paramgen implements [parameter curation](https://research.vu.nl/en/publications/parameter-curation-for-benchmark-queries) to ensure predictable performance results where the runtimes of a given query variant (roughly) correspond to a normal distribution.
+[![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_interactive_driver.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_interactive_driver)
 
-## Getting started
+This driver runs the Social Network Benchmark's Interactive workload, including cross-validation and benchmark execution.
 
-1. Install dependencies:
+The `main` branch of this repository contains the code for SNB Interactive v2.0, which extends the workload with delete operations and supports larger scale factors. It is still under active development.
+If you are looking for a stable and auditable version, please check out the [`v1-dev` branch](https://github.com/ldbc/ldbc_snb_interactive_driver/tree/v1-dev).
 
-    ```bash
-    scripts/install-dependencies.sh
-    ```
+Related repositories:
 
-1. **Generating the factors with the Datagen:** In Datagen's directory (`ldbc_snb_datagen_spark`), issue the following commands. We assume that the Datagen project is built and `sbt` is available.
+* Data generator: https://github.com/ldbc/ldbc_snb_datagen_spark
+* Implementations: https://github.com/ldbc/ldbc_snb_interactive_impls
 
-    ```bash
-    export SF=desired_scale_factor
-    export LDBC_SNB_DATAGEN_MAX_MEM=available_memory
-    export LDBC_SNB_DATAGEN_JAR=$(sbt -batch -error 'print assembly / assemblyOutputPath')
-    ```
+Note that v2.0 of SNB Interactive uses the [LDBC SNB Spark data generator](https://github.com/ldbc/ldbc_snb_datagen_spark) (while older versions used the [Hadoop-based generator](https://github.com/ldbc/ldbc_snb_datagen_hadoop)).
 
-    ```bash
-    rm -rf out-sf${SF}/{factors,graphs/parquet/raw}
-    tools/run.py \
-        --cores $(nproc) \
-        --memory ${LDBC_SNB_DATAGEN_MAX_MEM} \
-        -- \
-        --format parquet \
-        --scale-factor ${SF} \
-        --mode raw \
-        --output-dir out-sf${SF} \
-        --generate-factors
-    ```
+### User Guide
 
-1. **Obtaining the factors:** Cleanup the `factors/` directory and move the factor directories from `out-sf${SF}/factors/parquet/raw/composite-merged-fk/` (`personFirstNames`, `personNumFriendOfFriendPosts/`, etc.) to the `factors/` directory. Assuming that your `${LDBC_SNB_DATAGEN_DIR}` and `${SF}` environment variable set, run:
-
-    ```bash
-    export LDBC_SNB_DATA_ROOT_DIRECTORY=${LDBC_SNB_DATAGEN_DIR}/out-sf${SF}/
-    rm -rf factors/*
-    cp -r ${LDBC_SNB_DATA_ROOT_DIRECTORY}/factors/parquet/raw/composite-merged-fk/* factors/
-    ```
-
-    Or, simply run:
-
-    ```bash
-    export LDBC_SNB_DATA_ROOT_DIRECTORY=${LDBC_SNB_DATAGEN_DIR}/out-sf${SF}/
-    scripts/get-factors.sh
-    ```
-
-    To download and use the factors of the sample data set, run:
-
-    ```bash
-    scripts/get-sample-factors.sh
-    ```
-
-1. To run the parameter generator, issue:
-
-    ```bash
-    scripts/paramgen.sh
-    ```
-
-1. The parameters will be placed in the `../parameters/` directory.
-
-## Previewing the Parquet files with DuckDB
-
-Ensure that the `duckdb` CLI binary is on your path. Then, you can run e.g.:
+Clone and build with Maven:
 
 ```bash
-echo "SELECT * FROM '../parameters/interactive-13a.parquet' LIMIT 1;" | duckdb
+git clone https://github.com/ldbc/ldbc_snb_driver.git
+cd ldbc_snb_driver
+mvn clean package -DskipTests
 ```
 
-To preview all results, use:
+To quickly test the driver try the "simpleworkload" that is shipped with it by doing the following:
 
 ```bash
-scripts/preview.sh
+java \
+  -cp target/driver-standalone.jar org.ldbcouncil.snb.driver.Client \
+  -db org.ldbcouncil.snb.driver.workloads.simple.db.SimpleDb \
+  -P target/classes/configuration/simple/simpleworkload.properties \
+  -P target/classes/configuration/ldbc_driver_default.properties
 ```
+
+For more information, please refer to the [Documentation](https://github.com/ldbc/ldbc_driver/wiki).
+
+### Deploying Maven Artifacts
+
+We use a manual process for deploying Maven artifacts.
+
+1. Clone the [`snb-mvn` repository](https://github.com/ldbc/snb-mvn) next to the driver repository's directory.
+
+2. In the driver repository, run:
+
+    ```bash
+    scripts/package-mvn-artifacts.sh
+    ```
+
+3. Go to the `snb-mvn` directory, check whether the JAR files are correct.
+
+4. Commit and push.
