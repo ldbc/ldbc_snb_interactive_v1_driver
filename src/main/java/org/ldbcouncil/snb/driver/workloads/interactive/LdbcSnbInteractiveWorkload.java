@@ -623,7 +623,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             dependencyUpdateOperationTypes.add(class1);
         }
 
-        int batchQueueSize = 1;
+        int batchQueueSize = LdbcSnbInteractiveWorkloadConfiguration.BUFFERED_QUEUE_SIZE;
         
         BlockingQueue<Iterator<Operation>> blockingQueue = new LinkedBlockingQueue<>( batchQueueSize );
         runnableBatchLoader = new RunnableOperationStreamBatchLoader(
