@@ -43,7 +43,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
     public LdbcSnbShortReadGenerator( double initialProbability,
             double probabilityDegradationFactor,
             long updateInterleaveAsMilli,
-            Set<Class> enabledShortReadOperationTypes,
+            Set<Class<? extends Operation>> enabledShortReadOperationTypes,
             double compressionRatio,
             Queue<Long> personIdBuffer,
             Queue<Long> messageIdBuffer,
@@ -331,7 +331,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
         return Integer.MAX_VALUE;
     }
 
-    private Tuple2<Integer,LdbcShortQueryFactory> firstPersonQueryOrNoOp( Set<Class> enabledShortReadOperationTypes,
+    private Tuple2<Integer,LdbcShortQueryFactory> firstPersonQueryOrNoOp( Set<Class<? extends Operation>> enabledShortReadOperationTypes,
             RandomDataGeneratorFactory randomFactory,
             double minProbability,
             double maxProbability,
@@ -370,7 +370,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
         }
     }
 
-    private Tuple2<Integer,LdbcShortQueryFactory> firstMessageQueryOrNoOp( Set<Class> enabledShortReadOperationTypes,
+    private Tuple2<Integer,LdbcShortQueryFactory> firstMessageQueryOrNoOp( Set<Class<? extends Operation>> enabledShortReadOperationTypes,
             RandomDataGeneratorFactory randomFactory,
             double minProbability,
             double maxProbability,
@@ -429,7 +429,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
         }
     }
 
-    private int lastPersonQueryIndex( Set<Class> enabledShortReadOperationTypes )
+    private int lastPersonQueryIndex( Set<Class<? extends Operation>> enabledShortReadOperationTypes )
     {
         if ( enabledShortReadOperationTypes.contains( LdbcShortQuery3PersonFriends.class ) )
         { return LdbcShortQuery3PersonFriends.TYPE; }
@@ -441,7 +441,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
         { return Integer.MAX_VALUE; }
     }
 
-    private int lastMessageQueryIndex( Set<Class> enabledShortReadOperationTypes )
+    private int lastMessageQueryIndex( Set<Class<? extends Operation>> enabledShortReadOperationTypes )
     {
         if ( enabledShortReadOperationTypes.contains( LdbcShortQuery7MessageReplies.class ) )
         { return LdbcShortQuery7MessageReplies.TYPE; }

@@ -13,11 +13,11 @@ import java.util.Set;
 
 class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationParametersFilter {
     private final Map<Class, Long> remainingRequiredResultsPerType;
-    private final Set<Class> enabledShortReadOperationTypes;
+    private final Set<Class<? extends Operation>> enabledShortReadOperationTypes;
 
     LdbcSnbInteractiveDbValidationParametersFilter(
         Map<Class, Long> remainingRequiredResultsPerType,
-        Set<Class> enabledShortReadOperationTypes) {
+        Set<Class<? extends Operation>> enabledShortReadOperationTypes) {
         this.remainingRequiredResultsPerType = remainingRequiredResultsPerType;
         this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
     }

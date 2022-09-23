@@ -54,11 +54,11 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private double shortReadDissipationFactor;
     private OperationMode operationMode;
     private long batchSize;
-    private Set<Class> enabledLongReadOperationTypes;
-    private Set<Class> enabledShortReadOperationTypes;
-    private Set<Class> enabledWriteOperationTypes;
-    private Set<Class> enabledDeleteOperationTypes;
-    private Set<Class> enabledUpdateOperationTypes;
+    private Set<Class<? extends Operation>> enabledLongReadOperationTypes;
+    private Set<Class<? extends Operation>> enabledShortReadOperationTypes;
+    private Set<Class<? extends Operation>> enabledWriteOperationTypes;
+    private Set<Class<? extends Operation>> enabledDeleteOperationTypes;
+    private Set<Class<? extends Operation>> enabledUpdateOperationTypes;
 
     private RunnableOperationStreamBatchLoader runnableBatchLoader;
 
@@ -173,7 +173,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         enabledWriteOperationTypes = getEnabledOperationsHashset(LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS, params);
         enabledDeleteOperationTypes = getEnabledOperationsHashset(LdbcSnbInteractiveWorkloadConfiguration.DELETE_OPERATION_ENABLE_KEYS, params);
-        enabledUpdateOperationTypes = new HashSet<Class>(enabledWriteOperationTypes);
+        enabledUpdateOperationTypes = new HashSet<Class<? extends Operation>>(enabledWriteOperationTypes);
 
         // First load the scale factor from the provided properties file, then load the frequency keys from resources
         if (!params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR))
@@ -304,9 +304,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
      * @param params
      * @return
      */
-    private Set<Class> getEnabledOperationsHashset(List<String> enabledOperationKeys, Map<String,String> params) throws WorkloadException
+    private Set<Class<? extends Operation>> getEnabledOperationsHashset(List<String> enabledOperationKeys, Map<String,String> params) throws WorkloadException
     {
-        Set<Class> enabledOperationTypes = new HashSet<>();
+        Set<Class<? extends Operation>> enabledOperationTypes = new HashSet<>();
         for ( String operationEnableKey : enabledOperationKeys )
         {
             String operationEnabledString = params.get( operationEnableKey ).trim();
@@ -386,6 +386,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
         List<Iterator<?>> asynchronousNonDependencyStreamsList;
         Set<Class<? extends Operation>> dependentAsynchronousOperationTypes = Sets.newHashSet();
         Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
+
+        dependencyAsynchronousOperationTypes.addAll(enabledUpdateOperationTypes);
+        // dependentAsynchronousOperationTypes.addAll(enabledLongReadOperationTypes);
 
         ParquetLoader loader;
         try {
