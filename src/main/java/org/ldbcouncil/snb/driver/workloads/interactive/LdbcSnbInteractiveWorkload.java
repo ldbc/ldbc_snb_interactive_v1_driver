@@ -637,7 +637,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
         runnableBatchLoader.start();
 
         OperationStreamBuffer buffer = new OperationStreamBuffer(blockingQueue);
-
-        return new BufferedIterator(buffer);
+        BufferedIterator bufferedIterator =  new BufferedIterator(buffer);
+        bufferedIterator.init();
+        return bufferedIterator;
     }
 }

@@ -22,6 +22,11 @@ public class BufferedIterator implements Iterator<Operation> {
         this.operationStreamBuffer = operationStreamBuffer;
     }
 
+    public void init()
+    {
+        currentOperationStream = operationStreamBuffer.next();
+    }
+
     @Override
     public boolean hasNext() 
     {
@@ -31,6 +36,10 @@ public class BufferedIterator implements Iterator<Operation> {
             if (currentOperationStream == null)
             {
                 currentOperationStream = Collections.emptyIterator();
+                isEmpty = true;
+            }
+            if (!currentOperationStream.hasNext())
+            {
                 isEmpty = true;
             }
         }
