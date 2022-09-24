@@ -3,9 +3,12 @@ orbs:
   slack: circleci/slack@3.4.2
 workflows:
   version: 2
-  build:
+  build-then-test:
     jobs:
       - compile_driver
+      - test_driver:
+          requires:
+            - compile_driver
       - test_conversion_script
 
 jobs:
@@ -14,9 +17,25 @@ jobs:
       - image: cimg/openjdk:11.0.16
     steps:
       - checkout
+      - run: ./mvnw -Dmaven.test.skip=true package
+
+  test_driver:
+    parallelism: 4 # parallel containers to split the tests among
+    docker:
+      - image: cimg/openjdk:11.0.16
+    steps:
+      - checkout
       - run: |
-          mvn test | tee mvn.log
-          grep 'BUILD SUCCESS' mvn.log
+          ./mvnw \
+          -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" \
+          | circleci tests split --split-by=timings); \
+          do basename $file \
+          | sed -e "s/.java/,/"; \
+          done | tr -d '\r\n') \
+          -e test
+      - store_test_results: # We use this timing data to optimize the future runs
+          path: target/surefire-reports
+
   test_conversion_script:
     machine:
       image: ubuntu-2204:2022.04.1
