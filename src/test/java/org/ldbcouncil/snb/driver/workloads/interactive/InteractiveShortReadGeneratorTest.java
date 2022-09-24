@@ -46,7 +46,7 @@ public class InteractiveShortReadGeneratorTest
         longReadInterleavesAsMilli.put(LdbcQuery14a.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery14b.TYPE, longReadInterleaveAsMilli);
 
-        Set<Class> enabledShortReadOperationTypes = Sets.<Class>newHashSet(
+        Set<Class<? extends Operation>> enabledShortReadOperationTypes = Sets.<Class<? extends Operation>>newHashSet(
                 LdbcShortQuery1PersonProfile.class,
                 LdbcShortQuery2PersonPosts.class,
                 LdbcShortQuery3PersonFriends.class,
@@ -268,7 +268,7 @@ public class InteractiveShortReadGeneratorTest
         longReadInterleavesAsMilli.put(LdbcQuery13a.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery14a.TYPE, longReadInterleaveAsMilli);
 
-        Set<Class> enabledShortReadOperationTypes = Sets.<Class>newHashSet(
+        Set<Class<? extends Operation>> enabledShortReadOperationTypes = Sets.<Class<? extends Operation>>newHashSet(
 //                LdbcShortQuery1PersonProfile.class,
                 LdbcShortQuery2PersonPosts.class,
 //                LdbcShortQuery3PersonFriends.class,
@@ -416,7 +416,7 @@ public class InteractiveShortReadGeneratorTest
         longReadInterleavesAsMilli.put(LdbcQuery13a.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery14a.TYPE, longReadInterleaveAsMilli);
 
-        Set<Class> enabledShortReadOperationTypes = Sets.<Class>newHashSet(
+        Set<Class<? extends Operation>> enabledShortReadOperationTypes = Sets.<Class<? extends Operation>>newHashSet(
 //                LdbcShortQuery1PersonProfile.class,
 //                LdbcShortQuery2PersonPosts.class,
 //                LdbcShortQuery3PersonFriends.class,
@@ -548,7 +548,7 @@ public class InteractiveShortReadGeneratorTest
         longReadInterleavesAsMilli.put(LdbcQuery13a.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery14a.TYPE, longReadInterleaveAsMilli);
 
-        Set<Class> enabledShortReadOperationTypes = Sets.<Class>newHashSet(
+        Set<Class<? extends Operation>> enabledShortReadOperationTypes = Sets.<Class<? extends Operation>>newHashSet(
 //                LdbcShortQuery1PersonProfile.class,
 //                LdbcShortQuery2PersonPosts.class,
 //                LdbcShortQuery3PersonFriends.class,
@@ -683,7 +683,7 @@ public class InteractiveShortReadGeneratorTest
         longReadInterleavesAsMilli.put(LdbcQuery13a.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery14a.TYPE, longReadInterleaveAsMilli);
 
-        Set<Class> enabledShortReadOperationTypes = Sets.newHashSet(
+        Set<Class<? extends Operation>> enabledShortReadOperationTypes = Sets.newHashSet(
 //                LdbcShortQuery1PersonProfile.class,
 //                LdbcShortQuery2PersonPosts.class,
 //                LdbcShortQuery3PersonFriends.class,

@@ -152,59 +152,6 @@ public class OperationStreamExecutorPerformanceTest
                 db.close();
                 metricsService.shutdown();
             }
-            // Same Thread Executor
-            {
-                LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
-                boolean ignoreScheduledStartTime = false;
-                ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-                Spinner spinner = new Spinner( timeSource, spinnerSleepDuration, ignoreScheduledStartTime );
-                DummyDb db = new DummyDb();
-                Map<String,String> dummyDbParameters = new HashMap<>();
-                dummyDbParameters.put( DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString( true ) );
-                db.init( dummyDbParameters, loggingService, new HashMap<Integer,Class<? extends Operation>>() );
-                CompletionTimeWriter completionTimeWriter = new DummyCompletionTimeWriter();
-                MetricsService metricsService = new DummyCountingMetricsService();
-                DummyCompletionTimeReader completionTimeReader = new DummyCompletionTimeReader();
-                completionTimeReader.setCompletionTimeAsMilli( 0L );
-                AtomicBoolean executorHasFinished = new AtomicBoolean( false );
-                AtomicBoolean forceThreadToTerminate = new AtomicBoolean( false );
-                timeSource.setNowFromMilli( 0 );
-
-                WorkloadStreams.WorkloadStreamDefinition streamDefinition =
-                        new WorkloadStreams.WorkloadStreamDefinition(
-                                new HashSet<Class<? extends Operation>>(),
-                                new HashSet<Class<? extends Operation>>(),
-                                Collections.<Operation>emptyIterator(),
-                                operations.iterator(),
-                                null
-                        );
-
-                OperationExecutor executor = new SameThreadOperationExecutor(
-                        db,
-                        streamDefinition,
-                        completionTimeWriter,
-                        completionTimeReader,
-                        spinner,
-                        timeSource,
-                        errorReporter,
-                        metricsService,
-                        streamDefinition.childOperationGenerator()
-                );
-                OperationStreamExecutorServiceThread thread = getNewThread(
-                        errorReporter,
-                        streamDefinition,
-                        executor,
-                        completionTimeWriter,
-                        completionTimeReader,
-                        executorHasFinished,
-                        forceThreadToTerminate
-                );
-
-                sameThreadExecutorTimes.add( doTest( thread, errorReporter, metricsService, operationCount ) );
-                executor.shutdown( 1000L );
-                db.close();
-                metricsService.shutdown();
-            }
         }
 
         long meanThreadPool = meanDuration( threadPoolExecutorTimes );

@@ -58,8 +58,13 @@ class InitiatedTimeSubmittingOperationRetriever
         if ( nonDependencyOperations.hasNext() && null == nextNonDependencyOperation )
         {
             long currentCompletionTime = completionTimeReader.completionTimeAsMilli();
+
             nextNonDependencyOperation = nonDependencyOperations.next();
-            while (nextNonDependencyOperation.dependencyTimeStamp() > currentCompletionTime && nextNonDependencyOperation.expiryTimeStamp() < currentCompletionTime)
+
+            while (nextNonDependencyOperation.dependencyTimeStamp() > currentCompletionTime
+                   && nextNonDependencyOperation.expiryTimeStamp() < currentCompletionTime
+                   && nonDependencyOperations.hasNext() 
+            )
             {
                 nextNonDependencyOperation = nonDependencyOperations.next();
             }

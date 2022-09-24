@@ -5,7 +5,7 @@ import glob
 from pathlib import Path
 import argparse
 
-remove_duplicates_dict = {
+remove_lower_times_dict = {
     "Q_1"   : "DELETE FROM Q_1   t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_1   t2 WHERE t2.personId  = t1.personId  AND t2.firstName = t1.firstName);",
     "Q_2"   : "DELETE FROM Q_2   t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_2   t2 WHERE t2.personId  = t1.personId  AND t2.maxDate = t1.maxDate);",
     "Q_3a"  : "DELETE FROM Q_3a  t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_3a  t2 WHERE t2.personId  = t1.personId  AND t2.countryXName = t1.countryXName AND t2.countryYName = t1.countryYName AND t2.startDate = t1.startDate AND t2.durationDays = t1.durationDays);",
@@ -25,6 +25,25 @@ remove_duplicates_dict = {
     "Q_14b" : "DELETE FROM Q_14b t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_14b t2 WHERE t2.person1Id = t1.person1Id AND t2.person2Id = t1.person2Id);"
 }
 
+remove_duplicates = {
+    "Q_1"   : "CREATE TABLE Q_1_filtered AS SELECT personId, firstName, useFrom, useUntil FROM Q_1 GROUP BY personId, firstName, useFrom, useUntil;",
+    "Q_2"   : "CREATE TABLE Q_2_filtered AS SELECT personId, maxDate, useFrom, useUntil FROM Q_2 GROUP BY personId, maxDate, useFrom, useUntil;",
+    "Q_3a"   : "CREATE TABLE Q_3a_filtered AS SELECT personId, countryXName, countryYName, startDate, durationDays, useFrom, useUntil FROM Q_3a GROUP BY personId, countryXName, countryYName, startDate, durationDays, useFrom, useUntil;",
+    "Q_3b"   : "CREATE TABLE Q_3b_filtered AS SELECT personId, countryXName, countryYName, startDate, durationDays, useFrom, useUntil FROM Q_3b GROUP BY personId, countryXName, countryYName, startDate, durationDays, useFrom, useUntil;",
+    "Q_4"   : "CREATE TABLE Q_4_filtered AS SELECT personId, startDate, durationDays, useFrom, useUntil FROM Q_4 GROUP BY personId, startDate, durationDays, useFrom, useUntil;",
+    "Q_5"   : "CREATE TABLE Q_5_filtered AS SELECT personId, minDate, useFrom, useUntil FROM Q_5 GROUP BY personId, minDate, useFrom, useUntil;",
+    "Q_6"   : "CREATE TABLE Q_6_filtered AS SELECT personId, tagName, useFrom, useUntil FROM Q_6 GROUP BY personId, tagName, useFrom, useUntil;",
+    "Q_7"   : "CREATE TABLE Q_7_filtered AS SELECT personId, useFrom, useUntil FROM Q_7 GROUP BY personId, useFrom, useUntil;",
+    "Q_8"   : "CREATE TABLE Q_8_filtered AS SELECT personId, useFrom, useUntil FROM Q_8 GROUP BY personId, useFrom, useUntil;",
+    "Q_9"   : "CREATE TABLE Q_9_filtered AS SELECT personId, maxDate, useFrom, useUntil FROM Q_9 GROUP BY personId, maxDate, useFrom, useUntil;",
+    "Q_10"   : "CREATE TABLE Q_10_filtered AS SELECT personId, month, useFrom, useUntil FROM Q_10 GROUP BY personId, month, useFrom, useUntil;",
+    "Q_11"   : "CREATE TABLE Q_11_filtered AS SELECT personId, countryName, workFromYear, useFrom, useUntil FROM Q_11 GROUP BY personId, countryName, workFromYear, useFrom, useUntil;",
+    "Q_12"   : "CREATE TABLE Q_12_filtered AS SELECT personId, tagClassName, useFrom, useUntil FROM Q_12 GROUP BY personId, tagClassName, useFrom, useUntil;",
+    "Q_13a"   : "CREATE TABLE Q_13a_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_13a GROUP BY person1Id, person2Id, useFrom, useUntil;",
+    "Q_13b"   : "CREATE TABLE Q_13b_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_13b GROUP BY person1Id, person2Id, useFrom, useUntil;",
+    "Q_14a"   : "CREATE TABLE Q_14a_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_14a GROUP BY person1Id, person2Id, useFrom, useUntil;",
+    "Q_14b"   : "CREATE TABLE Q_14b_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_14b GROUP BY person1Id, person2Id, useFrom, useUntil;"
+}
 
 def generate_parameter_for_query_type(cursor, date_limit, date_start, create_tables, query_variant):
     """
@@ -111,9 +130,12 @@ def export_parameters(cursor):
     print("============ Output parameters ============")
     for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "13b", "14a", "14b"]:
         print(f"- Q{query_variant} TO parameters/interactive-{query_variant}.parquet")
-        query = remove_duplicates_dict[f"Q_{query_variant}"]
+        query = remove_lower_times_dict[f"Q_{query_variant}"]#remove_duplicates
         cursor.execute(query)
-        cursor.execute(f"COPY 'Q_{query_variant}' TO 'parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
+        query = remove_duplicates[f"Q_{query_variant}"]#remove_duplicates
+        cursor.execute(query)
+        cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO 'parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
+
 
 
 def generate_short_parameters(cursor, date_start):

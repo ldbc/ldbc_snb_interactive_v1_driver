@@ -40,6 +40,8 @@ public abstract class LdbcSnbInteractiveWorkloadConfiguration
     // Default batch size denotes 24 hours of data
     public static final long DEFAULT_BATCH_SIZE = 24l;
 
+    public static final int BUFFERED_QUEUE_SIZE = 4;
+
     public static final String INSERTS_DIRECTORY = "inserts";
     public static final String DELETES_DIRECTORY = "deletes";
 

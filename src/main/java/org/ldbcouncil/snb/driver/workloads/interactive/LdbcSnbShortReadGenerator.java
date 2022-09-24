@@ -43,7 +43,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
     public LdbcSnbShortReadGenerator( double initialProbability,
             double probabilityDegradationFactor,
             long updateInterleaveAsMilli,
-            Set<Class> enabledShortReadOperationTypes,
+            Set<Class<? extends Operation>> enabledShortReadOperationTypes,
             double compressionRatio,
             Queue<Long> personIdBuffer,
             Queue<Long> messageIdBuffer,
@@ -81,7 +81,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
                 Math.round( Math.ceil( compressionRatio * updateInterleaveAsMilli ) );
 
         int maxOperationType = Ordering.<Integer>natural().max( LdbcQuery14b.TYPE, LdbcShortQuery7MessageReplies.TYPE,
-                LdbcInsert8AddFriendship.TYPE ) + 1;
+                LdbcDelete8RemoveFriendship.TYPE ) + 1;
         this.shortReadFactories = new LdbcShortQueryFactory[maxOperationType];
         this.probabilityDegradationFactors = new double[maxOperationType];
         for ( int i = 0; i < probabilityDegradationFactors.length; i++ )
@@ -257,6 +257,15 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
         shortReadFactories[LdbcInsert7AddComment.TYPE] = new NoOpFactory();
         shortReadFactories[LdbcInsert8AddFriendship.TYPE] = new NoOpFactory();
 
+        shortReadFactories[LdbcDelete1RemovePerson.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete2RemovePostLike.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete3RemoveCommentLike.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete4RemoveForum.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete5RemoveForumMembership.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete6RemovePostThread.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete7RemoveCommentSubthread.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete8RemoveFriendship.TYPE] = new NoOpFactory();
+
         shortReadFactories[LdbcShortQuery1PersonProfile.TYPE] = null;
         shortReadFactories[LdbcShortQuery2PersonPosts.TYPE] = null;
         shortReadFactories[LdbcShortQuery3PersonFriends.TYPE] = null;
@@ -331,7 +340,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
         return Integer.MAX_VALUE;
     }
 
-    private Tuple2<Integer,LdbcShortQueryFactory> firstPersonQueryOrNoOp( Set<Class> enabledShortReadOperationTypes,
+    private Tuple2<Integer,LdbcShortQueryFactory> firstPersonQueryOrNoOp( Set<Class<? extends Operation>> enabledShortReadOperationTypes,
             RandomDataGeneratorFactory randomFactory,
             double minProbability,
             double maxProbability,
@@ -370,7 +379,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
         }
     }
 
-    private Tuple2<Integer,LdbcShortQueryFactory> firstMessageQueryOrNoOp( Set<Class> enabledShortReadOperationTypes,
+    private Tuple2<Integer,LdbcShortQueryFactory> firstMessageQueryOrNoOp( Set<Class<? extends Operation>> enabledShortReadOperationTypes,
             RandomDataGeneratorFactory randomFactory,
             double minProbability,
             double maxProbability,
@@ -429,7 +438,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
         }
     }
 
-    private int lastPersonQueryIndex( Set<Class> enabledShortReadOperationTypes )
+    private int lastPersonQueryIndex( Set<Class<? extends Operation>> enabledShortReadOperationTypes )
     {
         if ( enabledShortReadOperationTypes.contains( LdbcShortQuery3PersonFriends.class ) )
         { return LdbcShortQuery3PersonFriends.TYPE; }
@@ -441,7 +450,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
         { return Integer.MAX_VALUE; }
     }
 
-    private int lastMessageQueryIndex( Set<Class> enabledShortReadOperationTypes )
+    private int lastMessageQueryIndex( Set<Class<? extends Operation>> enabledShortReadOperationTypes )
     {
         if ( enabledShortReadOperationTypes.contains( LdbcShortQuery7MessageReplies.class ) )
         { return LdbcShortQuery7MessageReplies.TYPE; }

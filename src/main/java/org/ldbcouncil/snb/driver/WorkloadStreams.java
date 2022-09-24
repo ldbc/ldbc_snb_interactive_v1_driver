@@ -26,7 +26,6 @@ import static java.lang.String.format;
 public class WorkloadStreams
 {
     private WorkloadStreamDefinition asynchronousStream = null;
-    private List<WorkloadStreamDefinition> blockingStreams = new ArrayList<>();
 
     public static WorkloadStreams timeOffsetAndCompressWorkloadStreams(
             WorkloadStreams originalWorkloadStreams,
@@ -66,44 +65,7 @@ public class WorkloadStreams
         List<PeekingIterator<Operation>> peekingBlockingDependencyOperationStreams = new ArrayList<>();
         List<Long> peekingBlockingNonDependencyOperationStreamsAheadOfMinByMillis = new ArrayList<>();
         List<PeekingIterator<Operation>> peekingBlockingNonDependencyOperationStreams = new ArrayList<>();
-        List<WorkloadStreamDefinition> blockingStreams = originalWorkloadStreams.blockingStreamDefinitions();
-        for ( int i = 0; i < blockingStreams.size(); i++ )
-        {
-            PeekingIterator<Operation> peekingBlockingDependencyOperationStream =
-                    Iterators.peekingIterator( blockingStreams.get( i ).dependencyOperations() );
-            try
-            {
-                long firstAsMilli = peekingBlockingDependencyOperationStream.peek().scheduledStartTimeAsMilli();
-                if ( firstAsMilli < minScheduledStartTimeAsMilli )
-                {
-                    minScheduledStartTimeAsMilli = firstAsMilli;
-                }
-            }
-            catch ( NoSuchElementException e )
-            {
-                // do nothing, just means stream was empty
-            }
-            peekingBlockingDependencyOperationStreamsAheadOfMinByMillis.add( 0l );
-            peekingBlockingDependencyOperationStreams.add( peekingBlockingDependencyOperationStream );
-
-            PeekingIterator<Operation> peekingBlockingNonDependencyOperationStream =
-                    Iterators.peekingIterator( blockingStreams.get( i ).nonDependencyOperations() );
-            try
-            {
-                long firstAsMilli = peekingBlockingNonDependencyOperationStream.peek().scheduledStartTimeAsMilli();
-                if ( firstAsMilli < minScheduledStartTimeAsMilli )
-                {
-                    minScheduledStartTimeAsMilli = firstAsMilli;
-                }
-            }
-            catch ( NoSuchElementException e )
-            {
-                // do nothing, just means stream was empty
-            }
-            peekingBlockingNonDependencyOperationStreamsAheadOfMinByMillis.add( 0l );
-            peekingBlockingNonDependencyOperationStreams.add( peekingBlockingNonDependencyOperationStream );
-        }
-
+   
         if ( Long.MAX_VALUE == minScheduledStartTimeAsMilli )
         {
             minScheduledStartTimeAsMilli = newStartTimeAsMilli;
@@ -193,26 +155,6 @@ public class WorkloadStreams
                 originalWorkloadStreams.asynchronousStream().childOperationGenerator()
         );
 
-        for ( int i = 0; i < blockingStreams.size(); i++ )
-        {
-            timeOffsetAndCompressedWorkloadStreams.addBlockingStream(
-                    blockingStreams.get( i ).dependentOperationTypes(),
-                    blockingStreams.get( i ).dependencyOperationTypes(),
-                    gf.timeOffsetAndCompress(
-                            peekingBlockingDependencyOperationStreams.get( i ),
-                            newStartTimeAsMilli + peekingBlockingDependencyOperationStreamsAheadOfMinByMillis.get( i ),
-                            compressionRatio
-                    ),
-                    gf.timeOffsetAndCompress(
-                            peekingBlockingNonDependencyOperationStreams.get( i ),
-                            newStartTimeAsMilli +
-                            peekingBlockingNonDependencyOperationStreamsAheadOfMinByMillis.get( i ),
-                            compressionRatio
-                    ),
-                    blockingStreams.get( i ).childOperationGenerator()
-            );
-        }
-
         return timeOffsetAndCompressedWorkloadStreams;
     }
 
@@ -266,15 +208,6 @@ public class WorkloadStreams
         streams.add( unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations() );
         childOperationGenerators.add( unlimitedWorkloadStreams.asynchronousStream().childOperationGenerator() );
 
-        for ( WorkloadStreamDefinition stream : unlimitedWorkloadStreams.blockingStreamDefinitions() )
-        {
-            streams.add( stream.dependencyOperations() );
-            childOperationGenerators.add( stream.childOperationGenerator() );
-
-            streams.add( stream.nonDependencyOperations() );
-            childOperationGenerators.add( stream.childOperationGenerator() );
-        }
-
         // stream through streams once, to calculate how many operations are needed from each,
         // to get operation_count in total
         Tuple3<long[],long[],Long> limitsAndMinimumsForStream =
@@ -303,16 +236,11 @@ public class WorkloadStreams
 
         // retrieve unbounded streams
         unlimitedWorkloadStreams = workload.streams( gf, returnStreamsWithDbConnector );
-        List<WorkloadStreamDefinition> unlimitedBlockingStreams = unlimitedWorkloadStreams.blockingStreamDefinitions();
 
         // advance to offsets
         gf.consume( unlimitedWorkloadStreams.asynchronousStream().dependencyOperations(), startForStream[0] );
         gf.consume( unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations(), startForStream[1] );
-        for ( int i = 0; i < unlimitedBlockingStreams.size(); i++ )
-        {
-            gf.consume( unlimitedBlockingStreams.get( i ).dependencyOperations(), startForStream[i * 2 + 2] );
-            gf.consume( unlimitedBlockingStreams.get( i ).nonDependencyOperations(), startForStream[i * 2 + 3] );
-        }
+
 
         // copy unbounded streams to new workload streams instance, from offsets, applying limits
         workloadStreams.setAsynchronousStream(
@@ -322,16 +250,6 @@ public class WorkloadStreams
                 gf.limit( unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations(), limitForStream[1] ),
                 unlimitedWorkloadStreams.asynchronousStream().childOperationGenerator()
         );
-        for ( int i = 0; i < unlimitedBlockingStreams.size(); i++ )
-        {
-            workloadStreams.addBlockingStream(
-                    unlimitedBlockingStreams.get( i ).dependentOperationTypes(),
-                    unlimitedBlockingStreams.get( i ).dependencyOperationTypes(),
-                    gf.limit( unlimitedBlockingStreams.get( i ).dependencyOperations(), limitForStream[i * 2 + 2] ),
-                    gf.limit( unlimitedBlockingStreams.get( i ).nonDependencyOperations(), limitForStream[i * 2 + 3] ),
-                    unlimitedBlockingStreams.get( i ).childOperationGenerator()
-            );
-        }
 
         return Tuple.tuple3(
                 workloadStreams,
@@ -584,38 +502,11 @@ public class WorkloadStreams
         );
     }
 
-    public List<WorkloadStreamDefinition> blockingStreamDefinitions()
-    {
-        return blockingStreams;
-    }
-
-    public void addBlockingStream(
-            Set<Class<? extends Operation>> dependentOperationTypes,
-            Set<Class<? extends Operation>> dependencyOperationTypes,
-            Iterator<Operation> dependencyOperations,
-            Iterator<Operation> nonDependencyOperations,
-            ChildOperationGenerator childOperationGenerator )
-    {
-        WorkloadStreamDefinition blockingStream = new WorkloadStreamDefinition(
-                dependentOperationTypes,
-                dependencyOperationTypes,
-                dependencyOperations,
-                nonDependencyOperations,
-                childOperationGenerator
-        );
-        this.blockingStreams.add( blockingStream );
-    }
-
     public static Iterator<Operation> mergeSortedByStartTimeExcludingChildOperationGenerators(
             GeneratorFactory gf,
             WorkloadStreams workloadStreams )
     {
         List<Iterator<Operation>> allStreams = new ArrayList<>();
-        for ( WorkloadStreamDefinition streamDefinition : workloadStreams.blockingStreamDefinitions() )
-        {
-            allStreams.add( streamDefinition.dependencyOperations() );
-            allStreams.add( streamDefinition.nonDependencyOperations() );
-        }
         allStreams.add( workloadStreams.asynchronousStream().dependencyOperations() );
         allStreams.add( workloadStreams.asynchronousStream().nonDependencyOperations() );
         return gf.mergeSortOperationsByTimeStamp( allStreams.toArray( new Iterator[allStreams.size()] ) );
