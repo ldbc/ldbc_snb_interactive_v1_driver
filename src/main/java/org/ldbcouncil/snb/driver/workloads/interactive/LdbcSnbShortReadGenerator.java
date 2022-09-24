@@ -81,7 +81,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
                 Math.round( Math.ceil( compressionRatio * updateInterleaveAsMilli ) );
 
         int maxOperationType = Ordering.<Integer>natural().max( LdbcQuery14b.TYPE, LdbcShortQuery7MessageReplies.TYPE,
-                LdbcInsert8AddFriendship.TYPE ) + 1;
+                LdbcDelete8RemoveFriendship.TYPE ) + 1;
         this.shortReadFactories = new LdbcShortQueryFactory[maxOperationType];
         this.probabilityDegradationFactors = new double[maxOperationType];
         for ( int i = 0; i < probabilityDegradationFactors.length; i++ )
@@ -256,6 +256,15 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator
         shortReadFactories[LdbcInsert6AddPost.TYPE] = new NoOpFactory();
         shortReadFactories[LdbcInsert7AddComment.TYPE] = new NoOpFactory();
         shortReadFactories[LdbcInsert8AddFriendship.TYPE] = new NoOpFactory();
+
+        shortReadFactories[LdbcDelete1RemovePerson.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete2RemovePostLike.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete3RemoveCommentLike.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete4RemoveForum.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete5RemoveForumMembership.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete6RemovePostThread.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete7RemoveCommentSubthread.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcDelete8RemoveFriendship.TYPE] = new NoOpFactory();
 
         shortReadFactories[LdbcShortQuery1PersonProfile.TYPE] = null;
         shortReadFactories[LdbcShortQuery2PersonPosts.TYPE] = null;
