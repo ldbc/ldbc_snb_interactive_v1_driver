@@ -174,7 +174,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         enabledWriteOperationTypes = getEnabledOperationsHashset(LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS, params);
         enabledDeleteOperationTypes = getEnabledOperationsHashset(LdbcSnbInteractiveWorkloadConfiguration.DELETE_OPERATION_ENABLE_KEYS, params);
         enabledUpdateOperationTypes = new HashSet<Class<? extends Operation>>(enabledWriteOperationTypes);
-
+        enabledUpdateOperationTypes.addAll(enabledDeleteOperationTypes);
         // First load the scale factor from the provided properties file, then load the frequency keys from resources
         if (!params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR))
         {
