@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -77,20 +76,18 @@ public class RunnableOperationStreamBatchLoader extends Thread {
 
             // Loop until interrupt or no operations left to load
             while (!Thread.interrupted()) {
-                List<Iterator<Operation>> newBatch = loadNextBatch(
+                Iterator<Operation> newBatch = loadNextBatch(
                     updateOperationStream,
                     offset,
                     classToLastValue
                 );
-                if (newBatch.isEmpty())
+                if (!newBatch.hasNext())
                 {
                     // No new operations, stream empty.
                     return;
                 }
-                for (Iterator<Operation> iterator : newBatch) {
                     // Waits for a free slot.
-                    blockingQueue.put(iterator);
-                }
+                blockingQueue.put(newBatch);
                 offset = offset + batchSize;
             }
         }
@@ -110,7 +107,7 @@ public class RunnableOperationStreamBatchLoader extends Thread {
      * @throws SQLException
      * @throws WorkloadException
      */
-    private List<Iterator<Operation>> loadNextBatch(
+    private Iterator<Operation> loadNextBatch(
         BatchedOperationStreamReader updateOperationStream,
         long offset,
         Map<Class<? extends Operation>, Long> classtoEndValue
@@ -141,17 +138,13 @@ public class RunnableOperationStreamBatchLoader extends Thread {
         // If empty, it means there is nothing more to load.
         if (listOfBatchedOperationStreams.isEmpty())
         {
-            return listOfBatchedOperationStreams;
+            return Collections.emptyIterator();
         }
         // Merge the operation streams and sort them by timestamp
-        List<Iterator<Operation>> listOfMergedAndSplittedOperationStreams = new ArrayList<>();
         Iterator<Operation> mergedUpdateStreams = Collections.<Operation>emptyIterator();
         for (Iterator<Operation> updateStream : listOfBatchedOperationStreams) {
             mergedUpdateStreams = gf.mergeSortOperationsByTimeStamp(mergedUpdateStreams,  updateStream);
         }
-
-        listOfMergedAndSplittedOperationStreams.add(mergedUpdateStreams);
-     
-        return listOfMergedAndSplittedOperationStreams;
+        return mergedUpdateStreams;
     }
 }
