@@ -393,11 +393,6 @@ public class TimeMappingOperationGeneratorTest
                 flushLog
         );
 
-        Map<String,String> updateStreamParams = MapUtils.loadPropertiesToMap(
-                TestUtils.getResource( "/snb/interactive/updateStream.properties" )
-        );
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( updateStreamParams );
-
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init( configuration );
 

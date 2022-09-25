@@ -5,8 +5,8 @@ import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.Workload;
 import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.DriverConfiguration;
+import org.ldbcouncil.snb.driver.control.DriverConfigurationException;
 import org.ldbcouncil.snb.driver.testutils.TestUtils;
-import org.ldbcouncil.snb.driver.util.MapUtils;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
 import org.ldbcouncil.snb.driver.workloads.ClassNameWorkloadFactory;
@@ -16,17 +16,27 @@ import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiv
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationResultSets;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcNoResult;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.Disabled;
+
+import java.io.IOException;
+import java.io.File;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InteractiveWorkloadTest extends WorkloadTest
 {
-    @Override
-    public Workload workload() throws Exception
+    private Workload workload() throws Exception
     {
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration
                 .fromDefaults(
@@ -53,8 +63,7 @@ public class InteractiveWorkloadTest extends WorkloadTest
         return workload;
     }
 
-    @Override
-    public List<Tuple2<Operation,Object>> operationsAndResults() throws Exception
+    private List<Tuple2<Operation,Object>> operationsAndResults() throws Exception
     {
         return Lists.newArrayList(
                 Tuple.<Operation,Object>tuple2(
@@ -224,142 +233,225 @@ public class InteractiveWorkloadTest extends WorkloadTest
         );
     }
 
-    @Override
-    public List<DriverConfiguration> configurations() throws Exception
+    public static DriverConfiguration configurationWithLongReadsOnly() throws DriverConfigurationException, IOException
     {
-        return Lists.newArrayList(
-                // LONG READS ONLY, NO SHORT READS AND NO WRITES
-                ConsoleAndFileDriverConfiguration.fromDefaults(
-                        DummyLdbcSnbInteractiveDb.class.getName(),
-                        LdbcSnbInteractiveWorkload.class.getName(),
-                        1_000_000
-                ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 0 )
-                ).applyArgs(
-                        LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
-                                LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
-                                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
-                                )
-                        )
-                ).applyArg(
-                    LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR, Long.toString(1)
-                ).applyArg(
-                        ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                        "false"
-                ).applyArg(
-                        ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                        "0.0000001"
-                ).applyArg(
-                        LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                ).applyArgs(
-                        MapUtils.loadPropertiesToMap(
-                                TestUtils.getResource( "/snb/interactive/updateStream.properties" ) )
-                ),
-                // SHORT AND LONG READS, NO WRITES
-                ConsoleAndFileDriverConfiguration.fromDefaults(
-                        DummyLdbcSnbInteractiveDb.class.getName(),
-                        LdbcSnbInteractiveWorkload.class.getName(),
-                        1_000_000
-                ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 100_000 )
-                ).applyArgs(
-                        LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+        // LONG READS ONLY, NO SHORT READS AND NO WRITES
+        return ConsoleAndFileDriverConfiguration
+            .fromDefaults(
+                DummyLdbcSnbInteractiveDb.class.getName(),
+                LdbcSnbInteractiveWorkload.class.getName(),
+                1_000_000
+            ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 0 )
+            ).applyArgs(
+                LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+                        LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
                                 LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                         )
-                ).applyArg(
-                        ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                        "false"
-                ).applyArg(
-                        ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                        "0.000001"
-                ).applyArg(
-                        LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                ).applyArgs(
-                        MapUtils.loadPropertiesToMap(
-                                TestUtils.getResource( "/snb/interactive/updateStream.properties" )
-                        )
-                ),
-                // WRITES ONLY
-                ConsoleAndFileDriverConfiguration.fromDefaults(
-                        DummyLdbcSnbInteractiveDb.class.getName(),
-                        LdbcSnbInteractiveWorkload.class.getName(),
-                        50_000
-                ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 1_000 )
-                ).applyArgs(
-                        LdbcSnbInteractiveWorkloadConfiguration.withoutLongReads(
-                                LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
-                                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
-                                )
-                        )
-                ).applyArg(
-                        ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                        "false"
-                ).applyArg(
-                        ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                        "0.00001"
-                ).applyArg(
-                        LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                ).applyArgs(
-                        MapUtils.loadPropertiesToMap(
-                                TestUtils.getResource( "/snb/interactive/updateStream.properties" )
-                        )
-                ),
-                // FULL WORKLOAD
-                ConsoleAndFileDriverConfiguration.fromDefaults(
-                        DummyLdbcSnbInteractiveDb.class.getName(),
-                        LdbcSnbInteractiveWorkload.class.getName(),
-                        1_000_000
-                ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 0 )
-                ).applyArgs(
-                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
-                ).applyArg(
-                        ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                        "false"
-                ).applyArg(
-                        ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                        "0.0000001"
-                ).applyArg(
-                        LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                ).applyArgs(
-                        MapUtils.loadPropertiesToMap(
-                                TestUtils.getResource( "/snb/interactive/updateStream.properties" )
-                        )
-                ),
-                // FULL WORKLOAD
-                ConsoleAndFileDriverConfiguration.fromDefaults(
-                        DummyLdbcSnbInteractiveDb.class.getName(),
-                        LdbcSnbInteractiveWorkload.class.getName(),
-                        1_000_000
-                ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 100_000 )
-                ).applyArgs(
-                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
-                ).applyArg(
-                        ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
-                        "true"
-                ).applyArg(
-                        ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
-                        "0.001"
-                ).applyArg(
-                        LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
-                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
-                        TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-                ).applyArgs(
-                        MapUtils.loadPropertiesToMap(
-                                TestUtils.getResource( "/snb/interactive/updateStream.properties" )
-                        )
                 )
+            ).applyArg(
+            LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR, Long.toString(1)
+            ).applyArg(
+                ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+                "false"
+            ).applyArg(
+                ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
+                "0.0000001"
+            ).applyArg(
+                LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
+                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+            ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
+                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+            );
+    }
+
+    public static DriverConfiguration configurationWithLongAndShortReads() throws DriverConfigurationException, IOException
+    {
+        // SHORT AND LONG READS, NO WRITES
+        return ConsoleAndFileDriverConfiguration
+            .fromDefaults(
+                DummyLdbcSnbInteractiveDb.class.getName(),
+                LdbcSnbInteractiveWorkload.class.getName(),
+            1_000_000
+            ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 100_000 )
+            ).applyArgs(
+                    LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+                            LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
+                    )
+            ).applyArg(
+                    ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+                    "false"
+            ).applyArg(
+                    ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
+                    "0.000001"
+            ).applyArg(
+                    LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+            ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+            );
+    }
+
+    public static DriverConfiguration configurationWithWritesOnly() throws DriverConfigurationException, IOException
+    {
+        // WRITES ONLY
+        return ConsoleAndFileDriverConfiguration
+            .fromDefaults(
+                DummyLdbcSnbInteractiveDb.class.getName(),
+                LdbcSnbInteractiveWorkload.class.getName(),
+            50_000
+            ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 1_000 )
+            ).applyArgs(
+                    LdbcSnbInteractiveWorkloadConfiguration.withoutLongReads(
+                            LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
+                                    LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
+                            )
+                    )
+            ).applyArg(
+                    ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+                    "false"
+            ).applyArg(
+                    ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
+                    "0.00001"
+            ).applyArg(
+                    LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+            ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+            );
+    }
+
+    public static DriverConfiguration configurationWithFullWorkloadWithoutWarmup() throws DriverConfigurationException, IOException
+    {
+        return ConsoleAndFileDriverConfiguration.fromDefaults(
+                DummyLdbcSnbInteractiveDb.class.getName(),
+                LdbcSnbInteractiveWorkload.class.getName(),
+            1_000_000
+            ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 0 )
+            ).applyArgs(
+                    LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
+            ).applyArg(
+                    ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+                    "false"
+            ).applyArg(
+                    ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
+                    "0.0000001"
+            ).applyArg(
+                    LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+            ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
+                    TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+            );
+    }
+
+    public static DriverConfiguration configurationWithFullWorkloadWithWarmup() throws DriverConfigurationException, IOException
+    {
+        // FULL WORKLOAD
+        return ConsoleAndFileDriverConfiguration.fromDefaults(
+                DummyLdbcSnbInteractiveDb.class.getName(),
+                LdbcSnbInteractiveWorkload.class.getName(),
+                1_000_000
+        ).applyArg( ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString( 100_000 )
+        ).applyArgs(
+                LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
+        ).applyArg(
+                ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG,
+                "true"
+        ).applyArg(
+                ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG,
+                "0.001"
+        ).applyArg(
+                LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
+                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
+        ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
+                TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
         );
+    }
+
+    @ParameterizedTest
+    @MethodSource("configurations")
+    public void shouldGenerateManyOperationsInReasonableTimeForInteractiveWorkload(DriverConfiguration configuration, @TempDir File temporaryFolder) throws Exception
+    {
+        boolean workloadGeneratedOperationsBeforeTimeout = shouldGenerateManyOperationsInReasonableTime(configuration, temporaryFolder);
+        assertTrue( workloadGeneratedOperationsBeforeTimeout );
+    }
+
+    @Test
+    public void shouldBeAbleToSerializeAndMarshalAllOperationResultsForInteractiveWorkload() throws Exception
+    {
+        List<Tuple2<Operation,Object>> operationsAndResults = operationsAndResults();
+        shouldBeAbleToSerializeAndMarshalAllOperationResults(operationsAndResults);
+    }
+
+    @Test
+    public void shouldBeAbleToSerializeAndMarshalAllOperationsForInteractiveWorkload() throws Exception
+    {
+        Workload workload = workload();
+        List<Tuple2<Operation,Object>> operationsAndResults = operationsAndResults();
+        shouldBeAbleToSerializeAndMarshalAllOperations(workload, operationsAndResults);        
+    }
+
+    @ParameterizedTest
+    @MethodSource("configurations")
+    public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactoriesForInteractiveWorkload(DriverConfiguration configuration, @TempDir File temporaryFolder) throws Exception
+    {
+        shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories(configuration, temporaryFolder);
+    }
+
+    @ParameterizedTest
+    @MethodSource("configurations")
+    public void shouldLoadFromConfigFileForInteractiveWorkload(DriverConfiguration configuration, @TempDir File temporaryFolder) throws Exception
+    {
+        shouldLoadFromConfigFile(configuration, temporaryFolder);
+    }
+
+    @ParameterizedTest
+    @MethodSource("configurations")
+    public void shouldAssignMonotonicallyIncreasingScheduledStartTimesToOperationsForInteractiveWorkload(DriverConfiguration configuration, @TempDir File temporaryFolder) throws Exception
+    {
+        shouldAssignMonotonicallyIncreasingScheduledStartTimesToOperations(configuration, temporaryFolder);
+    }
+
+    @ParameterizedTest
+    @MethodSource("configurations")
+    public void shouldRunWorkloadWithForInteractiveWorkload(DriverConfiguration configuration, @TempDir File temporaryFolder) throws Exception
+    {
+        shouldRunWorkload(configuration, temporaryFolder);
+    }
+
+    @ParameterizedTest
+    @MethodSource("configurations")
+    public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForInteractiveWorkload(DriverConfiguration configuration, @TempDir File temporaryFolder) throws Exception
+    {
+        shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass(configuration, temporaryFolder);
+    }
+
+    // @ParameterizedTest
+    // @MethodSource("configurations")
+    // public void shouldPassWorkloadValidationForInteractiveWorkload(DriverConfiguration configuration, @TempDir File temporaryFolder) throws Exception
+    // {
+    //     shouldPassWorkloadValidation(configuration, temporaryFolder);
+    // }
+
+    private static Stream<Arguments> configurations() throws Exception{
+        return Stream.of(
+                Arguments.of(configurationWithLongReadsOnly()),
+                Arguments.of(configurationWithLongAndShortReads()),
+                Arguments.of(configurationWithWritesOnly()),
+                Arguments.of(configurationWithFullWorkloadWithoutWarmup()),
+                Arguments.of(configurationWithFullWorkloadWithWarmup())
+        );
+    }
+
+    @Test
+    public void shouldHaveNonNegativeTypesForAllOperationsForInteractiveWorkload() throws Exception
+    {
+        shouldHaveNonNegativeTypesForAllOperations(workload(), operationsAndResults());
+    }
+
+    @Test
+    public void shouldHaveOneToOneMappingBetweenOperationClassesAndOperationTypesForInteractiveWorkload() throws Exception
+    {
+        shouldHaveOneToOneMappingBetweenOperationClassesAndOperationTypes(workload());
     }
 
     @Test

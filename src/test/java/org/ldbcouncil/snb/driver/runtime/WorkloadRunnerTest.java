@@ -144,10 +144,6 @@ public class WorkloadRunnerTest
                     flushLog
             );
 
-            configuration = (ConsoleAndFileDriverConfiguration) configuration
-                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
-                            "/snb/interactive/updateStream.properties" ) ) );
-
             controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
                     configuration,
@@ -350,10 +346,6 @@ public class WorkloadRunnerTest
                     skipCount,
                     flushLog
             );
-
-            configuration = (ConsoleAndFileDriverConfiguration) configuration
-                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
-                            "/snb/interactive/updateStream.properties" ) ) );
 
             controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
@@ -575,10 +567,6 @@ public class WorkloadRunnerTest
                     skipCount,
                     flushLog
             );
-
-            configuration = (ConsoleAndFileDriverConfiguration) configuration
-                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
-                            "/snb/interactive/updateStream.properties" ) ) );
 
             controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
@@ -846,10 +834,6 @@ public class WorkloadRunnerTest
                     skipCount,
                     flushLog
             );
-
-            configuration = (ConsoleAndFileDriverConfiguration) configuration
-                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
-                            "/snb/interactive/updateStream.properties" ) ) );
 
             controlService = new LocalControlService(
                     timeSource.nowAsMilli() + 1000,
