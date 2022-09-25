@@ -443,6 +443,9 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     ResultsLogValidator resultsLogValidator = new ResultsLogValidator();
                     ResultsLogValidationTolerances resultsLogValidationTolerances =
                             workload.resultsLogValidationTolerances( controlService.configuration(), warmup );
+
+
+                    
                     ResultsLogValidationSummary resultsLogValidationSummary = resultsLogValidator.compute(
                             resultsDirectory.getOrCreateResultsLogFile( warmup ),
                             resultsLogValidationTolerances.excessiveDelayThresholdAsMilli()
@@ -460,7 +463,8 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     ResultsLogValidationResult validationResult = resultsLogValidator.validate(
                             resultsLogValidationSummary,
                             resultsLogValidationTolerances,
-                            controlService.configuration().recordDelayedOperations()
+                            controlService.configuration().recordDelayedOperations(),
+                            workloadResults
                     );
                     loggingService.info( validationResult.getScheduleAuditResult(
                         controlService.configuration().recordDelayedOperations()
