@@ -144,10 +144,6 @@ public class WorkloadRunnerTest
                     flushLog
             );
 
-            configuration = (ConsoleAndFileDriverConfiguration) configuration
-                    .applyArgs( MapUtils.loadPropertiesToMap( TestUtils.getResource(
-                            "/snb/interactive/updateStream.properties" ) ) );
-
             controlService = new LocalControlService(
                     timeSource.nowAsMilli(),
                     configuration,
