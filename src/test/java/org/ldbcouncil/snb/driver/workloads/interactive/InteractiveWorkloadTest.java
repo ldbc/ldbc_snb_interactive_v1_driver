@@ -7,7 +7,6 @@ import org.ldbcouncil.snb.driver.control.ConsoleAndFileDriverConfiguration;
 import org.ldbcouncil.snb.driver.control.DriverConfiguration;
 import org.ldbcouncil.snb.driver.control.DriverConfigurationException;
 import org.ldbcouncil.snb.driver.testutils.TestUtils;
-import org.ldbcouncil.snb.driver.util.MapUtils;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
 import org.ldbcouncil.snb.driver.workloads.ClassNameWorkloadFactory;
@@ -262,9 +261,6 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
             ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-            ).applyArgs(
-                MapUtils.loadPropertiesToMap(
-                        TestUtils.getResource( "/snb/interactive/updateStream.properties" ) )
             );
     }
 
@@ -292,10 +288,6 @@ public class InteractiveWorkloadTest extends WorkloadTest
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
             ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-            ).applyArgs(
-                    MapUtils.loadPropertiesToMap(
-                            TestUtils.getResource( "/snb/interactive/updateStream.properties" )
-                    )
             );
     }
 
@@ -325,10 +317,6 @@ public class InteractiveWorkloadTest extends WorkloadTest
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
             ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-            ).applyArgs(
-                    MapUtils.loadPropertiesToMap(
-                            TestUtils.getResource( "/snb/interactive/updateStream.properties" )
-                    )
             );
     }
 
@@ -352,10 +340,6 @@ public class InteractiveWorkloadTest extends WorkloadTest
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
             ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                     TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-            ).applyArgs(
-                    MapUtils.loadPropertiesToMap(
-                            TestUtils.getResource( "/snb/interactive/updateStream.properties" )
-                    )
             );
     }
 
@@ -380,10 +364,6 @@ public class InteractiveWorkloadTest extends WorkloadTest
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
         ).applyArg( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath()
-        ).applyArgs(
-                MapUtils.loadPropertiesToMap(
-                        TestUtils.getResource( "/snb/interactive/updateStream.properties" )
-                )
         );
     }
 
@@ -445,13 +425,12 @@ public class InteractiveWorkloadTest extends WorkloadTest
         shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass(configuration, temporaryFolder);
     }
 
-    @Disabled
-    @ParameterizedTest
-    @MethodSource("configurations")
-    public void shouldPassWorkloadValidationForInteractiveWorkload(DriverConfiguration configuration, @TempDir File temporaryFolder) throws Exception
-    {
-        shouldPassWorkloadValidation(configuration, temporaryFolder);
-    }
+    // @ParameterizedTest
+    // @MethodSource("configurations")
+    // public void shouldPassWorkloadValidationForInteractiveWorkload(DriverConfiguration configuration, @TempDir File temporaryFolder) throws Exception
+    // {
+    //     shouldPassWorkloadValidation(configuration, temporaryFolder);
+    // }
 
     private static Stream<Arguments> configurations() throws Exception{
         return Stream.of(
