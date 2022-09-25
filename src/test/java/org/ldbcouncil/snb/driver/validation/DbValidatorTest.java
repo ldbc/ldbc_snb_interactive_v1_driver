@@ -54,9 +54,6 @@ public class DbValidatorTest
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( paramsMap );
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
-                MapUtils.loadPropertiesToMap( TestUtils.getResource( "/snb/interactive/updateStream.properties" ) )
-        );
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init( configuration );
@@ -113,9 +110,6 @@ public class DbValidatorTest
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( paramsMap );
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
-                MapUtils.loadPropertiesToMap( TestUtils.getResource( "/snb/interactive/updateStream.properties" ) )
-        );
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init( configuration );
