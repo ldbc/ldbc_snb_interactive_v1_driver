@@ -2,6 +2,8 @@ package org.ldbcouncil.snb.driver.validation;
 
 import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileWriter;
+import org.ldbcouncil.snb.driver.runtime.metrics.OperationMetricsSnapshot;
+import org.ldbcouncil.snb.driver.runtime.metrics.WorkloadResultsSnapshot;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
 import org.junit.jupiter.api.Test;
@@ -9,9 +11,12 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -33,104 +38,92 @@ public class ResultsLogValidationTest
             Tuple.tuple2( "D", 1000l ),
             Tuple.tuple2( "E", 10000l )
     );
-    @TempDir
-    public File temporaryFolder;
+    
+    private ResultsLogValidationResult runValidation(boolean recordDelayedOperations, int toleratedExcessiveDelayCount)
+    {
+        long excessiveDelayThresholdAsMilli = 10;
+        long excessiveDelayCount = 10;
+        double toleratedExcessiveDelayCountPercentage = 0.05d;
+        Map<String,Long> excessiveDelayCountPerType = new HashMap<>();
+        excessiveDelayCountPerType.put( "A", 1l );
+        excessiveDelayCountPerType.put( "B", 2l );
+        excessiveDelayCountPerType.put( "C", 3l );
+        long minDelayAsMilli = 0;
+        long maxDelayAsMilli = 0;
+        long meanDelayAsMilli = 0;
+        Map<String,Long> minDelayAsMilliPerType = new HashMap<>();
+        Map<String,Long> maxDelayAsMilliPerType = new HashMap<>();
+        Map<String,Long> meanDelayAsMilliPerType = new HashMap<>();
+        ResultsLogValidationSummary summary = new ResultsLogValidationSummary(
+                excessiveDelayThresholdAsMilli,
+                excessiveDelayCount,
+                excessiveDelayCountPerType,
+                minDelayAsMilli,
+                maxDelayAsMilli,
+                meanDelayAsMilli,
+                minDelayAsMilliPerType,
+                maxDelayAsMilliPerType,
+                meanDelayAsMilliPerType
+        );
 
-    // @Test
-    // public void shouldPassValidationWhenResultsAreGood()
-    // {
-    //     long excessiveDelayThresholdAsMilli = 10;
-    //     boolean recordDelayedOperations = false;
-    //     long excessiveDelayCount = 10;
-    //     double toleratedExcessiveDelayCountPercentage = 0.05d;
-    //     Map<String,Long> excessiveDelayCountPerType = new HashMap<>();
-    //     excessiveDelayCountPerType.put( "A", 1l );
-    //     excessiveDelayCountPerType.put( "B", 2l );
-    //     excessiveDelayCountPerType.put( "C", 3l );
-    //     long minDelayAsMilli = 0;
-    //     long maxDelayAsMilli = 0;
-    //     long meanDelayAsMilli = 0;
-    //     Map<String,Long> minDelayAsMilliPerType = new HashMap<>();
-    //     Map<String,Long> maxDelayAsMilliPerType = new HashMap<>();
-    //     Map<String,Long> meanDelayAsMilliPerType = new HashMap<>();
-    //     ResultsLogValidationSummary summary = new ResultsLogValidationSummary(
-    //             excessiveDelayThresholdAsMilli,
-    //             excessiveDelayCount,
-    //             excessiveDelayCountPerType,
-    //             minDelayAsMilli,
-    //             maxDelayAsMilli,
-    //             meanDelayAsMilli,
-    //             minDelayAsMilliPerType,
-    //             maxDelayAsMilliPerType,
-    //             meanDelayAsMilliPerType
-    //     );
+        OperationMetricsSnapshot operationA = new OperationMetricsSnapshot("A",TimeUnit.MILLISECONDS, 1, null);
+        OperationMetricsSnapshot operationB = new OperationMetricsSnapshot("B",TimeUnit.MILLISECONDS, 1, null);
+        OperationMetricsSnapshot operationC = new OperationMetricsSnapshot("C",TimeUnit.MILLISECONDS, 1, null);
+        List<OperationMetricsSnapshot> metrics = new ArrayList<>(
+            Arrays.asList(
+            operationA, operationB, operationC
+        ));
 
-    //     long toleratedExcessiveDelayCount = excessiveDelayCount;
-    //     Map<String,Long> toleratedExcessiveDelayCountPerType = new HashMap<>();
-    //     toleratedExcessiveDelayCountPerType.put( "A", excessiveDelayCountPerType.get( "A" ) );
-    //     toleratedExcessiveDelayCountPerType.put( "B", excessiveDelayCountPerType.get( "B" ) );
-    //     toleratedExcessiveDelayCountPerType.put( "C", excessiveDelayCountPerType.get( "C" ) );
-    //     ResultsLogValidator validator = new ResultsLogValidator();
-    //     ResultsLogValidationTolerances tolerances = new ResultsLogValidationTolerances(
-    //             excessiveDelayThresholdAsMilli,
-    //             toleratedExcessiveDelayCount,
-    //             toleratedExcessiveDelayCountPercentage
-    //     );
-    //     ResultsLogValidationResult result = validator.validate(
-    //             summary,
-    //             tolerances,
-    //             recordDelayedOperations,
-    //             summary
-    //     );
-    //     assertTrue( result.isSuccessful(), result.toString() );
-    // }
+        WorkloadResultsSnapshot workloadResults = new WorkloadResultsSnapshot(
+            metrics,
+            1,
+            10,
+            3,
+            TimeUnit.MILLISECONDS
+        );
 
-    // @Test
-    // public void shouldFailValidationWhenExcessiveDelayCountIsExceeded()
-    // {
-    //     boolean recordDelayedOperations = true;
-    //     long excessiveDelayThresholdAsMilli = 10;
-    //     long excessiveDelayCount = 10;
-    //     Map<String,Long> excessiveDelayCountPerType = new HashMap<>();
-    //     excessiveDelayCountPerType.put( "A", 1l );
-    //     excessiveDelayCountPerType.put( "B", 2l );
-    //     excessiveDelayCountPerType.put( "C", 3l );
-    //     long minDelayAsMilli = 0;
-    //     long maxDelayAsMilli = 0;
-    //     long meanDelayAsMilli = 0;
-    //     Map<String,Long> minDelayAsMilliPerType = new HashMap<>();
-    //     Map<String,Long> maxDelayAsMilliPerType = new HashMap<>();
-    //     Map<String,Long> meanDelayAsMilliPerType = new HashMap<>();
-    //     ResultsLogValidationSummary summary = new ResultsLogValidationSummary(
-    //             excessiveDelayThresholdAsMilli,
-    //             excessiveDelayCount,
-    //             excessiveDelayCountPerType,
-    //             minDelayAsMilli,
-    //             maxDelayAsMilli,
-    //             meanDelayAsMilli,
-    //             minDelayAsMilliPerType,
-    //             maxDelayAsMilliPerType,
-    //             meanDelayAsMilliPerType
-    //     );
+        Map<String,Long> toleratedExcessiveDelayCountPerType = new HashMap<>();
+        toleratedExcessiveDelayCountPerType.put( "A", excessiveDelayCountPerType.get( "A" ) );
+        toleratedExcessiveDelayCountPerType.put( "B", excessiveDelayCountPerType.get( "B" ) );
+        toleratedExcessiveDelayCountPerType.put( "C", excessiveDelayCountPerType.get( "C" ) );
+        ResultsLogValidator validator = new ResultsLogValidator();
+        ResultsLogValidationTolerances tolerances = new ResultsLogValidationTolerances(
+                excessiveDelayThresholdAsMilli,
+                toleratedExcessiveDelayCount,
+                toleratedExcessiveDelayCountPercentage
+        );
+        ResultsLogValidationResult result = validator.validate(
+                summary,
+                tolerances,
+                recordDelayedOperations,
+                workloadResults
+        );
+        return result;
+    }
+    
+    @Test
+    public void shouldPassValidationWhenResultsAreGood()
+    {
+        boolean recordDelayedOperations = false;
+        int toleratedExcessiveDelayCount = 10;
+        ResultsLogValidationResult result = runValidation(recordDelayedOperations, toleratedExcessiveDelayCount);
+        assertTrue( result.isSuccessful(), result.toString() );
+    }
 
-    //     long toleratedExcessiveDelayCount = excessiveDelayCount - 1;
-    //     ResultsLogValidator validator = new ResultsLogValidator();
-    //     ResultsLogValidationTolerances tolerances = new ResultsLogValidationTolerances(
-    //             excessiveDelayThresholdAsMilli,
-    //             toleratedExcessiveDelayCount
-    //     );
-    //     ResultsLogValidationResult result = validator.validate(
-    //             summary,
-    //             tolerances,
-    //             recordDelayedOperations
-    //     );
-    //     assertFalse( result.isSuccessful(), result.toString() );
-    //     assertThat(
-    //             result.toString(),
-    //             result.errors().get( 0 ).errorType(),
-    //             equalTo( ResultsLogValidationResult.ValidationErrorType.TOO_MANY_LATE_OPERATIONS )
-    //     );
-    // }
+    @Test
+    public void shouldFailValidationWhenExcessiveDelayCountIsExceeded()
+    {
+        boolean recordDelayedOperations = true;
+        int toleratedExcessiveDelayCount = 9;
+        ResultsLogValidationResult result = runValidation(recordDelayedOperations, toleratedExcessiveDelayCount);
+        
+        assertFalse( result.isSuccessful(), result.toString() );
+        assertThat(
+                result.toString(),
+                result.errors().get( 0 ).errorType(),
+                equalTo( ResultsLogValidationResult.ValidationErrorType.TOO_MANY_LATE_OPERATIONS )
+        );
+    }
 
     @Test
     public void shouldReturnExpectedSummaryWhenComputedThenSerializedAndMarshaled() throws IOException
@@ -161,11 +154,11 @@ public class ResultsLogValidationTest
     }
 
     @Test
-    public void shouldReturnExpectedSummaryWhenValidatedFromFile() throws IOException, ValidationException
+    public void shouldReturnExpectedSummaryWhenValidatedFromFile(@TempDir File temporaryFolder) throws IOException, ValidationException
     {
         // Given
         long excessiveDelayThreshold = 5;
-        File file = new File(this.temporaryFolder, "output.csv");
+        File file = new File(temporaryFolder, "output.csv");
 
         try ( SimpleCsvFileWriter writer =
                       new SimpleCsvFileWriter( file, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, false ) )
