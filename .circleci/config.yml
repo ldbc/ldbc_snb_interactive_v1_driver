@@ -20,7 +20,7 @@ jobs:
       - run: mvn clean install -DskipTests
 
   test_driver:
-    parallelism: 4 # parallel containers to split the tests among
+    parallelism: 2 # parallel containers to split the tests among
     docker:
       - image: cimg/openjdk:11.0.16
     steps:
