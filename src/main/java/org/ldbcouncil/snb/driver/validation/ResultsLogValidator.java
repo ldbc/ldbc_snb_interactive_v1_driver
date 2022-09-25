@@ -7,10 +7,14 @@ package org.ldbcouncil.snb.driver.validation;
  */
 
 import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileReader;
+import org.ldbcouncil.snb.driver.runtime.metrics.OperationMetricsSnapshot;
+import org.ldbcouncil.snb.driver.runtime.metrics.WorkloadResultsSnapshot;
 import org.ldbcouncil.snb.driver.temporal.TemporalUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.ldbcouncil.snb.driver.validation.ResultsLogValidationResult.ValidationErrorType;
 import static java.lang.String.format;
@@ -30,30 +34,30 @@ public class ResultsLogValidator
     public ResultsLogValidationResult validate(
             ResultsLogValidationSummary summary,
             ResultsLogValidationTolerances tolerances,
-            boolean recordDelayedOperations )
+            boolean recordDelayedOperations,
+            WorkloadResultsSnapshot workloadResults
+    )
     {
         ResultsLogValidationResult result = new ResultsLogValidationResult();
-        // Check if total delayed operations is above the threshold
-        if ( summary.excessiveDelayCount() > tolerances.toleratedExcessiveDelayCount() )
+
+        Map<String, Long> operationCountPerTypeMap = new HashMap<>();
+        for (OperationMetricsSnapshot metric : workloadResults.allMetrics())
         {
-            result.aboveThreshold();
-            result.addError(
-                    ValidationErrorType.TOO_MANY_LATE_OPERATIONS,
-                    format( "Late Count (%s) > (%s) Tolerated Late Count",
-                            summary.excessiveDelayCount(),
-                            tolerances.toleratedExcessiveDelayCount() )
-            );
-            recordDelayedOperations = true; //Override to give the late operations always when there are too many too late.
+            operationCountPerTypeMap.put(metric.name(), metric.count());
         }
+
         for ( String operationType : summary.excessiveDelayCountPerType().keySet() )
         {
-            if (recordDelayedOperations && summary.excessiveDelayCountPerType().get( operationType ) > 0)
+            long allowedLateOperations = Math.round(operationCountPerTypeMap.get(operationType) * tolerances.toleratedExcessiveDelayCountPercentage());
+            if (recordDelayedOperations && summary.excessiveDelayCountPerType().get( operationType ) > allowedLateOperations )
             {
+                result.aboveThreshold();
                 result.addError(
-                    ValidationErrorType.LATE_OPERATIONS_FOR_TYPE,
-                    format( "Late Count for %s (%s) Tolerated Late Count",
+                    ValidationErrorType.TOO_MANY_LATE_OPERATIONS,
+                    format( "Late Count for %s (%s) > (%s) Tolerated Late Count",
                             operationType,
-                            summary.excessiveDelayCountPerType().get( operationType )
+                            summary.excessiveDelayCountPerType().get( operationType ),
+                            allowedLateOperations
                     )
                 );
             }
