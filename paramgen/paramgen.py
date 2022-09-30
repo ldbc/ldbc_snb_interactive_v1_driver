@@ -21,8 +21,8 @@ remove_lower_times_dict = {
     "Q_12"  : "DELETE FROM Q_12  t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_12  t2 WHERE t2.personId  = t1.personId  AND t2.tagClassName = t1.tagClassName);",
     "Q_13a" : "DELETE FROM Q_13a t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_13a t2 WHERE t2.person1Id = t1.person1Id AND t2.person2Id = t1.person2Id);",
     "Q_13b" : "DELETE FROM Q_13b t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_13b t2 WHERE t2.person1Id = t1.person1Id AND t2.person2Id = t1.person2Id);",
-    "Q_14a" : "DELETE FROM Q_14a t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_14a t2 WHERE t2.person1Id = t1.person1Id AND t2.person2Id = t1.person2Id);",
-    "Q_14b" : "DELETE FROM Q_14b t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_14b t2 WHERE t2.person1Id = t1.person1Id AND t2.person2Id = t1.person2Id);"
+    "Q_14a" : "DELETE FROM Q_14a t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_14a t2 WHERE t2.person1Id = t1.person1Id AND t2.person2Id = t1.person2Id);"
+    # "Q_14b" : "DELETE FROM Q_14b t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_14b t2 WHERE t2.person1Id = t1.person1Id AND t2.person2Id = t1.person2Id);"
 }
 
 remove_duplicates = {
@@ -40,9 +40,9 @@ remove_duplicates = {
     "Q_11"   : "CREATE TABLE Q_11_filtered AS SELECT personId, countryName, workFromYear, useFrom, useUntil FROM Q_11 GROUP BY personId, countryName, workFromYear, useFrom, useUntil;",
     "Q_12"   : "CREATE TABLE Q_12_filtered AS SELECT personId, tagClassName, useFrom, useUntil FROM Q_12 GROUP BY personId, tagClassName, useFrom, useUntil;",
     "Q_13a"   : "CREATE TABLE Q_13a_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_13a GROUP BY person1Id, person2Id, useFrom, useUntil;",
-    "Q_13b"   : "CREATE TABLE Q_13b_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_13b GROUP BY person1Id, person2Id, useFrom, useUntil;",
-    "Q_14a"   : "CREATE TABLE Q_14a_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_14a GROUP BY person1Id, person2Id, useFrom, useUntil;",
-    "Q_14b"   : "CREATE TABLE Q_14b_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_14b GROUP BY person1Id, person2Id, useFrom, useUntil;"
+    "Q_13b"   : "CREATE TABLE Q_13b_filtered AS SELECT DISTINCT person1Id, person2Id, min(useFrom), max(useUntil) FROM Q_13b GROUP BY person1Id, person2Id;",
+    "Q_14a"   : "CREATE TABLE Q_14a_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_14a GROUP BY person1Id, person2Id, useFrom, useUntil;"
+    # "Q_14b"   : "CREATE TABLE Q_14b_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_14b GROUP BY person1Id, person2Id, useFrom, useUntil;"
 }
 
 def generate_parameter_for_query_type(cursor, date_limit, date_start, create_tables, query_variant):
@@ -89,12 +89,20 @@ def create_views_of_factor_tables(cursor, factor_tables_path):
         path_dir = Path(directory)
         if path_dir.is_dir():
             print(f"Loading {path_dir.name}")
-            cursor.execute(
-                f"""
-                CREATE VIEW {path_dir.name} AS 
-                SELECT * FROM read_parquet('{str(Path(directory).absolute()) + "/*.parquet"}');
-                """
-            )
+            if path_dir.name in ["personDays", "personKnowsPersonDays", "personStudyAtUniversityDays", "personWorkAtCompanyDays"]:
+                cursor.execute(f"DROP TABLE IF EXISTS {path_dir.name}")
+                cursor.execute( f"""
+                    CREATE TABLE {path_dir.name} AS 
+                    SELECT * FROM read_parquet('{str(Path(directory).absolute()) + "/*.parquet"}');
+                    """)
+            else:
+                cursor.execute(f"DROP VIEW IF EXISTS {path_dir.name}")
+                cursor.execute(
+                    f"""
+                    CREATE VIEW {path_dir.name} AS 
+                    SELECT * FROM read_parquet('{str(Path(directory).absolute()) + "/*.parquet"}');
+                    """
+                )
 
 
 def generate_parameters(cursor, date_limit, date_start, end_date, window_time):
@@ -114,7 +122,7 @@ def generate_parameters(cursor, date_limit, date_start, end_date, window_time):
     create_tables = True
     while (date_limit < end_date):
         print("============ Generating parameters ============")
-        for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "13b", "14a", "14b"]:
+        for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "13b", "14a"]:
             print(f"- Q{query_variant}, date {date_limit.strftime('%Y-%m-%d')}")
             generate_parameter_for_query_type(cursor, date_limit, date_start, create_tables, query_variant)
         create_tables = False
@@ -128,15 +136,16 @@ def export_parameters(cursor):
         - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
     """
     print("============ Output parameters ============")
-    for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "13b", "14a", "14b"]:
+    for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "13b", "14a"]:
         print(f"- Q{query_variant} TO parameters/interactive-{query_variant}.parquet")
         query = remove_lower_times_dict[f"Q_{query_variant}"]#remove_duplicates
         cursor.execute(query)
         query = remove_duplicates[f"Q_{query_variant}"]#remove_duplicates
         cursor.execute(query)
         cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO 'parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
-
-
+        if query_variant == "13b":
+            cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO 'parameters/interactive-14b.parquet' WITH (FORMAT PARQUET);")
+            print(f"- Q{query_variant} TO parameters/interactive-14b.parquet")
 
 def generate_short_parameters(cursor, date_start):
     """
@@ -163,6 +172,14 @@ def main(factor_tables_dir, start_date, end_date, time_bucket_size_in_days, gene
     end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
     create_views_of_factor_tables(cursor, factor_tables_dir)
+
+    cursor.execute(f"""
+        INSERT INTO personKnowsPersonDays
+            SELECT Person2Id, Person1Id, creationDay, deletionDay
+            FROM personKnowsPersonDays
+        """)
+
+
     generate_parameters(cursor, date_limit, date_start, end_date, window_time)
     export_parameters(cursor)
 
