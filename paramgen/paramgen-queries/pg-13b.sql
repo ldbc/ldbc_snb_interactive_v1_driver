@@ -1,29 +1,37 @@
--- variant (b): guaranteed that there is a path
-SELECT
-    person1Id AS 'person1Id',
-    person2Id AS 'person2Id',
-    GREATEST(Person1CreationDate, Person2CreationDate) AS 'useFrom',
-       LEAST(Person1DeletionDate, Person2DeletionDate) AS 'useUntil'
-FROM people4Hops,
-(
-        SELECT Person1Id AS personId,
-               numFriendsOfFriends,
-               abs(numFriendsOfFriends - (
-                    SELECT percentile_disc(0.65)
-                    WITHIN GROUP (ORDER BY numFriendsOfFriends)
-                      FROM personNumFriendsOfFriendsOfFriends)
-               ) AS diff,
-               creationDate AS useFrom,
-               deletionDate AS useUntil
-          FROM personNumFriendsOfFriendsOfFriends
-         WHERE numFriends > 0 AND deletionDate - INTERVAL 1 DAY  > :date_limit_filter AND creationDate + INTERVAL 1 DAY < :date_limit_filter
-         ORDER BY diff, md5(Person1Id)
-         LIMIT 100
-    ) personIds
-WHERE Person1CreationDate + INTERVAL 1 DAY < :date_limit_filter
-  AND Person2CreationDate + INTERVAL 1 DAY < :date_limit_filter
-  AND Person1DeletionDate - INTERVAL 1 DAY > :date_limit_filter
-  AND Person2DeletionDate - INTERVAL 1 DAY > :date_limit_filter
-  AND people4Hops.Person1Id = personIds.personId
-ORDER BY md5(concat(person1Id + 1, person2Id + 2))
-LIMIT 500
+-- -- variant (b): guaranteed that there is a path
+SELECT DISTINCT
+    p1Id AS 'person1Id',
+    p2Id AS 'person2Id',
+    GREATEST(knows4.creationDay, knows3.creationDay, creationDayFirstHalf) AS 'useFrom',
+    LEAST(knows4.deletionDay, knows3.deletionDay, deletionDayFirstHalf) AS 'useUntil'
+FROM
+  (
+    SELECT DISTINCT
+      people4Hops_sample.person1Id AS p1Id,
+      people4Hops_sample.person2Id AS p2Id,
+      knows2.person2Id AS middleCandidate,
+      GREATEST(knows1.creationDay, knows2.creationDay) as creationDayFirstHalf,
+      LEAST(knows1.deletionDay, knows2.deletionDay) as deletionDayFirstHalf
+    FROM (
+      SELECT *
+      FROM people4Hops
+      LIMIT 80
+    ) people4Hops_sample
+    -- two hops from person1Id
+    JOIN personKnowsPersonDays knows1
+      ON knows1.person1Id = people4Hops_sample.person1Id
+    JOIN personKnowsPersonDays knows2
+      ON knows2.person1Id = knows1.person2Id
+  ) sub
+
+-- two hops from person2Id
+JOIN personKnowsPersonDays knows4
+  ON knows4.person1Id = p2Id
+JOIN personKnowsPersonDays knows3
+  ON knows3.person1Id = knows4.person2Id
+
+-- meet in the middle
+WHERE middleCandidate = knows3.person2Id
+  AND GREATEST(knows4.creationDay, knows3.creationDay, creationDayFirstHalf) + INTERVAL 1 DAY < :date_limit_filter
+  AND LEAST(knows4.deletionDay, knows3.deletionDay, deletionDayFirstHalf) - INTERVAL 1 DAY > :date_limit_filter
+ORDER BY md5(131*p1Id + 241*p2Id), md5(p1Id)
