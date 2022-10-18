@@ -55,7 +55,5 @@ To use the data conversion script `convert_spark_dataset_to_interactive.py`, use
 To convert the data and add the dependencyTime column, use the `convert_and_append.py` like:
 
 ```bash
-./convert_and_append.py --input_dir '/data/out-sf1'
+./convert_and_append.py --input_dir '/data/out-sf1' --output_dir '/data/interactive-data' --input_type parquet --data_format composite-merged-fk
 ```
-
-This will output the files into the parquet folder found under `/data/out-sf1`
