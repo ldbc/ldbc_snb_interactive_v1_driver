@@ -58,7 +58,7 @@ def generate_parameter_for_query_type(cursor, date_limit, date_start, create_tab
     date_limit_string = date_limit.strftime('%Y-%m-%d')
     date_limit_long = date_limit.timestamp() * 1000
     date_start_long = date_start.timestamp() * 1000
-    with open(f"paramgen/paramgen-queries/pg-{query_variant}.sql", "r") as parameter_query_file:
+    with open(f"paramgen-queries/pg-{query_variant}.sql", "r") as parameter_query_file:
         parameter_query = parameter_query_file.read().replace(':date_limit_filter', f'\'{date_limit_string}\'')
         parameter_query = parameter_query.replace(':date_limit_long', str(date_limit_long))
         parameter_query = parameter_query.replace(':date_start_long', str(date_start_long))
@@ -137,15 +137,15 @@ def export_parameters(cursor):
     """
     print("============ Output parameters ============")
     for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "13b", "14a"]:
-        print(f"- Q{query_variant} TO parameters/interactive-{query_variant}.parquet")
+        print(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
         query = remove_lower_times_dict[f"Q_{query_variant}"]#remove_duplicates
         cursor.execute(query)
         query = remove_duplicates[f"Q_{query_variant}"]#remove_duplicates
         cursor.execute(query)
-        cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO 'parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
+        cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
         if query_variant == "13b":
-            cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO 'parameters/interactive-14b.parquet' WITH (FORMAT PARQUET);")
-            print(f"- Q{query_variant} TO parameters/interactive-14b.parquet")
+            cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO '../parameters/interactive-14b.parquet' WITH (FORMAT PARQUET);")
+            print(f"- Q{query_variant} TO ../parameters/interactive-14b.parquet")
 
 def generate_short_parameters(cursor, date_start):
     """
@@ -157,14 +157,14 @@ def generate_short_parameters(cursor, date_start):
     print("============ Generate Short Query Parameters ============")
     for query_variant in ["personId", "messageId"]:
         generate_parameter_for_query_type(cursor, date_start, date_start, True, query_variant)
-        print(f"- Q{query_variant} TO parameters/interactive-{query_variant}.parquet")
-        cursor.execute(f"COPY 'Q_{query_variant}' TO 'parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
+        print(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
+        cursor.execute(f"COPY 'Q_{query_variant}' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
 
 
 def main(factor_tables_dir, start_date, end_date, time_bucket_size_in_days, generate_short_query_parameters):
     # Remove previous database if exists
-    Path('paramgen.snb.db').unlink(missing_ok=True)
-    cursor = duckdb.connect(database="paramgen.snb.db")
+    Path('scratch/paramgen.duckdb').unlink(missing_ok=True)
+    cursor = duckdb.connect(database="scratch/paramgen.duckdb")
 
     date_start = datetime.strptime(start_date, "%Y-%m-%d")
     date_limit = date_start
