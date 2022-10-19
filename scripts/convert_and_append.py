@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to convert the update stream csvs to parquet and add the dependency time
+Script to convert the update batches to Parquet and add the dependency time
 """
 
 from add_dependent_time_interactive import DependentTimeAppender
