@@ -60,3 +60,9 @@ jobs:
             export LDBC_SNB_DATA_ROOT_DIRECTORY=`pwd`/social-network-sf0.003-bi-parquet
             export DATA_INPUT_TYPE=parquet
             scripts/convert.sh
+      - run:
+          name: Test paramgen
+          command: |
+            cd paramgen
+            scripts/get-sample-factors.sh
+            scripts/paramgen.sh
