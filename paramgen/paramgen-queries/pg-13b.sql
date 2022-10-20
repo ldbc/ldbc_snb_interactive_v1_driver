@@ -15,7 +15,8 @@ FROM
     FROM (
       SELECT *
       FROM people4Hops
-      LIMIT 80
+      ORDER BY md5(966801790531*person1Id + 268317093521*person2Id)
+      LIMIT 25
     ) people4Hops_sample
     -- two hops from person1Id
     JOIN personKnowsPersonDays knows1

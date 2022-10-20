@@ -42,7 +42,7 @@ remove_duplicates = {
     "Q_13a"   : "CREATE TABLE Q_13a_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_13a GROUP BY person1Id, person2Id, useFrom, useUntil;",
     "Q_13b"   : "CREATE TABLE Q_13b_filtered AS SELECT DISTINCT person1Id, person2Id, min(useFrom), max(useUntil) FROM Q_13b GROUP BY person1Id, person2Id;",
     "Q_14a"   : "CREATE TABLE Q_14a_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_14a GROUP BY person1Id, person2Id, useFrom, useUntil;"
-    # "Q_14b"   : "CREATE TABLE Q_14b_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_14b GROUP BY person1Id, person2Id, useFrom, useUntil;"
+    "Q_14b"   : "CREATE TABLE Q_14b_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_14b GROUP BY person1Id, person2Id, useFrom, useUntil;"
 }
 
 def generate_parameter_for_query_type(cursor, date_limit, date_start, create_tables, query_variant):
