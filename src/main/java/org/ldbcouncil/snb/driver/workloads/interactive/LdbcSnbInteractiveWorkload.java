@@ -424,7 +424,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
         {
-            System.out.println("Workload has a start time of 0");
             workloadStartTimeAsMilli = 0;
         }
 
