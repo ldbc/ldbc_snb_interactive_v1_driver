@@ -105,7 +105,7 @@ public class LdbcQuery14a extends LdbcOperation<List<LdbcQuery14Result>>
     @Override
     public String toString()
     {
-        return "LdbcQuery14{" +
+        return "LdbcQuery14a{" +
                "person1IdQ14StartNode=" + person1IdQ14StartNode +
                ", person2IdQ14EndNode=" + person2IdQ14EndNode +
                '}';
