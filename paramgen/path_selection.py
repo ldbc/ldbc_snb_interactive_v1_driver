@@ -8,13 +8,25 @@ from networkit.dynamics import GraphEvent
 import pandas as pd
 
 class PathCuration():
-
-    def __init__(self, data_path, factor_table_path):
+    """
+    Curates the people4Hops factor table to select valid 4-hop paths
+    per day for each day. This class loads the Person and Person_knows_Person
+    tables into a networkit graph data structure at which it is updated per
+    batch time window. At each time window, each person-pair from the
+    people4Hops factor table is checked whether a valid 4-hop path exists
+    using bidirectional BFS.
+    """
+    def __init__(self, data_path, factor_table_path, hop_count=4):
+        """
+        Args:
+            - data_path (str): Path to the raw parquet directory containing
+                               the 'dynamic' folder
+            - factor_table_path (str): Path to the factor tables.
+        """
         Path('scratch/path_selection.duckdb').unlink(missing_ok=True)
         self.cursor = duckdb.connect(database="scratch/path_selection.duckdb")
-        # We first initialize using networkx so we can add nodes with given id
-        # then we convert it to networkit once graph is initialized (see update_graph)
         self.G = None
+        self.HOP_COUNT = hop_count
         self.APSP = None
         self.data_path = data_path
         self.factor_table_path = factor_table_path
@@ -22,6 +34,10 @@ class PathCuration():
         self.node_map_inverted = {}
 
     def create_views(self):
+        """
+        Creates views over the parquet files used for path curation.
+        """
+
         person_parquets = "/dynamic/Person/*.parquet"
         knows_parquets = "/dynamic/Person_knows_Person/*.parquet"
 
@@ -30,26 +46,35 @@ class PathCuration():
         self.cursor.execute(f"DROP VIEW IF EXISTS person")
         self.cursor.execute(f"DROP VIEW IF EXISTS people4Hops")
         self.cursor.execute(f"DROP VIEW IF EXISTS knows")
+        person_path = str(Path(self.data_path).absolute()) + person_parquets
         self.cursor.execute(
             f"""
             CREATE VIEW person AS 
-            SELECT * FROM read_parquet('{str(Path(self.data_path).absolute()) + person_parquets}');
+            SELECT * FROM read_parquet('{person_path}');
             """
         )
+        knows_path = str(Path(self.data_path).absolute()) + knows_parquets
         self.cursor.execute(
             f"""
             CREATE VIEW knows AS 
-            SELECT * FROM read_parquet('{str(Path(self.data_path).absolute()) + knows_parquets}');
+            SELECT * FROM read_parquet('{knows_path}');
             """
         )
+        people_4_hops_path = str(Path(self.factor_table_path).absolute()) + people4hops_parquets
         self.cursor.execute(
             f"""
             CREATE VIEW people4Hops AS 
-            SELECT * FROM read_parquet('{str(Path(self.factor_table_path).absolute()) + people4hops_parquets}');
+            SELECT * FROM read_parquet('{people_4_hops_path}');
             """
         )
 
     def add_nodes_to_graph_init(self):
+        """
+        Adds all the persons from the Person table. Creates a dictionary
+        to map the personIds with the node ids in the graph.
+        Returns:
+            Number of nodes in the graph at initialization.
+        """
         all_nodes = self.cursor.execute(
             f"""
             SELECT id FROM person;
@@ -66,6 +91,14 @@ class PathCuration():
         return all_nodes_count
 
     def remove_nodes(self, start_date_long, end_date_long):
+        """
+        Get the remove nodes events from Person table.
+        Args:
+            - start_date_long (int): start day of the window
+            - end_date_long (int): end day of the window
+        Returns:
+            tuple (amount of delete events, list of GraphEvent objects)
+        """
         nodes_deleted = self.cursor.execute(
             f"""
             SELECT id FROM person
@@ -80,6 +113,14 @@ class PathCuration():
         return len(nodes_deleted), delete_events
 
     def add_edges(self, start_date_long, end_date_long):
+        """
+        Get the create edges events from Person_knows_Person table.
+        Args:
+            - start_date_long (int): start day of the window
+            - end_date_long (int): end day of the window
+        Returns:
+            tuple (amount of create events, list of GraphEvent objects)
+        """
         edges_created = self.cursor.execute(
             f"""
             SELECT Person1Id, Person2Id FROM knows
@@ -93,6 +134,14 @@ class PathCuration():
         return len(edges_created), edges_created_events
 
     def remove_edges(self, start_date_long, end_date_long):
+        """
+        Get the remove edges events from Person_knows_Person table.
+        Args:
+            - start_date_long (int): start day of the window
+            - end_date_long (int): end day of the window
+        Returns:
+            tuple (amount of delete events, list of GraphEvent objects)
+        """
         edges_deleted = self.cursor.execute(
             f"""
             SELECT Person1Id, Person2Id FROM knows
@@ -106,9 +155,16 @@ class PathCuration():
 
     def init_graph(self, start_date, end_date):
         """
-        All the nodes are added to get the mapping right. We only remove nodes when
-        the deletion date is approached and the links are added when that event is
-        scheduled.
+        Initializes the graph data structure.
+        All the person nodes are added so mapping between the personIds and
+        node ids from the graph can be stored. We only remove nodes when
+        the deletion date is approached and the edges are added upon
+        creationDate.
+        Args:
+            - start_date (datetime.datetime): start day of the window
+            - end_date (datetime.datetime): end day of the window
+        Returns:
+            Dictionary with graph initialization statistics
         """
         start_date_long = start_date.timestamp() * 1000
         end_date_long = end_date.timestamp() * 1000
@@ -143,7 +199,12 @@ class PathCuration():
 
     def update_graph(self, start_date, end_date):
         """
-        Select entities between two dates.
+        Updates the graph with the updates within the given time window.
+        Args:
+            - start_date (datetime.datetime): start day of the window
+            - end_date (datetime.datetime): end day of the window
+        Returns:
+            Dictionary with update statistics
         """
 
         start_date_long = start_date.timestamp() * 1000
@@ -174,6 +235,11 @@ class PathCuration():
         }
 
     def get_node_pairs(self):
+        """
+        Reads the personIds from the people4hops factor table.
+        Returns list of tuples with the personIds mapped to the ids of the
+        nodes in the graph.
+        """
         people_4_hops = self.cursor.execute(
             f"""
             SELECT Person1Id, Person2Id FROM people4Hops;
@@ -181,70 +247,93 @@ class PathCuration():
         ).fetchall()
 
         mapped_pairs = []
-        for pair in people_4_hops:
-            mapped_pairs.append((self.node_map[pair[0]], self.node_map[pair[1]]))
+        for node_a, node_b in people_4_hops:
+            mapped_pairs.append((self.node_map[node_a], self.node_map[node_b]))
         return mapped_pairs
 
     def run(self, start_date:str, end_date:str, time_bucket_size_in_days):
         """
-        Runs the path curation script in the following steps:
-        1. Create views on the parquet files using DuckDB
-        2. Initialize the graph with NetworkKit
-        3. 
+        Checks the people4Hops factor table for available paths in given time
+        window.
+        Args:
+            - start_date (str): Start date of the parameter curation, e.g. 28-11-2022
+            - end_date   (str): End date of the parameter curation, e.g. 31-1-2022
+            - time_bucket_size_in_days (int): The amount of days in a bucket, e.g. 1
+        Returns:
+            List of dicts {person1Id, person2Id, useFrom, useUntil}
         """
         paths = []
-
         self.create_views()
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
         init_date = datetime(year=1970, month=1, day=1)
 
-        # Initialize graph
+        print("------------ Graph Initialization ------------")
+        start_init = time.time()
         stats_dict = self.init_graph(init_date, start_date)
+        end_init = time.time()
         print(stats_dict)
+        duration_init = end_init - start_init
+        print(f"------------ Graph Init Duration {duration_init:.4f} seconds ------------")
         print("------------ Graph Initialized ------------")
 
         date_limit = date_limit_end = start_date
         window_time = timedelta(days=time_bucket_size_in_days)
         date_limit_end = date_limit_end + window_time
 
+        start_calculation = time.time()
         people_4_hops = self.get_node_pairs()
-        start_total = time.time()
         while (date_limit_end < end_date):
-            paths_discarded = 0
             print(f"Dates: {date_limit} - {date_limit_end}")
+            paths_discarded = paths_found = 0
             _ = self.update_graph(date_limit, date_limit_end)
-            for node_pair in people_4_hops:
-                if self.G.hasNode(node_pair[0]) and self.G.hasNode(node_pair[1]):
-                    total_hops = nk.distance.BidirectionalBFS(self.G, node_pair[0], node_pair[1]).run().getHops()
-                    if (total_hops == 4):
-                        # The timedelta of 1 day is to prevent that the update on the day
-                        # itself is after the issuing of the parameter
+            for node_a, node_b in people_4_hops:
+                # Some nodes in the people4Hops table are already deleted
+                # before the benchmark time window requiring checking if
+                # the nodes exist.
+                if self.G.hasNode(node_a) and self.G.hasNode(node_b):
+                    total_hops = nk.distance.BidirectionalBFS(self.G, node_a, node_b).run().getDistance()
+                    if (total_hops == self.HOP_COUNT):
+                        # The timedelta of 1 day is to prevent that the update
+                        # on the day itself is after the issuing of the parameter
                         paths.append(
                             {
-                                "person1Id" : self.node_map_inverted[node_pair[0]],
-                                "person2id" : self.node_map_inverted[node_pair[1]],
+                                "person1Id" : self.node_map_inverted[node_a],
+                                "person2id" : self.node_map_inverted[node_b],
                                 "useFrom" : date_limit + timedelta(days=1),
                                 "useUntil" : date_limit_end + timedelta(days=1)
                             }
                         )
+                        paths_found += 1
                     else:
                         paths_discarded += 1
-            print(f"Total paths discarded: {paths_discarded}")
+            print(f"Total paths discarded: {paths_discarded}. Total found: {paths_found}")
             date_limit = date_limit + window_time
             date_limit_end = date_limit_end + window_time
-        end_total = time.time()
-        duration_calculation = end_total - start_total
-        print(f"Generation of paths duration: {duration_calculation:.4f} seconds")
+        end_calculation = time.time()
+        duration_calculation = end_calculation - start_calculation
+        print(f"Path calculation duration: {duration_calculation:.4f} seconds")
+        print(f"Total duration: {duration_calculation + duration_init:.4f} seconds")
 
         return paths
 
     def get_people_4_hops_paths(
-        self, start_date:str,
+        self,
+        start_date:str,
         end_date:str,
         time_bucket_size_in_days:int,
         parquet_output_dir:str
     ):
+        """
+        Entry point function of the PathCuration class.
+        Get valid 4-hop path per day. Outputs the paths to a parquet file.
+        Args:
+            - start_date (str): Start date of the parameter curation, e.g. 28-11-2022
+            - end_date   (str): End date of the parameter curation, e.g. 31-1-2022
+            - time_bucket_size_in_days (int): The amount of days in a bucket, e.g. 1
+            - parquet_output_dir (str): Path to store the parquet file, e.g. scratch/factors/path_curated.parquet
+        Returns:
+        """
         list_of_paths = self.run(start_date, end_date, time_bucket_size_in_days)
 
         df = pd.DataFrame(list_of_paths)
