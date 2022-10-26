@@ -1,8 +1,18 @@
+"""
+FILE: update_interleave_calculation.py
+This file contains functions to determine the event statistics of update streams.
+Output:
+    MaxDate: (long)
+    MinDate: (long)
+    Interleave: (float)
+    Total Events: (int)
+"""
+
 import duckdb
 import pandas as pd
 import glob
 import os
-import datetime
+import argparse
 
 def get_statistics_of_operation_stream(operations_df, date_column, operation_type, update_type):
     operations_min_date = operations_df[date_column].min()
@@ -26,16 +36,12 @@ def get_timedeltas_between_operations(operations):
     timedeltas_operations['query'] = operations['query']
     return timedeltas_operations
 
-if __name__ == "__main__":
-    data_path = "/mnt/ldbc_snb_interactive_impls/"
-
-
+def run(data_path, scale_factor):
     cursor = duckdb.connect()
     list_of_operations = []
     timedeltas_stats = []
     for update_type in ['deletes', 'inserts']:
-        #/home/gladap/repos/ldbc-data/spark/ldbc_snb_interactive_sf1
-        paths = glob.glob(f'{data_path}/update-streams/{update_type}/*.parquet')
+        paths = glob.glob(f'{data_path}/update-streams-{scale_factor}/{update_type}/*.parquet')
         if update_type == 'deletes':
             date_column = 'deletionDate'
         else:
@@ -63,3 +69,22 @@ if __name__ == "__main__":
     print("MinDate: " + str(min(min_dates)))
     print("Interleave: " + str((max(max_dates) - min(min_dates)) / sum(counts)))
     print("Total Events: " + str(sum(counts)))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--data_dir',
+        help="data_dir: directory containing the update-stream-folder e.g. '/mnt/ldbc_snb_interactive_impls/'",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        '--scale_factor',
+        help="scale_factor: scale factor e.g. 'SF1'",
+        type=str,
+        required=True
+    )
+    args = parser.parse_args()
+
+    run(args.data_path, args.scale_factor)
