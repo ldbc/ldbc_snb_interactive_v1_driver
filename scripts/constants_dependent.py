@@ -32,14 +32,14 @@ dependent_entity_map = {
         "eventColumns": ["ModeratorPersonId"],
         "entityColumns":["id"],
         "matchColumns": ["id"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     "Forum_hasMember_Person_Insert":{
         "entity":["Person", "Forum"],
         "eventColumns": ["PersonId", "ForumId"],
         "entityColumns":["id", "id"],
         "matchColumns":["PersonId", "ForumId"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     # "Person_Insert":[], # uses default value
     "Person_knows_Person_Insert":{
@@ -47,28 +47,28 @@ dependent_entity_map = {
         "eventColumns": ["Person1id", "Person2id"],
         "entityColumns":["id", "id"],
         "matchColumns": ["Person1id", "Person2id"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     "Person_likes_Comment_Insert":{
         "entity":["Person", "Comment"],
         "eventColumns": ["PersonId", "CommentId"],
         "entityColumns":["id", "id"],
         "matchColumns":["PersonId", "CommentId"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     "Person_likes_Post_Insert":{
         "entity":["Person", "Post"],
         "eventColumns": ["PersonId", "PostId"],
         "entityColumns":["id", "id"],
         "matchColumns":["PersonId", "PostId"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     "Post_Insert":{
         "entity":["Person", "Post"],
         "eventColumns": ["CreatorPersonId", "ContainerForumId"],
         "entityColumns":["id", "id"],
         "matchColumns":["CreatorPersonId", "ContainerForumId"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     # Deletes
     "Comment_Delete":{
@@ -76,55 +76,55 @@ dependent_entity_map = {
         "eventColumns": ["id"],
         "entityColumns":["id"],
         "matchColumns": ["id"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     "Forum_Delete":{
         "entity":["Forum",],
         "eventColumns": ["id"],
         "entityColumns":["id"],
         "matchColumns": ["id"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     "Forum_hasMember_Person_Delete":{
         "entity":["Forum","Person"],
         "eventColumns": ["ForumId", "PersonId"],
         "entityColumns":["id", "id"],
         "matchColumns": ["ForumId", "PersonId"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     "Person_Delete":{
         "entity":["Person",],
         "eventColumns": ["id"],
         "entityColumns":["id"],
         "matchColumns": ["id"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     "Person_knows_Person_Delete":{
         "entity":["Person", "Person"],
         "eventColumns": ["Person1id", "Person2id"],
         "entityColumns":["id", "id"],
         "matchColumns":["Person1id", "Person2id"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     "Person_likes_Comment_Delete":{
         "entity":["Person", "Comment"],
         "eventColumns": ["PersonId", "CommentId"],
         "entityColumns":["id", "id"],
         "matchColumns": ["PersonId", "CommentId"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     "Person_likes_Post_Delete":{
         "entity":["Person", "Post"],
         "eventColumns": ["PersonId", "PostId"],
         "entityColumns":["id", "id"],
         "matchColumns": ["PersonId", "PostId"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     },
     "Post_Delete":{
         "entity":["Post"],
         "eventColumns": ["id"],
         "entityColumns":["id"],
         "matchColumns": ["id"],
-        "dateColumn":"creationDate"               
+        "dateColumn":"creationDate"
     }
 }

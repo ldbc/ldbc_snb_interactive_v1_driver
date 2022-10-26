@@ -252,29 +252,3 @@ class PathCuration():
         df.columns = df.columns.get_level_values(0)
         self.cursor.execute("CREATE TABLE paths_curated AS SELECT * FROM df")
         self.cursor.execute(f"COPY paths_curated TO '{parquet_output_dir}' WITH (FORMAT PARQUET);")
-
-# if __name__ == "__main__":
-#     # parser = argparse.ArgumentParser()
-#     # parser.add_argument(
-#     #     '--raw_parquet_dir',
-#     #     help="raw_parquet_dir: directory containing the raw parquet files e.g. '/data/out-sf1'",
-#     #     type=str,
-#     #     default='factors/',
-#     #     required=False
-#     # )
-#     # parser.add_argument(
-#     #     '--start_date',
-#     #     help="start_date: Start date of the update streams, e.g. '2012-11-28'",
-#     #     type=str,
-#     #     default='2012-11-28',
-#     #     required=False
-#     # )
-
-#     # args = parser.parse_args()
-
-#     # path = "/home/gladap/repos/ldbc-data/spark/ldbc_snb_interactive_sf10/initial_snapshot/graphs/parquet/raw/composite-merged-fk/"
-#     # factor_path = "/home/gladap/repos/ldbc-data/spark/ldbc_snb_interactive_sf10/initial_snapshot/factors/parquet/raw/composite-merged-fk/"
-#     path_curation = PathCuration(path, factor_path)
-#     df = path_curation.get_people_4_hops_paths('2012-11-28', '2013-01-01', 1)
-
-#     # main(args.raw_parquet_dir, args.start_date)
