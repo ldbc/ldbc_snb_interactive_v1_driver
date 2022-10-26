@@ -159,7 +159,7 @@ public class LdbcQuery3a extends LdbcOperation<List<LdbcQuery3Result>>
     @Override
     public String toString()
     {
-        return "LdbcQuery3{" +
+        return "LdbcQuery3a{" +
                "personIdQ3=" + personIdQ3 +
                ", countryXName='" + countryXName + '\'' +
                ", countryYName='" + countryYName + '\'' +

@@ -46,12 +46,6 @@ class InitiatedTimeSubmittingOperationRetriever
             nextDependencyOperation = dependencyOperations.next();
             // submit initiated time as soon as possible so /dependencies can advance as soon as possible
             completionTimeWriter.submitInitiatedTime( nextDependencyOperation.timeStamp() );
-            if ( !dependencyOperations.hasNext() )
-            {
-                // after last write operation, submit highest possible IT to ensure that CT progresses
-                // to time of highest CT write
-                completionTimeWriter.submitInitiatedTime( Long.MAX_VALUE );
-            }
         }
         // Non-dependency operations are operations that are not a dependency to other operations,
         // but can be dependent on others. Therefore, only read queries are considered here.
@@ -60,7 +54,6 @@ class InitiatedTimeSubmittingOperationRetriever
             long currentCompletionTime = completionTimeReader.completionTimeAsMilli();
 
             nextNonDependencyOperation = nonDependencyOperations.next();
-
             while (nextNonDependencyOperation.dependencyTimeStamp() > currentCompletionTime
                    && nextNonDependencyOperation.expiryTimeStamp() < currentCompletionTime
                    && nonDependencyOperations.hasNext() 

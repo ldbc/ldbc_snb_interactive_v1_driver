@@ -99,7 +99,7 @@ public class LdbcQuery13a extends LdbcOperation<LdbcQuery13Result>
     @Override
     public String toString()
     {
-        return "LdbcQuery13{" +
+        return "LdbcQuery13a{" +
                "person1IdQ13StartNode=" + person1IdQ13StartNode +
                ", person2IdQ13EndNode=" + person2IdQ13EndNode +
                '}';
