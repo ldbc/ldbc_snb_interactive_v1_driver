@@ -108,7 +108,13 @@ class PathCuration():
         ).fetchall()
 
         delete_ids = [self.node_map.get(key) for key in list(itertools.chain(*nodes_deleted))]
-        delete_events = [nk.dynamics.GraphEvent(GraphEvent.NODE_REMOVAL, id, 0, 1.0) for id in delete_ids]
+        delete_events = [
+            nk.dynamics.GraphEvent(
+                GraphEvent.NODE_REMOVAL,
+                id,
+                0,
+                1.0
+            ) for id in delete_ids]
 
         return len(nodes_deleted), delete_events
 
@@ -129,7 +135,13 @@ class PathCuration():
             """
         ).fetchall()
 
-        edges_created_events = [nk.dynamics.GraphEvent(GraphEvent.EDGE_ADDITION, self.node_map[edge[0]], self.node_map[edge[1]], 1.0) for edge in edges_created]
+        edges_created_events = [
+            nk.dynamics.GraphEvent(
+                GraphEvent.EDGE_ADDITION,
+                self.node_map[node_a],
+                self.node_map[node_b],
+                1.0
+            ) for node_a, node_b in edges_created]
 
         return len(edges_created), edges_created_events
 
@@ -150,7 +162,13 @@ class PathCuration():
               AND deletionDate < {end_date_long};
             """
         ).fetchall()
-        edges_deleted_events = [nk.dynamics.GraphEvent(GraphEvent.EDGE_REMOVAL, self.node_map[edge[0]], self.node_map[edge[1]], 1.0) for edge in edges_deleted]
+        edges_deleted_events = [
+            nk.dynamics.GraphEvent(
+                GraphEvent.EDGE_REMOVAL,
+                self.node_map[node_a],
+                self.node_map[node_b],
+                1.0
+            ) for node_a, node_b in edges_deleted]
         return len(edges_deleted), edges_deleted_events
 
     def init_graph(self, start_date, end_date):
