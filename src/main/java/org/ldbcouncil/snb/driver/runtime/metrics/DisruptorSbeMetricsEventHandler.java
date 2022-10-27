@@ -6,7 +6,7 @@ import org.ldbcouncil.snb.driver.runtime.ConcurrentErrorReporter;
 import org.ldbcouncil.snb.driver.runtime.metrics.sbe.MetricsEvent;
 import org.ldbcouncil.snb.driver.temporal.TimeSource;
 import com.lmax.disruptor.EventHandler;
-import uk.co.real_logic.sbe.codec.java.DirectBuffer;
+import org.agrona.concurrent.UnsafeBuffer;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicStampedReference;
 
 import static java.lang.String.format;
 
-class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
+class DisruptorSbeMetricsEventHandler implements EventHandler<UnsafeBuffer>
 {
     private final AtomicStampedReference<WorkloadStatusSnapshot> statusSnapshotReference =
             new AtomicStampedReference<>( null, 0 );
@@ -65,7 +65,7 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer>
     }
 
     @Override
-    public void onEvent( DirectBuffer event, long l, boolean b ) throws Exception
+    public void onEvent( UnsafeBuffer event, long l, boolean b ) throws Exception
     {
         metricsEvent.wrapForDecode(
                 event,

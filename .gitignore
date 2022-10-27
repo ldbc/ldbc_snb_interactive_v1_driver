@@ -1,3 +1,6 @@
+/*.duckdb*
+/duckdb
+/*.zip
 .project
 .classpath
 .settings/
@@ -14,3 +17,4 @@ results/
 mvn.log
 dependency-reduced-pom.xml
 .DS_Store
+paramgen.snb.db

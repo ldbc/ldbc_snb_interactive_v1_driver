@@ -5,6 +5,9 @@
 
 This driver runs the Social Network Benchmark's Interactive workload, including cross-validation and benchmark execution.
 
+The `main` branch of this repository contains the code for SNB Interactive v2.0, which extends the workload with delete operations and supports larger scale factors. It is still under active development.
+If you are looking for a stable and auditable version, please check out the [`v1-dev` branch](https://github.com/ldbc/ldbc_snb_interactive_driver/tree/v1-dev).
+
 Related repositories:
 
 * Data generator: https://github.com/ldbc/ldbc_snb_datagen_spark

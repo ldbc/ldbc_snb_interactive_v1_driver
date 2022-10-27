@@ -2,19 +2,16 @@ package org.ldbcouncil.snb.driver.workloads.interactive.queries;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.ldbcouncil.snb.driver.util.ListUtils;
-import org.ldbcouncil.snb.driver.validation.ValidationEquality;
-
 import java.util.Iterator;
 
 public class LdbcQuery14Result
 {
     private final Iterable<? extends Number> personIdsInPath;
-    private final double pathWeight;
+    private final long pathWeight;
 
     public LdbcQuery14Result(
         @JsonProperty("personIdsInPath") Iterable<? extends Number> personIdsInPath,
-        @JsonProperty("pathWeight")      double pathWeight
+        @JsonProperty("pathWeight")      long pathWeight
     )
     {
         this.personIdsInPath = personIdsInPath;
@@ -26,11 +23,15 @@ public class LdbcQuery14Result
         return personIdsInPath;
     }
 
-    public double getPathWeight()
+    public long getPathWeight()
     {
         return pathWeight;
     }
 
+    /**
+     * This method does not check for the path as during validation it requires
+     * any path but with the same weight
+     */
     @Override
     public boolean equals( Object o )
     {
@@ -41,7 +42,7 @@ public class LdbcQuery14Result
             return false;
         }
         LdbcQuery14Result that = (LdbcQuery14Result) o;
-        if ( !ValidationEquality.doubleEquals( that.pathWeight, pathWeight ) )
+        if ( that.pathWeight != pathWeight )
         {
             return false;
         }
@@ -49,74 +50,13 @@ public class LdbcQuery14Result
         {
             return false;
         }
-        return personIdPathsEqual( personIdsInPath, that.personIdsInPath );
-    }
-
-    /**
-     * Checks for Iterable<LdbcQuery14Result> if the pathweights and objects are equal.
-     * Note that this is different from the equals() function which compares only 1 object.
-     * @param resultA LdbcQuery14Result iterable expected
-     * @param resultB LdbcQuery14Result iterable actual
-     * @return True if equal, otherwise false
-     */
-    public static boolean resultListEqual( Object resultA, Object resultB )
-    {
-        Iterable<LdbcQuery14Result> iterableResultA = ( Iterable<LdbcQuery14Result> ) resultA;
-        Iterable<LdbcQuery14Result> iterableResultB = ( Iterable<LdbcQuery14Result> ) resultB;
-
-        if (!ListUtils.listsEqual(iterableResultA, iterableResultB))
-            { return false; }
-
-        Iterator<LdbcQuery14Result> resultAIterator = iterableResultA.iterator();
-        Iterator<LdbcQuery14Result> resultBIterator = iterableResultB.iterator();
-
-        while ( resultAIterator.hasNext() )
-        {
-            if ( !resultBIterator.hasNext() )
-                { return false; }
-
-            LdbcQuery14Result resultAQ14Result = resultAIterator.next();
-            LdbcQuery14Result resultBQ14Result = resultBIterator.next();
-            double pathWeightA = resultAQ14Result.getPathWeight();
-            double pathWeightB = resultBQ14Result.getPathWeight();
-
-            if ( !ValidationEquality.doubleEquals( pathWeightA, pathWeightB ))
-            { return false; }
-        }
         return true;
-    }
-
-    /**
-     * Check if the list of paths is equal. Note that when two paths has the same weight, 
-     * order is unspecified.
-     * @param path1 
-     * @param path2
-     * @return
-     */
-    private boolean personIdPathsEqual( Iterable<? extends Number> path1, Iterable<? extends Number> path2 )
-    {
-        Iterator<? extends Number> path1Iterator = path1.iterator();
-        Iterator<? extends Number> path2Iterator = path2.iterator();
-        while ( path1Iterator.hasNext() )
-        {
-            if ( !path2Iterator.hasNext() )
-            { return false; }
-            Number path1IdNumber = path1Iterator.next();
-            Number path2IdNumber = path2Iterator.next();
-            if ( null == path1IdNumber || null == path2IdNumber )
-            { return false; }
-            long path1Id = path1IdNumber.longValue();
-            long path2Id = path2IdNumber.longValue();
-            if ( path1Id != path2Id )
-            { return false; }
-        }
-        return !path2Iterator.hasNext();
     }
 
     @Override
     public int hashCode()
     {
-        int result = Long.valueOf(Double.doubleToLongBits(pathWeight)).hashCode();
+        int result = Long.valueOf(pathWeight).hashCode();
         Iterator i = personIdsInPath.iterator();
         while (i.hasNext()) {
             Object obj = i.next();

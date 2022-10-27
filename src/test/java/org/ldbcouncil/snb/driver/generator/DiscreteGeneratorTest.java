@@ -4,12 +4,12 @@ import org.ldbcouncil.snb.driver.util.Bucket.DiscreteBucket;
 import org.ldbcouncil.snb.driver.util.Histogram;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DiscreteGeneratorTest extends GeneratorTest<String, Integer> {
 
@@ -42,17 +42,15 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer> {
         return generatorFactory.weightedDiscrete(items);
     }
 
-    @Test(expected = GeneratorException.class)
+    @Test
     public void emptyConstructorTest() {
         // Given
         GeneratorFactory generatorFactory = new GeneratorFactory(new RandomDataGeneratorFactory());
         ArrayList<Tuple2<Double, String>> emptyItems = new ArrayList<Tuple2<Double, String>>();
-        Iterator<String> generator = generatorFactory.weightedDiscrete(emptyItems);
 
         // When
-        generator.next();
-
-        // Then
-        assertEquals("Empty DiscreteGenerator should throw exception on next()", false, true);
+        assertThrows(GeneratorException.class, () -> {generatorFactory.weightedDiscrete(emptyItems);},
+            "Empty DiscreteGenerator should throw exception on next()"
+        );
     }
 }

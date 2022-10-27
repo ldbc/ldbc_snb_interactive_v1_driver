@@ -9,7 +9,8 @@ import org.ldbcouncil.snb.driver.runtime.scheduling.Spinner;
 import org.ldbcouncil.snb.driver.temporal.SystemTimeSource;
 import org.ldbcouncil.snb.driver.temporal.TimeSource;
 import org.ldbcouncil.snb.driver.workloads.dummy.NothingOperation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 
 import static java.lang.String.format;
 

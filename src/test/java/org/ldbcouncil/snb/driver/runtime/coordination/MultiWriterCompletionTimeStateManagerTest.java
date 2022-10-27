@@ -10,14 +10,15 @@ import org.ldbcouncil.snb.driver.temporal.SystemTimeSource;
 import org.ldbcouncil.snb.driver.temporal.TimeSource;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
-import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.junit.jupiter.api.Test;
+
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MultiWriterCompletionTimeStateManagerTest
 {

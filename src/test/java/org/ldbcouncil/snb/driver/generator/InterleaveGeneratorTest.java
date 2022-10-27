@@ -2,21 +2,22 @@ package org.ldbcouncil.snb.driver.generator;
 
 import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.util.Function0;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class InterleaveGeneratorTest
 {
 
     GeneratorFactory generators;
 
-    @Before
+    @BeforeEach
     public void initGenerators()
     {
         generators = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
@@ -34,13 +35,13 @@ public class InterleaveGeneratorTest
         List<Number> interleavedList = Lists.newArrayList( interleaved );
 
         // Then
-        assertThat( interleavedList.size(), is( 6 ) );
-        assertThat( interleavedList.get( 0 ).longValue(), is( 1L ) );
-        assertThat( interleavedList.get( 1 ).longValue(), is( 2L ) );
-        assertThat( interleavedList.get( 2 ).longValue(), is( 2L ) );
-        assertThat( interleavedList.get( 3 ).longValue(), is( 1L ) );
-        assertThat( interleavedList.get( 4 ).longValue(), is( 2L ) );
-        assertThat( interleavedList.get( 5 ).longValue(), is( 2L ) );
+        assertEquals( 6, interleavedList.size());
+        assertEquals( 1l, interleavedList.get( 0 ).longValue());
+        assertEquals( 2l, interleavedList.get( 1 ).longValue());
+        assertEquals( 2l, interleavedList.get( 2 ).longValue());
+        assertEquals( 1l, interleavedList.get( 3 ).longValue());
+        assertEquals( 2l, interleavedList.get( 4 ).longValue());
+        assertEquals( 2l, interleavedList.get( 5 ).longValue());
     }
 
     @Test
@@ -64,13 +65,13 @@ public class InterleaveGeneratorTest
         List<Number> interleavedList = Lists.newArrayList( interleaved );
 
         // Then
-        assertThat( interleavedList.size(), is( 6 ) );
-        assertThat( interleavedList.get( 0 ).longValue(), is( 1L ) );
-        assertThat( interleavedList.get( 1 ).longValue(), is( 2L ) );
-        assertThat( interleavedList.get( 2 ).longValue(), is( 2L ) );
-        assertThat( interleavedList.get( 3 ).longValue(), is( 1L ) );
-        assertThat( interleavedList.get( 4 ).longValue(), is( 2L ) );
-        assertThat( interleavedList.get( 5 ).longValue(), is( 2L ) );
+        assertEquals( 6, interleavedList.size());
+        assertEquals( 1l, interleavedList.get( 0 ).longValue());
+        assertEquals( 2l, interleavedList.get( 1 ).longValue());
+        assertEquals( 2l, interleavedList.get( 2 ).longValue());
+        assertEquals( 1l, interleavedList.get( 3 ).longValue());
+        assertEquals( 2l, interleavedList.get( 4 ).longValue());
+        assertEquals( 2l, interleavedList.get( 5 ).longValue());
     }
 
     @Test
@@ -84,14 +85,14 @@ public class InterleaveGeneratorTest
         Iterator<Number> interleaved = generators.<Number>interleave( oneAsLongs, twoAsIntegers, 2 );
 
         // Then
-        assertThat( interleaved.hasNext(), is( true ) );
-        assertThat( interleaved.next().intValue(), is( 1 ) );
-        assertThat( interleaved.hasNext(), is( true ) );
-        assertThat( interleaved.next().intValue(), is( 2 ) );
-        assertThat( interleaved.hasNext(), is( true ) );
-        assertThat( interleaved.next().intValue(), is( 2 ) );
-        assertThat( interleaved.hasNext(), is( true ) );
-        assertThat( interleaved.next().intValue(), is( 1 ) );
-        assertThat( interleaved.hasNext(), is( false ) );
+        assertTrue( interleaved.hasNext());
+        assertEquals(1,  interleaved.next().intValue());
+        assertTrue( interleaved.hasNext());
+        assertEquals(2,  interleaved.next().intValue());
+        assertTrue( interleaved.hasNext());
+        assertEquals(2, interleaved.next().intValue());
+        assertTrue( interleaved.hasNext());
+        assertEquals(1, interleaved.next().intValue() );
+        assertFalse( interleaved.hasNext());
     }
 }

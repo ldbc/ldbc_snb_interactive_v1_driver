@@ -14,7 +14,9 @@ import org.ldbcouncil.snb.driver.control.OperationMode;
 import org.ldbcouncil.snb.driver.csv.ParquetLoader;
 import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
 import org.ldbcouncil.snb.driver.generator.GeneratorFactory;
+import org.ldbcouncil.snb.driver.generator.OperationStreamBuffer;
 import org.ldbcouncil.snb.driver.generator.RandomDataGeneratorFactory;
+import org.ldbcouncil.snb.driver.generator.BufferedIterator;
 import org.ldbcouncil.snb.driver.generator.EventStreamReader;
 import org.ldbcouncil.snb.driver.util.ClassLoaderHelper;
 import org.ldbcouncil.snb.driver.util.ClassLoadingException;
@@ -36,6 +38,8 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -49,17 +53,27 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private double compressionRatio;
     private double shortReadDissipationFactor;
     private OperationMode operationMode;
-    private int numThreads;
-    private Set<Class> enabledLongReadOperationTypes;
-    private Set<Class> enabledShortReadOperationTypes;
-    private Set<Class> enabledWriteOperationTypes;
-    private Set<Class> enabledDeleteOperationTypes;
-    private Set<Class> enabledUpdateOperationTypes;
+    private long batchSize;
+    private Set<Class<? extends Operation>> enabledLongReadOperationTypes;
+    private Set<Class<? extends Operation>> enabledShortReadOperationTypes;
+    private Set<Class<? extends Operation>> enabledWriteOperationTypes;
+    private Set<Class<? extends Operation>> enabledDeleteOperationTypes;
+    private Set<Class<? extends Operation>> enabledUpdateOperationTypes;
+
+    private RunnableOperationStreamBatchLoader runnableBatchLoader;
 
     @Override
     public Map<Integer, Class<? extends Operation>> operationTypeToClassMapping()
     {
         return LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping();
+    }
+
+    @Override
+    public void onClose()
+    {
+        if (runnableBatchLoader != null && !runnableBatchLoader.isInterrupted()){
+            runnableBatchLoader.interrupt();
+        }
     }
 
     @Override
@@ -78,12 +92,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
             compulsoryKeys.add( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY );
         }
 
-        if (params.containsKey(ConsoleAndFileDriverConfiguration.THREADS_ARG)){
-            numThreads = Integer.parseInt(params.get(ConsoleAndFileDriverConfiguration.THREADS_ARG));
+        if (params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.BATCH_SIZE)){
+            batchSize = Long.parseLong(params.get(LdbcSnbInteractiveWorkloadConfiguration.BATCH_SIZE));
         }
         else
         {
-            numThreads = Integer.parseInt(params.get(ConsoleAndFileDriverConfiguration.THREADS_DEFAULT_STRING));
+            batchSize = LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_BATCH_SIZE;
         }
 
         compulsoryKeys.addAll( LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_ENABLE_KEYS );
@@ -159,9 +173,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
 
         enabledWriteOperationTypes = getEnabledOperationsHashset(LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_ENABLE_KEYS, params);
         enabledDeleteOperationTypes = getEnabledOperationsHashset(LdbcSnbInteractiveWorkloadConfiguration.DELETE_OPERATION_ENABLE_KEYS, params);
-        enabledUpdateOperationTypes = new HashSet<Class>(enabledWriteOperationTypes);
+        enabledUpdateOperationTypes = new HashSet<Class<? extends Operation>>(enabledWriteOperationTypes);
         enabledUpdateOperationTypes.addAll(enabledDeleteOperationTypes);
-
         // First load the scale factor from the provided properties file, then load the frequency keys from resources
         if (!params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.SCALE_FACTOR))
         {
@@ -258,7 +271,8 @@ public class LdbcSnbInteractiveWorkload extends Workload
             longReadInterleavesAsMilli = new HashMap<>();
             longReadInterleavesAsMilli.put( LdbcQuery1.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ).trim() ) );
             longReadInterleavesAsMilli.put( LdbcQuery2.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ).trim() ) );
-            longReadInterleavesAsMilli.put( LdbcQuery3.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery3a.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3a_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery3b.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3b_INTERLEAVE_KEY ).trim() ) );
             longReadInterleavesAsMilli.put( LdbcQuery4.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ).trim() ) );
             longReadInterleavesAsMilli.put( LdbcQuery5.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ).trim() ) );
             longReadInterleavesAsMilli.put( LdbcQuery6.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ).trim() ) );
@@ -268,8 +282,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
             longReadInterleavesAsMilli.put( LdbcQuery10.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ).trim() ) );
             longReadInterleavesAsMilli.put( LdbcQuery11.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ).trim() ) );
             longReadInterleavesAsMilli.put( LdbcQuery12.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ).trim() ) );
-            longReadInterleavesAsMilli.put( LdbcQuery13.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ).trim() ) );
-            longReadInterleavesAsMilli.put( LdbcQuery14.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery13a.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13a_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery13b.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13b_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery14a.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14a_INTERLEAVE_KEY ).trim() ) );
+            longReadInterleavesAsMilli.put( LdbcQuery14b.TYPE, Long.parseLong(params.get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14b_INTERLEAVE_KEY ).trim() ) );
 
         }
         catch ( NumberFormatException e )
@@ -288,9 +304,9 @@ public class LdbcSnbInteractiveWorkload extends Workload
      * @param params
      * @return
      */
-    private Set<Class> getEnabledOperationsHashset(List<String> enabledOperationKeys, Map<String,String> params) throws WorkloadException
+    private Set<Class<? extends Operation>> getEnabledOperationsHashset(List<String> enabledOperationKeys, Map<String,String> params) throws WorkloadException
     {
-        Set<Class> enabledOperationTypes = new HashSet<>();
+        Set<Class<? extends Operation>> enabledOperationTypes = new HashSet<>();
         for ( String operationEnableKey : enabledOperationKeys )
         {
             String operationEnabledString = params.get( operationEnableKey ).trim();
@@ -317,10 +333,10 @@ public class LdbcSnbInteractiveWorkload extends Workload
             catch ( ClassLoadingException e )
             {
                 throw new WorkloadException(
-                        format(
-                                "Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
-                                operationEnableKey, operationClassName ),
-                        e
+                    format(
+                        "Unable to load operation class for parameter: %s%nGuessed incorrect class name: %s",
+                        operationEnableKey, operationClassName ),
+                    e
                 );
             }
         }
@@ -342,8 +358,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         PeekingIterator<Operation> unfilteredUpdateOperations = Iterators.peekingIterator( updateStream );
         try
         {
-            if ( unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli() <
-                workloadStartTimeAsMilli )
+            if ( unfilteredUpdateOperations.hasNext() && unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli )
             {
                 workloadStartTimeAsMilli = unfilteredUpdateOperations.peek().scheduledStartTimeAsMilli();
             }
@@ -367,10 +382,13 @@ public class LdbcSnbInteractiveWorkload extends Workload
     {
         long workloadStartTimeAsMilli = Long.MAX_VALUE;
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
-        List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
-        List<Iterator<?>> asynchronousNonDependencyStreamsList;// = new ArrayList<>();
+        Iterator<Operation> asynchronousDependencyStreams;
+        List<Iterator<?>> asynchronousNonDependencyStreamsList;
         Set<Class<? extends Operation>> dependentAsynchronousOperationTypes = Sets.newHashSet();
         Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
+
+        dependencyAsynchronousOperationTypes.addAll(enabledUpdateOperationTypes);
+        // dependentAsynchronousOperationTypes.addAll(enabledLongReadOperationTypes);
 
         ParquetLoader loader;
         try {
@@ -381,12 +399,27 @@ public class LdbcSnbInteractiveWorkload extends Workload
             throw new WorkloadException(format("Error creating loader for operation streams %s", e));
         }
 
+        ParquetLoader updateLoader;
+        try {
+            DuckDbConnectionState db = new DuckDbConnectionState();
+            updateLoader = new ParquetLoader(db);
+        }
+        catch (SQLException e){
+            throw new WorkloadException(format("Error creating updateLoader for operation streams %s", e));
+        }
+
+
         /* 
          * WRITES
          */
         if (!enabledUpdateOperationTypes.isEmpty())
         {
-            workloadStartTimeAsMilli = setUpdateStreams(gf, workloadStartTimeAsMilli, ldbcSnbInteractiveWorkloadStreams, loader);
+            asynchronousDependencyStreams = setBatchedUpdateStreams(gf, workloadStartTimeAsMilli, updateLoader);
+            workloadStartTimeAsMilli = getOperationStreamStartTime(asynchronousDependencyStreams, workloadStartTimeAsMilli);
+        }
+        else
+        {
+            asynchronousDependencyStreams = Collections.emptyIterator();
         }
 
         if ( Long.MAX_VALUE == workloadStartTimeAsMilli )
@@ -400,18 +433,12 @@ public class LdbcSnbInteractiveWorkload extends Workload
         asynchronousNonDependencyStreamsList = getOperationStreams(gf, workloadStartTimeAsMilli, loader);
 
         /*
-         * Merge all dependency asynchronous operation streams, ordered by operation start times
-         */
-        Iterator<Operation> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
-                asynchronousDependencyStreamsList.toArray( new Iterator[asynchronousDependencyStreamsList.size()] )
-        );
-
-        /*
          * Merge all non dependency asynchronous operation streams, ordered by operation start times
          */
         Iterator<Operation> asynchronousNonDependencyStreams = gf.mergeSortOperationsByTimeStamp(
-                asynchronousNonDependencyStreamsList
-                        .toArray( new Iterator[asynchronousNonDependencyStreamsList.size()] )
+            asynchronousNonDependencyStreamsList.toArray(
+                new Iterator[asynchronousNonDependencyStreamsList.size()]
+            )
         );
 
         /* 
@@ -435,94 +462,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         );
 
         return ldbcSnbInteractiveWorkloadStreams;
-    }
-
-    /**
-     * Set the update streams in the given WorkloadStreams
-     * @param gf: Generator factory with generator functions to merge iterators
-     * @param workloadStartTimeAsMilli: The initial workload start time as milli
-     * @param ldbcSnbInteractiveWorkloadStreams: The workloadstreams where the update streams are set
-     * @return Updated workload start time as milli.
-     * @throws WorkloadException
-     */
-    private long setUpdateStreams(
-        GeneratorFactory gf,
-        long workloadStartTimeAsMilli,
-        WorkloadStreams ldbcSnbInteractiveWorkloadStreams,
-        ParquetLoader loader
-    ) throws WorkloadException
-    {
-        // Store the operation streams in this list
-        ArrayList<Iterator<Operation>> listOfOperationStreams = new ArrayList<>();
-
-        Set<Class<? extends Operation>> dependencyUpdateOperationTypes =
-        Sets.<Class<? extends Operation>>newHashSet();
-
-        Map<Class<? extends Operation>, String> classToPathMap = LdbcSnbInteractiveWorkloadConfiguration.getUpdateStreamClassToPathMapping();
-
-        // Get all enabled update and delete events
-        OperationStreamReader updateOperationStream = new OperationStreamReader(loader);
-        Map<Class<? extends Operation>, EventStreamReader.EventDecoder<Operation>> decoders = UpdateEventStreamReader.getDecoders();
-        for (Class enabledClass : enabledUpdateOperationTypes) {
-            dependencyUpdateOperationTypes.add(enabledClass);
-            String filename = classToPathMap.get(enabledClass);
-            Iterator<Operation> operationStream = updateOperationStream.readOperationStream(
-                decoders.get(enabledClass),
-                new File( updatesDir, filename)
-            );
-            listOfOperationStreams.add(operationStream);
-        }
-
-        // Merge the operation streams and sort them by timestamp
-        Iterator<Operation> mergedUpdateStreams = Collections.<Operation>emptyIterator();
-        for (Iterator<Operation> updateStream : listOfOperationStreams) {
-            mergedUpdateStreams = gf.mergeSortOperationsByTimeStamp(mergedUpdateStreams,  updateStream);
-        }
-
-        workloadStartTimeAsMilli = getOperationStreamStartTime(mergedUpdateStreams, workloadStartTimeAsMilli);
-
-        if (numThreads == 1)
-        {
-            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                Sets.newHashSet(),
-                dependencyUpdateOperationTypes,
-                mergedUpdateStreams,
-                Collections.<Operation>emptyIterator(),
-                null
-            );
-        }
-        else
-        {
-            // Split across numThreads
-            List<ArrayList<Operation>> operationLists = new ArrayList<>();
-            for (int i = 0; i < numThreads; i++) {
-                // Instantiate lists
-                operationLists.add(new ArrayList<Operation>());
-            }
-
-            int index = 0;
-            // Split accros threads
-            while(mergedUpdateStreams.hasNext())
-            {
-                int listIndex = index % numThreads;
-                Operation operation = mergedUpdateStreams.next();
-                operationLists.get(listIndex).add(operation);
-                index++;
-            }
-
-            // Add streams
-            for (ArrayList<Operation> operationStream : operationLists) {
-                
-                ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                    Sets.newHashSet(),
-                    dependencyUpdateOperationTypes,
-                    operationStream.iterator(),
-                    Collections.<Operation>emptyIterator(),
-                    null
-                );
-            }
-        }
-        return workloadStartTimeAsMilli;
     }
 
     /**
@@ -643,7 +582,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         return new LdbcSnbInteractiveDbValidationParametersFilter(
             remainingRequiredResultsPerType,
             // Writes are required to determine short reads operations to inject
-            enabledWriteOperationTypes,
             enabledShortReadOperationTypes
         );
     }
@@ -659,14 +597,51 @@ public class LdbcSnbInteractiveWorkload extends Workload
     }
 
     @Override
-    public int enabledValidationOperations()
+    public Set<Class> enabledValidationOperations()
     {
-        return enabledLongReadOperationTypes.size() + enabledUpdateOperationTypes.size() + enabledShortReadOperationTypes.size();
+        Set<Class> enabledOperations = new HashSet<>();
+        enabledOperations.addAll(enabledLongReadOperationTypes);
+        enabledOperations.addAll(enabledUpdateOperationTypes);
+        enabledOperations.addAll(enabledShortReadOperationTypes);
+        return enabledOperations;
     }
 
     @Override
     public long maxExpectedInterleaveAsMilli()
     {
         return TimeUnit.HOURS.toMillis( 1 );
+    }
+
+    private Iterator<Operation> setBatchedUpdateStreams(
+        GeneratorFactory gf,
+        long workloadStartTimeAsMilli,
+        ParquetLoader loader
+    ) throws WorkloadException
+    {
+        long batchSizeInMillis = TimeUnit.HOURS.toMillis( batchSize );
+
+        Set<Class<? extends Operation>> dependencyUpdateOperationTypes = Sets.<Class<? extends Operation>>newHashSet();
+
+        for (Class class1 : enabledUpdateOperationTypes) {
+            dependencyUpdateOperationTypes.add(class1);
+        }
+
+        int batchQueueSize = LdbcSnbInteractiveWorkloadConfiguration.BUFFERED_QUEUE_SIZE;
+        
+        BlockingQueue<Iterator<Operation>> blockingQueue = new LinkedBlockingQueue<>( batchQueueSize );
+        runnableBatchLoader = new RunnableOperationStreamBatchLoader(
+            loader,
+            gf,
+            updatesDir,
+            blockingQueue,
+            dependencyUpdateOperationTypes,
+            batchSizeInMillis
+        );
+        runnableBatchLoader.start();
+
+        OperationStreamBuffer buffer = new OperationStreamBuffer(blockingQueue);
+        BufferedIterator bufferedIterator =  new BufferedIterator(buffer);
+        bufferedIterator.init();
+        return bufferedIterator;
     }
 }

@@ -17,14 +17,14 @@ import org.ldbcouncil.snb.driver.temporal.TimeSource;
 import org.ldbcouncil.snb.driver.workloads.dummy.DummyDb;
 import org.ldbcouncil.snb.driver.workloads.dummy.DummyWorkload;
 import org.ldbcouncil.snb.driver.workloads.dummy.NothingOperation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ThreadPoolOperationExecutorTest
 {

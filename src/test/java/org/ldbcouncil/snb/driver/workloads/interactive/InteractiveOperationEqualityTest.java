@@ -1,7 +1,7 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.util.Date;
@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class InteractiveOperationEqualityTest
 {
@@ -79,10 +79,10 @@ public class InteractiveOperationEqualityTest
         int limit2 = 14;
 
         // When
-        LdbcQuery3 ldbcQuery1a = new LdbcQuery3(personId1, countryXName1, countryYName1, startDate1, durationDays1, limit1);
-        LdbcQuery3 ldbcQuery1b = new LdbcQuery3(personId1, countryXName1, countryYName1, startDate1, durationDays1, limit1);
-        LdbcQuery3 ldbcQuery2a = new LdbcQuery3(personId2, countryXName2, countryYName2, startDate2, durationDays2, limit2);
-        LdbcQuery3 ldbcQuery3a = new LdbcQuery3(personId1, countryXName1, countryYName1, startDate1, durationDays1, limit2);
+        LdbcQuery3a ldbcQuery1a = new LdbcQuery3a(personId1, countryXName1, countryYName1, startDate1, durationDays1, limit1);
+        LdbcQuery3a ldbcQuery1b = new LdbcQuery3a(personId1, countryXName1, countryYName1, startDate1, durationDays1, limit1);
+        LdbcQuery3a ldbcQuery2a = new LdbcQuery3a(personId2, countryXName2, countryYName2, startDate2, durationDays2, limit2);
+        LdbcQuery3a ldbcQuery3a = new LdbcQuery3a(personId1, countryXName1, countryYName1, startDate1, durationDays1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -317,10 +317,10 @@ public class InteractiveOperationEqualityTest
         long person2Id2 = 4;
 
         // When
-        LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person2Id1);
-        LdbcQuery13 ldbcQuery1b = new LdbcQuery13(person1Id1, person2Id1);
-        LdbcQuery13 ldbcQuery2a = new LdbcQuery13(person1Id2, person2Id2);
-        LdbcQuery13 ldbcQuery3a = new LdbcQuery13(person1Id1, person2Id2);
+        LdbcQuery13a ldbcQuery1a = new LdbcQuery13a(person1Id1, person2Id1);
+        LdbcQuery13a ldbcQuery1b = new LdbcQuery13a(person1Id1, person2Id1);
+        LdbcQuery13a ldbcQuery2a = new LdbcQuery13a(person1Id2, person2Id2);
+        LdbcQuery13a ldbcQuery3a = new LdbcQuery13a(person1Id1, person2Id2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -339,10 +339,10 @@ public class InteractiveOperationEqualityTest
         long person2Id2 = 4;
 
         // When
-        LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person2Id1);
-        LdbcQuery13 ldbcQuery1b = new LdbcQuery13(person1Id1, person2Id1);
-        LdbcQuery13 ldbcQuery2a = new LdbcQuery13(person1Id2, person2Id2);
-        LdbcQuery13 ldbcQuery3a = new LdbcQuery13(person1Id1, person2Id2);
+        LdbcQuery13a ldbcQuery1a = new LdbcQuery13a(person1Id1, person2Id1);
+        LdbcQuery13a ldbcQuery1b = new LdbcQuery13a(person1Id1, person2Id1);
+        LdbcQuery13a ldbcQuery2a = new LdbcQuery13a(person1Id2, person2Id2);
+        LdbcQuery13a ldbcQuery3a = new LdbcQuery13a(person1Id1, person2Id2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));

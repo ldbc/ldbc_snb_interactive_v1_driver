@@ -13,9 +13,8 @@ import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiv
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,12 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ValidationParamsToCsvRowsToValidationParamsTest
 {
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
 
     @Test
     public void validationParametersShouldBeUnchangedAfterSerializingAndMarshalling()
@@ -46,9 +45,6 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( paramsMap );
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
-                MapUtils.loadPropertiesToMap( TestUtils.getResource( "/snb/interactive/updateStream.properties" ) )
-        );
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init( configuration );
@@ -58,7 +54,7 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
                 buildParams( workload.dbValidationParametersFilter( 0 ) );
 
         // (2) original->JSON
-        File jsonFile1 = temporaryFolder.newFile();
+        File jsonFile1 = new File(temporaryFolder, "validation.json");
         ValidationParamsToJson validationParamsAsJson = 
             new ValidationParamsToJson( validationParamsBeforeSerializing, workload, true );
         validationParamsAsJson.serializeValidationParameters(jsonFile1);
@@ -86,9 +82,13 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
         );
         ValidationParam validationParamRead2 = ValidationParam.createTyped( read2, readResult2 );
 
-        LdbcQuery3 read3 = DummyLdbcSnbInteractiveOperationInstances.read3();
-        List<LdbcQuery3Result> readResult3 = Lists.newArrayList();
-        ValidationParam validationParamRead3 = ValidationParam.createTyped( read3, readResult3 );
+        LdbcQuery3a read3a = DummyLdbcSnbInteractiveOperationInstances.read3a();
+        List<LdbcQuery3Result> readResult3a = Lists.newArrayList();
+        ValidationParam validationParamRead3a = ValidationParam.createTyped( read3a, readResult3a );
+
+        LdbcQuery3b read3b = DummyLdbcSnbInteractiveOperationInstances.read3b();
+        List<LdbcQuery3Result> readResult3b = Lists.newArrayList();
+        ValidationParam validationParamRead3b = ValidationParam.createTyped( read3b, readResult3b );
 
         LdbcQuery4 read4 = DummyLdbcSnbInteractiveOperationInstances.read4();
         List<LdbcQuery4Result> readResult4 = Lists.newArrayList(
@@ -153,17 +153,29 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
         );
         ValidationParam validationParamRead12 = ValidationParam.createTyped( read12, readResult12 );
 
-        LdbcQuery13 read13 = DummyLdbcSnbInteractiveOperationInstances.read13();
-        LdbcQuery13Result readResult13 = DummyLdbcSnbInteractiveOperationResultInstances.read13Result();
-        ValidationParam validationParamRead13 = ValidationParam.createTyped( read13, readResult13 );
+        LdbcQuery13a read13a = DummyLdbcSnbInteractiveOperationInstances.read13a();
+        LdbcQuery13Result readResult13a = DummyLdbcSnbInteractiveOperationResultInstances.read13Result();
+        ValidationParam validationParamRead13a = ValidationParam.createTyped( read13a, readResult13a );
 
-        LdbcQuery14 read14 = DummyLdbcSnbInteractiveOperationInstances.read14();
-        List<LdbcQuery14Result> readResult14 = Lists.newArrayList(
+        LdbcQuery13b read13b = DummyLdbcSnbInteractiveOperationInstances.read13b();
+        LdbcQuery13Result readResult13b = DummyLdbcSnbInteractiveOperationResultInstances.read13Result();
+        ValidationParam validationParamRead13b = ValidationParam.createTyped( read13b, readResult13b );
+
+        LdbcQuery14a read14a = DummyLdbcSnbInteractiveOperationInstances.read14a();
+        List<LdbcQuery14Result> readResult14a = Lists.newArrayList(
                 DummyLdbcSnbInteractiveOperationResultInstances.read14Result(),
                 DummyLdbcSnbInteractiveOperationResultInstances.read14Result(),
                 DummyLdbcSnbInteractiveOperationResultInstances.read14Result()
         );
-        ValidationParam validationParamRead14 = ValidationParam.createTyped( read14, readResult14 );
+
+        LdbcQuery14b read14b = DummyLdbcSnbInteractiveOperationInstances.read14b();
+        List<LdbcQuery14Result> readResult14b = Lists.newArrayList(
+                DummyLdbcSnbInteractiveOperationResultInstances.read14Result(),
+                DummyLdbcSnbInteractiveOperationResultInstances.read14Result(),
+                DummyLdbcSnbInteractiveOperationResultInstances.read14Result()
+        );
+        ValidationParam validationParamRead14a = ValidationParam.createTyped( read14a, readResult14a );
+        ValidationParam validationParamRead14b = ValidationParam.createTyped( read14b, readResult14b );
 
         LdbcShortQuery1PersonProfile shortRead1 = DummyLdbcSnbInteractiveOperationInstances.short1();
         LdbcShortQuery1PersonProfileResult shortReadResult1 =
@@ -258,7 +270,8 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
                 // Long Reads
                 validationParamRead1,
                 validationParamRead2,
-                validationParamRead3,
+                validationParamRead3a,
+                validationParamRead3b,
                 validationParamRead4,
                 validationParamRead5,
                 validationParamRead6,
@@ -268,8 +281,10 @@ public class ValidationParamsToCsvRowsToValidationParamsTest
                 validationParamRead10,
                 validationParamRead11,
                 validationParamRead12,
-                validationParamRead13,
-                validationParamRead14,
+                validationParamRead13a,
+                validationParamRead13b,
+                validationParamRead14a,
+                validationParamRead14b,
                 // Short Reads
                 validationParamShortRead1,
                 validationParamShortRead2,

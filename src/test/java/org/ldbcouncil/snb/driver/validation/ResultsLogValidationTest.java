@@ -2,24 +2,27 @@ package org.ldbcouncil.snb.driver.validation;
 
 import com.google.common.collect.Lists;
 import org.ldbcouncil.snb.driver.csv.simple.SimpleCsvFileWriter;
+import org.ldbcouncil.snb.driver.runtime.metrics.OperationMetricsSnapshot;
+import org.ldbcouncil.snb.driver.runtime.metrics.WorkloadResultsSnapshot;
 import org.ldbcouncil.snb.driver.util.Tuple;
 import org.ldbcouncil.snb.driver.util.Tuple2;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ResultsLogValidationTest
 {
@@ -35,15 +38,12 @@ public class ResultsLogValidationTest
             Tuple.tuple2( "D", 1000l ),
             Tuple.tuple2( "E", 10000l )
     );
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    @Test
-    public void shouldPassValidationWhenResultsAreGood()
+    
+    private ResultsLogValidationResult runValidation(boolean recordDelayedOperations, int toleratedExcessiveDelayCount)
     {
         long excessiveDelayThresholdAsMilli = 10;
-        boolean recordDelayedOperations = false;
         long excessiveDelayCount = 10;
+        double toleratedExcessiveDelayCountPercentage = 0.05d;
         Map<String,Long> excessiveDelayCountPerType = new HashMap<>();
         excessiveDelayCountPerType.put( "A", 1l );
         excessiveDelayCountPerType.put( "B", 2l );
@@ -66,7 +66,22 @@ public class ResultsLogValidationTest
                 meanDelayAsMilliPerType
         );
 
-        long toleratedExcessiveDelayCount = excessiveDelayCount;
+        OperationMetricsSnapshot operationA = new OperationMetricsSnapshot("A",TimeUnit.MILLISECONDS, 1, null);
+        OperationMetricsSnapshot operationB = new OperationMetricsSnapshot("B",TimeUnit.MILLISECONDS, 1, null);
+        OperationMetricsSnapshot operationC = new OperationMetricsSnapshot("C",TimeUnit.MILLISECONDS, 1, null);
+        List<OperationMetricsSnapshot> metrics = new ArrayList<>(
+            Arrays.asList(
+            operationA, operationB, operationC
+        ));
+
+        WorkloadResultsSnapshot workloadResults = new WorkloadResultsSnapshot(
+            metrics,
+            1,
+            10,
+            3,
+            TimeUnit.MILLISECONDS
+        );
+
         Map<String,Long> toleratedExcessiveDelayCountPerType = new HashMap<>();
         toleratedExcessiveDelayCountPerType.put( "A", excessiveDelayCountPerType.get( "A" ) );
         toleratedExcessiveDelayCountPerType.put( "B", excessiveDelayCountPerType.get( "B" ) );
@@ -74,57 +89,36 @@ public class ResultsLogValidationTest
         ResultsLogValidator validator = new ResultsLogValidator();
         ResultsLogValidationTolerances tolerances = new ResultsLogValidationTolerances(
                 excessiveDelayThresholdAsMilli,
-                toleratedExcessiveDelayCount
+                toleratedExcessiveDelayCount,
+                toleratedExcessiveDelayCountPercentage
         );
         ResultsLogValidationResult result = validator.validate(
                 summary,
                 tolerances,
-                recordDelayedOperations
+                recordDelayedOperations,
+                workloadResults
         );
-        assertTrue( result.toString(), result.isSuccessful() );
+        return result;
+    }
+    
+    @Test
+    public void shouldPassValidationWhenResultsAreGood()
+    {
+        boolean recordDelayedOperations = false;
+        int toleratedExcessiveDelayCount = 10;
+        ResultsLogValidationResult result = runValidation(recordDelayedOperations, toleratedExcessiveDelayCount);
+        assertTrue( result.isSuccessful(), result.toString() );
     }
 
     @Test
     public void shouldFailValidationWhenExcessiveDelayCountIsExceeded()
     {
         boolean recordDelayedOperations = true;
-        long excessiveDelayThresholdAsMilli = 10;
-        long excessiveDelayCount = 10;
-        Map<String,Long> excessiveDelayCountPerType = new HashMap<>();
-        excessiveDelayCountPerType.put( "A", 1l );
-        excessiveDelayCountPerType.put( "B", 2l );
-        excessiveDelayCountPerType.put( "C", 3l );
-        long minDelayAsMilli = 0;
-        long maxDelayAsMilli = 0;
-        long meanDelayAsMilli = 0;
-        Map<String,Long> minDelayAsMilliPerType = new HashMap<>();
-        Map<String,Long> maxDelayAsMilliPerType = new HashMap<>();
-        Map<String,Long> meanDelayAsMilliPerType = new HashMap<>();
-        ResultsLogValidationSummary summary = new ResultsLogValidationSummary(
-                excessiveDelayThresholdAsMilli,
-                excessiveDelayCount,
-                excessiveDelayCountPerType,
-                minDelayAsMilli,
-                maxDelayAsMilli,
-                meanDelayAsMilli,
-                minDelayAsMilliPerType,
-                maxDelayAsMilliPerType,
-                meanDelayAsMilliPerType
-        );
-
-        long toleratedExcessiveDelayCount = excessiveDelayCount - 1;
-        ResultsLogValidator validator = new ResultsLogValidator();
-        ResultsLogValidationTolerances tolerances = new ResultsLogValidationTolerances(
-                excessiveDelayThresholdAsMilli,
-                toleratedExcessiveDelayCount
-        );
-        ResultsLogValidationResult result = validator.validate(
-                summary,
-                tolerances,
-                recordDelayedOperations
-        );
-        assertFalse( result.toString(), result.isSuccessful() );
-        Assert.assertThat(
+        int toleratedExcessiveDelayCount = 9;
+        ResultsLogValidationResult result = runValidation(recordDelayedOperations, toleratedExcessiveDelayCount);
+        
+        assertFalse( result.isSuccessful(), result.toString() );
+        assertThat(
                 result.toString(),
                 result.errors().get( 0 ).errorType(),
                 equalTo( ResultsLogValidationResult.ValidationErrorType.TOO_MANY_LATE_OPERATIONS )
@@ -160,11 +154,12 @@ public class ResultsLogValidationTest
     }
 
     @Test
-    public void shouldReturnExpectedSummaryWhenValidatedFromFile() throws IOException, ValidationException
+    public void shouldReturnExpectedSummaryWhenValidatedFromFile(@TempDir File temporaryFolder) throws IOException, ValidationException
     {
         // Given
         long excessiveDelayThreshold = 5;
-        File file = temporaryFolder.newFile();
+        File file = new File(temporaryFolder, "output.csv");
+
         try ( SimpleCsvFileWriter writer =
                       new SimpleCsvFileWriter( file, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR, false ) )
         {

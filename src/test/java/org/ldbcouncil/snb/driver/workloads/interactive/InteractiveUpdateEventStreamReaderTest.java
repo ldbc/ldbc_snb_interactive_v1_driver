@@ -6,9 +6,9 @@ import org.ldbcouncil.snb.driver.csv.ParquetLoader;
 import org.ldbcouncil.snb.driver.csv.DuckDbConnectionState;
 import org.ldbcouncil.snb.driver.generator.EventStreamReader;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -18,7 +18,8 @@ import java.util.*;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,7 +33,7 @@ public class InteractiveUpdateEventStreamReaderTest
      * Initialize mock objects used in all the tests
      * @throws SQLException
      */
-    @Before
+    @BeforeEach
     public void init() throws SQLException {
         Connection connection = mock(Connection.class);
         db = mock(DuckDbConnectionState.class);
@@ -42,7 +43,7 @@ public class InteractiveUpdateEventStreamReaderTest
     }
 
     // TODO: Complete LdbcInsert1AddPerson test
-    @Ignore
+    @Disabled
     public void shouldParseAllInsert1Events() throws WorkloadException, SQLException {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
@@ -52,63 +53,63 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354159616392L)
             .thenReturn(1354159616392L)
             .thenReturn(1354164952506L);
-        when(rs.getLong(2)) // PersonId
+        when(rs.getLong(3)) // PersonId
             .thenReturn(2336462220352l)
             .thenReturn(2336462274764l)
             .thenReturn(2336462234123l)
             .thenReturn(2336462255683l);
-        when(rs.getString(3)) // firstName
+        when(rs.getString(4)) // firstName
             .thenReturn("William")
             .thenReturn("Jean-Luc")
             .thenReturn("Wesley")
             .thenReturn("Miles");
-        when(rs.getString(4)) // lastName
+        when(rs.getString(5)) // lastName
             .thenReturn("Riker")
             .thenReturn("Picard")
             .thenReturn("Crusher")
             .thenReturn("O'Brien");
-        when(rs.getString(5)) // gender
+        when(rs.getString(6)) // gender
             .thenReturn("male")
             .thenReturn("male")
             .thenReturn("male")
             .thenReturn("male");
         //Birthday
-        when(rs.getString(7))
+        when(rs.getString(8))
             .thenReturn("127.0.0.1")
             .thenReturn("127.0.0.2")
             .thenReturn("127.0.0.3")
             .thenReturn("127.0.0.4");
-        when(rs.getString(8)) //BrowserUsed
+        when(rs.getString(9)) //BrowserUsed
             .thenReturn("Netscape")
             .thenReturn("Mosaic")
             .thenReturn("Internet Explorer")
             .thenReturn("Vivaldi");
-        when(rs.getLong(9)) // cityId
+        when(rs.getLong(10)) // cityId
             .thenReturn(100l)
             .thenReturn(200l)
             .thenReturn(300l)
             .thenReturn(400l);
-        when(rs.getString(10))
+        when(rs.getString(11))
             .thenReturn("EN;HU")
             .thenReturn("EN;ES;NL")
             .thenReturn("DE;EN;PL")
             .thenReturn("EN");
-        when(rs.getString(11))
+        when(rs.getString(12))
             .thenReturn("w.riker@starfleet.com;willyriker@aol.com")
             .thenReturn("j.picard@starfleet.com;jean.luc.picard@gmx.com")
             .thenReturn("")
             .thenReturn("m.obrien@starfleet.com");
-        when(rs.getString(12))
+        when(rs.getString(13))
             .thenReturn("2678;110")
             .thenReturn("1925")
             .thenReturn("12;6842;7895")
             .thenReturn("");
-        when(rs.getString(13))
+        when(rs.getString(14))
             .thenReturn("100,2459;200,2012")
             .thenReturn("100,2459")
             .thenReturn("100,2459")
             .thenReturn("");
-        when(rs.getString(14))
+        when(rs.getString(15))
             .thenReturn("100,8766;200,5432;300,2876")
             .thenReturn("100,4587;200,5643")
             .thenReturn("")
@@ -179,12 +180,12 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354159616392L)
             .thenReturn(1354159616392L)
             .thenReturn(1354164952506L);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
             .thenReturn(8796093026612l)
             .thenReturn(26388279069478l);
-        when(rs.getLong(3))
+        when(rs.getLong(4))
             .thenReturn(2336468703973l)
             .thenReturn(2336467057324l)
             .thenReturn(2336462285980l)
@@ -239,12 +240,12 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354159616392L)
             .thenReturn(1354159616392L)
             .thenReturn(1354164952506L);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
             .thenReturn(8796093026612l)
             .thenReturn(26388279069478l);
-        when(rs.getLong(3))
+        when(rs.getLong(4))
             .thenReturn(2336468703973l)
             .thenReturn(2336467057324l)
             .thenReturn(2336462285980l)
@@ -299,22 +300,22 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354158101157L)
             .thenReturn(1354159101925L)
             .thenReturn(1354159537443L);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(2336462220352l)
             .thenReturn(2336462274764l)
             .thenReturn(2336462234123l)
             .thenReturn(2336462255683l);
-        when(rs.getString(3))
+        when(rs.getString(4))
             .thenReturn("Album 31 of Anand Rao")
             .thenReturn("Album 0 of A. Rao")
             .thenReturn("Album 6 of Alfonso Chavez")
             .thenReturn("Album 14 of Ivan Ivanov");
-        when(rs.getLong(4))
+        when(rs.getLong(5))
             .thenReturn(2199023256479l)
             .thenReturn(15393162797039l)
             .thenReturn(4398046516485l)
             .thenReturn(8796093032781l);
-        when(rs.getString(5))
+        when(rs.getString(6))
             .thenReturn("9067")
             .thenReturn("7509")
             .thenReturn("2999;125")
@@ -397,7 +398,7 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354159616392L)
             .thenReturn(1354159616392L)
             .thenReturn(1354164952506L);
-        when(rs.getLong(2))
+        when(rs.getLong(4))
             .thenReturn(2336468703973l)
             .thenReturn(2336467057324l)
             .thenReturn(2336462285980l)
@@ -457,57 +458,57 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354158101157L)
             .thenReturn(1354159101925L)
             .thenReturn(1354159537443L);
-        when(rs.getLong(2)) // PostId
+        when(rs.getLong(3)) // PostId
             .thenReturn(2336462220352l)
             .thenReturn(2336462274764l)
             .thenReturn(2336462234123l)
             .thenReturn(2336462255683l);
-        when(rs.getString(3))
+        when(rs.getString(4))
             .thenReturn("image1")
             .thenReturn("")
             .thenReturn("image3")
             .thenReturn("");
-        when(rs.getString(4))
+        when(rs.getString(5))
             .thenReturn("127.0.0.1")
             .thenReturn("127.0.0.2")
             .thenReturn("127.0.0.3")
             .thenReturn("127.0.0.4");
-        when(rs.getString(5))
+        when(rs.getString(6))
             .thenReturn("Netscape")
             .thenReturn("Mosaic")
             .thenReturn("Internet Explorer")
             .thenReturn("Vivaldi");
-        when(rs.getString(6))
+        when(rs.getString(7))
             .thenReturn("NL")
             .thenReturn("EN")
             .thenReturn("ES")
             .thenReturn("DE");
-        when(rs.getString(7))
+        when(rs.getString(8))
             .thenReturn("content1")
             .thenReturn("content2")
             .thenReturn("content3")
             .thenReturn("content4");
-        when(rs.getInt(8))
+        when(rs.getInt(9))
             .thenReturn(1)
             .thenReturn(2)
             .thenReturn(3)
             .thenReturn(4);
-        when(rs.getLong(9))
+        when(rs.getLong(10))
             .thenReturn(2199023256479l)
             .thenReturn(15393162797039l)
             .thenReturn(4398046516485l)
             .thenReturn(8796093032781l);
-        when(rs.getLong(10))
+        when(rs.getLong(11))
             .thenReturn(3199023256479l)
             .thenReturn(35393162797039l)
             .thenReturn(3398046516485l)
             .thenReturn(3796093032781l);
-        when(rs.getLong(11))
+        when(rs.getLong(12))
             .thenReturn(4199023256479l)
             .thenReturn(45393162797039l)
             .thenReturn(4398046516485l)
             .thenReturn(4796093032781l);
-        when(rs.getString(12))
+        when(rs.getString(13))
             .thenReturn("9067")
             .thenReturn("7509")
             .thenReturn("2999;125")
@@ -619,52 +620,52 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354158101157L)
             .thenReturn(1354159101925L)
             .thenReturn(1354159537443L);
-        when(rs.getLong(2)) //CommentId
+        when(rs.getLong(3)) //CommentId
             .thenReturn(2336462220352l)
             .thenReturn(2336462274764l)
             .thenReturn(2336462234123l)
             .thenReturn(2336462255683l);
-        when(rs.getString(3))
+        when(rs.getString(4))
             .thenReturn("127.0.0.1")
             .thenReturn("127.0.0.2")
             .thenReturn("127.0.0.3")
             .thenReturn("127.0.0.4");
-        when(rs.getString(4))
+        when(rs.getString(5))
             .thenReturn("Netscape")
             .thenReturn("Mosaic")
             .thenReturn("Internet Explorer")
             .thenReturn("Vivaldi");
-        when(rs.getString(5))
+        when(rs.getString(6))
             .thenReturn("content1")
             .thenReturn("content2")
             .thenReturn("content3")
             .thenReturn("content4");
-        when(rs.getInt(6))
+        when(rs.getInt(7))
             .thenReturn(1)
             .thenReturn(2)
             .thenReturn(3)
             .thenReturn(4);
-        when(rs.getLong(7))
+        when(rs.getLong(8))
             .thenReturn(2199023256479l)
             .thenReturn(15393162797039l)
             .thenReturn(4398046516485l)
             .thenReturn(8796093032781l);
-        when(rs.getLong(8))
+        when(rs.getLong(9))
             .thenReturn(3199023256479l)
             .thenReturn(35393162797039l)
             .thenReturn(3398046516485l)
             .thenReturn(3796093032781l);
-        when(rs.getLong(9))
+        when(rs.getLong(10))
             .thenReturn(4199023256479l)
             .thenReturn(45393162797039l)
             .thenReturn(4398046516485l)
             .thenReturn(4796093032781l);
-        when(rs.getLong(10))
+        when(rs.getLong(11))
             .thenReturn(5199023256479l)
             .thenReturn(55393162797039l)
             .thenReturn(5398046516485l)
             .thenReturn(5796093032781l);
-        when(rs.getString(11))
+        when(rs.getString(12))
             .thenReturn("9067")
             .thenReturn("7509")
             .thenReturn("2999;125")
@@ -772,12 +773,12 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354159616392L)
             .thenReturn(1354159616392L)
             .thenReturn(1354164952506L);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
             .thenReturn(8796093026612l)
             .thenReturn(26388279069478l);
-        when(rs.getLong(3))
+        when(rs.getLong(4))
             .thenReturn(2336468703973l)
             .thenReturn(2336467057324l)
             .thenReturn(2336462285980l)
@@ -833,7 +834,7 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354176134565l)
             .thenReturn(1354223660406l)
             .thenReturn(1354343674368l);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(28587302326532l)
             .thenReturn(28587302325029l)
             .thenReturn(8796093027322l)
@@ -880,12 +881,12 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354159616392L)
             .thenReturn(1354159616392L)
             .thenReturn(1354164952506L);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
             .thenReturn(8796093026612l)
             .thenReturn(26388279069478l);
-        when(rs.getLong(3))
+        when(rs.getLong(4))
             .thenReturn(2336468703973l)
             .thenReturn(2336467057324l)
             .thenReturn(2336462285980l)
@@ -936,12 +937,12 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354159616392L)
             .thenReturn(1354159616392L)
             .thenReturn(1354164952506L);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
             .thenReturn(8796093026612l)
             .thenReturn(26388279069478l);
-        when(rs.getLong(3))
+        when(rs.getLong(4))
             .thenReturn(2336468703973l)
             .thenReturn(2336467057324l)
             .thenReturn(2336462285980l)
@@ -992,7 +993,7 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354176134565l)
             .thenReturn(1354223660406l)
             .thenReturn(1354343674368l);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(28587302326532l)
             .thenReturn(28587302325029l)
             .thenReturn(8796093027322l)
@@ -1039,12 +1040,12 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354159616392L)
             .thenReturn(1354159616392L)
             .thenReturn(1354164952506L);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(2336468703973l)
             .thenReturn(2336467057324l)
             .thenReturn(2336462285980l)
             .thenReturn(2336465315493l);
-        when(rs.getLong(3))
+        when(rs.getLong(4))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
             .thenReturn(8796093026612l)
@@ -1095,7 +1096,7 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354176134565l)
             .thenReturn(1354223660406l)
             .thenReturn(1354343674368l);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(28587302326532l)
             .thenReturn(28587302325029l)
             .thenReturn(8796093027322l)
@@ -1142,7 +1143,7 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354176134565l)
             .thenReturn(1354223660406l)
             .thenReturn(1354343674368l);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(28587302326532l)
             .thenReturn(28587302325029l)
             .thenReturn(8796093027322l)
@@ -1189,12 +1190,12 @@ public class InteractiveUpdateEventStreamReaderTest
             .thenReturn(1354159616392L)
             .thenReturn(1354159616392L)
             .thenReturn(1354164952506L);
-        when(rs.getLong(2))
+        when(rs.getLong(3))
             .thenReturn(15393162789345l)
             .thenReturn(15393162794683l)
             .thenReturn(8796093026612l)
             .thenReturn(26388279069478l);
-        when(rs.getLong(3))
+        when(rs.getLong(4))
             .thenReturn(2336468703973l)
             .thenReturn(2336467057324l)
             .thenReturn(2336462285980l)

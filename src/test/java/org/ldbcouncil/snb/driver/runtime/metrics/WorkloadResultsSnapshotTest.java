@@ -1,7 +1,7 @@
 package org.ldbcouncil.snb.driver.runtime.metrics;
 
 import org.ldbcouncil.snb.driver.WorkloadException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class WorkloadResultsSnapshotTest
 {

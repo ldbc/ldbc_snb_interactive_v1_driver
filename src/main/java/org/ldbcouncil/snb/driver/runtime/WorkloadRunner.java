@@ -11,7 +11,6 @@ import org.ldbcouncil.snb.driver.runtime.coordination.DummyCompletionTimeWriter;
 import org.ldbcouncil.snb.driver.runtime.executor.OperationExecutor;
 import org.ldbcouncil.snb.driver.runtime.executor.OperationExecutorException;
 import org.ldbcouncil.snb.driver.runtime.executor.OperationStreamExecutorService;
-import org.ldbcouncil.snb.driver.runtime.executor.SameThreadOperationExecutor;
 import org.ldbcouncil.snb.driver.runtime.executor.ThreadPoolOperationExecutor;
 import org.ldbcouncil.snb.driver.runtime.metrics.MetricsCollectionException;
 import org.ldbcouncil.snb.driver.runtime.metrics.MetricsService;
@@ -344,45 +343,9 @@ public class WorkloadRunner
                     errorReporter,
                     asynchronousStream,
                     executorForAsynchronous,
-                    completionTimeWriterForAsynchronous
+                    completionTimeWriterForAsynchronous,
+                    completionTimeService
             );
-
-            for ( WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions() )
-            {
-                // only create a completion time writer for an executor if it contains at least one READ_WRITE operation
-                // otherwise it will cause completion time to stall
-                CompletionTimeWriter completionTimeWriterForBlocking;
-                try
-                {
-                    completionTimeWriterForBlocking = (blockingStream.dependencyOperations().hasNext())
-                                                      ? completionTimeService.newCompletionTimeWriter()
-                                                      : DUMMY_COMPLETION_TIME_WRITER;
-                }
-                catch ( CompletionTimeException e )
-                {
-                    throw new WorkloadException( "Error while attempting to create completion time writer", e );
-                }
-                OperationExecutor executorForBlocking = new SameThreadOperationExecutor(
-                        db,
-                        blockingStream,
-                        completionTimeWriterForBlocking,
-                        completionTimeService,
-                        spinner,
-                        timeSource,
-                        errorReporter,
-                        metricsService,
-                        blockingStream.childOperationGenerator()
-                );
-                this.executorsForBlocking.add( executorForBlocking );
-                this.blockingStreamExecutorServices.add(
-                        new OperationStreamExecutorService(
-                                errorReporter,
-                                blockingStream,
-                                executorForBlocking,
-                                completionTimeWriterForBlocking
-                        )
-                );
-            }
             this.stateRef = new AtomicReference<>( WorkloadRunnerThreadState.NOT_STARTED );
         }
 

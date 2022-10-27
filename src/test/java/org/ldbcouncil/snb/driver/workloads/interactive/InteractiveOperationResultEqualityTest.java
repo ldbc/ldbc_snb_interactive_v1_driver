@@ -1,14 +1,14 @@
 package org.ldbcouncil.snb.driver.workloads.interactive;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.*;
 
 import java.util.Arrays;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class InteractiveOperationResultEqualityTest
 {
@@ -424,18 +424,18 @@ public class InteractiveOperationResultEqualityTest
 
     @Test
     public void ldbcQuery14ResultShouldDoEqualsCorrectly() {
-        LdbcQuery14Result result1a = new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 1d);
-        LdbcQuery14Result result1b = new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 1d);
-        LdbcQuery14Result result2a = new LdbcQuery14Result(Lists.newArrayList(1l, 3l), 2d);
-        LdbcQuery14Result result3a = new LdbcQuery14Result(Lists.newArrayList(2l, 1l), 1d);
-        LdbcQuery14Result result4a = new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 2d);
+        LdbcQuery14Result result1a = new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 1);
+        LdbcQuery14Result result1b = new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 1);
+        LdbcQuery14Result result2a = new LdbcQuery14Result(Lists.newArrayList(1l, 3l), 2);
+        LdbcQuery14Result result3a = new LdbcQuery14Result(Lists.newArrayList(2l, 1l), 1);
+        LdbcQuery14Result result4a = new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 2);
 
         assertThat(result1a, equalTo(result1b));
         assertThat(result1a, not(equalTo(result2a)));
-        assertThat(result1a, not(equalTo(result3a)));
+        assertThat(result1a, equalTo(result3a));
         assertThat(result1a, not(equalTo(result4a)));
         assertThat(result2a, not(equalTo(result3a)));
-        assertThat(result2a, not(equalTo(result4a)));
+        assertThat(result2a, equalTo(result4a));
         assertThat(result3a, not(equalTo(result4a)));
     }
 }

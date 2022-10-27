@@ -53,18 +53,7 @@ public class WorkloadStatisticsCalculator
             dependentOperationTypes.addAll( workloadStreams.asynchronousStream().dependentOperationTypes() );
             dependencyOperationTypes.addAll( workloadStreams.asynchronousStream().dependencyOperationTypes() );
         }
-        for ( WorkloadStreams.WorkloadStreamDefinition streamDefinition : workloadStreams.blockingStreamDefinitions() )
-        {
-            // If there are no operations in the stream (e.g. they are all disabled) there is no point tracking the
-            // depend operations
-            if ( streamDefinition.dependencyOperations().hasNext() ||
-                 streamDefinition.nonDependencyOperations().hasNext() )
-            {
-                dependentOperationTypes.addAll( streamDefinition.dependentOperationTypes() );
-                dependencyOperationTypes.addAll( streamDefinition.dependencyOperationTypes() );
-            }
-        }
-
+  
         List<Iterator<Operation>> operationIterators = new ArrayList<>();
         operationIterators.add(
                 new StreamWithChildOperationGenerator( workloadStreams.asynchronousStream().dependencyOperations(),
@@ -74,18 +63,6 @@ public class WorkloadStatisticsCalculator
                 new StreamWithChildOperationGenerator( workloadStreams.asynchronousStream().nonDependencyOperations(),
                         workloadStreams.asynchronousStream().childOperationGenerator() )
         );
-        for ( WorkloadStreams.WorkloadStreamDefinition blockingStreamDefinition : workloadStreams
-                .blockingStreamDefinitions() )
-        {
-            operationIterators.add(
-                    new StreamWithChildOperationGenerator( blockingStreamDefinition.dependencyOperations(),
-                            blockingStreamDefinition.childOperationGenerator() )
-            );
-            operationIterators.add(
-                    new StreamWithChildOperationGenerator( blockingStreamDefinition.nonDependencyOperations(),
-                            blockingStreamDefinition.childOperationGenerator() )
-            );
-        }
 
         Iterator<Operation> operations = gf.mergeSortOperationsByScheduledStartTime(
                 operationIterators.toArray( new Iterator[operationIterators.size()] ) );

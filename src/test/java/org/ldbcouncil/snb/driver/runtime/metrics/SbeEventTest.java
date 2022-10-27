@@ -2,16 +2,16 @@ package org.ldbcouncil.snb.driver.runtime.metrics;
 
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.runtime.metrics.sbe.MetricsEvent;
-import org.junit.Test;
-import uk.co.real_logic.sbe.codec.java.DirectBuffer;
+import org.junit.jupiter.api.Test;
+import org.agrona.concurrent.UnsafeBuffer;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class SbeEventTest {
     @Test
     public void shouldReadWrites() throws WorkloadException, MetricsCollectionException {
-        final DirectBuffer directBuffer = new DisruptorSbeMetricsEvent.MetricsCollectionEventFactory().newInstance();
+        final UnsafeBuffer directBuffer = new DisruptorSbeMetricsEvent.MetricsCollectionEventFactory().newInstance();
         final MetricsEvent metricsEvent = new MetricsEvent();
 
         byte eventType = DisruptorSbeMetricsEvent.SUBMIT_OPERATION_RESULT;

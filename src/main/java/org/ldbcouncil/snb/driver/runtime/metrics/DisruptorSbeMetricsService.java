@@ -12,7 +12,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import uk.co.real_logic.sbe.codec.java.DirectBuffer;
+import org.agrona.concurrent.UnsafeBuffer;
 
 import java.util.List;
 import java.util.Map;
@@ -42,8 +42,8 @@ public class DisruptorSbeMetricsService implements MetricsService
     private final AtomicLong initiatedEvents = new AtomicLong( 0 );
     private final AtomicBoolean shutdown = new AtomicBoolean( false );
     private final TimeSource timeSource;
-    private final RingBuffer<DirectBuffer> ringBuffer;
-    private final Disruptor<DirectBuffer> disruptor;
+    private final RingBuffer<UnsafeBuffer> ringBuffer;
+    private final Disruptor<UnsafeBuffer> disruptor;
     private final DisruptorSbeMetricsEventHandler eventHandler;
     private final ConcurrentLinkedQueue<DisruptorSbeMetricsServiceWriter> metricsServiceWriters;
     private final ExecutorService executor;
@@ -191,7 +191,7 @@ public class DisruptorSbeMetricsService implements MetricsService
     private static class DisruptorSbeMetricsServiceWriter implements MetricsServiceWriter
     {
         private final AtomicLong initiatedEvents;
-        private final RingBuffer<DirectBuffer> ringBuffer;
+        private final RingBuffer<UnsafeBuffer> ringBuffer;
         private final DisruptorSbeMetricsEventHandler eventHandler;
         private final SubmitOperationResultTranslator submitOperationResultTranslator;
         private final GetWorkloadStatusTranslator getWorkloadStatusTranslator;
@@ -200,7 +200,7 @@ public class DisruptorSbeMetricsService implements MetricsService
         private AlreadyShutdownPolicy alreadyShutdownPolicy = null;
 
         public DisruptorSbeMetricsServiceWriter( AtomicLong initiatedEvents,
-                RingBuffer<DirectBuffer> ringBuffer,
+                RingBuffer<UnsafeBuffer> ringBuffer,
                 DisruptorSbeMetricsEventHandler eventHandler )
         {
             this.initiatedEvents = initiatedEvents;
@@ -268,7 +268,7 @@ public class DisruptorSbeMetricsService implements MetricsService
             return resultsSnapshotReference.getReference();
         }
 
-        public static class SubmitOperationResultTranslator implements EventTranslatorVararg<DirectBuffer>
+        public static class SubmitOperationResultTranslator implements EventTranslatorVararg<UnsafeBuffer>
         {
             private final MetricsEvent metricsEvent;
 
@@ -278,7 +278,7 @@ public class DisruptorSbeMetricsService implements MetricsService
             }
 
             @Override
-            public void translateTo( DirectBuffer event, long l, Object... fields )
+            public void translateTo( UnsafeBuffer event, long l, Object... fields )
             {
                 metricsEvent.wrapForEncode( event, MESSAGE_HEADER_SIZE )
                         .eventType( SUBMIT_OPERATION_RESULT )
@@ -291,7 +291,7 @@ public class DisruptorSbeMetricsService implements MetricsService
             }
         }
 
-        public static class GetWorkloadStatusTranslator implements EventTranslator<DirectBuffer>
+        public static class GetWorkloadStatusTranslator implements EventTranslator<UnsafeBuffer>
         {
             private final MetricsEvent metricsEvent;
 
@@ -301,14 +301,14 @@ public class DisruptorSbeMetricsService implements MetricsService
             }
 
             @Override
-            public void translateTo( DirectBuffer event, long l )
+            public void translateTo( UnsafeBuffer event, long l )
             {
                 metricsEvent.wrapForEncode( event, MESSAGE_HEADER_SIZE )
                         .eventType( GET_WORKLOAD_STATUS );
             }
         }
 
-        public static class GetWorkloadResultsTranslator implements EventTranslator<DirectBuffer>
+        public static class GetWorkloadResultsTranslator implements EventTranslator<UnsafeBuffer>
         {
             private final MetricsEvent metricsEvent;
 
@@ -318,7 +318,7 @@ public class DisruptorSbeMetricsService implements MetricsService
             }
 
             @Override
-            public void translateTo( DirectBuffer event, long l )
+            public void translateTo( UnsafeBuffer event, long l )
             {
                 metricsEvent.wrapForEncode( event, MESSAGE_HEADER_SIZE )
                         .eventType( GET_WORKLOAD_RESULTS );

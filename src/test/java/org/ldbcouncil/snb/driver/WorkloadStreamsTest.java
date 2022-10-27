@@ -18,21 +18,23 @@ import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation2Factory;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation3;
 import org.ldbcouncil.snb.driver.workloads.dummy.TimedNamedOperation3Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class WorkloadStreamsTest
 {
@@ -63,50 +65,6 @@ public class WorkloadStreamsTest
         assertThat( secondAsyncNonDependencyOperation.scheduledStartTimeAsMilli(), is( 102l ) );
         assertThat( secondAsyncNonDependencyOperation.timeStamp(), is( 102l ) );
         assertThat( secondAsyncNonDependencyOperation.dependencyTimeStamp(), is( 102l ) );
-
-        Operation firstBlocking1DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).dependencyOperations().next();
-        Operation secondBlocking1DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).dependencyOperations().next();
-        assertThat( firstBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is( 4l ) );
-        assertThat( firstBlocking1DependencyOperation.timeStamp(), is( 4l ) );
-        assertThat( firstBlocking1DependencyOperation.dependencyTimeStamp(), is( 4l ) );
-        assertThat( secondBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is( 1004l ) );
-        assertThat( secondBlocking1DependencyOperation.timeStamp(), is( 1004l ) );
-        assertThat( secondBlocking1DependencyOperation.dependencyTimeStamp(), is( 1004l ) );
-
-        Operation firstBlocking1NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).nonDependencyOperations().next();
-        Operation secondBlocking1NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).nonDependencyOperations().next();
-        assertThat( firstBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is( 6l ) );
-        assertThat( firstBlocking1NonDependencyOperation.timeStamp(), is( 6l ) );
-        assertThat( firstBlocking1NonDependencyOperation.dependencyTimeStamp(), is( 6l ) );
-        assertThat( secondBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is( 10006l ) );
-        assertThat( secondBlocking1NonDependencyOperation.timeStamp(), is( 10006l ) );
-        assertThat( secondBlocking1NonDependencyOperation.dependencyTimeStamp(), is( 10006l ) );
-
-        Operation firstBlocking2DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).dependencyOperations().next();
-        Operation secondBlocking2DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).dependencyOperations().next();
-        assertThat( firstBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is( 8l ) );
-        assertThat( firstBlocking2DependencyOperation.timeStamp(), is( 8l ) );
-        assertThat( firstBlocking2DependencyOperation.dependencyTimeStamp(), is( 8l ) );
-        assertThat( secondBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is( 10008l ) );
-        assertThat( secondBlocking2DependencyOperation.timeStamp(), is( 10008l ) );
-        assertThat( secondBlocking2DependencyOperation.dependencyTimeStamp(), is( 10008l ) );
-
-        Operation firstBlocking2NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).nonDependencyOperations().next();
-        Operation secondBlocking2NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).nonDependencyOperations().next();
-        assertThat( firstBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is( 10l ) );
-        assertThat( firstBlocking2NonDependencyOperation.timeStamp(), is( 10l ) );
-        assertThat( firstBlocking2NonDependencyOperation.dependencyTimeStamp(), is( 10l ) );
-        assertThat( secondBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is( 100010l ) );
-        assertThat( secondBlocking2NonDependencyOperation.timeStamp(), is( 100010l ) );
-        assertThat( secondBlocking2NonDependencyOperation.dependencyTimeStamp(), is( 100010l ) );
     }
 
     @Test
@@ -140,50 +98,6 @@ public class WorkloadStreamsTest
         assertThat( secondAsyncNonDependencyOperation.scheduledStartTimeAsMilli(), is( 102l + offset ) );
         assertThat( secondAsyncNonDependencyOperation.timeStamp(), is( 102l ) );
         assertThat( secondAsyncNonDependencyOperation.dependencyTimeStamp(), is( 102l ) );
-
-        Operation firstBlocking1DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).dependencyOperations().next();
-        Operation secondBlocking1DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).dependencyOperations().next();
-        assertThat( firstBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is( 4l + offset ) );
-        assertThat( firstBlocking1DependencyOperation.timeStamp(), is( 4l ) );
-        assertThat( firstBlocking1DependencyOperation.dependencyTimeStamp(), is( 4l ) );
-        assertThat( secondBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is( 1004l + offset ) );
-        assertThat( secondBlocking1DependencyOperation.timeStamp(), is( 1004l ) );
-        assertThat( secondBlocking1DependencyOperation.dependencyTimeStamp(), is( 1004l ) );
-
-        Operation firstBlocking1NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).nonDependencyOperations().next();
-        Operation secondBlocking1NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).nonDependencyOperations().next();
-        assertThat( firstBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is( 6l + offset ) );
-        assertThat( firstBlocking1NonDependencyOperation.timeStamp(), is( 6l ) );
-        assertThat( firstBlocking1NonDependencyOperation.dependencyTimeStamp(), is( 6l ) );
-        assertThat( secondBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is( 10006l + offset ) );
-        assertThat( secondBlocking1NonDependencyOperation.timeStamp(), is( 10006l ) );
-        assertThat( secondBlocking1NonDependencyOperation.dependencyTimeStamp(), is( 10006l ) );
-
-        Operation firstBlocking2DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).dependencyOperations().next();
-        Operation secondBlocking2DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).dependencyOperations().next();
-        assertThat( firstBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is( 8l + offset ) );
-        assertThat( firstBlocking2DependencyOperation.timeStamp(), is( 8l ) );
-        assertThat( firstBlocking2DependencyOperation.dependencyTimeStamp(), is( 8l ) );
-        assertThat( secondBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is( 10008l + offset ) );
-        assertThat( secondBlocking2DependencyOperation.timeStamp(), is( 10008l ) );
-        assertThat( secondBlocking2DependencyOperation.dependencyTimeStamp(), is( 10008l ) );
-
-        Operation firstBlocking2NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).nonDependencyOperations().next();
-        Operation secondBlocking2NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).nonDependencyOperations().next();
-        assertThat( firstBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is( 10l + offset ) );
-        assertThat( firstBlocking2NonDependencyOperation.timeStamp(), is( 10l ) );
-        assertThat( firstBlocking2NonDependencyOperation.dependencyTimeStamp(), is( 10l ) );
-        assertThat( secondBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is( 100010l + offset ) );
-        assertThat( secondBlocking2NonDependencyOperation.timeStamp(), is( 100010l ) );
-        assertThat( secondBlocking2NonDependencyOperation.dependencyTimeStamp(), is( 100010l ) );
     }
 
     @Test
@@ -220,50 +134,6 @@ public class WorkloadStreamsTest
         assertThat( secondAsyncNonDependencyOperation.scheduledStartTimeAsMilli(), is( 51l + offset ) );
         assertThat( secondAsyncNonDependencyOperation.timeStamp(), is( 102l ) );
         assertThat( secondAsyncNonDependencyOperation.dependencyTimeStamp(), is( 102l ) );
-
-        Operation firstBlocking1DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).dependencyOperations().next();
-        Operation secondBlocking1DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).dependencyOperations().next();
-        assertThat( firstBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is( 2l + offset ) );
-        assertThat( firstBlocking1DependencyOperation.timeStamp(), is( 4l ) );
-        assertThat( firstBlocking1DependencyOperation.dependencyTimeStamp(), is( 4l ) );
-        assertThat( secondBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is( 502l + offset ) );
-        assertThat( secondBlocking1DependencyOperation.timeStamp(), is( 1004l ) );
-        assertThat( secondBlocking1DependencyOperation.dependencyTimeStamp(), is( 1004l ) );
-
-        Operation firstBlocking1NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).nonDependencyOperations().next();
-        Operation secondBlocking1NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 0 ).nonDependencyOperations().next();
-        assertThat( firstBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is( 3l + offset ) );
-        assertThat( firstBlocking1NonDependencyOperation.timeStamp(), is( 6l ) );
-        assertThat( firstBlocking1NonDependencyOperation.dependencyTimeStamp(), is( 6l ) );
-        assertThat( secondBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is( 5003l + offset ) );
-        assertThat( secondBlocking1NonDependencyOperation.timeStamp(), is( 10006l ) );
-        assertThat( secondBlocking1NonDependencyOperation.dependencyTimeStamp(), is( 10006l ) );
-
-        Operation firstBlocking2DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).dependencyOperations().next();
-        Operation secondBlocking2DependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).dependencyOperations().next();
-        assertThat( firstBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is( 4l + offset ) );
-        assertThat( firstBlocking2DependencyOperation.timeStamp(), is( 8l ) );
-        assertThat( firstBlocking2DependencyOperation.dependencyTimeStamp(), is( 8l ) );
-        assertThat( secondBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is( 5004l + offset ) );
-        assertThat( secondBlocking2DependencyOperation.timeStamp(), is( 10008l ) );
-        assertThat( secondBlocking2DependencyOperation.dependencyTimeStamp(), is( 10008l ) );
-
-        Operation firstBlocking2NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).nonDependencyOperations().next();
-        Operation secondBlocking2NonDependencyOperation =
-                workloadStreamsBefore.blockingStreamDefinitions().get( 1 ).nonDependencyOperations().next();
-        assertThat( firstBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is( 5l + offset ) );
-        assertThat( firstBlocking2NonDependencyOperation.timeStamp(), is( 10l ) );
-        assertThat( firstBlocking2NonDependencyOperation.dependencyTimeStamp(), is( 10l ) );
-        assertThat( secondBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is( 50005l + offset ) );
-        assertThat( secondBlocking2NonDependencyOperation.timeStamp(), is( 100010l ) );
-        assertThat( secondBlocking2NonDependencyOperation.dependencyTimeStamp(), is( 100010l ) );
     }
 
     @Test
@@ -901,11 +771,17 @@ public class WorkloadStreamsTest
         }
 
         @Override
-        public int enabledValidationOperations()
+        public Set<Class> enabledValidationOperations()
         {
-            return 0;
+            return Collections.emptySet();
         }
 
+        @Override
+        public void onClose()
+        {
+    
+        }
+      
         @Override
         public Class<? extends Operation> getOperationClass()
         {
@@ -961,20 +837,7 @@ public class WorkloadStreamsTest
                 asyncNonDependencyStream,
                 null
         );
-        workloadStreams.addBlockingStream(
-                new HashSet<Class<? extends Operation>>(),
-                Sets.<Class<? extends Operation>>newHashSet( TimedNamedOperation2.class ),
-                blockingDependencyStream1,
-                blockingNonDependencyStream1,
-                null
-        );
-        workloadStreams.addBlockingStream(
-                new HashSet<Class<? extends Operation>>(),
-                Sets.<Class<? extends Operation>>newHashSet( TimedNamedOperation3.class ),
-                blockingDependencyStream2,
-                blockingNonDependencyStream2,
-                null
-        );
+  
         return workloadStreams;
     }
 }

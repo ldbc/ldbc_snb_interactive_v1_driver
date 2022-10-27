@@ -20,11 +20,9 @@ import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiv
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
 import org.ldbcouncil.snb.driver.workloads.interactive.db.DummyLdbcSnbInteractiveOperationResultSets;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcNoResult;
-import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14;
+import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14a;
 import org.ldbcouncil.snb.driver.workloads.interactive.queries.LdbcQuery14Result;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,13 +32,10 @@ import java.util.Map;
 
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DbValidatorTest
 {
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @Test
     public void shouldFailValidationWhenDbImplementationIsIncorrect()
             throws DbException, WorkloadException, IOException, DriverConfigurationException
@@ -59,9 +54,6 @@ public class DbValidatorTest
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( paramsMap );
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
-                MapUtils.loadPropertiesToMap( TestUtils.getResource( "/snb/interactive/updateStream.properties" ) )
-        );
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init( configuration );
@@ -70,7 +62,7 @@ public class DbValidatorTest
         List<ValidationParam> correctValidationParamsList =
                 Lists.newArrayList( gf.limit( gf.repeating( buildParams().iterator() ), 10000 ) );
 
-        LdbcQuery14 operation14 = DummyLdbcSnbInteractiveOperationInstances.read14();
+        LdbcQuery14a operation14 = DummyLdbcSnbInteractiveOperationInstances.read14a();
         List<LdbcQuery14Result> unexpectedResult14 = DummyLdbcSnbInteractiveOperationResultSets.read14Results();
         unexpectedResult14.add( DummyLdbcSnbInteractiveOperationResultInstances.read14Result() );
 
@@ -118,9 +110,6 @@ public class DbValidatorTest
         paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/snb/interactive/" ).getAbsolutePath() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( paramsMap );
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
-                MapUtils.loadPropertiesToMap( TestUtils.getResource( "/snb/interactive/updateStream.properties" ) )
-        );
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init( configuration );
@@ -166,11 +155,14 @@ public class DbValidatorTest
                 DummyLdbcSnbInteractiveOperationResultSets.read2Results()
         );
 
-        ValidationParam validationParamLong3 = ValidationParam.createTyped(
-                DummyLdbcSnbInteractiveOperationInstances.read3(),
+        ValidationParam validationParamLong3a = ValidationParam.createTyped(
+                DummyLdbcSnbInteractiveOperationInstances.read3a(),
                 DummyLdbcSnbInteractiveOperationResultSets.read3Results()
         );
-
+        ValidationParam validationParamLong3b = ValidationParam.createTyped(
+                DummyLdbcSnbInteractiveOperationInstances.read3b(),
+                DummyLdbcSnbInteractiveOperationResultSets.read3Results()
+        );
         ValidationParam validationParamLong4 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.read4(),
                 DummyLdbcSnbInteractiveOperationResultSets.read4Results()
@@ -216,16 +208,22 @@ public class DbValidatorTest
                 DummyLdbcSnbInteractiveOperationResultSets.read12Results()
         );
 
-        ValidationParam validationParamLong13 = ValidationParam.createTyped(
-                DummyLdbcSnbInteractiveOperationInstances.read13(),
+        ValidationParam validationParamLong13a = ValidationParam.createTyped(
+                DummyLdbcSnbInteractiveOperationInstances.read13a(),
                 DummyLdbcSnbInteractiveOperationResultInstances.read13Result()
         );
-
-        ValidationParam validationParamLong14 = ValidationParam.createTyped(
-                DummyLdbcSnbInteractiveOperationInstances.read14(),
+        ValidationParam validationParamLong13b = ValidationParam.createTyped(
+                DummyLdbcSnbInteractiveOperationInstances.read13b(),
+                DummyLdbcSnbInteractiveOperationResultInstances.read13Result()
+        );
+        ValidationParam validationParamLong14a = ValidationParam.createTyped(
+                DummyLdbcSnbInteractiveOperationInstances.read14a(),
                 DummyLdbcSnbInteractiveOperationResultSets.read14Results()
         );
-
+        ValidationParam validationParamLong14b = ValidationParam.createTyped(
+                DummyLdbcSnbInteractiveOperationInstances.read14b(),
+                DummyLdbcSnbInteractiveOperationResultSets.read14Results()
+        );
         ValidationParam validationParamShort1 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.short1(),
                 DummyLdbcSnbInteractiveOperationResultSets.short1Results()
@@ -304,7 +302,8 @@ public class DbValidatorTest
         return Lists.newArrayList(
                 validationParamLong1,
                 validationParamLong2,
-                validationParamLong3,
+                validationParamLong3a,
+                validationParamLong3b,
                 validationParamLong4,
                 validationParamLong5,
                 validationParamLong6,
@@ -314,8 +313,10 @@ public class DbValidatorTest
                 validationParamLong10,
                 validationParamLong11,
                 validationParamLong12,
-                validationParamLong13,
-                validationParamLong14,
+                validationParamLong13a,
+                validationParamLong13b,
+                validationParamLong14a,
+                validationParamLong14b,
                 validationParamShort1,
                 validationParamShort2,
                 validationParamShort3,
