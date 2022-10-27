@@ -2,7 +2,7 @@
 
 CREATE OR REPLACE TABLE Comment (
     creationDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     locationIP varchar(40) NOT NULL,
     browserUsed varchar(40) NOT NULL,
     content varchar(2000) NOT NULL,
@@ -15,14 +15,14 @@ CREATE OR REPLACE TABLE Comment (
 
 CREATE OR REPLACE TABLE Forum (
     creationDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     title varchar(256) NOT NULL,
     ModeratorPersonId bigint -- can be null as its cardinality is 0..1
 );
 
 CREATE OR REPLACE TABLE Post (
     creationDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     imageFile varchar(40),
     locationIP varchar(40) NOT NULL,
     browserUsed varchar(40) NOT NULL,
@@ -36,7 +36,7 @@ CREATE OR REPLACE TABLE Post (
 
 CREATE OR REPLACE TABLE Person (
     creationDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     firstName varchar(40) NOT NULL,
     lastName varchar(40) NOT NULL,
     gender varchar(40) NOT NULL,
@@ -115,7 +115,7 @@ CREATE OR REPLACE TABLE Person_knows_Person (
 -- INS 7
 CREATE OR REPLACE TABLE Comment_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     locationIP varchar(40) NOT NULL,
     browserUsed varchar(40) NOT NULL,
     content varchar(2000) NOT NULL,
@@ -130,7 +130,7 @@ CREATE OR REPLACE TABLE Comment_Insert_Converted (
 -- INS 4
 CREATE OR REPLACE TABLE Forum_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     title varchar(256) NOT NULL,
     ModeratorPersonId bigint,
     TagIds string
@@ -139,7 +139,7 @@ CREATE OR REPLACE TABLE Forum_Insert_Converted (
 -- INS 6
 CREATE OR REPLACE TABLE Post_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     imageFile varchar(40),
     locationIP varchar(40) NOT NULL,
     browserUsed varchar(40) NOT NULL,
@@ -155,7 +155,7 @@ CREATE OR REPLACE TABLE Post_Insert_Converted (
 -- INS 1
 CREATE OR REPLACE TABLE Person_Insert_Converted (
     creationDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     firstName varchar(40) NOT NULL,
     lastName varchar(40) NOT NULL,
     gender varchar(40) NOT NULL,
@@ -203,25 +203,25 @@ CREATE OR REPLACE TABLE Person_knows_Person_Insert_Converted (
 -- DEL 7
 CREATE OR REPLACE TABLE Comment_Delete (
     deletionDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY
+    id bigint
 );
 
 -- DEL 4
 CREATE OR REPLACE TABLE Forum_Delete (
     deletionDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
 );
 
 -- DEL 6
 CREATE OR REPLACE TABLE Post_Delete (
     deletionDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY
+    id bigint
 );
 
 -- DEL 1
 CREATE OR REPLACE TABLE Person_Delete (
     deletionDate timestamp with time zone NOT NULL,
-    id bigint PRIMARY KEY
+    id bigint
 );
 
 -- DEL 5

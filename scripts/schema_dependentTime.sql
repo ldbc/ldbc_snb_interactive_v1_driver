@@ -3,7 +3,7 @@
 CREATE OR REPLACE TABLE Comment_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     locationIP varchar(40) NOT NULL,
     browserUsed varchar(40) NOT NULL,
     content varchar(2000) NOT NULL,
@@ -19,7 +19,7 @@ CREATE OR REPLACE TABLE Comment_Insert (
 CREATE OR REPLACE TABLE Forum_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     title varchar(256) NOT NULL,
     ModeratorPersonId bigint,
     TagIds string
@@ -29,7 +29,7 @@ CREATE OR REPLACE TABLE Forum_Insert (
 CREATE OR REPLACE TABLE Post_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     imageFile varchar(40),
     locationIP varchar(40) NOT NULL,
     browserUsed varchar(40) NOT NULL,
@@ -46,7 +46,7 @@ CREATE OR REPLACE TABLE Post_Insert (
 CREATE OR REPLACE TABLE Person_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     firstName varchar(40) NOT NULL,
     lastName varchar(40) NOT NULL,
     gender varchar(40) NOT NULL,
@@ -99,28 +99,28 @@ CREATE OR REPLACE TABLE Person_knows_Person_Insert (
 CREATE OR REPLACE TABLE Comment_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY
+    id bigint
 );
 
 -- DEL 4
 CREATE OR REPLACE TABLE Forum_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
 );
 
 -- DEL 6
 CREATE OR REPLACE TABLE Post_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY
+    id bigint
 );
 
 -- DEL 1
 CREATE OR REPLACE TABLE Person_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY
+    id bigint
 );
 
 -- DEL 5
