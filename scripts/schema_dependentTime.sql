@@ -1,52 +1,9 @@
----- drop tables
-
-DROP TABLE IF EXISTS Comment;
-DROP TABLE IF EXISTS Comment_hasTag_Tag;
-DROP TABLE IF EXISTS Forum;
-DROP TABLE IF EXISTS Forum_hasMember_Person;
-DROP TABLE IF EXISTS Forum_hasTag_Tag;
-DROP TABLE IF EXISTS Person;
-DROP TABLE IF EXISTS Person_hasInterest_Tag;
-DROP TABLE IF EXISTS Person_knows_Person;
-DROP TABLE IF EXISTS Person_likes_Comment;
-DROP TABLE IF EXISTS Person_likes_Post;
-DROP TABLE IF EXISTS Person_studyAt_University;
-DROP TABLE IF EXISTS Person_workAt_Company;
-DROP TABLE IF EXISTS Post;
-DROP TABLE IF EXISTS Post_hasTag_Tag;
-
-DROP VIEW IF EXISTS Comment_View;
-DROP VIEW IF EXISTS Forum_View;
-DROP VIEW IF EXISTS Person_View;
-DROP VIEW IF EXISTS Post_View;
-
--- processed inserts
-DROP TABLE IF EXISTS Comment_Insert;
-DROP TABLE IF EXISTS Forum_Insert;
-DROP TABLE IF EXISTS Forum_hasMember_Person_Insert;
-DROP TABLE IF EXISTS Person_Insert;
-DROP TABLE IF EXISTS Person_knows_Person_Insert;
-DROP TABLE IF EXISTS Person_likes_Comment_Insert;
-DROP TABLE IF EXISTS Person_likes_Post_Insert;
-DROP TABLE IF EXISTS Post_Insert;
-
--- deletes
-DROP TABLE IF EXISTS Comment_Delete;
-DROP TABLE IF EXISTS Forum_Delete;
-DROP TABLE IF EXISTS Person_Delete;
-DROP TABLE IF EXISTS Post_Delete;
-DROP TABLE IF EXISTS Forum_hasMember_Person_Delete;
-DROP TABLE IF EXISTS Person_knows_Person_Delete;
-DROP TABLE IF EXISTS Person_likes_Comment_Delete;
-DROP TABLE IF EXISTS Person_likes_Post_Delete;
-
----- create tables
 ---- processed inserts
 -- INS 7
-CREATE TABLE Comment_Insert (
+CREATE OR REPLACE TABLE Comment_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     locationIP varchar(40) NOT NULL,
     browserUsed varchar(40) NOT NULL,
     content varchar(2000) NOT NULL,
@@ -59,20 +16,20 @@ CREATE TABLE Comment_Insert (
 );
 
 -- INS 4
-CREATE TABLE Forum_Insert (
+CREATE OR REPLACE TABLE Forum_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     title varchar(256) NOT NULL,
     ModeratorPersonId bigint,
     TagIds string
 );
 
 -- INS 6
-CREATE TABLE Post_Insert (
+CREATE OR REPLACE TABLE Post_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     imageFile varchar(40),
     locationIP varchar(40) NOT NULL,
     browserUsed varchar(40) NOT NULL,
@@ -86,10 +43,10 @@ CREATE TABLE Post_Insert (
 );
 
 -- INS 1
-CREATE TABLE Person_Insert (
+CREATE OR REPLACE TABLE Person_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
     firstName varchar(40) NOT NULL,
     lastName varchar(40) NOT NULL,
     gender varchar(40) NOT NULL,
@@ -105,7 +62,7 @@ CREATE TABLE Person_Insert (
 );
 
 -- INS 5
-CREATE TABLE Forum_hasMember_Person_Insert (
+CREATE OR REPLACE TABLE Forum_hasMember_Person_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
     PersonId bigint NOT NULL,
@@ -113,7 +70,7 @@ CREATE TABLE Forum_hasMember_Person_Insert (
 );
 
 -- INS 3
-CREATE TABLE Person_likes_Comment_Insert (
+CREATE OR REPLACE TABLE Person_likes_Comment_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
     PersonId bigint NOT NULL,
@@ -121,7 +78,7 @@ CREATE TABLE Person_likes_Comment_Insert (
 );
 
 -- INS 2
-CREATE TABLE Person_likes_Post_Insert (
+CREATE OR REPLACE TABLE Person_likes_Post_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
     PersonId bigint NOT NULL,
@@ -129,7 +86,7 @@ CREATE TABLE Person_likes_Post_Insert (
 );
 
 -- INS 8
-CREATE TABLE Person_knows_Person_Insert (
+CREATE OR REPLACE TABLE Person_knows_Person_Insert (
     creationDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
     Person1id bigint NOT NULL,
@@ -139,35 +96,35 @@ CREATE TABLE Person_knows_Person_Insert (
 ---- deletes
 
 -- DEL 7
-CREATE TABLE Comment_Delete (
+CREATE OR REPLACE TABLE Comment_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY
+    id bigint
 );
 
 -- DEL 4
-CREATE TABLE Forum_Delete (
+CREATE OR REPLACE TABLE Forum_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY,
+    id bigint,
 );
 
 -- DEL 6
-CREATE TABLE Post_Delete (
+CREATE OR REPLACE TABLE Post_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY
+    id bigint
 );
 
 -- DEL 1
-CREATE TABLE Person_Delete (
+CREATE OR REPLACE TABLE Person_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
-    id bigint PRIMARY KEY
+    id bigint
 );
 
 -- DEL 5
-CREATE TABLE Forum_hasMember_Person_Delete (
+CREATE OR REPLACE TABLE Forum_hasMember_Person_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
     ForumId bigint NOT NULL,
@@ -175,7 +132,7 @@ CREATE TABLE Forum_hasMember_Person_Delete (
 );
 
 -- DEL 3
-CREATE TABLE Person_likes_Comment_Delete (
+CREATE OR REPLACE TABLE Person_likes_Comment_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
     PersonId bigint NOT NULL,
@@ -183,7 +140,7 @@ CREATE TABLE Person_likes_Comment_Delete (
 );
 
 -- DEL 2
-CREATE TABLE Person_likes_Post_Delete (
+CREATE OR REPLACE TABLE Person_likes_Post_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
     PersonId bigint NOT NULL,
@@ -191,7 +148,7 @@ CREATE TABLE Person_likes_Post_Delete (
 );
 
 -- DEL 8
-CREATE TABLE Person_knows_Person_Delete (
+CREATE OR REPLACE TABLE Person_knows_Person_Delete (
     deletionDate bigint NOT NULL,
     dependentDate bigint NOT NULL,
     Person1id bigint NOT NULL,
