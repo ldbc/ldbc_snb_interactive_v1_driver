@@ -16,7 +16,7 @@ import copy
 
 class UpdateStreamCreator:
 
-    def __init__(self, raw_parquet_dir, output_dir, start_date, end_date):
+    def __init__(self, raw_parquet_dir, output_dir, start_date, end_date, batch_size_in_days):
         """
         Args:
             - raw_parquet_dir  (str): The root input dir (e.g. '/data/out-sf1')
@@ -29,6 +29,7 @@ class UpdateStreamCreator:
         self.output_dir = output_dir
         self.start_date = start_date
         self.end_date = end_date
+        self.batch_size_in_days = batch_size_in_days
         self.database_name = 'snb.stream.duckdb'
         self.input_extension = '**/*.snappy.parquet'
         self.input_path_folder = 'parquet'
@@ -74,14 +75,14 @@ class UpdateStreamCreator:
         self.execute_batched()
 
 
-    def execute_batched(self, days=14):
+    def execute_batched(self):
         """
         Executes a query batched using timedeltas. Used for Comment and Post tables
         that require a large amount of memory.
         Args:
             - days (int, optional): the amount of days (size of batch)
         """
-        window_time = days * 24 * 3600
+        window_time = self.batch_size_in_days * 24 * 3600
         start_date = self.start_date.timestamp()
         end_date = self.end_date.timestamp()
         index = 0
@@ -140,6 +141,13 @@ if __name__ == "__main__":
         type=str,
         required=True
     )
+    parser.add_argument(
+        '--batch_size_in_days',
+        help="batch_size_in_days: The amount of days in a batch",
+        type=int,
+        default=1,
+        required=False
+    )
     args = parser.parse_args()
 
     # Determine date boundaries
@@ -150,7 +158,7 @@ if __name__ == "__main__":
     threshold = datetime.fromtimestamp(end_date.timestamp() - ((end_date.timestamp() - start_date) * (1 - bulk_load_portion)), tz=ZoneInfo('GMT'))
 
     start = time.time()
-    USC = UpdateStreamCreator(args.raw_parquet_dir, args.output_dir, threshold, end_date)
+    USC = UpdateStreamCreator(args.raw_parquet_dir, args.output_dir, threshold, end_date, args.batch_size_in_days)
     USC.execute()
     end = time.time()
     duration = end - start
