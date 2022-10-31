@@ -10,4 +10,10 @@ rm -rf scratch/factors
 mkdir -p scratch/factors
 wget -q https://ldbcouncil.org/ldbc_snb_datagen_spark/social-network-sf0.003-bi-factors.zip
 unzip -q social-network-sf0.003-bi-factors.zip
+
+rm -rf scratch/sample-data
+mkdir -p scratch/sample-data
+wget -q https://ldbcouncil.org/ldbc_snb_datagen_spark/social-network-sf0.003-bi-composite-merged-fk.zip
+unzip -q social-network-sf0.003-bi-composite-merged-fk.zip
+
 cp -r social-network-sf0.003-bi-factors/factors/parquet/raw/composite-merged-fk/* scratch/factors/
