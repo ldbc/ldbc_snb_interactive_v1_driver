@@ -5,7 +5,7 @@ COPY (SELECT deletionDate, creationDate as dependentDate, id
         AND deletionDate < :end_date_long
         AND explicitlyDeleted = true
         ORDER BY deletionDate ASC)
-TO :output_file (FORMAT 'parquet')
+TO ':output_dir/Comment.parquet' (FORMAT 'parquet')
 
 COPY (SELECT deletionDate, creationDate as dependentDate, id
         FROM Post
@@ -13,7 +13,7 @@ COPY (SELECT deletionDate, creationDate as dependentDate, id
         AND deletionDate < :end_date_long
         AND explicitlyDeleted = true
         ORDER BY deletionDate ASC)
-TO :output_file (FORMAT 'parquet')
+TO ':output_dir/Post.parquet' (FORMAT 'parquet')
 
 COPY (SELECT deletionDate, creationDate as dependentDate, id
         FROM Person
@@ -21,7 +21,7 @@ COPY (SELECT deletionDate, creationDate as dependentDate, id
         AND deletionDate < :end_date_long
         AND explicitlyDeleted = true
         ORDER BY deletionDate ASC)
-TO :output_file (FORMAT 'parquet')
+TO ':output_dir/Person.parquet' (FORMAT 'parquet')
 
 COPY (SELECT deletionDate, creationDate as dependentDate, id
         FROM Forum
@@ -29,7 +29,7 @@ COPY (SELECT deletionDate, creationDate as dependentDate, id
         AND deletionDate < :end_date_long
         AND explicitlyDeleted = true
         ORDER BY deletionDate ASC)
-TO ':output_file' (FORMAT 'parquet')
+TO ':output_dir/Forum.parquet' (FORMAT 'parquet')
 
 COPY (
     SELECT  Person_likes_Comment.deletionDate,
@@ -44,7 +44,7 @@ COPY (
        AND Person_likes_Comment.CommentId = Comment.id
      ORDER BY Person_likes_Comment.deletionDate ASC
     )
-TO ':output_file' (FORMAT 'parquet');
+TO ':output_dir/Person_likes_Comment.parquet' (FORMAT 'parquet');
 
 COPY (
     SELECT  Person_likes_Post.deletionDate,
@@ -59,7 +59,7 @@ COPY (
        AND Person_likes_Post.PostId = Post.id
      ORDER BY Person_likes_Post.deletionDate ASC
     )
-TO ':output_file' (FORMAT 'parquet');
+TO ':output_dir/Person_likes_Post.parquet' (FORMAT 'parquet');
 
 COPY (
     SELECT  Person_knows_Person.deletionDate,
@@ -74,7 +74,7 @@ COPY (
         AND Person_knows_Person.Person2Id = Person2.id
       ORDER BY Person_knows_Person.deletionDate ASC
 )
-TO ':output_file' (FORMAT 'parquet');
+TO ':output_dir/Person_knows_Person.parquet' (FORMAT 'parquet');
 
 COPY (
     SELECT  Forum_hasMember_Person.deletionDate,
@@ -89,7 +89,7 @@ COPY (
         AND Forum_hasMember_Person.ForumId = Forum.id
       ORDER BY Forum_hasMember_Person.deletionDate ASC
 )
-TO ':output_file' (FORMAT 'parquet');
+TO ':output_dir/Forum_hasMember_Person.parquet' (FORMAT 'parquet');
 
 -- Inserts
 
