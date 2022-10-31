@@ -37,11 +37,25 @@ class UpdateStreamCreator:
         Path(self.database_name).unlink(missing_ok=True) # Remove original file
         self.cursor = duckdb.connect(database=self.database_name)
 
+    def check_person_tag_table(self):
+        """
+        Checks whether Person_hasInterest_Tag uses TagId or hasInterest
+        """
+        try:
+            self.cursor.execute("SELECT TagId FROM Person_hasInterest_Tag LIMIT 1").fetchone()
+            tag_id_column = "TagId"
+        except Exception:
+            # Assuming hasInterest
+            tag_id_column = "hasInterest"
+        return tag_id_column
+
     def execute(self):
 
         print(f"===== Create Update Streams =====")
         Path(f"{self.output_dir}/inserts").mkdir(parents=True, exist_ok=True)
         Path(f"{self.output_dir}/deletes").mkdir(parents=True, exist_ok=True)
+
+        tag_id_column = "TagId"
 
         # Get folders
         for folder in glob.glob(f"{self.raw_parquet_dir}/composite-merged-fk/**/*"):
@@ -49,11 +63,14 @@ class UpdateStreamCreator:
                 entity = folder.split('/')[-1]
                 self.cursor.execute(f"CREATE OR REPLACE VIEW {entity} AS SELECT * FROM read_parquet('{folder}/*.parquet');")
                 print(f"VIEW FOR {entity} CREATED")
+                if entity == "Person_hasInterest_Tag":
+                    tag_id_column = self.check_person_tag_table()
 
         start_date_long = self.start_date.timestamp() * 1000
 
         with open("dependant_time_queries.sql", "r") as f:
             queries_file = f.read()
+            queries_file = queries_file.replace(':tag_column_name', str(tag_id_column))
             queries_file = queries_file.replace(':start_date_long', str(start_date_long))
             queries_file = queries_file.replace(':output_dir', self.output_dir)
 
