@@ -130,7 +130,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--raw_parquet_dir',
-        help="raw_parquet_dir: directory containing the data e.g. '/data/out-sf1'",
+        help="raw_parquet_dir: directory containing the data e.g. 'graphs/parquet/raw/'",
         type=str,
         required=True
     )
