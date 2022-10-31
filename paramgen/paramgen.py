@@ -162,7 +162,7 @@ def main(factor_tables_dir, raw_parquet_dir, start_date, end_date, time_bucket_s
     parquet_output_dir = f"{relative_factor_path}/people4Hops/curated_paths.parquet"
 
     print("============ Generate People 4 Hops ============")
-    path_curation = PathCuration(raw_parquet_dir + 'graphs/parquet/raw/composite-merged-fk/', factor_tables_dir[:-2])
+    path_curation = PathCuration(raw_parquet_dir + 'composite-merged-fk/', factor_tables_dir[:-2])
     path_curation.get_people_4_hops_paths('2012-11-28', '2013-01-01', 1, parquet_output_dir)
 
     files = glob.glob('scratch/factors/people4Hops/*')
