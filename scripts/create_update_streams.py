@@ -51,7 +51,7 @@ class UpdateStreamCreator:
 
         start_date_long = self.start_date.timestamp() * 1000
 
-        with open("scripts/dependant_time_queries.sql", "r") as f:
+        with open("dependant_time_queries.sql", "r") as f:
             queries_file = f.read()
             queries_file = queries_file.replace(':start_date_long', str(start_date_long))
             queries_file = queries_file.replace(':output_dir', self.output_dir)
@@ -86,7 +86,7 @@ class UpdateStreamCreator:
         end_date = self.end_date.timestamp()
         index = 0
         print(start_date)
-        with open("scripts/dependant_time_queries_large.sql", "r") as f:
+        with open("dependant_time_queries_large.sql", "r") as f:
             queries_file = f.read()
             queries_file = queries_file.replace(':output_dir', self.output_dir)
             queries = queries_file.split(';\n') # split on semicolon-newline sequences
