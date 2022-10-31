@@ -49,21 +49,21 @@ class PathCuration():
         person_path = str(Path(self.data_path).absolute()) + person_parquets
         self.cursor.execute(
             f"""
-            CREATE VIEW person AS 
+            CREATE VIEW person AS
             SELECT * FROM read_parquet('{person_path}');
             """
         )
         knows_path = str(Path(self.data_path).absolute()) + knows_parquets
         self.cursor.execute(
             f"""
-            CREATE VIEW knows AS 
+            CREATE VIEW knows AS
             SELECT * FROM read_parquet('{knows_path}');
             """
         )
         people_4_hops_path = str(Path(self.factor_table_path).absolute()) + people4hops_parquets
         self.cursor.execute(
             f"""
-            CREATE VIEW people4Hops AS 
+            CREATE VIEW people4Hops AS
             SELECT * FROM read_parquet('{people_4_hops_path}');
             """
         )

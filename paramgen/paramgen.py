@@ -89,7 +89,7 @@ def create_views_of_factor_tables(cursor, factor_tables_path):
             cursor.execute(f"DROP VIEW IF EXISTS {path_dir.name}")
             cursor.execute(
                 f"""
-                CREATE VIEW {path_dir.name} AS 
+                CREATE VIEW {path_dir.name} AS
                 SELECT * FROM read_parquet('{str(Path(directory).absolute()) + "/*.parquet"}');
                 """
             )
