@@ -127,20 +127,20 @@ class UpdateStreamCreator:
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument(
-    #     '--raw_parquet_dir',
-    #     help="raw_parquet_dir: directory containing the data e.g. '/data/out-sf1'",
-    #     type=str,
-    #     required=True
-    # )
-    # parser.add_argument(
-    #     '--output_dir',
-    #     help="output_dir: folder to output the data",
-    #     type=str,
-    #     required=True
-    # )
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--raw_parquet_dir',
+        help="raw_parquet_dir: directory containing the data e.g. '/data/out-sf1'",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        '--output_dir',
+        help="output_dir: folder to output the data",
+        type=str,
+        required=True
+    )
+    args = parser.parse_args()
 
     # Determine date boundaries
     start_date = datetime(year=2010, month=1, day=1, hour=0, minute=0, second=0, tzinfo=ZoneInfo('GMT')).timestamp()
@@ -148,12 +148,9 @@ if __name__ == "__main__":
     bulk_load_portion = 0.97
 
     threshold = datetime.fromtimestamp(end_date.timestamp() - ((end_date.timestamp() - start_date) * (1 - bulk_load_portion)), tz=ZoneInfo('GMT'))
-    raw_parquet_dir = "/home/gladap/repos/ldbc-data/spark/ldbc_snb_interactive_sf1/initial-snapshot/graphs/parquet/raw/"
-    output_dir = "/home/gladap/repos/ldbc-data/spark/ldbc_snb_interactive_sf1/"
 
     start = time.time()
-    USC = UpdateStreamCreator(raw_parquet_dir, output_dir, threshold, end_date)
-    # USC = UpdateStreamCreator(args.raw_parquet_dir, args.output_dir, threshold, end_date)
+    USC = UpdateStreamCreator(args.raw_parquet_dir, args.output_dir, threshold, end_date)
     USC.execute()
     end = time.time()
     duration = end - start
