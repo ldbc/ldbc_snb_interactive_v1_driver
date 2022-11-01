@@ -89,7 +89,7 @@ def create_views_of_factor_tables(cursor, factor_tables_path):
             cursor.execute(f"DROP VIEW IF EXISTS {path_dir.name}")
             cursor.execute(
                 f"""
-                CREATE VIEW {path_dir.name} AS 
+                CREATE VIEW {path_dir.name} AS
                 SELECT * FROM read_parquet('{str(Path(directory).absolute()) + "/*.parquet"}');
                 """
             )
@@ -168,6 +168,7 @@ def main(factor_tables_dir, raw_parquet_dir, start_date, end_date, time_bucket_s
 
     print("============ Generate People 4 Hops ============")
     path_curation = PathCuration(raw_parquet_dir, factor_tables_dir[:-2])
+
     path_curation.get_people_4_hops_paths('2012-11-28', '2013-01-01', 1, parquet_output_dir)
 
     files = glob.glob('scratch/factors/people4Hops/*')

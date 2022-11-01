@@ -50,6 +50,7 @@ The paramgen implements [parameter curation](https://research.vu.nl/en/publicati
 
     ```bash
     paramgen/get-sample-factors.sh
+    . scripts/use-sample-factors.sh
     ```
 
 1. To run the parameter generator, issue:
