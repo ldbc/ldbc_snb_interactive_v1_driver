@@ -40,13 +40,13 @@ class UpdateStreamCreator:
 
     def check_person_tag_table(self):
         """
-        Checks whether Person_hasInterest_Tag uses TagId or hasInterest
+        Checks whether Person_hasInterest_Tag uses TagId or interestId
         """
         df = self.cursor.execute("SELECT * FROM Person_hasInterest_Tag LIMIT 1").fetch_df()
         if "TagId" in df.columns:
             return "TagId"
-        elif "hasInterest" in df.columns:
-            return "hasInterest"
+        elif "interestId" in df.columns:
+            return "interestId"
         else:
             raise ValueError(f"Person_hasInterest_Tag has unknown id column. {df.columns}")
 
