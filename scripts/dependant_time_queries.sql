@@ -103,7 +103,7 @@ COPY (
         Person.LocationCityId,
         Person.language,
         Person.email,
-        string_agg(DISTINCT Person_hasInterest_Tag.TagId, ';') AS tagIds,
+        string_agg(DISTINCT Person_hasInterest_Tag.:tag_column_name, ';') AS tagIds,
         string_agg(DISTINCT Person_studyAt_University.UniversityId || ',' || Person_studyAt_University.classYear, ';') AS studyAt,
         string_agg(DISTINCT Person_workAt_Company.CompanyId || ',' || Person_workAt_Company.workFrom, ';') AS workAt
     FROM Person

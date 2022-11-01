@@ -38,8 +38,8 @@ class PathCuration():
         Creates views over the parquet files used for path curation.
         """
 
-        person_parquets = "/dynamic/Person/*.parquet"
-        knows_parquets = "/dynamic/Person_knows_Person/*.parquet"
+        person_parquets = "/graphs/parquet/raw/composite-merged-fk/dynamic/Person/*.parquet"
+        knows_parquets = "/graphs/parquet/raw/composite-merged-fk/dynamic/Person_knows_Person/*.parquet"
 
         people4hops_parquets = "/people4Hops/*.parquet"
 
