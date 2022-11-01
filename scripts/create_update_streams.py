@@ -72,7 +72,7 @@ class UpdateStreamCreator:
         with open("dependant_time_queries.sql", "r") as f:
             queries_file = f.read()
             queries_file = queries_file.replace(':tag_column_name', str(tag_id_column))
-            queries_file = queries_file.replace(':start_date_long', str(start_date_long))
+            queries_file = queries_file.replace(':start_date_long', str(int(start_date_long)))
             queries_file = queries_file.replace(':output_dir', self.output_dir)
 
             # strip comments
