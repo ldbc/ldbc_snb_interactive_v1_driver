@@ -5,6 +5,7 @@ DESC: Creates the update streams for LDBC SNB Interactive using the raw parquet 
 """
 import argparse
 import glob
+import pandas as pd
 from pathlib import Path
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -41,13 +42,13 @@ class UpdateStreamCreator:
         """
         Checks whether Person_hasInterest_Tag uses TagId or hasInterest
         """
-        try:
-            self.cursor.execute("SELECT TagId FROM Person_hasInterest_Tag LIMIT 1").fetchone()
-            tag_id_column = "TagId"
-        except Exception:
-            # Assuming hasInterest
-            tag_id_column = "hasInterest"
-        return tag_id_column
+        df = self.cursor.execute("SELECT * FROM Person_hasInterest_Tag LIMIT 1").fetch_df()
+        if "TagId" in df.columns:
+            return "TagId"
+        elif "hasInterest" in df.columns:
+            return "hasInterest"
+        else:
+            raise ValueError(f"Person_hasInterest_Tag has unknown id column. {df.columns}")
 
     def execute(self):
 
