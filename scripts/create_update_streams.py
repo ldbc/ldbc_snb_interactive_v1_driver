@@ -138,17 +138,26 @@ class UpdateStreamCreator:
 
                     index = index + 1
 
-            for entity in ["Post", "Comment"]:
+            for entity in ["Post", "Comment", "Forum_hasMember_Person"]:
                 self.cursor.execute(f"""
                     COPY(
                         SELECT * FROM read_parquet('{self.output_dir}/inserts/{entity}-*.parquet') ORDER BY creationDate
                     ) TO '{self.output_dir}/inserts/{entity}.parquet' (FORMAT 'parquet');
                     """
                 )
-
                 for temp_file in glob.glob(f"{self.output_dir}/inserts/{entity}-*.parquet"):
                     Path(temp_file).unlink()
 
+            entity = "Forum_hasMember_Person"
+            # Case for deletes:
+            self.cursor.execute(f"""
+                COPY(
+                    SELECT * FROM read_parquet('{self.output_dir}/deletes/{entity}-*.parquet') ORDER BY deletionDate
+                ) TO '{self.output_dir}/deletes/{entity}.parquet' (FORMAT 'parquet');
+                """
+            )
+            for temp_file in glob.glob(f"{self.output_dir}/deletes/{entity}-*.parquet"):
+                Path(temp_file).unlink()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
