@@ -96,7 +96,7 @@ public class UpdateEventStreamReader implements Iterator<Operation>
                 String firstName = rs.getString(4);
                 String lastName = rs.getString(5);
                 String gender = rs.getString(6);
-                long birthdayAsMilli = rs.getDate(7).getTime();
+                long birthdayAsMilli = rs.getLong(7);
                 Date birthday = new Date(birthdayAsMilli);
                 Date creationDate = new Date(scheduledStartTimeAsMilli);
                 String locationIp = rs.getString(8);
