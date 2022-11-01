@@ -138,7 +138,7 @@ class UpdateStreamCreator:
 
                     index = index + 1
 
-            for entity in ["Post", "Comment", "Forum_hasMember_Person"]:
+            for entity in ["Forum_hasMember_Person", "Comment", "Post", "Person_likes_Comment", "Person_likes_Post"]:
                 self.cursor.execute(f"""
                     COPY(
                         SELECT * FROM read_parquet('{self.output_dir}/inserts/{entity}-*.parquet') ORDER BY creationDate
