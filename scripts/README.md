@@ -2,7 +2,7 @@
 
 The LDBC SNB Interactive 2.0 workloads uses the [SNB Spark Datagen](https://github.com/ldbc/ldbc_snb_datagen_spark) for generating data sets. Namely, it uses the `bi` mode of the Datagen, then uses DuckDB SQL queries (through a Python script) to convert their insert/delete streams into the formats required by the Interactive 2.0 driver.
 
-The script in this directory merges the daily batches produced by the `bi` mode into a single file, sort the rows by `creationDate` and pre-join edges with a many-to-many cardinality (e.g. insertin a `Person` node has a list of `tagIds` and `workAt` edges).
+The script in this directory uses the raw parquet files produced by the `bi` mode, sort the rows by `creationDate` and pre-join edges with a many-to-many cardinality (e.g. insertin a `Person` node has a list of `tagIds` and `workAt` edges).
 
 ## Prerequisites
 
