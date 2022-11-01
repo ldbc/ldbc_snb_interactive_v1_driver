@@ -73,20 +73,6 @@ COPY (
 )
 TO ':output_dir/deletes/Person_knows_Person.parquet' (FORMAT 'parquet');
 
-COPY (
-    SELECT  Forum_hasMember_Person.deletionDate,
-            GREATEST(Person.creationDate, Forum.creationDate) as dependentDate,
-            Forum_hasMember_Person.ForumId,
-            Forum_hasMember_Person.PersonId
-       FROM Person, Forum_hasMember_Person, Forum
-      WHERE Forum_hasMember_Person.deletionDate > :start_date_long
-        AND Forum_hasMember_Person.explicitlyDeleted = true
-        AND Forum_hasMember_Person.PersonId = Person.id
-        AND Forum_hasMember_Person.ForumId = Forum.id
-      ORDER BY Forum_hasMember_Person.deletionDate ASC
-)
-TO ':output_dir/deletes/Forum_hasMember_Person.parquet' (FORMAT 'parquet');
-
 -- Inserts
 
 COPY (
@@ -174,16 +160,3 @@ COPY (
      ORDER BY Person_likes_Comment.creationDate ASC
     )
 TO ':output_dir/inserts/Person_likes_Comment.parquet' (FORMAT 'parquet');
-
-COPY (
-    SELECT  Forum_hasMember_Person.creationDate,
-            GREATEST(Person.creationDate, Forum.creationDate) AS dependentDate,
-            Forum_hasMember_Person.PersonId,
-            Forum_hasMember_Person.ForumId
-      FROM Person, Forum_hasMember_Person, Forum
-     WHERE Forum_hasMember_Person.creationDate > :start_date_long
-       AND Forum_hasMember_Person.PersonId = Person.id
-       AND Forum_hasMember_Person.ForumId = Forum.id
-     ORDER BY Forum_hasMember_Person.creationDate ASC
-    )
-TO ':output_dir/inserts/Forum_hasMember_Person.parquet' (FORMAT 'parquet');

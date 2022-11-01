@@ -86,3 +86,39 @@ COPY (
     ORDER BY po.creationDate
 )
 TO ':output_dir/inserts/Post-:index.parquet' (FORMAT 'parquet');
+
+COPY (
+    SELECT  fp.deletionDate,
+            GREATEST(Person.creationDate, Forum.creationDate) as dependentDate,
+            fp.ForumId,
+            fp.PersonId
+       FROM Person, Forum, (
+        SELECT *
+          FROM Forum_hasMember_Person
+         WHERE Forum_hasMember_Person.deletionDate > :start_date_long
+           AND Forum_hasMember_Person.deletionDate < :end_date_long
+    ) fp
+      WHERE fp.explicitlyDeleted = true
+        AND fp.PersonId = Person.id
+        AND fp.ForumId = Forum.id
+      ORDER BY fp.deletionDate ASC
+)
+TO ':output_dir/deletes/Forum_hasMember_Person-:index.parquet' (FORMAT 'parquet');
+
+COPY (
+    SELECT  fp.creationDate,
+            GREATEST(Person.creationDate, Forum.creationDate) as dependentDate,
+            fp.ForumId,
+            fp.PersonId
+       FROM Person, Forum, (
+        SELECT *
+          FROM Forum_hasMember_Person
+         WHERE Forum_hasMember_Person.creationDate > :start_date_long
+           AND Forum_hasMember_Person.creationDate < :end_date_long
+    ) fp
+      WHERE fp.explicitlyDeleted = true
+        AND fp.PersonId = Person.id
+        AND fp.ForumId = Forum.id
+      ORDER BY fp.creationDate ASC
+)
+TO ':output_dir/inserts/Forum_hasMember_Person-:index.parquet' (FORMAT 'parquet');
