@@ -5,6 +5,7 @@ DESC: Creates the update streams for LDBC SNB Interactive using the raw parquet 
 """
 import argparse
 import glob
+from multiprocessing.sharedctypes import Value
 import pandas as pd
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -174,6 +175,13 @@ if __name__ == "__main__":
     bulk_load_portion = 0.97
 
     threshold = datetime.fromtimestamp(end_date.timestamp() - ((end_date.timestamp() - start_date) * (1 - bulk_load_portion)), tz=ZoneInfo('GMT'))
+
+    if ("graphs/parquet/raw" not in args.raw_parquet_dir):
+        raise ValueError(f"raw_parquet_dir should contain graphs/parquet/raw/. Got: {args.raw_parquet_dir}")
+
+    directory = Path(args.raw_parquet_dir)
+    if not directory.exists ():
+        raise ValueError(f"raw_parquet_dir does not exist. Got: {args.raw_parquet_dir}")
 
     start = time.time()
     USC = UpdateStreamCreator(args.raw_parquet_dir, args.output_dir, threshold, end_date, args.batch_size_in_days)
