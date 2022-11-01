@@ -176,9 +176,6 @@ if __name__ == "__main__":
 
     threshold = datetime.fromtimestamp(end_date.timestamp() - ((end_date.timestamp() - start_date) * (1 - bulk_load_portion)), tz=ZoneInfo('GMT'))
 
-    if ("graphs/parquet/raw" not in args.raw_parquet_dir):
-        raise ValueError(f"raw_parquet_dir should contain graphs/parquet/raw/. Got: {args.raw_parquet_dir}")
-
     directory = Path(args.raw_parquet_dir)
     if not directory.exists ():
         raise ValueError(f"raw_parquet_dir does not exist. Got: {args.raw_parquet_dir}")
