@@ -59,6 +59,10 @@ class UpdateStreamCreator:
 
         tag_id_column = "TagId"
 
+        directory = Path(f"{self.raw_parquet_dir}/composite-merged-fk")
+        if not directory.exists ():
+            raise ValueError(f"Provided directory does not contain expected composite-merged-fk folder. Got: {self.raw_parquet_dir}")
+
         # Get folders
         for folder in glob.glob(f"{self.raw_parquet_dir}/composite-merged-fk/**/*"):
             if (os.path.isdir(folder)):
