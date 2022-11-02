@@ -127,6 +127,8 @@ TO ':output_dir/inserts/Forum.parquet' (FORMAT 'parquet');
 COPY (
     SELECT Person_knows_Person.creationDate,
            GREATEST(Person1.creationDate, Person2.creationDate) AS dependentDate,
+           Person_knows_Person.Person1Id,
+           Person_knows_Person.Person2Id
       FROM Person Person1, Person Person2, Person_knows_Person
      WHERE Person_knows_Person.creationDate > :start_date_long
        AND Person_knows_Person.Person1Id = Person1.id
