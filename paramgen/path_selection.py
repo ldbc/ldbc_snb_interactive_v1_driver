@@ -1,4 +1,5 @@
 import duckdb
+import argparse
 from pathlib import Path
 from datetime import timedelta, datetime
 import time
@@ -317,7 +318,7 @@ class PathCuration():
                         paths.append(
                             {
                                 "person1Id" : self.node_map_inverted[node_a],
-                                "person2id" : self.node_map_inverted[node_b],
+                                "person2Id" : self.node_map_inverted[node_b],
                                 "useFrom" : date_limit + timedelta(days=1),
                                 "useUntil" : date_limit_end + timedelta(days=1)
                             }
@@ -340,7 +341,7 @@ class PathCuration():
         start_date:str,
         end_date:str,
         time_bucket_size_in_days:int,
-        parquet_output_dir:str
+        parquet_output_dir:str=None,
     ):
         """
         Entry point function of the PathCuration class.
@@ -349,13 +350,50 @@ class PathCuration():
             - start_date (str): Start date of the parameter curation, e.g. 28-11-2022
             - end_date   (str): End date of the parameter curation, e.g. 31-1-2022
             - time_bucket_size_in_days (int): The amount of days in a bucket, e.g. 1
-            - parquet_output_dir (str): Path to store the parquet file, e.g. scratch/factors/path_curated.parquet
+            - parquet_output_dir (str, optional): Path to store the parquet file, e.g. scratch/factors/path_curated.parquet
         Returns:
+            Dataframe with curated paths
         """
         list_of_paths = self.run(start_date, end_date, time_bucket_size_in_days)
 
         df = pd.DataFrame(list_of_paths)
-        df = df.groupby(['person1Id', 'person2id']).agg({'useFrom': ['min'], 'useUntil': ['max']}).reset_index()
-        df.columns = df.columns.get_level_values(0)
-        self.cursor.execute("CREATE TABLE paths_curated AS SELECT * FROM df")
-        self.cursor.execute(f"COPY paths_curated TO '{parquet_output_dir}' WITH (FORMAT PARQUET);")
+        df = df.sort_values(['person1Id','person2Id'])
+        day_diff = (df['useFrom'] - df['useUntil'].groupby([df['person1Id'], df['person2Id']]).shift()).dt.days
+        group_no = (day_diff.isna() | day_diff.gt(1)).cumsum()
+        df_out = (df.groupby(['person1Id','person2Id', group_no], dropna=False, as_index=False)
+            .agg({'person1Id': 'first',
+                  'person2Id': 'first',
+                  'useFrom': 'first',
+                  'useUntil': lambda x: x.iloc[-1],
+                }))
+
+        if (parquet_output_dir):
+            self.cursor.execute("CREATE TABLE paths_curated AS SELECT * FROM df_out")
+            self.cursor.execute(f"COPY (SELECT * FROM paths_curated ORDER BY UseFrom ASC) TO '{parquet_output_dir}' WITH (FORMAT PARQUET);")
+
+        return df_out
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--raw_parquet_dir',
+        help="raw_parquet_dir: directory containing the data e.g. 'graphs/parquet/raw/'",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        '--factor_tables_dir',
+        help="factor_tables_dir: directory containing the factor tables e.g. '/data/out-sf1'",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        '--output_dir',
+        help="output_dir: folder to output the data",
+        type=str,
+        required=True
+    )
+    args = parser.parse_args()
+
+    path_curation = PathCuration(args.raw_parquet_dir, args.factor_tables_dir)
+    path_curation.get_people_4_hops_paths('2012-11-28', '2013-01-01', 1, args.output_dir)
