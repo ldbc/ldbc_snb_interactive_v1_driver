@@ -57,8 +57,8 @@ def generate_parameter_for_query_type(cursor, date_limit, date_start, create_tab
     date_start_long = date_start.timestamp() * 1000
     with open(f"paramgen-queries/pg-{query_variant}.sql", "r") as parameter_query_file:
         parameter_query = parameter_query_file.read().replace(':date_limit_filter', f'\'{date_limit_string}\'')
-        parameter_query = parameter_query.replace(':date_limit_long', str(date_limit_long))
-        parameter_query = parameter_query.replace(':date_start_long', str(date_start_long))
+        parameter_query = parameter_query.replace(':date_limit_long', str(int(date_limit_long)))
+        parameter_query = parameter_query.replace(':date_start_long', str(int(date_start_long)))
         if create_tables:
             cursor.execute(f"CREATE TABLE 'Q_{query_variant}' AS SELECT * FROM ({parameter_query});")
         cursor.execute(f"INSERT INTO 'Q_{query_variant}' SELECT * FROM ({parameter_query});")
