@@ -3,14 +3,6 @@ package org.ldbcouncil.snb.driver.workloads.interactive;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -503,8 +495,8 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId1 = rs.getLong(1);
                 long personId2 = rs.getLong(2);
-                long dependencyTimeStamp = rs.getLong(3);
-                long expiryTimeStamp = rs.getLong(4);
+                long dependencyTimeStamp = convertStringToLong(rs.getString(3));
+                long expiryTimeStamp = convertStringToLong(rs.getString(4));
                 Operation query = new LdbcQuery13a(
                     personId1,
                     personId2
@@ -563,8 +555,8 @@ public class QueryEventStreamReader implements Iterator<Operation>{
             {
                 long personId1 = rs.getLong(1);
                 long personId2 = rs.getLong(2);
-                long dependencyTimeStamp = rs.getLong(3);
-                long expiryTimeStamp = rs.getLong(4);
+                long dependencyTimeStamp = convertStringToLong(rs.getString(3));
+                long expiryTimeStamp = convertStringToLong(rs.getString(4));
                 Operation query = new LdbcQuery14a(
                     personId1,
                     personId2
