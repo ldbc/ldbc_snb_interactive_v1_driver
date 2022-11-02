@@ -1,4 +1,5 @@
 import duckdb
+import argparse
 from pathlib import Path
 from datetime import timedelta, datetime
 import time
@@ -358,4 +359,29 @@ class PathCuration():
         df = df.groupby(['person1Id', 'person2id']).agg({'useFrom': ['min'], 'useUntil': ['max']}).reset_index()
         df.columns = df.columns.get_level_values(0)
         self.cursor.execute("CREATE TABLE paths_curated AS SELECT * FROM df")
-        self.cursor.execute(f"COPY paths_curated TO '{parquet_output_dir}' WITH (FORMAT PARQUET);")
+        self.cursor.execute(f"COPY (SELECT * FROM paths_curated ORDER BY UseFrom ASC) TO '{parquet_output_dir}' WITH (FORMAT PARQUET);")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--raw_parquet_dir',
+        help="raw_parquet_dir: directory containing the data e.g. 'graphs/parquet/raw/'",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        '--factor_tables_dir',
+        help="factor_tables_dir: directory containing the factor tables e.g. '/data/out-sf1'",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        '--output_dir',
+        help="output_dir: folder to output the data",
+        type=str,
+        required=True
+    )
+    args = parser.parse_args()
+
+    path_curation = PathCuration(args.raw_parquet_dir, args.factor_tables_dir)
+    path_curation.get_people_4_hops_paths('2012-11-28', '2013-01-01', 1, args.output_dir)
