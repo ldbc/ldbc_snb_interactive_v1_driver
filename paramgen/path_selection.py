@@ -7,6 +7,7 @@ import itertools
 import networkit as nk
 from networkit.dynamics import GraphEvent
 import pandas as pd
+import numpy as np
 
 class PathCuration():
     """
@@ -367,8 +368,22 @@ class PathCuration():
                   'useUntil': lambda x: x.iloc[-1],
                 }))
 
+        df_out['useFrom'] = df_out['useFrom'].astype(np.int64) // 10**6
+        df_out['useUntil'] = df_out['useUntil'].astype(np.int64) // 10**6
+
+        df_out['useFrom'] = pd.to_datetime(df_out['useFrom'])
+        df_out['useUntil'] = pd.to_datetime(df_out['useUntil'])
+
         if (parquet_output_dir):
-            self.cursor.execute("CREATE TABLE paths_curated AS SELECT * FROM df_out")
+            self.cursor.execute("""
+            CREATE TABLE paths_curated (
+                person1Id bigint,
+                person2Id bigint,
+                useFrom timestamp,
+                useUntil timestamp
+            );
+            """)
+            self.cursor.execute("INSERT INTO paths_curated SELECT * FROM df_out")
             self.cursor.execute(f"COPY (SELECT * FROM paths_curated ORDER BY UseFrom ASC) TO '{parquet_output_dir}' WITH (FORMAT PARQUET);")
 
         return df_out
