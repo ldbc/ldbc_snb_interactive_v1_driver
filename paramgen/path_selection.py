@@ -156,6 +156,15 @@ class PathCuration():
         Returns:
             tuple (amount of delete events, list of GraphEvent objects)
         """
+        print("SQL query matches the following number of tuples for deletion:")
+        print(self.cursor.execute(
+            f"""
+            SELECT count(*) FROM knows
+            WHERE explicitlyDeleted = true
+              AND deletionDate > {start_date_long}
+              AND deletionDate < {end_date_long};
+            """
+        ).fetchone())
         edges_deleted = self.cursor.execute(
             f"""
             SELECT Person1Id, Person2Id FROM knows
