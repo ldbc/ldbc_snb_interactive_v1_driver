@@ -18,10 +18,10 @@ FROM
         LIMIT 100
     ) component2,
     (
-        SELECT :date_limit_long AS useUntil
+        SELECT epoch_ms(:date_limit_long) AS useUntil
     ),
     (
-        SELECT :date_start_long as useFrom
+        SELECT epoch_ms(:date_start_long) as useFrom
     )
 WHERE component1.Component != component2.Component
 ORDER BY md5(concat(component1.PersonId, component2.PersonId))
