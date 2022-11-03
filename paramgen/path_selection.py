@@ -156,15 +156,6 @@ class PathCuration():
         Returns:
             tuple (amount of delete events, list of GraphEvent objects)
         """
-        print("SQL query matches the following number of tuples for deletion:")
-        print(self.cursor.execute(
-            f"""
-            SELECT count(*) FROM knows
-            WHERE explicitlyDeleted = true
-              AND deletionDate > {start_date_long}
-              AND deletionDate < {end_date_long};
-            """
-        ).fetchone())
         edges_deleted = self.cursor.execute(
             f"""
             SELECT Person1Id, Person2Id FROM knows
@@ -217,15 +208,6 @@ class PathCuration():
         updater.update(delete_events)
         print("------------ Graph Updated (init) ------------")
 
-        print({
-            "start_date"    : start_date,
-            "end_date"      : end_date,
-            "nodes_added"   : total_nodes,
-            "nodes_removed" : nodes_removed,
-            "edges_added"   : edges_added,
-            "edges_removed" : edges_removed
-        })
-
         return {
             "start_date"    : start_date,
             "end_date"      : end_date,
@@ -247,8 +229,6 @@ class PathCuration():
 
         start_date_long = start_date.timestamp() * 1000
         end_date_long = end_date.timestamp() * 1000
-        print(f"start_date_long: {start_date_long}")
-        print(f"end_date_long: {end_date_long}")
 
         print("------------ Deleting Nodes ------------")
         nodes_removed, delete_events = self.remove_nodes(start_date_long, end_date_long)
