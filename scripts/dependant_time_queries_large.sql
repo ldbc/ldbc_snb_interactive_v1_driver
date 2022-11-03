@@ -31,22 +31,17 @@ COPY (
         c1.LocationCountryId,
         c1.ParentPostId,
         c1.ParentCommentId,
-        string_agg(DISTINCT ct.TagId, ';') AS tagIds
+        string_agg(DISTINCT Comment_hasTag_Tag.TagId, ';') AS tagIds
     FROM Comment c2, Person, (
         SELECT *
           FROM Comment
          WHERE Comment.creationDate > :start_date_long
            AND Comment.creationDate < :end_date_long
-    ) c1,
-    (
-        SELECT *
-          FROM Comment_hasTag_Tag
-         WHERE Comment_hasTag_Tag.creationDate > :start_date_long
-           AND Comment_hasTag_Tag.creationDate < :end_date_long
-    ) ct
+    ) c1
+    LEFT JOIN Comment_hasTag_Tag
+           ON Comment_hasTag_Tag.CommentId = c1.id
     WHERE c1.ParentPostId IS NULL AND c2.id = c1.ParentCommentId
       AND c1.CreatorPersonId = Person.id
-      AND ct.CommentId = c1.id
     GROUP BY ALL
     ORDER BY c1.creationDate
 )
@@ -65,22 +60,17 @@ COPY (
         c1.LocationCountryId,
         c1.ParentPostId,
         c1.ParentCommentId,
-        string_agg(DISTINCT ct.TagId, ';') AS tagIds
+        string_agg(DISTINCT Comment_hasTag_Tag.TagId, ';') AS tagIds
     FROM Post, Person, (
         SELECT *
           FROM Comment
          WHERE Comment.creationDate > :start_date_long
            AND Comment.creationDate < :end_date_long
-    ) c1,
-    (
-        SELECT *
-          FROM Comment_hasTag_Tag
-         WHERE Comment_hasTag_Tag.creationDate > :start_date_long
-           AND Comment_hasTag_Tag.creationDate < :end_date_long
-    ) ct
+    ) c1
+    LEFT JOIN Comment_hasTag_Tag
+           ON Comment_hasTag_Tag.CommentId = c1.id
     WHERE c1.ParentPostId = Post.id AND c1.ParentCommentId IS NULL
       AND c1.CreatorPersonId = Person.id
-      AND ct.CommentId = c1.id
     GROUP BY ALL
     ORDER BY c1.creationDate
 )
@@ -101,22 +91,17 @@ COPY (
         po.CreatorPersonId,
         po.ContainerForumId,
         po.LocationCountryId,
-        string_agg(DISTINCT pt.TagId, ';') AS tagIds
+        string_agg(DISTINCT Post_hasTag_Tag.TagId, ';') AS tagIds
     FROM Forum, Person, (
         SELECT *
           FROM Post
          WHERE Post.creationDate > :start_date_long
            AND Post.creationDate < :end_date_long
-    ) po,
-    (
-        SELECT *
-          FROM Post_hasTag_Tag
-         WHERE Post_hasTag_Tag.creationDate > :start_date_long
-           AND Post_hasTag_Tag.creationDate < :end_date_long
-    ) pt
+    ) po
+    LEFT JOIN Post_hasTag_Tag
+           ON Post_hasTag_Tag.PostId = po.id
     WHERE po.ContainerForumId = Forum.id
       AND po.CreatorPersonId = Person.id
-      AND pt.PostId = po.id
     GROUP BY ALL
     ORDER BY po.creationDate
 )
