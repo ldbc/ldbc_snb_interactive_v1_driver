@@ -1,6 +1,6 @@
 from path_selection import PathCuration
 import duckdb
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 import glob
 import os
 from pathlib import Path
@@ -42,14 +42,13 @@ remove_duplicates = {
     "Q_14a"   : "CREATE TABLE Q_14a_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_14a GROUP BY person1Id, person2Id, useFrom, useUntil;"
 }
 
-def generate_parameter_for_query_type(cursor, date_limit, date_start, create_tables, query_variant):
+def generate_parameter_for_query_type(cursor, date_limit, date_start, query_variant):
     """
     Creates parameter for given query variant.
     Args:
         - cursor (DuckDBPyConnection): cursor to the DuckDB instance
         - date_limit (datetime): The day to filter on. This date will be used to compare creation and deletion dates
         - date_start (datetime): The first day of the inserts. This is used for parameters that do not contain creation and deletion dates
-        - create_tables (boolean): Whether to create tables at first run
         - query_variant (str): number of the query to generate the parameters
     """
     date_limit_string = date_limit.strftime('%Y-%m-%d')
@@ -57,10 +56,8 @@ def generate_parameter_for_query_type(cursor, date_limit, date_start, create_tab
     date_start_long = date_start.timestamp() * 1000
     with open(f"paramgen-queries/pg-{query_variant}.sql", "r") as parameter_query_file:
         parameter_query = parameter_query_file.read().replace(':date_limit_filter', f'\'{date_limit_string}\'')
-        parameter_query = parameter_query.replace(':date_limit_long', str(date_limit_long))
-        parameter_query = parameter_query.replace(':date_start_long', str(date_start_long))
-        if create_tables:
-            cursor.execute(f"CREATE TABLE 'Q_{query_variant}' AS SELECT * FROM ({parameter_query});")
+        parameter_query = parameter_query.replace(':date_limit_long', str(int(date_limit_long)))
+        parameter_query = parameter_query.replace(':date_start_long', str(int(date_start_long)))
         cursor.execute(f"INSERT INTO 'Q_{query_variant}' SELECT * FROM ({parameter_query});")
 
 
@@ -77,6 +74,10 @@ def create_views_of_factor_tables(cursor, factor_tables_path):
             factor_tables_path = factor_tables_path + '/*'
         else:
             factor_tables_path = factor_tables_path + '*'
+    with open("schema.sql") as f:
+        schema_def = f.read()
+        cursor.execute(schema_def)
+
     print("============ Loading the factor tables ============")
     directories = glob.glob(f'{factor_tables_path}')
     if (len(directories) == 0):
@@ -109,13 +110,11 @@ def generate_parameters(cursor, date_limit, date_start, end_date, window_time):
     print("End time of initial_snapshot: " + str(end_date))
     print("Time bucket size: " + str(window_time))
 
-    create_tables = True
     while (date_limit < end_date):
         print("============ Generating parameters ============")
         for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "14a"]:
             print(f"- Q{query_variant}, date {date_limit.strftime('%Y-%m-%d')}")
-            generate_parameter_for_query_type(cursor, date_limit, date_start, create_tables, query_variant)
-        create_tables = False
+            generate_parameter_for_query_type(cursor, date_limit, date_start, query_variant)
         date_limit = date_limit + window_time
 
 
@@ -148,7 +147,7 @@ def generate_short_parameters(cursor, date_start):
     """
     print("============ Generate Short Query Parameters ============")
     for query_variant in ["personId", "messageId"]:
-        generate_parameter_for_query_type(cursor, date_start, date_start, True, query_variant)
+        generate_parameter_for_query_type(cursor, date_start, date_start, query_variant)
         print(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
         cursor.execute(f"COPY 'Q_{query_variant}' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
 
@@ -158,18 +157,16 @@ def main(factor_tables_dir, raw_parquet_dir, start_date, end_date, time_bucket_s
     Path('scratch/paramgen.duckdb').unlink(missing_ok=True)
     cursor = duckdb.connect(database="scratch/paramgen.duckdb")
 
-    date_start = datetime.strptime(start_date, "%Y-%m-%d")
+    date_start = start_date
     date_limit = date_start
     window_time = timedelta(days=time_bucket_size_in_days)
-    end_date = datetime.strptime(end_date, "%Y-%m-%d")
     relative_factor_path = factor_tables_dir[:-2]
     Path(f"{relative_factor_path}/people4Hops").mkdir(parents=True, exist_ok=True)
     parquet_output_dir = f"{relative_factor_path}/people4Hops/curated_paths.parquet"
 
     print("============ Generate People 4 Hops ============")
     path_curation = PathCuration(raw_parquet_dir, factor_tables_dir[:-2])
-
-    path_curation.get_people_4_hops_paths('2012-11-28', '2013-01-01', 1, parquet_output_dir)
+    path_curation.get_people_4_hops_paths(start_date, end_date, 1, parquet_output_dir)
 
     files = glob.glob('scratch/factors/people4Hops/*')
     for f in files:
@@ -178,8 +175,8 @@ def main(factor_tables_dir, raw_parquet_dir, start_date, end_date, time_bucket_s
             os.remove(f)
     create_views_of_factor_tables(cursor, factor_tables_dir)
 
-    generate_parameter_for_query_type(cursor, date_start, date_start, True, "13b")
-    generate_parameter_for_query_type(cursor, date_start, date_start, True, "14b")
+    generate_parameter_for_query_type(cursor, date_start, date_start, "13b")
+    generate_parameter_for_query_type(cursor, date_start, date_start, "14b")
 
     generate_parameters(cursor, date_limit, date_start, end_date, window_time)
     export_parameters(cursor)
@@ -236,4 +233,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    main(args.factor_tables_dir, args.raw_parquet_dir, args.start_date, args.end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)
+    start_date = datetime(year=2012, month=11, day=28, tzinfo=timezone.utc)
+    end_date = datetime(year=2013, month=1, day=1, tzinfo=timezone.utc)
+
+    main(args.factor_tables_dir, args.raw_parquet_dir, start_date, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)

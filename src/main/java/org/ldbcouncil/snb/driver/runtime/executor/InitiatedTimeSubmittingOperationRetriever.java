@@ -16,6 +16,7 @@ class InitiatedTimeSubmittingOperationRetriever
     private final CompletionTimeReader completionTimeReader;
     private Operation nextNonDependencyOperation = null;
     private Operation nextDependencyOperation = null;
+    private boolean isEnabledDependencyOperations = false;
 
     InitiatedTimeSubmittingOperationRetriever(
         WorkloadStreams.WorkloadStreamDefinition streamDefinition,
@@ -25,6 +26,7 @@ class InitiatedTimeSubmittingOperationRetriever
     {
         this.nonDependencyOperations = streamDefinition.nonDependencyOperations();
         this.dependencyOperations = streamDefinition.dependencyOperations();
+        this.isEnabledDependencyOperations = this.dependencyOperations.hasNext();
         this.completionTimeWriter = completionTimeWriter;
         this.completionTimeReader = completionTimeReader;
     }
@@ -51,16 +53,24 @@ class InitiatedTimeSubmittingOperationRetriever
         // but can be dependent on others. Therefore, only read queries are considered here.
         if ( nonDependencyOperations.hasNext() && null == nextNonDependencyOperation )
         {
-            long currentCompletionTime = completionTimeReader.completionTimeAsMilli();
 
             nextNonDependencyOperation = nonDependencyOperations.next();
-            while (nextNonDependencyOperation.dependencyTimeStamp() > currentCompletionTime
-                   && nextNonDependencyOperation.expiryTimeStamp() < currentCompletionTime
-                   && nonDependencyOperations.hasNext() 
-            )
+
+            if (isEnabledDependencyOperations)
             {
-                nextNonDependencyOperation = nonDependencyOperations.next();
+                long currentCompletionTime = completionTimeReader.completionTimeAsMilli();
+
+                while (nonDependencyOperations.hasNext() && currentCompletionTime > 0)
+                {
+                    if (nextNonDependencyOperation.dependencyTimeStamp() < currentCompletionTime && nextNonDependencyOperation.expiryTimeStamp() > currentCompletionTime)
+                    {
+                        break;
+                    }
+                    nextNonDependencyOperation = nonDependencyOperations.next();
+                }
             }
+            // else do nothing and just use the operation since the completion time will not update
+
             // no need to submit initiated time for an operation that should not write to CT
         }
         // return operation with lowest start time

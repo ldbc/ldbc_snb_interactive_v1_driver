@@ -1,11 +1,13 @@
 import duckdb
+import argparse
 from pathlib import Path
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 import time
 import itertools
 import networkit as nk
 from networkit.dynamics import GraphEvent
 import pandas as pd
+import numpy as np
 
 class PathCuration():
     """
@@ -154,6 +156,15 @@ class PathCuration():
         Returns:
             tuple (amount of delete events, list of GraphEvent objects)
         """
+        print("SQL query matches the following number of tuples for deletion:")
+        print(self.cursor.execute(
+            f"""
+            SELECT count(*) FROM knows
+            WHERE explicitlyDeleted = true
+              AND deletionDate > {start_date_long}
+              AND deletionDate < {end_date_long};
+            """
+        ).fetchone())
         edges_deleted = self.cursor.execute(
             f"""
             SELECT Person1Id, Person2Id FROM knows
@@ -206,6 +217,15 @@ class PathCuration():
         updater.update(delete_events)
         print("------------ Graph Updated (init) ------------")
 
+        print({
+            "start_date"    : start_date,
+            "end_date"      : end_date,
+            "nodes_added"   : total_nodes,
+            "nodes_removed" : nodes_removed,
+            "edges_added"   : edges_added,
+            "edges_removed" : edges_removed
+        })
+
         return {
             "start_date"    : start_date,
             "end_date"      : end_date,
@@ -227,6 +247,8 @@ class PathCuration():
 
         start_date_long = start_date.timestamp() * 1000
         end_date_long = end_date.timestamp() * 1000
+        print(f"start_date_long: {start_date_long}")
+        print(f"end_date_long: {end_date_long}")
 
         print("------------ Deleting Nodes ------------")
         nodes_removed, delete_events = self.remove_nodes(start_date_long, end_date_long)
@@ -269,22 +291,20 @@ class PathCuration():
             mapped_pairs.append((self.node_map[node_a], self.node_map[node_b]))
         return mapped_pairs
 
-    def run(self, start_date:str, end_date:str, time_bucket_size_in_days):
+    def run(self, start_date, end_date, time_bucket_size_in_days):
         """
         Checks the people4Hops factor table for available paths in given time
         window.
         Args:
-            - start_date (str): Start date of the parameter curation, e.g. 28-11-2022
-            - end_date   (str): End date of the parameter curation, e.g. 31-1-2022
+            - start_date: Start date of the parameter curation
+            - end_date: End date of the parameter curation
             - time_bucket_size_in_days (int): The amount of days in a bucket, e.g. 1
         Returns:
             List of dicts {person1Id, person2Id, useFrom, useUntil}
         """
         paths = []
         self.create_views()
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-        init_date = datetime(year=1970, month=1, day=1)
+        init_date = datetime(year=1970, month=1, day=1, tzinfo=timezone.utc)
 
         print("------------ Graph Initialization ------------")
         start_init = time.time()
@@ -317,7 +337,7 @@ class PathCuration():
                         paths.append(
                             {
                                 "person1Id" : self.node_map_inverted[node_a],
-                                "person2id" : self.node_map_inverted[node_b],
+                                "person2Id" : self.node_map_inverted[node_b],
                                 "useFrom" : date_limit + timedelta(days=1),
                                 "useUntil" : date_limit_end + timedelta(days=1)
                             }
@@ -337,25 +357,73 @@ class PathCuration():
 
     def get_people_4_hops_paths(
         self,
-        start_date:str,
-        end_date:str,
+        start_date,
+        end_date,
         time_bucket_size_in_days:int,
-        parquet_output_dir:str
+        parquet_output_dir:str=None,
     ):
         """
         Entry point function of the PathCuration class.
         Get valid 4-hop path per day. Outputs the paths to a parquet file.
         Args:
-            - start_date (str): Start date of the parameter curation, e.g. 28-11-2022
-            - end_date   (str): End date of the parameter curation, e.g. 31-1-2022
+            - start_date: Start date of the parameter curation
+            - end_date: End date of the parameter curation
             - time_bucket_size_in_days (int): The amount of days in a bucket, e.g. 1
-            - parquet_output_dir (str): Path to store the parquet file, e.g. scratch/factors/path_curated.parquet
+            - parquet_output_dir (str, optional): Path to store the parquet file, e.g. scratch/factors/path_curated.parquet
         Returns:
+            Dataframe with curated paths
         """
         list_of_paths = self.run(start_date, end_date, time_bucket_size_in_days)
 
         df = pd.DataFrame(list_of_paths)
-        df = df.groupby(['person1Id', 'person2id']).agg({'useFrom': ['min'], 'useUntil': ['max']}).reset_index()
-        df.columns = df.columns.get_level_values(0)
-        self.cursor.execute("CREATE TABLE paths_curated AS SELECT * FROM df")
-        self.cursor.execute(f"COPY paths_curated TO '{parquet_output_dir}' WITH (FORMAT PARQUET);")
+        df = df.sort_values(['person1Id','person2Id'])
+        day_diff = (df['useFrom'] - df['useUntil'].groupby([df['person1Id'], df['person2Id']]).shift()).dt.days
+        group_no = (day_diff.isna() | day_diff.gt(1)).cumsum()
+        df_out = (df.groupby(['person1Id','person2Id', group_no], dropna=False, as_index=False)
+            .agg({'person1Id': 'first',
+                  'person2Id': 'first',
+                  'useFrom': 'first',
+                  'useUntil': lambda x: x.iloc[-1],
+                }))
+
+
+        if (parquet_output_dir):
+            self.cursor.execute("""
+            CREATE TABLE paths_curated (
+                person1Id bigint,
+                person2Id bigint,
+                useFrom timestamp,
+                useUntil timestamp
+            );
+            """)
+            self.cursor.execute("INSERT INTO paths_curated SELECT * FROM df_out")
+            self.cursor.execute(f"COPY (SELECT * FROM paths_curated ORDER BY UseFrom ASC) TO '{parquet_output_dir}' WITH (FORMAT PARQUET);")
+
+        return df_out
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--raw_parquet_dir',
+        help="raw_parquet_dir: directory containing the data e.g. 'graphs/parquet/raw/'",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        '--factor_tables_dir',
+        help="factor_tables_dir: directory containing the factor tables e.g. '/data/out-sf1'",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        '--output_dir',
+        help="output_dir: folder to output the data",
+        type=str,
+        required=True
+    )
+    args = parser.parse_args()
+
+    path_curation = PathCuration(args.raw_parquet_dir, args.factor_tables_dir)
+    start_date = datetime(year=2012, month=11, day=28, tzinfo=timezone.utc)
+    end_date = datetime(year=2013, month=1, day=1, tzinfo=timezone.utc)
+    path_curation.get_people_4_hops_paths(start_date, end_date, 1, args.output_dir)
