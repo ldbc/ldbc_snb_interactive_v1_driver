@@ -386,11 +386,6 @@ class PathCuration():
                   'useUntil': lambda x: x.iloc[-1],
                 }))
 
-        df_out['useFrom'] = df_out['useFrom'].astype(np.int64) // 10**6
-        df_out['useUntil'] = df_out['useUntil'].astype(np.int64) // 10**6
-
-        df_out['useFrom'] = pd.to_datetime(df_out['useFrom'])
-        df_out['useUntil'] = pd.to_datetime(df_out['useUntil'])
 
         if (parquet_output_dir):
             self.cursor.execute("""
