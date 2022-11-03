@@ -157,18 +157,16 @@ def main(factor_tables_dir, raw_parquet_dir, start_date, end_date, time_bucket_s
     Path('scratch/paramgen.duckdb').unlink(missing_ok=True)
     cursor = duckdb.connect(database="scratch/paramgen.duckdb")
 
-    date_start = datetime.strptime(start_date, "%Y-%m-%d")
+    date_start = start_date
     date_limit = date_start
     window_time = timedelta(days=time_bucket_size_in_days)
-    end_date = datetime.strptime(end_date, "%Y-%m-%d")
     relative_factor_path = factor_tables_dir[:-2]
     Path(f"{relative_factor_path}/people4Hops").mkdir(parents=True, exist_ok=True)
     parquet_output_dir = f"{relative_factor_path}/people4Hops/curated_paths.parquet"
 
     print("============ Generate People 4 Hops ============")
     path_curation = PathCuration(raw_parquet_dir, factor_tables_dir[:-2])
-
-    path_curation.get_people_4_hops_paths('2012-11-28', '2013-01-01', 1, parquet_output_dir)
+    path_curation.get_people_4_hops_paths(start_date, end_date, 1, parquet_output_dir)
 
     files = glob.glob('scratch/factors/people4Hops/*')
     for f in files:
@@ -235,4 +233,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    main(args.factor_tables_dir, args.raw_parquet_dir, args.start_date, args.end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)
+    start_date = datetime(year=2012, month=11, day=28, tzinfo=timezone.utc)
+    end_date = datetime(year=2013, month=1, day=1, tzinfo=timezone.utc)
+
+    main(args.factor_tables_dir, args.raw_parquet_dir, start_date, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)

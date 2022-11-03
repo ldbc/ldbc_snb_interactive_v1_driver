@@ -271,21 +271,19 @@ class PathCuration():
             mapped_pairs.append((self.node_map[node_a], self.node_map[node_b]))
         return mapped_pairs
 
-    def run(self, start_date:str, end_date:str, time_bucket_size_in_days):
+    def run(self, start_date, end_date, time_bucket_size_in_days):
         """
         Checks the people4Hops factor table for available paths in given time
         window.
         Args:
-            - start_date (str): Start date of the parameter curation, e.g. 28-11-2022
-            - end_date   (str): End date of the parameter curation, e.g. 31-1-2022
+            - start_date: Start date of the parameter curation
+            - end_date: End date of the parameter curation
             - time_bucket_size_in_days (int): The amount of days in a bucket, e.g. 1
         Returns:
             List of dicts {person1Id, person2Id, useFrom, useUntil}
         """
         paths = []
         self.create_views()
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
         init_date = datetime(year=1970, month=1, day=1, tzinfo=timezone.utc)
 
         print("------------ Graph Initialization ------------")
@@ -339,8 +337,8 @@ class PathCuration():
 
     def get_people_4_hops_paths(
         self,
-        start_date:str,
-        end_date:str,
+        start_date,
+        end_date,
         time_bucket_size_in_days:int,
         parquet_output_dir:str=None,
     ):
@@ -348,8 +346,8 @@ class PathCuration():
         Entry point function of the PathCuration class.
         Get valid 4-hop path per day. Outputs the paths to a parquet file.
         Args:
-            - start_date (str): Start date of the parameter curation, e.g. 28-11-2022
-            - end_date   (str): End date of the parameter curation, e.g. 31-1-2022
+            - start_date: Start date of the parameter curation
+            - end_date: End date of the parameter curation
             - time_bucket_size_in_days (int): The amount of days in a bucket, e.g. 1
             - parquet_output_dir (str, optional): Path to store the parquet file, e.g. scratch/factors/path_curated.parquet
         Returns:
@@ -411,4 +409,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     path_curation = PathCuration(args.raw_parquet_dir, args.factor_tables_dir)
-    path_curation.get_people_4_hops_paths('2012-11-28', '2013-01-01', 1, args.output_dir)
+    start_date = datetime(year=2012, month=11, day=28, tzinfo=timezone.utc)
+    end_date = datetime(year=2013, month=1, day=1, tzinfo=timezone.utc)
+    path_curation.get_people_4_hops_paths(start_date, end_date, 1, args.output_dir)
