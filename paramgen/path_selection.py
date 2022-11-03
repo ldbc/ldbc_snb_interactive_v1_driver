@@ -1,7 +1,7 @@
 import duckdb
 import argparse
 from pathlib import Path
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 import time
 import itertools
 import networkit as nk
@@ -286,7 +286,7 @@ class PathCuration():
         self.create_views()
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
-        init_date = datetime(year=1970, month=1, day=1)
+        init_date = datetime(year=1970, month=1, day=1, tzinfo=timezone.utc)
 
         print("------------ Graph Initialization ------------")
         start_init = time.time()

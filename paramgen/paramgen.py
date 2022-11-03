@@ -1,6 +1,6 @@
 from path_selection import PathCuration
 import duckdb
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 import glob
 import os
 from pathlib import Path
