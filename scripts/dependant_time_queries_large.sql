@@ -8,7 +8,6 @@ COPY (
        FROM Person, Forum, Forum_hasMember_Person
       WHERE Forum_hasMember_Person.creationDate > :start_date_long
         AND Forum_hasMember_Person.creationDate < :end_date_long
-        AND Forum_hasMember_Person.explicitlyDeleted = true
         AND Forum_hasMember_Person.PersonId = Person.id
         AND Forum_hasMember_Person.ForumId = Forum.id
       ORDER BY Forum_hasMember_Person.creationDate ASC
