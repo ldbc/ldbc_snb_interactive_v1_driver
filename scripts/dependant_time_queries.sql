@@ -136,29 +136,3 @@ COPY (
     ORDER BY Person_knows_Person.creationDate
 )
 TO ':output_dir/inserts/Person_knows_Person.parquet' (FORMAT 'parquet');
-
-COPY (
-    SELECT  Person_likes_Post.creationDate,
-            GREATEST(Person.creationDate, Post.creationDate) AS dependentDate,
-            Person_likes_Post.PersonId,
-            Person_likes_Post.PostId
-      FROM Person, Person_likes_Post, Post
-     WHERE Person_likes_Post.creationDate > :start_date_long
-       AND Person_likes_Post.PersonId = Person.id
-       AND Person_likes_Post.PostId = Post.id
-     ORDER BY Person_likes_Post.creationDate ASC
-    )
-TO ':output_dir/inserts/Person_likes_Post.parquet' (FORMAT 'parquet');
-
-COPY (
-    SELECT  Person_likes_Comment.creationDate,
-            GREATEST(Person.creationDate, Comment.creationDate) AS dependentDate,
-            Person_likes_Comment.PersonId,
-            Person_likes_Comment.CommentId
-      FROM Person, Person_likes_Comment, Comment
-     WHERE Person_likes_Comment.creationDate > :start_date_long
-       AND Person_likes_Comment.PersonId = Person.id
-       AND Person_likes_Comment.CommentId = Comment.id
-     ORDER BY Person_likes_Comment.creationDate ASC
-    )
-TO ':output_dir/inserts/Person_likes_Comment.parquet' (FORMAT 'parquet');

@@ -9,4 +9,5 @@ rm -rf {deletes,inserts}
 mkdir {deletes,inserts}
 
 echo "##### Generate Update Streams #####"
-./create_update_streams.py --raw_parquet_dir ${LDBC_SNB_DATA_ROOT_DIRECTORY} --output_dir ./ --batch_size_in_days 1
+
+python3 -u ./create_update_streams.py --raw_parquet_dir ${LDBC_SNB_DATA_ROOT_DIRECTORY} --output_dir ./ --batch_size_in_days 1
