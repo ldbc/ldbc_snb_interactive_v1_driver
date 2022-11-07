@@ -3,8 +3,8 @@
 COPY (
     SELECT  Forum_hasMember_Person.creationDate,
             GREATEST(Person.creationDate, Forum.creationDate) as dependentDate,
-            Forum_hasMember_Person.ForumId,
-            Forum_hasMember_Person.PersonId
+            Forum_hasMember_Person.PersonId,
+            Forum_hasMember_Person.ForumId
        FROM Person, Forum, Forum_hasMember_Person
       WHERE Forum_hasMember_Person.creationDate > :start_date_long
         AND Forum_hasMember_Person.creationDate < :end_date_long
