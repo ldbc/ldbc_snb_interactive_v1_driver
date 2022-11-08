@@ -226,7 +226,7 @@ class ParameterGeneration():
 
             df_out = (parameter_df.groupby(column_ids + [group_no], dropna=False, as_index=False)
                 .agg(aggregate_rules))
-            self.cursor.execute(f"CREATE TABLE Q_{query_variant}_filtered AS SELECT * FROM df_out")
+            self.cursor.execute(f"CREATE TABLE Q_{query_variant}_filtered AS SELECT * FROM df_out ORDER BY useFROM")
             self.cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
 
         for query_variant in ["13b", "14b"]:
