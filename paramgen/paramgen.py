@@ -264,7 +264,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    start_date = datetime(year=2012, month=11, day=28, tzinfo=timezone.utc)
+    start_date = datetime(year=2012, month=11, day=27, tzinfo=timezone.utc)
     end_date = datetime(year=2013, month=1, day=1, tzinfo=timezone.utc)
 
     PG = ParameterGeneration(args.factor_tables_dir, args.raw_parquet_dir, start_date, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)

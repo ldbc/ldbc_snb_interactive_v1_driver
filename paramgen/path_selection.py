@@ -319,7 +319,7 @@ class PathCuration():
                                 "person1Id" : self.node_map_inverted[node_a],
                                 "person2Id" : self.node_map_inverted[node_b],
                                 "useFrom" : date_limit + timedelta(days=1),
-                                "useUntil" : date_limit_end + timedelta(days=1)
+                                "useUntil" : date_limit_end - timedelta(days=1)
                             }
                         )
                         paths_found += 1
@@ -404,6 +404,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     path_curation = PathCuration(args.raw_parquet_dir, args.factor_tables_dir)
-    start_date = datetime(year=2012, month=11, day=28, tzinfo=timezone.utc)
+    start_date = datetime(year=2012, month=11, day=27, tzinfo=timezone.utc)
     end_date = datetime(year=2013, month=1, day=1, tzinfo=timezone.utc)
     path_curation.get_people_4_hops_paths(start_date, end_date, 1, args.output_dir)
