@@ -100,6 +100,8 @@ class ParameterGeneration():
         # Create folder in case it does not exist.
         Path(f"{self.factor_tables_dir}/people4Hops").mkdir(parents=True, exist_ok=True)
         parquet_output_dir = f"{self.factor_tables_dir}/people4Hops/curated_paths.parquet"
+        # Remove existing altered factor table
+        Path(parquet_output_dir).unlink(missing_ok=True)
 
         self.logger.debug("============ Generate People 4 Hops ============")
         # The path curation is ran first and replaces the people4hops parquet file (old one is removed)
