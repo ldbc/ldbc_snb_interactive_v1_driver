@@ -5,187 +5,232 @@ import glob
 import os
 from pathlib import Path
 import argparse
+import logging
 
-remove_lower_times_dict = {
-    "Q_1"   : "DELETE FROM Q_1   t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_1   t2 WHERE t2.personId  = t1.personId  AND t2.firstName = t1.firstName);",
-    "Q_2"   : "DELETE FROM Q_2   t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_2   t2 WHERE t2.personId  = t1.personId  AND t2.maxDate = t1.maxDate);",
-    "Q_3a"  : "DELETE FROM Q_3a  t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_3a  t2 WHERE t2.personId  = t1.personId  AND t2.countryXName = t1.countryXName AND t2.countryYName = t1.countryYName AND t2.startDate = t1.startDate AND t2.durationDays = t1.durationDays);",
-    "Q_3b"  : "DELETE FROM Q_3b  t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_3b  t2 WHERE t2.personId  = t1.personId  AND t2.countryXName = t1.countryXName AND t2.countryYName = t1.countryYName AND t2.startDate = t1.startDate AND t2.durationDays = t1.durationDays);",
-    "Q_4"   : "DELETE FROM Q_4   t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_4   t2 WHERE t2.personId  = t1.personId  AND t2.startDate = t1.startDate AND t2.durationDays = t1.durationDays);",
-    "Q_5"   : "DELETE FROM Q_5   t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_5   t2 WHERE t2.personId  = t1.personId  AND t2.minDate = t1.minDate);",
-    "Q_6"   : "DELETE FROM Q_6   t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_6   t2 WHERE t2.personId  = t1.personId  AND t2.tagName = t1.tagName);",
-    "Q_7"   : "DELETE FROM Q_7   t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_7   t2 WHERE t2.personId  = t1.personId);",
-    "Q_8"   : "DELETE FROM Q_8   t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_8   t2 WHERE t2.personId  = t1.personId);",
-    "Q_9"   : "DELETE FROM Q_9   t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_9   t2 WHERE t2.personId  = t1.personId  AND t2.maxDate = t1.maxDate);",
-    "Q_10"  : "DELETE FROM Q_10  t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_10  t2 WHERE t2.personId  = t1.personId  AND t2.month = t1.month);",
-    "Q_11"  : "DELETE FROM Q_11  t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_11  t2 WHERE t2.personId  = t1.personId  AND t2.countryName = t1.countryName AND t2.workFromYear = t1.workFromYear);",
-    "Q_12"  : "DELETE FROM Q_12  t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_12  t2 WHERE t2.personId  = t1.personId  AND t2.tagClassName = t1.tagClassName);",
-    "Q_13a" : "DELETE FROM Q_13a t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_13a t2 WHERE t2.person1Id = t1.person1Id AND t2.person2Id = t1.person2Id);",
-    "Q_14a" : "DELETE FROM Q_14a t1 WHERE t1.useUntil < (SELECT max(t2.useUntil) FROM Q_14a t2 WHERE t2.person1Id = t1.person1Id AND t2.person2Id = t1.person2Id);"
+sort_columns_dict = {
+    "Q_1"   : ["personId", "firstName"],
+    "Q_2"   : ["personId", "maxDate"],
+    "Q_3a"  : ["personId", "countryXName", "countryYName", "startDate", "durationDays"],
+    "Q_3b"  : ["personId", "countryXName", "countryYName", "startDate", "durationDays"],
+    "Q_4"   : ["personId", "startDate", "durationDays"],
+    "Q_5"   : ["personId", "minDate"],
+    "Q_6"   : ["personId", "tagName"],
+    "Q_7"   : ["personId"],
+    "Q_8"   : ["personId"],
+    "Q_9"   : ["personId", "maxDate"],
+    "Q_10"  : ["personId", "month"],
+    "Q_11"  : ["personId", "countryName", "workFromYear"],
+    "Q_12"  : ["personId", "tagClassName"],
+    "Q_13a" : ["person1Id", "person2Id"],
+    "Q_14a" : ["person1Id", "person2Id"]
 }
 
-remove_duplicates = {
-    "Q_1"   : "CREATE TABLE Q_1_filtered AS SELECT personId, firstName, useFrom, useUntil FROM Q_1 GROUP BY personId, firstName, useFrom, useUntil;",
-    "Q_2"   : "CREATE TABLE Q_2_filtered AS SELECT personId, maxDate, useFrom, useUntil FROM Q_2 GROUP BY personId, maxDate, useFrom, useUntil;",
-    "Q_3a"   : "CREATE TABLE Q_3a_filtered AS SELECT personId, countryXName, countryYName, startDate, durationDays, useFrom, useUntil FROM Q_3a GROUP BY personId, countryXName, countryYName, startDate, durationDays, useFrom, useUntil;",
-    "Q_3b"   : "CREATE TABLE Q_3b_filtered AS SELECT personId, countryXName, countryYName, startDate, durationDays, useFrom, useUntil FROM Q_3b GROUP BY personId, countryXName, countryYName, startDate, durationDays, useFrom, useUntil;",
-    "Q_4"   : "CREATE TABLE Q_4_filtered AS SELECT personId, startDate, durationDays, useFrom, useUntil FROM Q_4 GROUP BY personId, startDate, durationDays, useFrom, useUntil;",
-    "Q_5"   : "CREATE TABLE Q_5_filtered AS SELECT personId, minDate, useFrom, useUntil FROM Q_5 GROUP BY personId, minDate, useFrom, useUntil;",
-    "Q_6"   : "CREATE TABLE Q_6_filtered AS SELECT personId, tagName, useFrom, useUntil FROM Q_6 GROUP BY personId, tagName, useFrom, useUntil;",
-    "Q_7"   : "CREATE TABLE Q_7_filtered AS SELECT personId, useFrom, useUntil FROM Q_7 GROUP BY personId, useFrom, useUntil;",
-    "Q_8"   : "CREATE TABLE Q_8_filtered AS SELECT personId, useFrom, useUntil FROM Q_8 GROUP BY personId, useFrom, useUntil;",
-    "Q_9"   : "CREATE TABLE Q_9_filtered AS SELECT personId, maxDate, useFrom, useUntil FROM Q_9 GROUP BY personId, maxDate, useFrom, useUntil;",
-    "Q_10"   : "CREATE TABLE Q_10_filtered AS SELECT personId, month, useFrom, useUntil FROM Q_10 GROUP BY personId, month, useFrom, useUntil;",
-    "Q_11"   : "CREATE TABLE Q_11_filtered AS SELECT personId, countryName, workFromYear, useFrom, useUntil FROM Q_11 GROUP BY personId, countryName, workFromYear, useFrom, useUntil;",
-    "Q_12"   : "CREATE TABLE Q_12_filtered AS SELECT personId, tagClassName, useFrom, useUntil FROM Q_12 GROUP BY personId, tagClassName, useFrom, useUntil;",
-    "Q_13a"   : "CREATE TABLE Q_13a_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_13a GROUP BY person1Id, person2Id, useFrom, useUntil;",
-    "Q_14a"   : "CREATE TABLE Q_14a_filtered AS SELECT person1Id, person2Id, useFrom, useUntil FROM Q_14a GROUP BY person1Id, person2Id, useFrom, useUntil;"
-}
+class ParameterGeneration():
 
-def generate_parameter_for_query_type(cursor, date_limit, date_start, query_variant):
-    """
-    Creates parameter for given query variant.
-    Args:
-        - cursor (DuckDBPyConnection): cursor to the DuckDB instance
-        - date_limit (datetime): The day to filter on. This date will be used to compare creation and deletion dates
-        - date_start (datetime): The first day of the inserts. This is used for parameters that do not contain creation and deletion dates
-        - query_variant (str): number of the query to generate the parameters
-    """
-    date_limit_string = date_limit.strftime('%Y-%m-%d')
-    date_limit_long = date_limit.timestamp() * 1000
-    date_start_long = date_start.timestamp() * 1000
-    with open(f"paramgen-queries/pg-{query_variant}.sql", "r") as parameter_query_file:
-        parameter_query = parameter_query_file.read().replace(':date_limit_filter', f'\'{date_limit_string}\'')
-        parameter_query = parameter_query.replace(':date_limit_long', str(int(date_limit_long)))
-        parameter_query = parameter_query.replace(':date_start_long', str(int(date_start_long)))
-        cursor.execute(f"INSERT INTO 'Q_{query_variant}' SELECT * FROM ({parameter_query});")
+    def __init__(
+        self,
+        factor_tables_dir:str,
+        raw_parquet_dir:str,
+        start_date:datetime,
+        end_date:datetime,
+        time_bucket_size_in_days:int,
+        generate_short_query_parameters:bool,
+        logging_level:str='INFO'
+    ):
+        self.factor_tables_dir = factor_tables_dir
+        self.raw_parquet_dir = raw_parquet_dir
+        self.start_date = start_date
+        self.end_date = end_date
+        self.time_bucket_size_in_days = time_bucket_size_in_days
+        self.generate_short_query_parameters = generate_short_query_parameters
+
+        Path('scratch/paramgen.duckdb').unlink(missing_ok=True)
+        self.cursor = duckdb.connect(database="scratch/paramgen.duckdb")
+
+        # Set logger for class
+        self.logger = logging.Logger(
+            name="Paramgen",
+            level=logging_level
+        )
+
+    def create_views_of_factor_tables(self, factor_tables_path):
+        """
+        Args:
+            - cursor (DuckDBPyConnection): cursor to the DuckDB instance
+            - factor_tables_path    (str): path to the factor tables. Only Unix paths are supported
+            - preview_tables    (boolean): Whether the first five rows of the factor table should be shown.
+        """
+
+        if factor_tables_path[-1] != '*':
+            if factor_tables_path[-1] != '/':
+                factor_tables_path = factor_tables_path + '/*'
+            else:
+                factor_tables_path = factor_tables_path + '*'
+
+        self.logger.debug(f"Loading factor tables from path {factor_tables_path}")
+
+        with open("schema.sql") as f:
+            schema_def = f.read()
+            self.cursor.execute(schema_def)
+
+        self.logger.debug("============ Loading the factor tables ============")
+        directories = glob.glob(f'{factor_tables_path}')
+        if (len(directories) == 0):
+            self.logger.error(f"{factor_tables_path} is empty")
+            raise ValueError(f"{factor_tables_path} is empty")
+        # Create views of raw parquet files
+        for directory in directories:
+            path_dir = Path(directory)
+            if path_dir.is_dir():
+                self.logger.debug(f"Loading {path_dir.name}")
+                self.cursor.execute(f"DROP VIEW IF EXISTS {path_dir.name}")
+                self.cursor.execute(
+                    f"""
+                    CREATE VIEW {path_dir.name} AS
+                    SELECT * FROM read_parquet('{str(Path(directory).absolute()) + "/*.parquet"}');
+                    """
+                )
+        self.logger.debug("============ Factor Tables loaded ============")
+
+    def run(self):
+        """
+        Entry point of the parameter generation. Generates parameters
+        for LDBC SNB Interactive queries.
+        """
+        # Create folder in case it does not exist.
+        Path(f"{self.factor_tables_dir}/people4Hops").mkdir(parents=True, exist_ok=True)
+        parquet_output_dir = f"{self.factor_tables_dir}/people4Hops/curated_paths.parquet"
+
+        self.logger.debug("============ Generate People 4 Hops ============")
+        # The path curation is ran first and replaces the people4hops parquet file (old one is removed)
+        # This to ensure 13b and 14b uses existing paths
+        path_curation = PathCuration(self.raw_parquet_dir, self.factor_tables_dir)
+        path_curation.get_people_4_hops_paths(self.start_date, self.end_date, 1, parquet_output_dir)
+        self.logger.debug("============ Done ============")
+        files = glob.glob('scratch/factors/people4Hops/*')
+        for f in files:
+            print(f)
+            if f != 'scratch/factors/people4Hops/curated_paths.parquet':
+                os.remove(f)
+        self.create_views_of_factor_tables(self.factor_tables_dir)
+
+        # The path queries are generated separately since path curation already contains
+        # useFrom and useUntil columns for each parameter pair.
+        self.logger.debug("============ Generate 13b and 14b parameters ============")
+        self.generate_parameter_for_query_type(self.start_date, self.start_date, "13b")
+        self.generate_parameter_for_query_type(self.start_date, self.start_date, "14b")
+        self.logger.debug("============ Done ============")
+
+        # Generate the other parameters
+        self.logger.debug("============ Generate parameters Q1 - Q12 ============")
+        self.generate_parameters(
+            self.start_date,
+            self.start_date,
+            self.end_date,
+            timedelta(days=self.time_bucket_size_in_days)
+        )
+        self.logger.debug("============ Done ============")
+        self.logger.debug("============ Export parameters to parquet files ============")
+        self.export_parameters()
+        self.logger.debug("============ Done ============")
+
+        self.logger.debug("============ Generate short read debug parameters ============")
+        if (self.generate_short_query_parameters):
+            self.generate_short_parameters()
+        self.logger.debug("============ Done ============")
+
+        # Remove temporary database
+        Path('paramgen.snb.db').unlink(missing_ok=True)
 
 
-def create_views_of_factor_tables(cursor, factor_tables_path):
-    """
-    Args:
-        - cursor (DuckDBPyConnection): cursor to the DuckDB instance
-        - factor_tables_path    (str): path to the factor tables. Only Unix paths are supported
-        - preview_tables    (boolean): Whether the first five rows of the factor table should be shown.
-    """
+    def generate_parameters(self, date_limit, date_start, end_date, window_time):
+        """
+        Generates paramters for all query types until end_date is reached.
+        Args:
+            - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
+            - date_limit  (datetime): The day to filter on. This date will be used to compare creation and deletion dates
+            - date_start  (datetime): The first day of the inserts. This is used for parameters that do not contain creation and deletion dates
+            - end_date    (datetime): The last day of the inserts and when the loop stops.
+            - window_time (timedelta): 
+        """
+        self.logger.info("Start time of initial_snapshot: " + str(date_limit))
+        self.logger.info("End time of initial_snapshot: "   + str(end_date))
+        self.logger.info("Time bucket size: "               + str(window_time))
 
-    if factor_tables_path[-1] != '*':
-        if factor_tables_path[-1] != '/':
-            factor_tables_path = factor_tables_path + '/*'
-        else:
-            factor_tables_path = factor_tables_path + '*'
-    with open("schema.sql") as f:
-        schema_def = f.read()
-        cursor.execute(schema_def)
-
-    print("============ Loading the factor tables ============")
-    directories = glob.glob(f'{factor_tables_path}')
-    if (len(directories) == 0):
-        raise ValueError(f"{factor_tables_path} is empty")
-    # Create views of raw parquet files
-    for directory in directories:
-        path_dir = Path(directory)
-        if path_dir.is_dir():
-            print(f"Loading {path_dir.name}")
-            cursor.execute(f"DROP VIEW IF EXISTS {path_dir.name}")
-            cursor.execute(
-                f"""
-                CREATE VIEW {path_dir.name} AS
-                SELECT * FROM read_parquet('{str(Path(directory).absolute()) + "/*.parquet"}');
-                """
-            )
+        while (date_limit < end_date):
+            self.logger.info("============ Generating parameters ============")
+            for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "14a"]:
+                self.logger.info(f"- Q{query_variant}, date {date_limit.strftime('%Y-%m-%d')}")
+                self.generate_parameter_for_query_type(date_limit, date_start, query_variant)
+            date_limit = date_limit + window_time
 
 
-def generate_parameters(cursor, date_limit, date_start, end_date, window_time):
-    """
-    Generates paramters for all query types until end_date is reached.
-    Args:
-        - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
-        - date_limit  (datetime): The day to filter on. This date will be used to compare creation and deletion dates
-        - date_start  (datetime): The first day of the inserts. This is used for parameters that do not contain creation and deletion dates
-        - end_date    (datetime): The last day of the inserts and when the loop stops.
-        - window_time (timedelta): 
-    """
-    print("Start time of initial_snapshot: " + str(date_limit))
-    print("End time of initial_snapshot: " + str(end_date))
-    print("Time bucket size: " + str(window_time))
+    def generate_short_parameters(self):
+        """
+        Generates personIds and messageIds for manual testing of short queries
+        Args:
+            - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
+            - date_start  (datetime): The first day of the inserts. This is used for parameters that do not contain creation and deletion dates
+        """
+        self.logger.info("============ Generate Short Query Parameters ============")
+        for query_variant in ["personId", "messageId"]:
+            self.generate_parameter_for_query_type(self.start_date, self.start_date, query_variant)
+            self.logger.info(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
+            self.cursor.execute(f"COPY 'Q_{query_variant}' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
+        self.logger.info("============ Short Query Parameters exported ============")
 
-    while (date_limit < end_date):
-        print("============ Generating parameters ============")
+    def generate_parameter_for_query_type(self, date_limit, date_start, query_variant):
+        """
+        Creates parameter for given query variant.
+        Args:
+            - cursor (DuckDBPyConnection): cursor to the DuckDB instance
+            - date_limit (datetime): The day to filter on. This date will be used to compare creation and deletion dates
+            - date_start (datetime): The first day of the inserts. This is used for parameters that do not contain creation and deletion dates
+            - query_variant (str): number of the query to generate the parameters
+        """
+        date_limit_string = date_limit.strftime('%Y-%m-%d')
+        date_limit_long = date_limit.timestamp() * 1000
+        date_start_long = date_start.timestamp() * 1000
+        with open(f"paramgen-queries/pg-{query_variant}.sql", "r") as parameter_query_file:
+            parameter_query = parameter_query_file.read().replace(':date_limit_filter', f'\'{date_limit_string}\'')
+            parameter_query = parameter_query.replace(':date_limit_long', str(int(date_limit_long)))
+            parameter_query = parameter_query.replace(':date_start_long', str(int(date_start_long)))
+            self.cursor.execute(f"INSERT INTO 'Q_{query_variant}' SELECT * FROM ({parameter_query});")
+
+    def export_parameters(self):
+        """
+        Export parameters to interactive-Q{query_variant}.parquet files
+        Args:
+            - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
+        """
+        self.logger.info("============ Output parameters ============")
         for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "14a"]:
-            print(f"- Q{query_variant}, date {date_limit.strftime('%Y-%m-%d')}")
-            generate_parameter_for_query_type(cursor, date_limit, date_start, query_variant)
-        date_limit = date_limit + window_time
+            self.logger.info(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
+            column_ids = sort_columns_dict[f'Q_{query_variant}']
+            parameter_df = self.cursor.execute(f"SELECT * FROM Q_{query_variant};").fetch_df()
+            parameter_df = parameter_df.sort_values(column_ids)
+            groupby_series = []
+            for column in column_ids:
+                groupby_series.append(parameter_df[column])
 
+            day_diff = (parameter_df['useFrom'] - parameter_df['useUntil'].groupby(groupby_series).shift()).dt.days
+            group_no = (day_diff.isna() | day_diff.gt(1)).cumsum()
+            
+            aggregate_rules = {}
+            for column in column_ids:
+                aggregate_rules[column] = 'first'
+            aggregate_rules['useFrom'] = 'first'
+            aggregate_rules['useUntil'] = lambda x: x.iloc[-1]
 
-def export_parameters(cursor):
-    """
-    Export parameters to interactive-Q{query_variant}.parquet files
-    Args:
-        - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
-    """
-    print("============ Output parameters ============")
-    for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "14a"]:
-        print(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
-        query = remove_lower_times_dict[f"Q_{query_variant}"]#remove_duplicates
-        cursor.execute(query)
-        query = remove_duplicates[f"Q_{query_variant}"]#remove_duplicates
-        cursor.execute(query)
-        cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
+            df_out = (parameter_df.groupby(column_ids + [group_no], dropna=False, as_index=False)
+                .agg(aggregate_rules))
+            self.cursor.execute(f"CREATE TABLE Q_{query_variant}_filtered AS SELECT * FROM df_out")
+            self.cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
 
-    for query_variant in ["13b", "14b"]:
-        print(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
-        cursor.execute(f"COPY 'Q_{query_variant}' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
-
-
-def generate_short_parameters(cursor, date_start):
-    """
-    Generates personIds and messageIds for manual testing of short queries
-    Args:
-        - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
-        - date_start  (datetime): The first day of the inserts. This is used for parameters that do not contain creation and deletion dates
-    """
-    print("============ Generate Short Query Parameters ============")
-    for query_variant in ["personId", "messageId"]:
-        generate_parameter_for_query_type(cursor, date_start, date_start, query_variant)
-        print(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
-        cursor.execute(f"COPY 'Q_{query_variant}' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
-
-
-def main(factor_tables_dir, raw_parquet_dir, start_date, end_date, time_bucket_size_in_days, generate_short_query_parameters):
-    # Remove previous database if exists
-    Path('scratch/paramgen.duckdb').unlink(missing_ok=True)
-    cursor = duckdb.connect(database="scratch/paramgen.duckdb")
-
-    date_start = start_date
-    date_limit = date_start
-    window_time = timedelta(days=time_bucket_size_in_days)
-    relative_factor_path = factor_tables_dir[:-2]
-    Path(f"{relative_factor_path}/people4Hops").mkdir(parents=True, exist_ok=True)
-    parquet_output_dir = f"{relative_factor_path}/people4Hops/curated_paths.parquet"
-
-    print("============ Generate People 4 Hops ============")
-    path_curation = PathCuration(raw_parquet_dir, factor_tables_dir[:-2])
-    path_curation.get_people_4_hops_paths(start_date, end_date, 1, parquet_output_dir)
-
-    files = glob.glob('scratch/factors/people4Hops/*')
-    for f in files:
-        print(f)
-        if f != 'scratch/factors/people4Hops/curated_paths.parquet':
-            os.remove(f)
-    create_views_of_factor_tables(cursor, factor_tables_dir)
-
-    generate_parameter_for_query_type(cursor, date_start, date_start, "13b")
-    generate_parameter_for_query_type(cursor, date_start, date_start, "14b")
-
-    generate_parameters(cursor, date_limit, date_start, end_date, window_time)
-    export_parameters(cursor)
-
-    if (generate_short_query_parameters):
-        generate_short_parameters(cursor, date_start)
-
-    # Remove temporary database
-    Path('paramgen.snb.db').unlink(missing_ok=True)
+        for query_variant in ["13b", "14b"]:
+            self.logger.info(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
+            self.cursor.execute(f"COPY 'Q_{query_variant}' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
+        self.logger.info("============ Parameters exported ============")
 
 
 if __name__ == "__main__":
@@ -201,20 +246,6 @@ if __name__ == "__main__":
         help="factor_tables_dir: directory containing the factor tables e.g. '/data/out-sf1'",
         type=str,
         default='factors/',
-        required=False
-    )
-    parser.add_argument(
-        '--start_date',
-        help="start_date: Start date of the update streams, e.g. '2012-11-28'",
-        type=str,
-        default='2012-11-28',
-        required=False
-    )
-    parser.add_argument(
-        '--end_date',
-        help="end_date: End date of the update streams, e.g. '2013-01-01'",
-        type=str,
-        default='2013-01-01',
         required=False
     )
     parser.add_argument(
@@ -236,4 +267,5 @@ if __name__ == "__main__":
     start_date = datetime(year=2012, month=11, day=28, tzinfo=timezone.utc)
     end_date = datetime(year=2013, month=1, day=1, tzinfo=timezone.utc)
 
-    main(args.factor_tables_dir, args.raw_parquet_dir, start_date, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)
+    PG = ParameterGeneration(args.factor_tables_dir, args.raw_parquet_dir, start_date, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)
+    PG.run()
