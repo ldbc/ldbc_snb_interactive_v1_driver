@@ -2,27 +2,27 @@
 SELECT
     component1.PersonId AS 'person1Id',
     component2.PersonId AS 'person2Id',
-    useFrom AS 'useFrom',
+    GREATEST(component1.creationDate, component2.creationDate) AS 'useFrom',
     useUntil AS 'useUntil'
 FROM
     (
-        SELECT PersonId, Component
-        FROM personKnowsPersonConnected
+        SELECT PersonId, Component, creationDate
+        FROM personKnowsPersonConnected, personNumFriends
+        WHERE personNumFriends.id = PersonId
         ORDER BY md5(PersonId + 3)
         LIMIT 100
     ) component1,
     (
-        SELECT PersonId, Component
-        FROM personKnowsPersonConnected
+        SELECT PersonId, Component, creationDate
+        FROM personKnowsPersonConnected, personNumFriends
+        WHERE personNumFriends.id = PersonId
         ORDER BY md5(PersonId + 4)
         LIMIT 100
     ) component2,
     (
         SELECT epoch_ms(:date_limit_long) AS useUntil
-    ),
-    (
-        SELECT epoch_ms(:date_start_long) as useFrom
     )
 WHERE component1.Component != component2.Component
+  AND GREATEST(component1.creationDate, component2.creationDate) < epoch_ms(:date_limit_long)
 ORDER BY md5(concat(component1.PersonId, component2.PersonId))
 LIMIT 500
