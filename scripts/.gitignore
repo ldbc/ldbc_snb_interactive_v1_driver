@@ -1,3 +1,4 @@
 *.duckdb*
 inserts/
 deletes/
+*.log
