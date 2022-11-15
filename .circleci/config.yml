@@ -18,6 +18,7 @@ jobs:
     steps:
       - checkout
       - run: mvn clean install -DskipTests
+      - slack/status
 
   test_driver:
     parallelism: 2 # parallel containers to split the tests among
@@ -35,6 +36,7 @@ jobs:
           -e test
       - store_test_results: # We use this timing data to optimize the future runs
           path: target/surefire-reports
+      - slack/status
 
   test_conversion_script:
     machine:
@@ -66,3 +68,4 @@ jobs:
             cd paramgen
             scripts/get-sample-factors.sh
             scripts/paramgen.sh
+      - slack/status
