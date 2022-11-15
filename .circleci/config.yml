@@ -16,3 +16,4 @@ jobs:
       - run: |
           mvn test | tee mvn.log
           grep 'BUILD SUCCESS' mvn.log
+      - slack/status
