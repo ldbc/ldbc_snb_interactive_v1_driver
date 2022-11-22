@@ -53,7 +53,7 @@ class UpdateStreamCreator:
 
     def execute(self):
 
-        print(f"===== Create Update Streams =====")
+        print(f"===== Creating update streams =====")
         Path(f"{self.output_dir}/inserts").mkdir(parents=True, exist_ok=True)
         Path(f"{self.output_dir}/deletes").mkdir(parents=True, exist_ok=True)
 
@@ -129,8 +129,8 @@ class UpdateStreamCreator:
                     query_batched = query_batched.replace(':output_dir', self.output_dir)
                     query_batched = query_batched.replace(':index', str(int(index)))
 
-                    start = time.time()
                     print(query_batched)
+                    start = time.time()
                     self.cursor.execute(query_batched)
                     end = time.time()
                     duration = end - start
@@ -138,7 +138,10 @@ class UpdateStreamCreator:
 
                     index = index + 1
 
+            # Case for inserts:
             for entity in ["Forum_hasMember_Person", "Comment", "Post", "Person_likes_Comment", "Person_likes_Post"]:
+                print(f"Concatenating insert update streams for: {entity}")
+                start = time.time()
                 self.cursor.execute(f"""
                     COPY(
                         SELECT * FROM read_parquet('{self.output_dir}/inserts/{entity}-*.parquet') ORDER BY creationDate
@@ -147,17 +150,25 @@ class UpdateStreamCreator:
                 )
                 for temp_file in glob.glob(f"{self.output_dir}/inserts/{entity}-*.parquet"):
                     Path(temp_file).unlink()
+                end = time.time()
+                duration = end - start
+                print(f"-> {duration:.4f} seconds")
 
-            entity = "Forum_hasMember_Person"
             # Case for deletes:
-            self.cursor.execute(f"""
-                COPY(
-                    SELECT * FROM read_parquet('{self.output_dir}/deletes/{entity}-*.parquet') ORDER BY deletionDate
-                ) TO '{self.output_dir}/deletes/{entity}.parquet' (FORMAT 'parquet');
-                """
-            )
-            for temp_file in glob.glob(f"{self.output_dir}/deletes/{entity}-*.parquet"):
-                Path(temp_file).unlink()
+            for entity in ["Forum_hasMember_Person"]:
+                print(f"Concatenating delete update streams for: {entity}")
+                start = time.time()
+                self.cursor.execute(f"""
+                    COPY(
+                        SELECT * FROM read_parquet('{self.output_dir}/deletes/{entity}-*.parquet') ORDER BY deletionDate
+                    ) TO '{self.output_dir}/deletes/{entity}.parquet' (FORMAT 'parquet');
+                    """
+                )
+                for temp_file in glob.glob(f"{self.output_dir}/deletes/{entity}-*.parquet"):
+                    Path(temp_file).unlink()
+                end = time.time()
+                duration = end - start
+                print(f"-> {duration:.4f} seconds")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -198,5 +209,5 @@ if __name__ == "__main__":
     USC.execute()
     end = time.time()
     duration = end - start
-    print(f"-> {duration:.4f} seconds")
-    print("Update Streams Created")
+    print(f"Total duration: {duration:.4f} seconds")
+    print("Update streams created")
