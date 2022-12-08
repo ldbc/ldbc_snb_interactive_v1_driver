@@ -52,20 +52,43 @@ jobs:
             sudo apt install -y wget unzip
             scripts/install-dependencies.sh
       - run:
-          name: Download data sets
+          name: Download sample data set
           command: |
             wget -q https://ldbcouncil.org/ldbc_snb_datagen_spark/social-network-sf0.003-bi-parquet.zip
             unzip -q social-network-sf0.003-bi-parquet.zip
       - run:
-          name: Convert data sets
+          name: Convert sample data set
           command: |
-            export LDBC_SNB_DATA_ROOT_DIRECTORY=`pwd`/social-network-sf0.003-bi-parquet/graphs/parquet/raw/
+            export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/social-network-sf0.003-bi-parquet/graphs/parquet/raw/
             scripts/convert.sh
       - run:
-          name: Test paramgen
+          name: Test paramgen on the small data set
           command: |
-            export LDBC_SNB_DATA_ROOT_DIRECTORY=`pwd`/social-network-sf0.003-bi-parquet/
+            export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/social-network-sf0.003-bi-parquet/
             cd paramgen
             scripts/get-sample-factors.sh
+            scripts/paramgen.sh
+      - run:
+          name: Download the SF1 data set
+          command: |
+            curl --silent --fail https://pub-383410a98aef4cb686f0c7601eddd25f.r2.dev/bi-pre-audit/factors/factors-sf1.tar.zst | tar -xv --use-compress-program=unzstd
+            curl --silent --fail https://pub-383410a98aef4cb686f0c7601eddd25f.r2.dev/bi-raw/bi-sf1-raw.tar.zst | tar -xv --use-compress-program=unzstd
+      - run:
+          name: Convert the SF1 data set
+          command: |
+            export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/bi-sf1-raw/graphs/parquet/raw/
+
+            scripts/convert.sh
+      - run:
+          name: Test paramgen on SF1 data set
+          command: |
+            export FACTORS_DIRECTORY=$(pwd)/factors-sf1/parquet/raw/composite-merged-fk/
+
+            export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/bi-sf1-raw
+            cd paramgen
+            # copy factors under the scratch directory
+            rm -rf scratch/factors
+            mkdir -p scratch/factors
+            cp -r ${FACTORS_DIRECTORY}/* scratch/factors
             scripts/paramgen.sh
       - slack/status
