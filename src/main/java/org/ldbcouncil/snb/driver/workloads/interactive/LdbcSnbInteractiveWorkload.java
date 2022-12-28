@@ -53,7 +53,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
     private double compressionRatio;
     private double shortReadDissipationFactor;
     private OperationMode operationMode;
-    private long batchSize;
+    private double batchSize;
     private Set<Class<? extends Operation>> enabledLongReadOperationTypes;
     private Set<Class<? extends Operation>> enabledShortReadOperationTypes;
     private Set<Class<? extends Operation>> enabledWriteOperationTypes;
@@ -93,7 +93,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         }
 
         if (params.containsKey(LdbcSnbInteractiveWorkloadConfiguration.BATCH_SIZE)){
-            batchSize = Long.parseLong(params.get(LdbcSnbInteractiveWorkloadConfiguration.BATCH_SIZE));
+            batchSize = Double.parseDouble(params.get(LdbcSnbInteractiveWorkloadConfiguration.BATCH_SIZE));
         }
         else
         {
@@ -618,7 +618,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
         ParquetLoader loader
     ) throws WorkloadException
     {
-        long batchSizeInMillis = TimeUnit.HOURS.toMillis( batchSize );
+        long batchSizeInMillis = Math.round(TimeUnit.HOURS.toMillis( 1 ) * batchSize);
 
         Set<Class<? extends Operation>> dependencyUpdateOperationTypes = Sets.<Class<? extends Operation>>newHashSet();
 
