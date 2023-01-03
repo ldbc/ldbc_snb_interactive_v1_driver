@@ -59,7 +59,7 @@ jobs:
       - run:
           name: Convert sample data set
           command: |
-            export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/social-network-sf0.003-bi-parquet/graphs/parquet/raw/
+            export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/social-network-sf0.003-bi-parquet/
             scripts/convert.sh
       - run:
           name: Test paramgen on the small data set
@@ -76,14 +76,12 @@ jobs:
       - run:
           name: Convert the SF1 data set
           command: |
-            export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/bi-sf1-raw/graphs/parquet/raw/
-
+            export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/bi-sf1-raw/
             scripts/convert.sh
       - run:
           name: Test paramgen on SF1 data set
           command: |
             export FACTORS_DIRECTORY=$(pwd)/factors-sf1/parquet/raw/composite-merged-fk/
-
             export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/bi-sf1-raw
             cd paramgen
             # copy factors under the scratch directory

@@ -37,7 +37,7 @@ tools/run.py \
 
 ## Data conversion
 
-Set `${LDBC_SNB_DATA_ROOT_DIRECTORY}` to the unpacked directory containing the raw data e.g. '/data/out-sf1/graphs/parquet/raw' and run the script:
+Set `${LDBC_SNB_DATA_ROOT_DIRECTORY}` to the unpacked directory containing the data set's root directory, e.g. '/data/out-sf1' and run the script:
 
 ```bash
 export LDBC_SNB_DATA_ROOT_DIRECTORY=...
