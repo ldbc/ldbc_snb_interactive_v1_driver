@@ -52,21 +52,18 @@ jobs:
             sudo apt install -y wget unzip
             scripts/install-dependencies.sh
       - run:
-          name: Download sample data set
+          name: Test conversion script on the sample data set
           command: |
             wget -q https://ldbcouncil.org/ldbc_snb_datagen_spark/social-network-sf0.003-bi-parquet.zip
             unzip -q social-network-sf0.003-bi-parquet.zip
-      - run:
-          name: Convert sample data set
-          command: |
             export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/social-network-sf0.003-bi-parquet/
             scripts/convert.sh
       - run:
           name: Test paramgen on the small data set
           command: |
-            export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/social-network-sf0.003-bi-parquet/
             cd paramgen
-            scripts/get-sample-factors.sh
+            scripts/get-sample-data.sh
+            . scripts/use-sample-data.sh
             scripts/paramgen.sh
       - run:
           name: Download the SF1 data set
@@ -81,12 +78,8 @@ jobs:
       - run:
           name: Test paramgen on SF1 data set
           command: |
-            export FACTORS_DIRECTORY=$(pwd)/factors-sf1/parquet/raw/composite-merged-fk/
             export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/bi-sf1-raw
+            export LDBC_SNB_FACTOR_TABLES_DIR=$(pwd)/factors-sf1/parquet/raw/composite-merged-fk/
             cd paramgen
-            # copy factors under the scratch directory
-            rm -rf scratch/factors
-            mkdir -p scratch/factors
-            cp -r ${FACTORS_DIRECTORY}/* scratch/factors
             scripts/paramgen.sh
       - slack/status

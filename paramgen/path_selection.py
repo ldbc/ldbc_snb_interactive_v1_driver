@@ -349,7 +349,7 @@ class PathCuration():
             - start_date: Start date of the parameter curation
             - end_date: End date of the parameter curation
             - time_bucket_size_in_days (int): The amount of days in a bucket, e.g. 1
-            - parquet_output_dir (str, optional): Path to store the parquet file, e.g. scratch/factors/path_curated.parquet
+            - parquet_output_dir (str, optional): Path to store the parquet file, e.g. scratch/path_curated.parquet
         Returns:
             Dataframe with curated paths
         """
