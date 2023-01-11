@@ -40,8 +40,8 @@ class PathCuration():
         Creates views over the parquet files used for path curation.
         """
 
-        person_parquets = "/graphs/parquet/raw/composite-merged-fk/dynamic/Person/*.parquet"
-        knows_parquets = "/graphs/parquet/raw/composite-merged-fk/dynamic/Person_knows_Person/*.parquet"
+        person_parquets = "/composite-merged-fk/dynamic/Person/*.parquet"
+        knows_parquets = "/composite-merged-fk/dynamic/Person_knows_Person/*.parquet"
 
         people4hops_parquets = "/people4Hops/*.parquet"
 
@@ -385,7 +385,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--raw_parquet_dir',
-        help="raw_parquet_dir: directory containing the data e.g. 'graphs/parquet/raw/'",
+        help="raw_parquet_dir: directory containing the data e.g. '/data/out-sf1/graphs/parquet/raw/'",
         type=str,
         required=True
     )
