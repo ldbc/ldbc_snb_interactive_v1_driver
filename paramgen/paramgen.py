@@ -134,7 +134,7 @@ class ParameterGeneration():
         for LDBC SNB Interactive queries.
         """
         # Create folder in case it does not exist.
-
+        print(f'Loading factor tables from {self.factor_tables_dir}')
         if generate_paths:
             Path(f"{self.factor_tables_dir}/people4Hops").mkdir(parents=True, exist_ok=True)
             parquet_output_dir = f"{self.factor_tables_dir}/people4Hops/curated_paths.parquet"
