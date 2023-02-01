@@ -16,7 +16,7 @@ FROM
     (
         SELECT firstName AS firstName,
           FROM personFirstNamesSelected
-         ORDER BY md5(Person1Id)
+         ORDER BY md5(firstName)
          LIMIT 20
     )
 ORDER BY md5(concat(personId, firstName, useUntil, useFrom))
