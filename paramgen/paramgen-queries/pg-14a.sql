@@ -7,17 +7,17 @@ SELECT
 FROM
     (
         SELECT PersonId, Component, creationDate
-        FROM personKnowsPersonConnected, personNumFriends
-        WHERE personNumFriends.id = PersonId
-        ORDER BY md5(PersonId + 3)
-        LIMIT 100
+          FROM personKnowsPersonConnected, personNumFriends
+         WHERE personNumFriends.id = PersonId
+         ORDER BY md5(PersonId + 3)
+         LIMIT 100
     ) component1,
     (
         SELECT PersonId, Component, creationDate
-        FROM personKnowsPersonConnected, personNumFriends
-        WHERE personNumFriends.id = PersonId
-        ORDER BY md5(PersonId + 4)
-        LIMIT 100
+          FROM personKnowsPersonConnected, personNumFriends
+         WHERE personNumFriends.id = PersonId
+         ORDER BY md5(PersonId + 4)
+         LIMIT 100
     ) component2,
     (
         SELECT epoch_ms(:date_limit_long) AS useUntil

@@ -1,11 +1,13 @@
 from path_selection import PathCuration
 import duckdb
 from datetime import timedelta, datetime, timezone
+from zoneinfo import ZoneInfo
 import glob
 import os
 from pathlib import Path
 import argparse
 import logging
+import time
 
 sort_columns_dict = {
     "Q_1"   : ["personId", "firstName"],
@@ -22,7 +24,9 @@ sort_columns_dict = {
     "Q_11"  : ["personId", "countryName", "workFromYear"],
     "Q_12"  : ["personId", "tagClassName"],
     "Q_13a" : ["person1Id", "person2Id"],
-    "Q_14a" : ["person1Id", "person2Id"]
+    "Q_13b" : ["person1Id", "person2Id"],
+    "Q_14a" : ["person1Id", "person2Id"],
+    "Q_14b" : ["person1Id", "person2Id"]
 }
 
 class ParameterGeneration():
@@ -53,6 +57,38 @@ class ParameterGeneration():
             level=logging_level
         )
 
+    def prepare_factor_tables(self, param_list):
+        """
+        Prepare the num friends factor tables by preselecting the windows.
+        Args:
+            - param_list(list(dict)): A list of dictionaries with the following information:
+                                      {
+                                        'source_table'    : 'personNumFriendsOfFriendsOfFriends',
+                                        'table_name'      : 'personNumFriendsSelected',
+                                        'threshold'       : 5,
+                                        'min_occurence'   : 100,
+                                        'min_param_value' : 3000,
+                                        'window_column'    : 'numFriends',
+                                        'param_column'    : 'Person1Id'
+                                      }
+                                      The threshold is the maximum difference between neighbouring persons
+                                      when the column, param_column. The minimum occurence is the minimum
+                                      amount of parameters. Lastly, the min_param_value of the column to 
+                                      take into account. This is to filter out trivial parameters.
+        """
+        for params in param_list:
+            with open(f"paramgen-prepare/{params['template_file']}", "r") as parameter_query_file:
+                query_template = parameter_query_file.read()
+                query_template = query_template.replace(':threshold',       str(int(params['threshold'])))
+                query_template = query_template.replace(':min_occurence',   str(int(params['min_occurence'])))
+                query_template = query_template.replace(':min_param_value', str(int(params['min_param_value'])))
+                query_template = query_template.replace(':param_column',    str(params['param_column']))
+                query_template = query_template.replace(':source_table',    str(params['source_table']))
+                query_template = query_template.replace(':window_column',   str(params['window_column']))
+                self.cursor.execute(f"DROP TABLE IF EXISTS {str(params['table_name'])}")
+                self.cursor.execute(f"CREATE TABLE {str(params['table_name'])} AS SELECT * FROM ({query_template});")
+
+
     def create_views_of_factor_tables(self, factor_tables_path):
         """
         Args:
@@ -67,13 +103,13 @@ class ParameterGeneration():
             else:
                 factor_tables_path = factor_tables_path + '*'
 
-        self.logger.debug(f"Loading factor tables from path {factor_tables_path}")
+        print(f"Loading factor tables from path {factor_tables_path}")
 
         with open("schema.sql") as f:
             schema_def = f.read()
             self.cursor.execute(schema_def)
 
-        self.logger.debug("============ Loading the factor tables ============")
+        print("============ Loading the factor tables ============")
         directories = glob.glob(f'{factor_tables_path}')
         if (len(directories) == 0):
             self.logger.error(f"{factor_tables_path} is empty")
@@ -82,7 +118,7 @@ class ParameterGeneration():
         for directory in directories:
             path_dir = Path(directory)
             if path_dir.is_dir():
-                self.logger.debug(f"Loading {path_dir.name}")
+                print(f"Loading {path_dir.name}")
                 self.cursor.execute(f"DROP VIEW IF EXISTS {path_dir.name}")
                 self.cursor.execute(
                     f"""
@@ -90,59 +126,118 @@ class ParameterGeneration():
                     SELECT * FROM read_parquet('{str(Path(directory).absolute()) + "/*.parquet"}');
                     """
                 )
-        self.logger.debug("============ Factor Tables loaded ============")
+        print("============ Factor Tables loaded ============")
 
-    def run(self):
+    def run(self, generate_paths):
         """
         Entry point of the parameter generation. Generates parameters
         for LDBC SNB Interactive queries.
         """
         # Create folder in case it does not exist.
-        Path(f"{self.factor_tables_dir}/people4Hops").mkdir(parents=True, exist_ok=True)
-        parquet_output_dir = f"{self.factor_tables_dir}/people4Hops/curated_paths.parquet"
-        # Remove existing altered factor table
-        Path(parquet_output_dir).unlink(missing_ok=True)
 
-        self.logger.debug("============ Generate People 4 Hops ============")
-        # The path curation is ran first and replaces the people4hops parquet file (old one is removed)
-        # This to ensure 13b and 14b uses existing paths
-        path_curation = PathCuration(self.raw_parquet_dir, self.factor_tables_dir)
-        path_curation.get_people_4_hops_paths(self.start_date, self.end_date, 1, parquet_output_dir)
-        self.logger.debug("============ Done ============")
-        files = glob.glob(f"{self.factor_tables_dir}/people4Hops/*")
-        for f in files:
-            print(f)
-            if f != f"{self.factor_tables_dir}/people4Hops/curated_paths.parquet":
-                os.remove(f)
+        if generate_paths:
+            Path(f"{self.factor_tables_dir}/people4Hops").mkdir(parents=True, exist_ok=True)
+            parquet_output_dir = f"{self.factor_tables_dir}/people4Hops/curated_paths.parquet"
+            # Remove existing altered factor table
+            Path(parquet_output_dir).unlink(missing_ok=True)
+            print("============ Generate People 4 Hops ============")
+
+            # The path curation is ran first and replaces the people4hops parquet file (old one is removed)
+            # This to ensure 13b and 14b uses existing paths
+            path_curation = PathCuration(self.raw_parquet_dir, self.factor_tables_dir)
+            path_curation.get_people_4_hops_paths(self.start_date, self.end_date, self.time_bucket_size_in_days, parquet_output_dir)
+            print("============ Done ============")
+            files = glob.glob('scratch/factors/people4Hops/*')
+            for f in files:
+                print(f)
+                if f != 'scratch/factors/people4Hops/curated_paths.parquet':
+                    os.remove(f)
         self.create_views_of_factor_tables(self.factor_tables_dir)
+        paramgen_start_time = time.time()
+        # This settings will work from SF1, for 0.003, 0.1 and 0.3, other settings needs to be set.
+        prepare_tables_params = [
+            {
+                'template_file'   : 'pg-person-factor-table-prepare.sql',
+                'source_table'    : 'personNumFriendsOfFriendsOfFriends',
+                'table_name'      : 'personNumFriendsSelected',
+                'threshold'       : 2,
+                'min_occurence'   : 100,
+                'min_param_value' : 100,
+                'window_column'    : 'numFriends',
+                'param_column'    : 'Person1Id'
+            },
+            {
+                'template_file'   : 'pg-person-factor-table-prepare.sql',
+                'source_table'    : 'personNumFriendsOfFriendsOfFriends',
+                'table_name'      : 'personNumFriendsOfFriendsSelected',
+                'threshold'       : 5,
+                'min_occurence'   : 100,
+                'min_param_value' : 3000,
+                'window_column'   : 'numFriendsOfFriends',
+                'param_column'    : 'Person1Id'
+            },
+            {
+                'template_file'   : 'pg-person-factor-table-prepare.sql',
+                'source_table'    : 'personNumFriendsOfFriendsOfFriends',
+                'table_name'      : 'personNumFriendsOfFriendsOfFriendsSelected',
+                'threshold'       : 1000,
+                'min_occurence'   : 50,
+                'min_param_value' : 50000,
+                'window_column'    : 'numFriendsOfFriendsOfFriends',
+                'param_column'    : 'Person1Id'
+            },
+            {
+                'template_file'   : 'pg-static-factor-table-prepare.sql',
+                'source_table'    : 'creationDayNumMessages',
+                'table_name'      : 'creationDayNumMessagesSelected',
+                'threshold'       : 500,
+                'min_occurence'   : 25,
+                'min_param_value' : 10000,
+                'window_column'   : 'frequency',
+                'param_column'    : 'creationDay'
+            },
+            {
+                'template_file'   : 'pg-static-factor-table-prepare.sql',
+                'source_table'    : 'personFirstNames',
+                'table_name'      : 'personFirstNamesSelected',
+                'threshold'       : 5,
+                'min_occurence'   : 25,
+                'min_param_value' : 0,
+                'window_column'   : 'frequency',
+                'param_column'    : 'firstName'
+            }
+        ]
+
+        self.prepare_factor_tables(prepare_tables_params)
 
         # The path queries are generated separately since path curation already contains
         # useFrom and useUntil columns for each parameter pair.
-        self.logger.debug("============ Generate 13b and 14b parameters ============")
-        self.generate_parameter_for_query_type(self.start_date, self.start_date, "13b")
+        print("============ Generate 13b and 14b parameters ============")
+        # self.generate_parameter_for_query_type(self.start_date, self.start_date, "13b")
         self.generate_parameter_for_query_type(self.start_date, self.start_date, "14b")
-        self.logger.debug("============ Done ============")
+        print("============ Done ============")
 
         # Generate the other parameters
-        self.logger.debug("============ Generate parameters Q1 - Q12 ============")
+        print("============ Generate parameters Q1 - Q13 ============")
         self.generate_parameters(
             self.start_date,
             self.start_date,
             self.end_date,
             timedelta(days=self.time_bucket_size_in_days)
         )
-        self.logger.debug("============ Done ============")
-        self.logger.debug("============ Export parameters to parquet files ============")
+        print("============ Done ============")
+        print("============ Export parameters to parquet files ============")
         self.export_parameters()
-        self.logger.debug("============ Done ============")
-
-        self.logger.debug("============ Generate short read debug parameters ============")
+        print("============ Done ============")
+        paramgen_end_time = time.time()
+        print(f"Total Parameter Generation Duration: {paramgen_end_time - paramgen_start_time:.4f} seconds")
+        print("============ Generate short read debug parameters ============")
         if (self.generate_short_query_parameters):
             self.generate_short_parameters()
-        self.logger.debug("============ Done ============")
+        print("============ Done ============")
 
         # Remove temporary database
-        Path('paramgen.snb.db').unlink(missing_ok=True)
+        Path('scratch/paramgen.duckdb').unlink(missing_ok=True)
 
 
     def generate_parameters(self, date_limit, date_start, end_date, window_time):
@@ -155,17 +250,16 @@ class ParameterGeneration():
             - end_date    (datetime): The last day of the inserts and when the loop stops.
             - window_time (timedelta): 
         """
-        self.logger.info("Start time of initial_snapshot: " + str(date_limit))
-        self.logger.info("End time of initial_snapshot: "   + str(end_date))
-        self.logger.info("Time bucket size: "               + str(window_time))
+        print("Start time of initial_snapshot: " + str(date_limit))
+        print("End time of initial_snapshot: "   + str(end_date))
+        print("Time bucket size: "               + str(window_time))
 
         while (date_limit < end_date):
-            self.logger.info("============ Generating parameters ============")
-            for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "14a"]:
-                self.logger.info(f"- Q{query_variant}, date {date_limit.strftime('%Y-%m-%d')}")
+            # print("============ Generating parameters ============")
+            for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "13b", "14a", "14b"]:
+                # print(f"- Q{query_variant}, date {date_limit.strftime('%Y-%m-%d')}")
                 self.generate_parameter_for_query_type(date_limit, date_start, query_variant)
             date_limit = date_limit + window_time
-
 
     def generate_short_parameters(self):
         """
@@ -174,12 +268,12 @@ class ParameterGeneration():
             - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
             - date_start  (datetime): The first day of the inserts. This is used for parameters that do not contain creation and deletion dates
         """
-        self.logger.info("============ Generate Short Query Parameters ============")
+        print("============ Generate Short Query Parameters ============")
         for query_variant in ["personId", "messageId"]:
             self.generate_parameter_for_query_type(self.start_date, self.start_date, query_variant)
-            self.logger.info(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
+            print(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
             self.cursor.execute(f"COPY 'Q_{query_variant}' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
-        self.logger.info("============ Short Query Parameters exported ============")
+        print("============ Short Query Parameters exported ============")
 
     def generate_parameter_for_query_type(self, date_limit, date_start, query_variant):
         """
@@ -205,11 +299,12 @@ class ParameterGeneration():
         Args:
             - cursor      (DuckDBPyConnection): cursor to the DuckDB instance
         """
-        self.logger.info("============ Output parameters ============")
-        for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "14a"]:
-            self.logger.info(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
+        print("============ Output parameters ============")
+        Path("../parameters/").mkdir(parents=True, exist_ok=True)
+        for query_variant in ["1", "2", "3a", "3b", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13a", "13b", "14a", "14b"]:
+            print(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
             column_ids = sort_columns_dict[f'Q_{query_variant}']
-            parameter_df = self.cursor.execute(f"SELECT * FROM Q_{query_variant};").fetch_df()
+            parameter_df = self.cursor.execute(f"SELECT * FROM Q_{query_variant};").fetch_df().drop_duplicates()
             parameter_df = parameter_df.sort_values(column_ids)
             groupby_series = []
             for column in column_ids:
@@ -217,7 +312,6 @@ class ParameterGeneration():
 
             day_diff = (parameter_df['useFrom'] - parameter_df['useUntil'].groupby(groupby_series).shift()).dt.days
             group_no = (day_diff.isna() | day_diff.gt(1)).cumsum()
-            
             aggregate_rules = {}
             for column in column_ids:
                 aggregate_rules[column] = 'first'
@@ -228,11 +322,15 @@ class ParameterGeneration():
                 .agg(aggregate_rules))
             self.cursor.execute(f"CREATE TABLE Q_{query_variant}_filtered AS SELECT * FROM df_out ORDER BY useFROM")
             self.cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
+        print("============ Parameters exported ============")
 
-        for query_variant in ["13b", "14b"]:
-            self.logger.info(f"- Q{query_variant} TO ../parameters/interactive-{query_variant}.parquet")
-            self.cursor.execute(f"COPY 'Q_{query_variant}' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
-        self.logger.info("============ Parameters exported ============")
+# https://stackoverflow.com/a/52403318/7014190
+def str_to_bool(value):
+    if value.lower() in {'false', 'f', '0', 'no', 'n'}:
+        return False
+    elif value.lower() in {'true', 't', '1', 'yes', 'y'}:
+        return True
+    raise ValueError(f'{value} is not a valid boolean value')
 
 
 if __name__ == "__main__":
@@ -259,14 +357,24 @@ if __name__ == "__main__":
     parser.add_argument(
         '--generate_short_query_parameters',
         help="generate_short_query_parameters: Generate parameters to use manually for the short queries (these are not loaded by the driver)",
-        type=bool,
+        type=str_to_bool,
         default=False,
+        nargs='?',
+        required=False
+    )
+    parser.add_argument(
+        '--generate_paths',
+        help="generate_paths: Whether paths should be generated",
+        type=str_to_bool,
+        default=False,
+        nargs='?',
         required=False
     )
     args = parser.parse_args()
 
-    start_date = datetime(year=2012, month=11, day=27, tzinfo=timezone.utc)
-    end_date = datetime(year=2013, month=1, day=1, tzinfo=timezone.utc)
-
-    PG = ParameterGeneration(args.factor_tables_dir, args.raw_parquet_dir, start_date, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)
-    PG.run()
+    start_date = datetime(year=2010, month=1, day=1, hour=0, minute=0, second=0, tzinfo=ZoneInfo('GMT')).timestamp()
+    end_date = datetime(year=2013, month=1, day=1, hour=0, minute=0, second=0, tzinfo=ZoneInfo('GMT'))
+    bulk_load_portion = 0.97
+    threshold = datetime.fromtimestamp(end_date.timestamp() - ((end_date.timestamp() - start_date) * (1 - bulk_load_portion)), tz=ZoneInfo('GMT'))
+    PG = ParameterGeneration(args.factor_tables_dir, args.raw_parquet_dir, threshold, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)
+    PG.run(args.generate_paths)
