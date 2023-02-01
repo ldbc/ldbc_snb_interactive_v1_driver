@@ -366,7 +366,7 @@ if __name__ == "__main__":
         '--generate_paths',
         help="generate_paths: Whether paths should be generated",
         type=str_to_bool,
-        default=False,
+        default=True,
         nargs='?',
         required=False
     )
