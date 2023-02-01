@@ -147,10 +147,10 @@ class ParameterGeneration():
             path_curation = PathCuration(self.raw_parquet_dir, self.factor_tables_dir)
             path_curation.get_people_4_hops_paths(self.start_date, self.end_date, self.time_bucket_size_in_days, parquet_output_dir)
             print("============ Done ============")
-            files = glob.glob('scratch/factors/people4Hops/*')
+            files = glob.glob(f'{self.factor_tables_dir}/factors/people4Hops/*')
             for f in files:
                 print(f)
-                if f != 'scratch/factors/people4Hops/curated_paths.parquet':
+                if f != f'{self.factor_tables_dir}/factors/people4Hops/curated_paths.parquet':
                     os.remove(f)
         self.create_views_of_factor_tables(self.factor_tables_dir)
         paramgen_start_time = time.time()
