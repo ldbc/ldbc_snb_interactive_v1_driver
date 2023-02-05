@@ -3,32 +3,25 @@ package org.ldbcouncil.snb.driver.runtime.executor;
 import org.ldbcouncil.snb.driver.Operation;
 import org.ldbcouncil.snb.driver.WorkloadStreams;
 import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeException;
-import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeReader;
 import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeWriter;
 
 import java.util.Iterator;
 
+// TODO test
 class InitiatedTimeSubmittingOperationRetriever
 {
     private final Iterator<Operation> nonDependencyOperations;
     private final Iterator<Operation> dependencyOperations;
     private final CompletionTimeWriter completionTimeWriter;
-    private final CompletionTimeReader completionTimeReader;
     private Operation nextNonDependencyOperation = null;
     private Operation nextDependencyOperation = null;
-    private boolean isEnabledDependencyOperations = false;
 
-    InitiatedTimeSubmittingOperationRetriever(
-        WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-        CompletionTimeWriter completionTimeWriter,
-        CompletionTimeReader completionTimeReader
-    )
+    InitiatedTimeSubmittingOperationRetriever( WorkloadStreams.WorkloadStreamDefinition streamDefinition,
+            CompletionTimeWriter completionTimeWriter )
     {
         this.nonDependencyOperations = streamDefinition.nonDependencyOperations();
         this.dependencyOperations = streamDefinition.dependencyOperations();
-        this.isEnabledDependencyOperations = this.dependencyOperations.hasNext();
         this.completionTimeWriter = completionTimeWriter;
-        this.completionTimeReader = completionTimeReader;
     }
 
     boolean hasNextOperation()
@@ -48,29 +41,16 @@ class InitiatedTimeSubmittingOperationRetriever
             nextDependencyOperation = dependencyOperations.next();
             // submit initiated time as soon as possible so /dependencies can advance as soon as possible
             completionTimeWriter.submitInitiatedTime( nextDependencyOperation.timeStamp() );
+            if ( !dependencyOperations.hasNext() )
+            {
+                // after last write operation, submit highest possible IT to ensure that CT progresses
+                // to time of highest CT write
+                completionTimeWriter.submitInitiatedTime( Long.MAX_VALUE );
+            }
         }
-        // Non-dependency operations are operations that are not a dependency to other operations,
-        // but can be dependent on others. Therefore, only read queries are considered here.
         if ( nonDependencyOperations.hasNext() && null == nextNonDependencyOperation )
         {
-
             nextNonDependencyOperation = nonDependencyOperations.next();
-
-            if (isEnabledDependencyOperations)
-            {
-                long currentCompletionTime = completionTimeReader.completionTimeAsMilli();
-
-                while (nonDependencyOperations.hasNext() && currentCompletionTime > 0)
-                {
-                    if (nextNonDependencyOperation.dependencyTimeStamp() < currentCompletionTime && nextNonDependencyOperation.expiryTimeStamp() > currentCompletionTime)
-                    {
-                        break;
-                    }
-                    nextNonDependencyOperation = nonDependencyOperations.next();
-                }
-            }
-            // else do nothing and just use the operation since the completion time will not update
-
             // no need to submit initiated time for an operation that should not write to CT
         }
         // return operation with lowest start time

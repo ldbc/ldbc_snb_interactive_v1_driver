@@ -388,7 +388,6 @@ public class LdbcSnbInteractiveWorkload extends Workload
         Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
 
         dependencyAsynchronousOperationTypes.addAll(enabledUpdateOperationTypes);
-        // dependentAsynchronousOperationTypes.addAll(enabledLongReadOperationTypes);
 
         ParquetLoader loader;
         try {
@@ -539,7 +538,7 @@ public class LdbcSnbInteractiveWorkload extends Workload
             gf.incrementing( workloadStartTimeAsMilli + readOperationInterleaveAsMilli,
                     readOperationInterleaveAsMilli );
 
-            Iterator<Operation> operationStream = gf.assignStartTimes(
+            Iterator<Operation> operationStream = gf.assignStartTimesWithSkipping(
                 operationStartTimes,
                 new QueryEventStreamReader(gf.repeating( eventOperationStream ))
             );

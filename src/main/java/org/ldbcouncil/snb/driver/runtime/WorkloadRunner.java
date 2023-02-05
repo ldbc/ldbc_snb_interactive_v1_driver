@@ -343,8 +343,7 @@ public class WorkloadRunner
                     errorReporter,
                     asynchronousStream,
                     executorForAsynchronous,
-                    completionTimeWriterForAsynchronous,
-                    completionTimeService
+                    completionTimeWriterForAsynchronous
             );
             this.stateRef = new AtomicReference<>( WorkloadRunnerThreadState.NOT_STARTED );
         }
