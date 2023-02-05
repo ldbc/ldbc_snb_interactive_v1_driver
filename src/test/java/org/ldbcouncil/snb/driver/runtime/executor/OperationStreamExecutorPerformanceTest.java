@@ -142,7 +142,6 @@ public class OperationStreamExecutorPerformanceTest
                         streamDefinition,
                         executor,
                         completionTimeWriter,
-                        completionTimeReader,
                         executorHasFinished,
                         forceThreadToTerminate
                 );
@@ -225,7 +224,6 @@ public class OperationStreamExecutorPerformanceTest
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
             OperationExecutor operationExecutor,
             CompletionTimeWriter completionTimeWriter,
-            CompletionTimeReader completionTimeReader,
             AtomicBoolean executorHasFinished,
             AtomicBoolean forceThreadToTerminate
     ) throws CompletionTimeException, MetricsCollectionException, DbException
@@ -237,8 +235,7 @@ public class OperationStreamExecutorPerformanceTest
                         streamDefinition,
                         executorHasFinished,
                         forceThreadToTerminate,
-                        completionTimeWriter,
-                        completionTimeReader
+                        completionTimeWriter
                 );
 
         return operationStreamExecutorThread;

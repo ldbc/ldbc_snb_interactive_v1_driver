@@ -472,6 +472,48 @@ public class GeneratorFactory
     }
 
     /**
+     * Returns the same operation generator, with start times assigned to each operation taken from the start time
+     * generator. When an operation is outside its window, based on the dependency time or expiry time, it will
+     * skip to the next parameter.
+     * Generator stops as soon as either of the generators, start times or operations, stops.
+     *
+     * @param startTimesAsMilli: Iterator with start times
+     * @param operations: Repeating iterator with operations.
+     * @return Iterator with assigned start times
+     */
+    public Iterator<Operation> assignStartTimesWithSkipping( Iterator<Long> startTimesAsMilli, Iterator<Operation> operations )
+    {
+        Function2<Long,Operation,Operation,RuntimeException> startTimeAssigningFun =
+                new Function2<Long,Operation,Operation,RuntimeException>()
+                {
+                    @Override
+                    public Operation apply( Long timeAsMilli, Operation operation )
+                    {
+                        operation.setScheduledStartTimeAsMilli( timeAsMilli );
+                        operation.setTimeStamp( timeAsMilli );
+
+                        return operation;
+                    }
+                };
+
+        Function2<Long,Operation,Operation,RuntimeException> checkStartTimeAssigningFun =
+                new Function2<Long,Operation,Operation,RuntimeException>()
+                {
+                    @Override
+                    public Operation apply( Long timeAsMilli, Operation operation )
+                    {
+                        if (timeAsMilli < operation.expiryTimeStamp() && timeAsMilli > operation.dependencyTimeStamp())
+                        {
+                            return operation;
+                        }
+                        return null;
+                    }
+                };
+        
+        return new MergingGeneratorWithSkip<>( startTimesAsMilli, operations, startTimeAssigningFun, checkStartTimeAssigningFun );
+    }
+
+    /**
      * Returns the same operation generator, with dependency times assigned to each operation taken from the dependency
      * time
      * generator. Generator stops as soon as either of the generators, dependency times or operations, stops.

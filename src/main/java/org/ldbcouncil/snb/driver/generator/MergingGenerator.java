@@ -26,8 +26,12 @@ public class MergingGenerator<FROM_GENERATE_TYPE_1, FROM_GENERATE_TYPE_2, TO_GEN
     protected TO_GENERATE_TYPE doNext() throws GeneratorException
     {
         if ( original1.hasNext() && original2.hasNext() )
-        { return mergeFun.apply( original1.next(), original2.next() ); }
+        {
+            return mergeFun.apply( original1.next(), original2.next() );
+        }
         else
-        { return null; }
+        {
+            return null;
+        }
     }
 }
