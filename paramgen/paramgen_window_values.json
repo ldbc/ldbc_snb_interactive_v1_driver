@@ -14,7 +14,7 @@
         "source_table"    : "personNumFriendsOfFriendsOfFriends",
         "table_name"      : "personNumFriendsOfFriendsSelected",
         "threshold"       : 4,
-        "min_occurence"   : 200,
+        "min_occurence"   : 100,
         "min_param_value" : 0,
         "window_column"   : "numFriendsOfFriends",
         "param_column"    : "Person1Id"
@@ -24,7 +24,7 @@
         "source_table"    : "personNumFriendsOfFriendsOfFriends",
         "table_name"      : "personNumFriendsOfFriendsOfFriendsSelected",
         "threshold"       : 100,
-        "min_occurence"   : 200,
+        "min_occurence"   : 100,
         "min_param_value" : 0,
         "window_column"    : "numFriendsOfFriendsOfFriends",
         "param_column"    : "Person1Id"
