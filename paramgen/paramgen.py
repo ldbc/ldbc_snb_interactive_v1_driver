@@ -81,9 +81,7 @@ class ParameterGeneration():
 
         for params in param_list:
             threshold_default = int(params['threshold'])
-            print(f"Start threshold: {threshold_default}")
             thresholds = np.arange(threshold_default, threshold_default * 100, threshold_default)
-            print(thresholds)
             for threshold in thresholds:
                 threshold_valid = False
                 # First, try the default parameters.
@@ -99,13 +97,12 @@ class ParameterGeneration():
                     query_template = query_template.replace(':window_column',   str(params['window_column']))
                     results = self.cursor.execute(f"SELECT * FROM ({query_template});").fetchall()
                     if (len(results) > 0):
-                        print(f"Threshold updated from {threshold_default} to {threshold}")
+                        print(f"Threshold updated from {threshold_default} to {threshold} for table {params['source_table']}")
                         params['threshold'] = threshold
                         threshold_valid = True
                         break
             if threshold_valid == False:
                 raise ValueError(f"Error when determining threshold: no parameters are returned. Start threshold: {threshold_default} Max threshold: {threshold}")
-            print(params)
         return param_list
 
     def prepare_factor_tables(self, param_list):
