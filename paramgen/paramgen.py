@@ -102,7 +102,12 @@ class ParameterGeneration():
                         threshold_valid = True
                         break
             if threshold_valid == False:
-                raise ValueError(f"Error when determining threshold: no parameters are returned. Start threshold: {threshold_default} Max threshold: {threshold}")
+                raise ValueError(
+                    f"""
+                    Error when determining threshold: no parameters are returned for table {params['source_table']}
+                    on column {params['param_column']}. Start threshold: {threshold_default} Max threshold: {threshold}
+                    """
+                )
         return param_list
 
     def prepare_factor_tables(self, param_list):
