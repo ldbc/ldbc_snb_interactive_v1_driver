@@ -1,0 +1,52 @@
+[
+    {
+        "template_file"   : "pg-person-factor-table-prepare.sql",
+        "source_table"    : "personNumFriendsOfFriendsOfFriends",
+        "table_name"      : "personNumFriendsSelected",
+        "threshold"       : 2,
+        "min_occurence"   : 100,
+        "min_param_value" : 100,
+        "window_column"    : "numFriends",
+        "param_column"    : "Person1Id"
+    },
+    {
+        "template_file"   : "pg-person-factor-table-prepare.sql",
+        "source_table"    : "personNumFriendsOfFriendsOfFriends",
+        "table_name"      : "personNumFriendsOfFriendsSelected",
+        "threshold"       : 5,
+        "min_occurence"   : 100,
+        "min_param_value" : 2000,
+        "window_column"   : "numFriendsOfFriends",
+        "param_column"    : "Person1Id"
+    },
+    {
+        "template_file"   : "pg-person-factor-table-prepare.sql",
+        "source_table"    : "personNumFriendsOfFriendsOfFriends",
+        "table_name"      : "personNumFriendsOfFriendsOfFriendsSelected",
+        "threshold"       : 1000,
+        "min_occurence"   : 50,
+        "min_param_value" : 50000,
+        "window_column"    : "numFriendsOfFriendsOfFriends",
+        "param_column"    : "Person1Id"
+    },
+    {
+        "template_file"   : "pg-static-factor-table-prepare.sql",
+        "source_table"    : "creationDayNumMessages",
+        "table_name"      : "creationDayNumMessagesSelected",
+        "threshold"       : 500,
+        "min_occurence"   : 25,
+        "min_param_value" : 10000,
+        "window_column"   : "frequency",
+        "param_column"    : "creationDay"
+    },
+    {
+        "template_file"   : "pg-static-factor-table-prepare.sql",
+        "source_table"    : "personFirstNames",
+        "table_name"      : "personFirstNamesSelected",
+        "threshold"       : 5,
+        "min_occurence"   : 25,
+        "min_param_value" : 0,
+        "window_column"   : "frequency",
+        "param_column"    : "firstName"
+    }
+]

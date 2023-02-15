@@ -1,13 +1,32 @@
+#!/usr/bin/env python3
+"""
+FILE: paramgen.py
+DESC: This file contains the class, ParameterGeneration, containing functions
+      to generate parameters for the LDBC SNB Interactive v2.0 workload. This
+      script requires Python 3.10 or higher.
+
+      The parameter generation goes through the following steps:
+      1. Regenerate people4Hops table, containing 4-hop paths between two
+         persons with a useFrom and useUntil date.
+      2. Preselect windows for selected factor tables
+      3. Generate parameters
+      4. Generate parameters for short queries (used for debugging)
+
+      Output are parquet files containing the parameters per query, with a 
+      start and end date.
+"""
 from path_selection import PathCuration
-import duckdb
 from datetime import timedelta, datetime, timezone
 from zoneinfo import ZoneInfo
-import glob
-import os
 from pathlib import Path
+import numpy as np
+import os
+import duckdb
+import glob
 import argparse
 import logging
 import time
+import json
 
 sort_columns_dict = {
     "Q_1"   : ["personId", "firstName"],
@@ -57,6 +76,40 @@ class ParameterGeneration():
             level=logging_level
         )
 
+
+    def define_threshold_per_table(self, param_list):
+
+        for params in param_list:
+            threshold_default = int(params['threshold'])
+            thresholds = np.arange(threshold_default, threshold_default * 100, threshold_default)
+            for threshold in thresholds:
+                threshold_valid = False
+                # First, try the default parameters.
+                # If nothing is returned, increase threshold until group with 
+                # minimum size is returned
+                with open(f"paramgen-prepare/{params['template_file']}", "r") as parameter_query_file:
+                    query_template = parameter_query_file.read()
+                    query_template = query_template.replace(':threshold',       str(threshold))
+                    query_template = query_template.replace(':min_occurence',   str(int(params['min_occurence'])))
+                    query_template = query_template.replace(':min_param_value', str(int(params['min_param_value'])))
+                    query_template = query_template.replace(':param_column',    str(params['param_column']))
+                    query_template = query_template.replace(':source_table',    str(params['source_table']))
+                    query_template = query_template.replace(':window_column',   str(params['window_column']))
+                    results = self.cursor.execute(f"SELECT * FROM ({query_template});").fetchall()
+                    if (len(results) > 0):
+                        print(f"Threshold updated from {threshold_default} to {threshold} for table {params['source_table']}")
+                        params['threshold'] = threshold
+                        threshold_valid = True
+                        break
+            if threshold_valid == False:
+                raise ValueError(
+                    f"""
+                    Error when determining threshold: no parameters are returned for table {params['source_table']}
+                    on column {params['param_column']}. Start threshold: {threshold_default} Max threshold: {threshold}
+                    """
+                )
+        return param_list
+
     def prepare_factor_tables(self, param_list):
         """
         Prepare the num friends factor tables by preselecting the windows.
@@ -76,6 +129,8 @@ class ParameterGeneration():
                                       amount of parameters. Lastly, the min_param_value of the column to 
                                       take into account. This is to filter out trivial parameters.
         """
+        param_list = self.define_threshold_per_table(param_list)
+
         for params in param_list:
             with open(f"paramgen-prepare/{params['template_file']}", "r") as parameter_query_file:
                 query_template = parameter_query_file.read()
@@ -153,60 +208,11 @@ class ParameterGeneration():
                 if f != f'{self.factor_tables_dir}/people4Hops/curated_paths.parquet':
                     os.remove(f)
         self.create_views_of_factor_tables(self.factor_tables_dir)
+
+        with open("paramgen_window_values.json") as json_file:
+            prepare_tables_params = json.load(json_file)
+
         paramgen_start_time = time.time()
-        # This settings will work from SF1, for 0.003, 0.1 and 0.3, other settings needs to be set.
-        prepare_tables_params = [
-            {
-                'template_file'   : 'pg-person-factor-table-prepare.sql',
-                'source_table'    : 'personNumFriendsOfFriendsOfFriends',
-                'table_name'      : 'personNumFriendsSelected',
-                'threshold'       : 2,
-                'min_occurence'   : 100,
-                'min_param_value' : 100,
-                'window_column'    : 'numFriends',
-                'param_column'    : 'Person1Id'
-            },
-            {
-                'template_file'   : 'pg-person-factor-table-prepare.sql',
-                'source_table'    : 'personNumFriendsOfFriendsOfFriends',
-                'table_name'      : 'personNumFriendsOfFriendsSelected',
-                'threshold'       : 5,
-                'min_occurence'   : 100,
-                'min_param_value' : 3000,
-                'window_column'   : 'numFriendsOfFriends',
-                'param_column'    : 'Person1Id'
-            },
-            {
-                'template_file'   : 'pg-person-factor-table-prepare.sql',
-                'source_table'    : 'personNumFriendsOfFriendsOfFriends',
-                'table_name'      : 'personNumFriendsOfFriendsOfFriendsSelected',
-                'threshold'       : 1000,
-                'min_occurence'   : 50,
-                'min_param_value' : 50000,
-                'window_column'    : 'numFriendsOfFriendsOfFriends',
-                'param_column'    : 'Person1Id'
-            },
-            {
-                'template_file'   : 'pg-static-factor-table-prepare.sql',
-                'source_table'    : 'creationDayNumMessages',
-                'table_name'      : 'creationDayNumMessagesSelected',
-                'threshold'       : 500,
-                'min_occurence'   : 25,
-                'min_param_value' : 10000,
-                'window_column'   : 'frequency',
-                'param_column'    : 'creationDay'
-            },
-            {
-                'template_file'   : 'pg-static-factor-table-prepare.sql',
-                'source_table'    : 'personFirstNames',
-                'table_name'      : 'personFirstNamesSelected',
-                'threshold'       : 5,
-                'min_occurence'   : 25,
-                'min_param_value' : 0,
-                'window_column'   : 'frequency',
-                'param_column'    : 'firstName'
-            }
-        ]
 
         self.prepare_factor_tables(prepare_tables_params)
 
