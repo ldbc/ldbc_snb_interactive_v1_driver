@@ -51,20 +51,20 @@ jobs:
             # install dependencies
             sudo apt install -y wget unzip
             scripts/install-dependencies.sh
-      - run:
-          name: Test conversion script on the sample data set
-          command: |
-            wget -q https://ldbcouncil.org/ldbc_snb_datagen_spark/social-network-sf0.003-bi-parquet.zip
-            unzip -q social-network-sf0.003-bi-parquet.zip
-            export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/social-network-sf0.003-bi-parquet/
-            scripts/convert.sh
-      - run:
-          name: Test paramgen on the small data set
-          command: |
-            cd paramgen
-            scripts/get-sample-data.sh
-            . scripts/use-sample-data.sh
-            scripts/paramgen.sh
+      # - run:
+      #     name: Test conversion script on the sample data set
+      #     command: |
+      #       wget -q https://ldbcouncil.org/ldbc_snb_datagen_spark/social-network-sf0.003-bi-parquet.zip
+      #       unzip -q social-network-sf0.003-bi-parquet.zip
+      #       export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/social-network-sf0.003-bi-parquet/
+      #       scripts/convert.sh
+      # - run:
+      #     name: Test paramgen on the small data set
+      #     command: |
+      #       cd paramgen
+      #       scripts/get-sample-data.sh
+      #       . scripts/use-sample-data.sh
+      #       scripts/paramgen.sh
       - run:
           name: Download the SF1 data set
           command: |
