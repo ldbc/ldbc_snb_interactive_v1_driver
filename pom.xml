@@ -15,11 +15,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.assembly.version>2.4</maven.assembly.version>
-        <jackson.api.version>2.13.3</jackson.api.version>
+        <jackson.api.version>2.14.2</jackson.api.version>
         <junit.version>5.9.0</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
         <commons.io.version>2.11.0</commons.io.version>
