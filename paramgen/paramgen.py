@@ -392,4 +392,5 @@ if __name__ == "__main__":
     bulk_load_portion = 0.97
     threshold = datetime.fromtimestamp(end_date.timestamp() - ((end_date.timestamp() - start_date) * (1 - bulk_load_portion)), tz=ZoneInfo('GMT'))
     PG = ParameterGeneration(args.factor_tables_dir, args.raw_parquet_dir, threshold, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters, args.param_thresholds)
+    print(f"Using parameter window threshold file {args.param_threshold}")
     PG.run(args.generate_paths)
