@@ -323,7 +323,7 @@ class ParameterGeneration():
             aggregate_rules['useFrom'] = 'first'
             aggregate_rules['useUntil'] = lambda x: x.iloc[-1]
 
-            _ = (parameter_df.groupby(column_ids + [group_no], dropna=False, as_index=False)
+            df_out = (parameter_df.groupby(column_ids + [group_no], dropna=False, as_index=False)
                 .agg(aggregate_rules))
             self.cursor.execute(f"CREATE TABLE Q_{query_variant}_filtered AS SELECT * FROM df_out ORDER BY useFROM")
             self.cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
