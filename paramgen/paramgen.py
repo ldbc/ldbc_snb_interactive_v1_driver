@@ -58,7 +58,6 @@ class ParameterGeneration():
         end_date:datetime,
         time_bucket_size_in_days:int,
         generate_short_query_parameters:bool,
-        param_thresholds:str,
         logging_level:str='INFO'
     ):
         self.factor_tables_dir = factor_tables_dir
