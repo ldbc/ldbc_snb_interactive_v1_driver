@@ -16,7 +16,7 @@ DESC: This file contains the class, ParameterGeneration, containing functions
       start and end date.
 """
 from path_selection import PathCuration
-from datetime import timedelta, datetime, timezone
+from datetime import timedelta, datetime
 from zoneinfo import ZoneInfo
 from pathlib import Path
 import numpy as np
@@ -67,7 +67,6 @@ class ParameterGeneration():
         self.end_date = end_date
         self.time_bucket_size_in_days = time_bucket_size_in_days
         self.generate_short_query_parameters = generate_short_query_parameters
-        self.param_thresholds = param_thresholds
         Path('scratch/paramgen.duckdb').unlink(missing_ok=True)
         self.cursor = duckdb.connect(database="scratch/paramgen.duckdb")
 
@@ -210,7 +209,7 @@ class ParameterGeneration():
                     os.remove(f)
         self.create_views_of_factor_tables(self.factor_tables_dir)
 
-        with open(self.param_thresholds) as json_file:
+        with open("paramgen_window_values.json") as json_file:
             prepare_tables_params = json.load(json_file)
 
         paramgen_start_time = time.time()
@@ -325,7 +324,7 @@ class ParameterGeneration():
             aggregate_rules['useFrom'] = 'first'
             aggregate_rules['useUntil'] = lambda x: x.iloc[-1]
 
-            df_out = (parameter_df.groupby(column_ids + [group_no], dropna=False, as_index=False)
+            _ = (parameter_df.groupby(column_ids + [group_no], dropna=False, as_index=False)
                 .agg(aggregate_rules))
             self.cursor.execute(f"CREATE TABLE Q_{query_variant}_filtered AS SELECT * FROM df_out ORDER BY useFROM")
             self.cursor.execute(f"COPY 'Q_{query_variant}_filtered' TO '../parameters/interactive-{query_variant}.parquet' WITH (FORMAT PARQUET);")
@@ -362,13 +361,6 @@ if __name__ == "__main__":
         required=False
     )
     parser.add_argument(
-        '--param_thresholds',
-        help="param_thresholds: Path to JSON file with thresholds to use",
-        type=str,
-        default="paramgen_window_values.json",
-        required=False
-    )
-    parser.add_argument(
         '--generate_short_query_parameters',
         help="generate_short_query_parameters: Generate parameters to use manually for the short queries (these are not loaded by the driver)",
         type=str_to_bool,
@@ -391,6 +383,5 @@ if __name__ == "__main__":
     end_date = datetime(year=2013, month=1, day=1, hour=0, minute=0, second=0, tzinfo=ZoneInfo('GMT'))
     bulk_load_portion = 0.97
     threshold = datetime.fromtimestamp(end_date.timestamp() - ((end_date.timestamp() - start_date) * (1 - bulk_load_portion)), tz=ZoneInfo('GMT'))
-    PG = ParameterGeneration(args.factor_tables_dir, args.raw_parquet_dir, threshold, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters, args.param_thresholds)
-    print(f"Using parameter window threshold file {args.param_thresholds}")
+    PG = ParameterGeneration(args.factor_tables_dir, args.raw_parquet_dir, threshold, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)
     PG.run(args.generate_paths)

@@ -11,4 +11,3 @@ python3 paramgen.py \
 --factor_tables_dir "${LDBC_SNB_FACTOR_TABLES_DIR}" \
 --time_bucket_size_in_days 1 \
 --generate_short_query_parameters True
---param_thresholds ${1:-"paramgen_window_values.json"}

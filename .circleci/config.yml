@@ -64,7 +64,9 @@ jobs:
             cd paramgen
             scripts/get-sample-data.sh
             . scripts/use-sample-data.sh
-            scripts/paramgen.sh "paramgen_window_values_test.json"
+            mv paramgen_window_values.json paramgen_window_values.bak.json
+            mv paramgen_window_values_test.json paramgen_window_values.json
+            scripts/paramgen.sh
       - run:
           name: Download the SF1 data set
           command: |
@@ -81,5 +83,7 @@ jobs:
             export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/bi-sf1-raw
             export LDBC_SNB_FACTOR_TABLES_DIR=$(pwd)/factors-sf1/parquet/raw/composite-merged-fk/
             cd paramgen
+            mv paramgen_window_values.json paramgen_window_values_test.json
+            mv paramgen_window_values.bak.json paramgen_window_values.json
             scripts/paramgen.sh
       - slack/status
