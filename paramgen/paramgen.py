@@ -58,6 +58,7 @@ class ParameterGeneration():
         end_date:datetime,
         time_bucket_size_in_days:int,
         generate_short_query_parameters:bool,
+        param_thresholds:str,
         logging_level:str='INFO'
     ):
         self.factor_tables_dir = factor_tables_dir
@@ -66,7 +67,7 @@ class ParameterGeneration():
         self.end_date = end_date
         self.time_bucket_size_in_days = time_bucket_size_in_days
         self.generate_short_query_parameters = generate_short_query_parameters
-
+        self.param_thresholds = param_thresholds
         Path('scratch/paramgen.duckdb').unlink(missing_ok=True)
         self.cursor = duckdb.connect(database="scratch/paramgen.duckdb")
 
@@ -209,7 +210,7 @@ class ParameterGeneration():
                     os.remove(f)
         self.create_views_of_factor_tables(self.factor_tables_dir)
 
-        with open("paramgen_window_values.json") as json_file:
+        with open(self.param_thresholds) as json_file:
             prepare_tables_params = json.load(json_file)
 
         paramgen_start_time = time.time()
@@ -361,6 +362,13 @@ if __name__ == "__main__":
         required=False
     )
     parser.add_argument(
+        '--param_thresholds',
+        help="param_thresholds: Path to JSON file with thresholds to use",
+        type=str,
+        default="paramgen_window_values.json",
+        required=False
+    )
+    parser.add_argument(
         '--generate_short_query_parameters',
         help="generate_short_query_parameters: Generate parameters to use manually for the short queries (these are not loaded by the driver)",
         type=str_to_bool,
@@ -376,11 +384,12 @@ if __name__ == "__main__":
         nargs='?',
         required=False
     )
+
     args = parser.parse_args()
 
     start_date = datetime(year=2010, month=1, day=1, hour=0, minute=0, second=0, tzinfo=ZoneInfo('GMT')).timestamp()
     end_date = datetime(year=2013, month=1, day=1, hour=0, minute=0, second=0, tzinfo=ZoneInfo('GMT'))
     bulk_load_portion = 0.97
     threshold = datetime.fromtimestamp(end_date.timestamp() - ((end_date.timestamp() - start_date) * (1 - bulk_load_portion)), tz=ZoneInfo('GMT'))
-    PG = ParameterGeneration(args.factor_tables_dir, args.raw_parquet_dir, threshold, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)
+    PG = ParameterGeneration(args.factor_tables_dir, args.raw_parquet_dir, threshold, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters, args.param_thresholds)
     PG.run(args.generate_paths)
