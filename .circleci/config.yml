@@ -14,7 +14,7 @@ workflows:
 jobs:
   compile_driver:
     docker:
-      - image: cimg/openjdk:11.0.16
+      - image: cimg/openjdk:17.0.6
     steps:
       - checkout
       - run: mvn clean install -DskipTests
@@ -23,7 +23,7 @@ jobs:
   test_driver:
     parallelism: 2 # parallel containers to split the tests among
     docker:
-      - image: cimg/openjdk:11.0.16
+      - image: cimg/openjdk:17.0.6
     steps:
       - checkout
       - run: |
@@ -52,6 +52,22 @@ jobs:
             sudo apt install -y wget unzip
             scripts/install-dependencies.sh
       - run:
+          name: Test conversion script on the sample data set
+          command: |
+            wget -q https://ldbcouncil.org/ldbc_snb_datagen_spark/social-network-sf0.003-bi-parquet.zip
+            unzip -q social-network-sf0.003-bi-parquet.zip
+            export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/social-network-sf0.003-bi-parquet/
+            scripts/convert.sh
+      - run:
+          name: Test paramgen on the small data set
+          command: |
+            cd paramgen
+            scripts/get-sample-data.sh
+            . scripts/use-sample-data.sh
+            mv paramgen_window_values.json paramgen_window_values.bak.json
+            mv paramgen_window_values_test.json paramgen_window_values.json
+            scripts/paramgen.sh
+      - run:
           name: Download the SF1 data set
           command: |
             curl --silent --fail https://pub-383410a98aef4cb686f0c7601eddd25f.r2.dev/bi-pre-audit/factors/factors-sf1.tar.zst | tar -xv --use-compress-program=unzstd
@@ -67,5 +83,7 @@ jobs:
             export LDBC_SNB_DATA_ROOT_DIRECTORY=$(pwd)/bi-sf1-raw
             export LDBC_SNB_FACTOR_TABLES_DIR=$(pwd)/factors-sf1/parquet/raw/composite-merged-fk/
             cd paramgen
+            mv paramgen_window_values.json paramgen_window_values_test.json
+            mv paramgen_window_values.bak.json paramgen_window_values.json
             scripts/paramgen.sh
       - slack/status

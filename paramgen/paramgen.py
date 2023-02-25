@@ -16,7 +16,7 @@ DESC: This file contains the class, ParameterGeneration, containing functions
       start and end date.
 """
 from path_selection import PathCuration
-from datetime import timedelta, datetime, timezone
+from datetime import timedelta, datetime
 from zoneinfo import ZoneInfo
 from pathlib import Path
 import numpy as np
@@ -66,7 +66,6 @@ class ParameterGeneration():
         self.end_date = end_date
         self.time_bucket_size_in_days = time_bucket_size_in_days
         self.generate_short_query_parameters = generate_short_query_parameters
-
         Path('scratch/paramgen.duckdb').unlink(missing_ok=True)
         self.cursor = duckdb.connect(database="scratch/paramgen.duckdb")
 
@@ -376,6 +375,7 @@ if __name__ == "__main__":
         nargs='?',
         required=False
     )
+
     args = parser.parse_args()
 
     start_date = datetime(year=2010, month=1, day=1, hour=0, minute=0, second=0, tzinfo=ZoneInfo('GMT')).timestamp()
