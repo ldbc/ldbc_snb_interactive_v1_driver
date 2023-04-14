@@ -17,9 +17,10 @@ Note that the SNB's Business Intelligence (BI) workload uses a different [data g
 Clone and build with Maven:
 
 ```bash
-git clone https://github.com/ldbc/ldbc_snb_driver.git
-cd ldbc_snb_driver
-mvn clean package -DskipTests
+git clone https://github.com/ldbc/ldbc_snb_interactive_driver
+cd ldbc_snb_interactive_driver
+git checkout v1-dev
+mvn clean package
 ```
 
 To quickly test the driver try the "simpleworkload" that is shipped with it by doing the following:
@@ -32,7 +33,7 @@ java \
   -P target/classes/configuration/ldbc_driver_default.properties
 ```
 
-For more information, please refer to the [Documentation](https://github.com/ldbc/ldbc_driver/wiki).
+For more information, please refer to the [Documentation](https://github.com/ldbc/ldbc_snb_interactive_driver/tree/v1-dev/docs).
 
 ### Deploying Maven Artifacts
 
