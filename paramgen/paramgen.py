@@ -58,6 +58,7 @@ class ParameterGeneration():
         end_date:datetime,
         time_bucket_size_in_days:int,
         generate_short_query_parameters:bool,
+        threshold_values_path:str,
         logging_level:str='INFO'
     ):
         self.factor_tables_dir = factor_tables_dir
@@ -66,6 +67,7 @@ class ParameterGeneration():
         self.end_date = end_date
         self.time_bucket_size_in_days = time_bucket_size_in_days
         self.generate_short_query_parameters = generate_short_query_parameters
+        self.threshold_values_path = threshold_values_path
         Path('scratch/paramgen.duckdb').unlink(missing_ok=True)
         self.cursor = duckdb.connect(database="scratch/paramgen.duckdb")
 
@@ -208,7 +210,7 @@ class ParameterGeneration():
                     os.remove(f)
         self.create_views_of_factor_tables(self.factor_tables_dir)
 
-        with open("paramgen_window_values.json") as json_file:
+        with open(self.threshold_values_path) as json_file:
             prepare_tables_params = json.load(json_file)
 
         paramgen_start_time = time.time()
@@ -375,6 +377,12 @@ if __name__ == "__main__":
         nargs='?',
         required=False
     )
+    parser.add_argument(
+        '--threshold_values_path',
+        help="path to the threshold json file to use",
+        type=str,
+        required=True
+    )
 
     args = parser.parse_args()
 
@@ -382,5 +390,5 @@ if __name__ == "__main__":
     end_date = datetime(year=2013, month=1, day=1, hour=0, minute=0, second=0, tzinfo=ZoneInfo('GMT'))
     bulk_load_portion = 0.97
     threshold = datetime.fromtimestamp(end_date.timestamp() - ((end_date.timestamp() - start_date) * (1 - bulk_load_portion)), tz=ZoneInfo('GMT'))
-    PG = ParameterGeneration(args.factor_tables_dir, args.raw_parquet_dir, threshold, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters)
+    PG = ParameterGeneration(args.factor_tables_dir, args.raw_parquet_dir, threshold, end_date, args.time_bucket_size_in_days, args.generate_short_query_parameters, args.threshold_values_path)
     PG.run(args.generate_paths)
