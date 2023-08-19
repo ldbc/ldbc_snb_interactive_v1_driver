@@ -3,16 +3,19 @@
 
 [![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_interactive_driver.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_interactive_driver)
 
+This repository has two main branches:
+* The [`v2-dev` branch](https://github.com/ldbc/ldbc_snb_interactive_driver/tree/v2-dev) contains the code for SNB Interactive v2, which extends the workload with delete operations and supports larger scale factors. It is still under active development. This workload uses the [LDBC SNB Spark data generator](https://github.com/ldbc/ldbc_snb_datagen_spark).
+* The [`v1-dev` branch](https://github.com/ldbc/ldbc_snb_interactive_driver/tree/v1-dev) contains Interactive v1, the stable and auditable version of the workload. This uses the [Hadoop-based generator](https://github.com/ldbc/ldbc_snb_datagen_hadoop).
+
+The implementations of the workload (with DBMSs such as Neo4j and PostgreSQL) are available in <https://github.com/ldbc/ldbc_snb_interactive_impls>.
+
+## Notes
+
 This driver was developed as part of the Linked Data Benchmark Council EU-funded research project and is be used to run the Social Network Benchmark's Interactive workload.
-
-Related repositories:
-
-* Data generator: https://github.com/ldbc/ldbc_snb_datagen_hadoop
-* Implementations: https://github.com/ldbc/ldbc_snb_interactive_impls
 
 Note that the SNB's Business Intelligence (BI) workload uses a different [data generator](https://github.com/ldbc/ldbc_snb_datagen_spark) and [driver](https://github.com/ldbc/ldbc_snb_bi)
 
-### User Guide
+## User Guide
 
 Clone and build with Maven:
 
@@ -35,7 +38,7 @@ java \
 
 For more information, please refer to the [Documentation](https://github.com/ldbc/ldbc_snb_interactive_driver/tree/v1-dev/docs).
 
-### Deploying Maven Artifacts
+## Deploying Maven Artifacts
 
 We use a manual process for deploying Maven artifacts.
 
