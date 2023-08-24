@@ -190,7 +190,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
         }
         catch ( Exception e )
         {
-            throw new ClientException( "Error encountered duration validation parameter creation", e );
+            throw new ClientException( "Error encountered during validation parameter creation", e );
         }
         return null;
     }
