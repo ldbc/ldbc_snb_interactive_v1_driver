@@ -1,28 +1,18 @@
 ![LDBC Logo](ldbc-logo.png)
-# LDBC SNB Interactive driver
+# LDBC SNB Interactive v1 driver
 
-[![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_interactive_driver.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_interactive_driver)
+[![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_interactive_v1_driver.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_interactive_v1_driver)
 
-This repository has two main branches:
-* The [`v2-dev` branch](https://github.com/ldbc/ldbc_snb_interactive_driver/tree/v2-dev) contains the code for SNB Interactive v2, which extends the workload with delete operations and supports larger scale factors. It is still under active development. This workload uses the [LDBC SNB Spark data generator](https://github.com/ldbc/ldbc_snb_datagen_spark).
-* The [`v1-dev` branch](https://github.com/ldbc/ldbc_snb_interactive_driver/tree/v1-dev) contains Interactive v1, the stable and auditable version of the workload. This uses the [Hadoop-based generator](https://github.com/ldbc/ldbc_snb_datagen_hadoop).
-
-The implementations of the workload (with DBMSs such as Neo4j and PostgreSQL) are available in <https://github.com/ldbc/ldbc_snb_interactive_impls>.
-
-## Notes
-
-This driver was developed as part of the Linked Data Benchmark Council EU-funded research project and is be used to run the Social Network Benchmark's Interactive workload.
-
-Note that the SNB's Business Intelligence (BI) workload uses a different [data generator](https://github.com/ldbc/ldbc_snb_datagen_spark) and [driver](https://github.com/ldbc/ldbc_snb_bi)
+This driver runs the Social Network Benchmark's Interactive v1 workload, including cross-validation and benchmark execution.
+The implementations of the workload (with DBMSs such as Neo4j and PostgreSQL) are available in <https://github.com/ldbc/ldbc_snb_interactive_v1_driver>.
 
 ## User Guide
 
 Clone and build with Maven:
 
 ```bash
-git clone https://github.com/ldbc/ldbc_snb_interactive_driver
-cd ldbc_snb_interactive_driver
-git checkout v1-dev
+git clone https://github.com/ldbc/ldbc_snb_interactive_v1_driver
+cd ldbc_snb_interactive_v1_driver
 mvn clean package
 ```
 
@@ -36,7 +26,7 @@ java \
   -P target/classes/configuration/ldbc_driver_default.properties
 ```
 
-For more information, please refer to the [Documentation](https://github.com/ldbc/ldbc_snb_interactive_driver/tree/v1-dev/docs).
+For more information, please refer to the [Documentation](https://github.com/ldbc/ldbc_snb_interactive_v1_driver/tree/main/docs).
 
 ## Deploying Maven Artifacts
 

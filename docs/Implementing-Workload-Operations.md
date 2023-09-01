@@ -53,4 +53,4 @@ For update operations with no expected result, you can used the supplied static 
 
 ## Reference Implementations
 
-Visit the https://github.com/ldbc/ldbc_snb_interactive_impls/tree/v1-dev branch for reference implementations.
+Visit the <https://github.com/ldbc/ldbc_snb_interactive_v1_impls> repository for reference implementations.
